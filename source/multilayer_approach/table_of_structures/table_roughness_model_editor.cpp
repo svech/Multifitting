@@ -726,9 +726,14 @@ void Table_Roughness_Model_Editor::create_Density_Fluctuations_Groupbox()
 			square_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Geometric_Model == square_Model);
 		model_Layout->addWidget(square_Radiobutton);
 
+		QRadioButton* pure_Radial_Radiobutton = new QRadioButton("Radial");
+			pure_Radial_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Geometric_Model == pure_Radial_Model);
+//		model_Layout->addWidget(pure_Radial_Radiobutton);
+
 		QButtonGroup* model_Group = new QButtonGroup;
 			model_Group->addButton(hexagonal_Radiobutton);
 			model_Group->addButton(square_Radiobutton);
+//			model_Group->addButton(pure_Radial_Radiobutton);
 
 	/// connections
 	// shape
@@ -783,6 +788,13 @@ void Table_Roughness_Model_Editor::create_Density_Fluctuations_Groupbox()
 		if(square_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.initial_Geometric_Model = square_Model;
+		}
+	});
+	connect(pure_Radial_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(pure_Radial_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.initial_Geometric_Model = pure_Radial_Model;
 		}
 	});
 }

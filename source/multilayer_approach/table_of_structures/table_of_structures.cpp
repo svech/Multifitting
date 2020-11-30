@@ -2743,9 +2743,14 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 			square_Radiobutton->setChecked(layer_Data.fluctuations_Model.geometric_Model == square_Model);
 		choice_Group_Box_Layout->addWidget(square_Radiobutton);
 
+		QRadioButton* pure_Radial_Radiobutton = new QRadioButton("Radial");
+			pure_Radial_Radiobutton->setChecked(layer_Data.fluctuations_Model.geometric_Model == pure_Radial_Model);
+//		choice_Group_Box_Layout->addWidget(pure_Radial_Radiobutton);
+
 		QButtonGroup* model_Group = new QButtonGroup;
 			model_Group->addButton(hexagonal_Radiobutton);
 			model_Group->addButton(square_Radiobutton);
+//			model_Group->addButton(pure_Radial_Radiobutton);
 
 
 		// connections
@@ -2767,6 +2772,18 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 			{
 				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 				layer_Data.fluctuations_Model.geometric_Model = square_Model;
+
+				QVariant var;
+				var.setValue(layer_Data);
+				structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			}
+		});
+		connect(pure_Radial_Radiobutton, &QRadioButton::toggled, this, [=]
+		{
+			if(pure_Radial_Radiobutton->isChecked())
+			{
+				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				layer_Data.fluctuations_Model.geometric_Model = pure_Radial_Model;
 
 				QVariant var;
 				var.setValue(layer_Data);

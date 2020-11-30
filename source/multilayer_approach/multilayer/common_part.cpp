@@ -341,8 +341,9 @@ void Common_Part::create_Footptint_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* beam_Footprint_Lateral_Width_Label = new QLabel("Beam lateral width");
-		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Lateral_Width_Label,1,0,Qt::AlignLeft);
+		// TODO Beam lateral width
+//		QLabel* beam_Footprint_Lateral_Width_Label = new QLabel("Beam lateral width");
+//		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Lateral_Width_Label,1,0,Qt::AlignLeft);
 
 		beam_Footprint_Lateral_Width_SpinBox = new MyDoubleSpinBox;
 			beam_Footprint_Lateral_Width_SpinBox->setAccelerated(true);
@@ -352,13 +353,13 @@ void Common_Part::create_Footptint_GroupBox()
 			beam_Footprint_Lateral_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			beam_Footprint_Lateral_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			beam_Footprint_Lateral_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Lateral_Width_SpinBox,1,1,Qt::AlignLeft);
-		Global_Variables::resize_Line_Edit(beam_Footprint_Lateral_Width_SpinBox);
+//		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Lateral_Width_SpinBox,1,1,Qt::AlignLeft);
+//		Global_Variables::resize_Line_Edit(beam_Footprint_Lateral_Width_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* mm_beam_Footprint_Lateral_Width_Label = new QLabel("mm");
-		beam_Footprint_GroupBox_Layout->addWidget(mm_beam_Footprint_Lateral_Width_Label,1,2,Qt::AlignLeft);
+//		QLabel* mm_beam_Footprint_Lateral_Width_Label = new QLabel("mm");
+//		beam_Footprint_GroupBox_Layout->addWidget(mm_beam_Footprint_Lateral_Width_Label,1,2,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

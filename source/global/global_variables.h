@@ -342,12 +342,19 @@ public:
 	static double PSD_Linear_Growth_2D	 (double exponent, double nu2_mu_Alpha_2, double omega, double nu2_omega_23, double alpha, double thickness);
 
 	// density fluctuations
-	static double G1_Square	 (double a);
-	static double G2_Square	 (double q, double phi, double a,  double sigma, double N, double M);
-	static double G2_Square_long	 (long double q, long double phi, long double a, long double sigma, long double N, long double M);
-	static double G1_Hexagone(double a);
-	static double G2_Hexagone(double q, double phi, double a,  double sigma, double N, double M);
-	static double G2_Hexagone_long	 (long double q, long double phi, long double a, long double sigma, long double N, long double M);
+	static double G1_Square			(double a);
+	static double G2_Square			(double q, double phi, double a, double sigma, double N, double M);
+	static double G2_Square_q_Zero	(double q,             double a, double sigma, double N, double M);
+	static double G2_Square_long	(long double q, long double phi, long double a, long double sigma, long double N, long double M);
+
+	static double G1_Hexagone		(double a);
+	static double G2_Hexagone		(double q, double phi, double a, double sigma, double N, double M);
+	static double G2_Hexagone_q_Zero(double q,             double a, double sigma, double N, double M);
+	static double G2_Hexagone_long	(long double q, long double phi, long double a, long double sigma, long double N, long double M);
+
+	static double G1_Pure_Radial		(double a);
+	static double G2_Pure_Radial		(double q, double phi, double a, double sigma, double N, double M);
+	static double G2_Pure_Radial_q_Zero	(double q,			   double a, double sigma, double N, double M);
 
 	static complex<double> full_Sphere_FF  (double q, complex<double> qz, double R, double H, double z);
 	static complex<double> full_Spheroid_FF(double q, complex<double> qz, double R, double H, double z);

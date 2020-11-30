@@ -484,12 +484,14 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 						if( !target_Curve->curve.use_Subinterval || in_Rectangle	)
 						{
 							fi_2 += target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index];
-							f_Val += pow(target_Curve->curve.value_2D_No_Scaling_And_Offset[phi_Index][point_Index] *
+							fi_1 = pow(target_Curve->curve.value_2D_No_Scaling_And_Offset[phi_Index][point_Index] *
 										 target_Curve->curve.val_Factor.value +
 										 target_Curve->curve.val_Shift
 										 -
 										 target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index]
 										,2);
+
+							if(!isnan(fi_1)) f_Val += fi_1;
 						}
 					}
 					f_Val = factor * sqrt(f_Val) * sqrt((target_Curve->curve.beam_Intensity_Initial+target_Curve->curve.beam_Intensity_Final)/(2*fi_2));
@@ -601,7 +603,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 								fi_2 = func(target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index]);
 #endif
 							}
-							f_Temp_Phi += pow(fi_1 - fi_2, 2);
+							if(!isnan(fi_1)) f_Temp_Phi += pow(fi_1 - fi_2, 2);
 						}
 					}
 					f_Val = factor * pow(f_Temp_Phi, power/2);

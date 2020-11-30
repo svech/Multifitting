@@ -257,8 +257,9 @@ class Node;
 #define radial_Paracrystal	"Radial PC"
 
 // internal geometric model
-#define square_Model	"Square"
-#define hexagonal_Model	"Hexagon"
+#define square_Model		"Square"
+#define hexagonal_Model		"Hexagon"
+#define pure_Radial_Model	"Radial"
 
 // particle cross-layer interference
 #define no_Cross_Layer_Interference		"no cross layer interference"

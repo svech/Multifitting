@@ -1065,6 +1065,10 @@ double Data::average_Layer_density() const
 		{
 			layer_Volume = thickness.value*average_Distance*average_Distance;
 		}
+		if(fluctuations_Model.geometric_Model == pure_Radial_Model)
+		{
+			layer_Volume = thickness.value*M_SQRT3/2*average_Distance*average_Distance;
+		}
 		if(layer_Volume<DBL_MIN) layer_Volume = DBL_MIN;
 
 		// resultin density
