@@ -186,6 +186,7 @@ extern double	step_particle_radius;
 extern double	step_particle_height;
 extern double	step_particle_distance;
 extern double	step_particle_distance_deviation;
+extern double	step_domain_size;
 extern double	step_particle_z_position;
 extern double	step_particle_z_position_deviation;
 

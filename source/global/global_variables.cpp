@@ -901,6 +901,7 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		if(whats_This == whats_This_Particle_Average_Distance)			text = struct_Data.material + " " + brackets + " Particle average distance, r" + Subscript_a_Sym;
 		if(whats_This == whats_This_Particle_Radial_Distance)			text = struct_Data.material + " " + brackets + " Particle radial distance, r";
 		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	text = struct_Data.material + " " + brackets + " Particle radial distance deviation, " + Delta_Small_Sym + "r";
+		if(whats_This == whats_This_Domain_Size)						text = struct_Data.material + " " + brackets + " Domain size, " + "D";
 		if(whats_This == whats_This_Particle_Z_Position)				text = struct_Data.material + " " + brackets + " Particle z position, z" + Subscript_p_Sym;
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		text = struct_Data.material + " " + brackets + " Particle z position deviation, " + Delta_Small_Sym + "z" + Subscript_p_Sym;
 	}
@@ -994,6 +995,7 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	if(id == struct_Data.fluctuations_Model.particle_Average_Distance.indicator.id)			return &struct_Data.fluctuations_Model.particle_Average_Distance;
 	if(id == struct_Data.fluctuations_Model.particle_Radial_Distance.indicator.id)			return &struct_Data.fluctuations_Model.particle_Radial_Distance;
 	if(id == struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation.indicator.id)return &struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation;
+	if(id == struct_Data.fluctuations_Model.domain_Size.indicator.id)						return &struct_Data.fluctuations_Model.domain_Size;
 	if(id == struct_Data.fluctuations_Model.particle_Z_Position.indicator.id)				return &struct_Data.fluctuations_Model.particle_Z_Position;
 	if(id == struct_Data.fluctuations_Model.particle_Z_Position_Deviation.indicator.id)		return &struct_Data.fluctuations_Model.particle_Z_Position_Deviation;
 
@@ -1058,6 +1060,7 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	if(whats_This == whats_This_Particle_Average_Distance)		{*line_edit_precision = line_edit_sigma_precision;		*thumbnail_precision = thumbnail_sigma_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.fluctuations_Model.particle_Average_Distance;			}
 	if(whats_This == whats_This_Particle_Radial_Distance)		{*line_edit_precision = line_edit_sigma_precision;		*thumbnail_precision = thumbnail_sigma_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.fluctuations_Model.particle_Radial_Distance;			}
 if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{*line_edit_precision = line_edit_sigma_precision;		*thumbnail_precision = thumbnail_sigma_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation;	}
+	if(whats_This == whats_This_Domain_Size)					{*line_edit_precision = line_edit_cor_radius_precision;*thumbnail_precision = thumbnail_cor_radius_precision;*units= " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.fluctuations_Model.domain_Size;							}
 	if(whats_This == whats_This_Particle_Z_Position)			{*line_edit_precision = line_edit_sigma_precision;		*thumbnail_precision = thumbnail_sigma_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.fluctuations_Model.particle_Z_Position;					}
 	if(whats_This == whats_This_Particle_Z_Position_Deviation)	{*line_edit_precision = line_edit_sigma_precision;		*thumbnail_precision = thumbnail_sigma_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.fluctuations_Model.particle_Z_Position_Deviation;		}
 

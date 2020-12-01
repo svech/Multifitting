@@ -322,6 +322,7 @@ class Node;
 #define whats_This_Particle_Average_Distance			"Particle Average Distance"
 #define whats_This_Particle_Radial_Distance				"Particle Radial Distance"
 #define whats_This_Particle_Radial_Distance_Deviation	"Particle Radial Distance Deviation"
+#define whats_This_Domain_Size							"Domain_Size"
 #define whats_This_Particle_Z_Position					"Particle Z Position"
 #define whats_This_Particle_Z_Position_Deviation		"Particle Z Position Deviation"
 
@@ -866,6 +867,7 @@ struct Fluctuations_Model		{
 								// radial paracrystal
 								Parameter particle_Radial_Distance;
 								Parameter particle_Radial_Distance_Deviation;
+								Parameter domain_Size;
 
 								// common
 								Parameter particle_Z_Position;

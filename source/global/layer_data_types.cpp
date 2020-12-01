@@ -611,6 +611,20 @@ Data::Data(QString item_Type_Passed)
 			fluctuations_Model.particle_Radial_Distance_Deviation.confidence.max = fluctuations_Model.particle_Radial_Distance_Deviation.fit.max;
 			fluctuations_Model.particle_Radial_Distance_Deviation.confidence.num_Points = default_num_confidence_points;
 		}
+		// domain size (radial paracrystal case)
+		{
+			fluctuations_Model.domain_Size.value = 1e4; // 1 mcm
+			fluctuations_Model.domain_Size.fit.is_Fitable = false;
+			fluctuations_Model.domain_Size.fit.min = 1E2;
+			fluctuations_Model.domain_Size.fit.max = 1E8;
+			fluctuations_Model.domain_Size.indicator.whats_This = whats_This_Domain_Size;
+			fluctuations_Model.domain_Size.indicator.item_Id = id;
+
+			fluctuations_Model.domain_Size.confidence.calc_Conf_Interval = false;
+			fluctuations_Model.domain_Size.confidence.min = fluctuations_Model.domain_Size.fit.min;
+			fluctuations_Model.domain_Size.confidence.max = fluctuations_Model.domain_Size.fit.max;
+			fluctuations_Model.domain_Size.confidence.num_Points = default_num_confidence_points;
+		}
 		// particle z position
 		{
 			fluctuations_Model.particle_Z_Position.value = 0;
@@ -749,6 +763,7 @@ void Data::reset_All_IDs()
 		fluctuations_Model.particle_Average_Distance		 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Average_Distance.			indicator.item_Id = id;		fluctuations_Model.particle_Average_Distance.			coupled.clear_Coupled();
 		fluctuations_Model.particle_Radial_Distance			 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Radial_Distance.			indicator.item_Id = id;		fluctuations_Model.particle_Radial_Distance.			coupled.clear_Coupled();
 		fluctuations_Model.particle_Radial_Distance_Deviation.indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Radial_Distance_Deviation.	indicator.item_Id = id;		fluctuations_Model.particle_Radial_Distance_Deviation.	coupled.clear_Coupled();
+		fluctuations_Model.domain_Size						 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.domain_Size.							indicator.item_Id = id;		fluctuations_Model.domain_Size.							coupled.clear_Coupled();
 		fluctuations_Model.particle_Z_Position				 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Z_Position.					indicator.item_Id = id;		fluctuations_Model.particle_Z_Position.					coupled.clear_Coupled();
 		fluctuations_Model.particle_Z_Position_Deviation	 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Z_Position_Deviation.		indicator.item_Id = id;		fluctuations_Model.particle_Z_Position_Deviation.		coupled.clear_Coupled();
 
@@ -1191,6 +1206,7 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Average_Distance);
 			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Radial_Distance);
 			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Radial_Distance_Deviation);
+			potentially_Fitable_Parameters.push_back(&fluctuations_Model.domain_Size);
 			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Z_Position);
 			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Z_Position_Deviation);
 		}
@@ -1357,6 +1373,7 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Average_Distance);
 			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Radial_Distance);
 			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Radial_Distance_Deviation);
+			table_Showed_Parameters.push_back(&fluctuations_Model.domain_Size);
 			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Z_Position);
 			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Z_Position_Deviation);
 		}
@@ -1465,6 +1482,7 @@ void Data::prepare_Layer_For_Regular_Component()
 	make_Free(fluctuations_Model.particle_Average_Distance);
 	make_Free(fluctuations_Model.particle_Radial_Distance);
 	make_Free(fluctuations_Model.particle_Radial_Distance_Deviation);
+	make_Free(fluctuations_Model.domain_Size);
 	make_Free(fluctuations_Model.particle_Z_Position);
 	make_Free(fluctuations_Model.particle_Z_Position_Deviation);
 

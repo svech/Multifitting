@@ -523,7 +523,7 @@ QDataStream& operator <<( QDataStream& stream, const Fluctuations_Model& fluctua
 
 				  << fluctuations_Model.particle_Interference_Function << fluctuations_Model.geometric_Model
 				  << fluctuations_Model.particle_Average_Distance
-				  << fluctuations_Model.particle_Radial_Distance << fluctuations_Model.particle_Radial_Distance_Deviation
+				  << fluctuations_Model.particle_Radial_Distance << fluctuations_Model.particle_Radial_Distance_Deviation << fluctuations_Model.domain_Size
 				  << fluctuations_Model.particle_Z_Position << fluctuations_Model.particle_Z_Position_Deviation;
 }
 QDataStream& operator >>( QDataStream& stream,		 Fluctuations_Model& fluctuations_Model )
@@ -534,7 +534,7 @@ QDataStream& operator >>( QDataStream& stream,		 Fluctuations_Model& fluctuation
 
 				  >> fluctuations_Model.particle_Interference_Function >> fluctuations_Model.geometric_Model
 				  >> fluctuations_Model.particle_Average_Distance
-				  >> fluctuations_Model.particle_Radial_Distance >> fluctuations_Model.particle_Radial_Distance_Deviation
+				  >> fluctuations_Model.particle_Radial_Distance >> fluctuations_Model.particle_Radial_Distance_Deviation >> fluctuations_Model.domain_Size
 				  >> fluctuations_Model.particle_Z_Position >> fluctuations_Model.particle_Z_Position_Deviation;
 }
 

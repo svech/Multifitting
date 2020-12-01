@@ -1183,11 +1183,18 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 		}
 		std::sort(q_Peak.begin(), q_Peak.end());
 	}
-	double N = 1e7*min(measurement.sample_Geometry.size, measurement.beam_Geometry.size/max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON))/a;
-	double M = 1e7*measurement.beam_Geometry.lateral_Width/b;
-	N = max(N,1001.);
-//	M = max(M,1001.);
-	M = N;
+	double N_size = 1e7*min(measurement.sample_Geometry.size, measurement.beam_Geometry.size/max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON))/a;
+	double N_domain = struct_Data.fluctuations_Model.domain_Size.value/a;
+	double N = min(N_size, N_domain);
+	N = max(N,3.);
+	double M_size = 1e7*measurement.beam_Geometry.lateral_Width/b;
+	double M_domain = struct_Data.fluctuations_Model.domain_Size.value/b;
+	double M = min(M_size, M_domain);
+	M = max(M,3.);
+	// we will use M dependent of N
+	if(struct_Data.fluctuations_Model.geometric_Model == square_Model) M = N;
+	if(struct_Data.fluctuations_Model.geometric_Model == hexagonal_Model) M = N*2/M_SQRT3;
+	if(struct_Data.fluctuations_Model.geometric_Model == pure_Radial_Model) M = N*2/M_SQRT3;
 
 	// peak half-widths
 	vector<double> hw_Peak(q_Peak.size());
@@ -1205,8 +1212,8 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	q_Vec.push_back(q_Min);
 
 	// num points if no peaks in range
-	int num_Bare_Dense_Points = 500;
-	int num_Bare_Points = 500;
+	int num_Bare_Dense_Points = 300;
+	int num_Bare_Points = 300;
 	int num_Peak_Points = 201; // points inside FWHM * hw_Factor/2
 	int hw_Factor = 6;
 	double dq_Bare = q_Range/(num_Bare_Points-1);

@@ -181,6 +181,7 @@ double	step_particle_radius;
 double	step_particle_height;
 double	step_particle_distance;
 double	step_particle_distance_deviation;
+double	step_domain_size;
 double	step_particle_z_position;
 double	step_particle_z_position_deviation;
 
@@ -687,6 +688,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 				step_particle_height			   = structure_Default_Values.value( "step_particle_height",			   0.1  ).toDouble();
 				step_particle_distance			   = structure_Default_Values.value( "step_particle_distance",			   1    ).toDouble();
 				step_particle_distance_deviation   = structure_Default_Values.value( "step_particle_distance_deviation",   0.1  ).toDouble();
+				step_domain_size				   = structure_Default_Values.value( "step_domain_size",				   10   ).toDouble();
 				step_particle_z_position		   = structure_Default_Values.value( "step_particle_z_position",		   0.1  ).toDouble();
 				step_particle_z_position_deviation = structure_Default_Values.value( "step_particle_z_position_deviation", 0.1  ).toDouble();
 
@@ -773,6 +775,7 @@ void Settings::save_Structure_Default_Values()
 			structure_Default_Values.setValue( "step_particle_height",				step_particle_height				);
 			structure_Default_Values.setValue( "step_particle_distance",			step_particle_distance				);
 			structure_Default_Values.setValue( "step_particle_distance_deviation",	step_particle_distance_deviation	);
+			structure_Default_Values.setValue( "step_domain_size",					step_domain_size					);
 			structure_Default_Values.setValue( "step_particle_z_position",			step_particle_z_position			);
 			structure_Default_Values.setValue( "step_particle_z_position_deviation",step_particle_z_position_deviation	);
 
