@@ -451,11 +451,14 @@ Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
 		new_Independent->refresh_Description_Label();
 	}
 
-	// target profiles
-	data_Target_Profile_Frame_Vector.clear();
-	add_Buttons_To_Lock.clear();
-	remove_Buttons_To_Lock.clear();
-	target_Profiles_Vector.clear();
+	// target profiles	
+
+	// clear existing targets
+	for(int i=data_Target_Profile_Frame_Vector.size()-1; i>=0; --i)
+	{
+		remove_Target_Curve(i,true);
+	}
+
 	QLayoutItem* child;
 	while ((child = layout_Target_Profile_With_Frame_Vector->takeAt(0)) != 0){delete child;}
 
@@ -470,7 +473,11 @@ Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
 	num_Independent_Rows = referent_Multilayer.num_Independent_Rows; // rows in Calculation Settings
 
 	graph_Options_1D = referent_Multilayer.graph_Options_1D;
+	graph_Options_2D = referent_Multilayer.graph_Options_2D;
 	profile_Plot_Options = referent_Multilayer.profile_Plot_Options;
+
+	discretization_Parameters = referent_Multilayer.discretization_Parameters;
+	imperfections_Model = referent_Multilayer.imperfections_Model;
 
 	enable_Calc_Target_Curves = referent_Multilayer.enable_Calc_Target_Curves;
 	enable_Calc_Independent_Curves = referent_Multilayer.enable_Calc_Independent_Curves;

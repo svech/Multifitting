@@ -1192,8 +1192,8 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	double M = min(M_size, M_domain);
 	M = max(M,3.);
 	// we will use M dependent of N
-	if(struct_Data.fluctuations_Model.geometric_Model == square_Model) M = N;
-	if(struct_Data.fluctuations_Model.geometric_Model == hexagonal_Model) M = N*2/M_SQRT3;
+	if(struct_Data.fluctuations_Model.geometric_Model == square_Model)		M = N;
+	if(struct_Data.fluctuations_Model.geometric_Model == hexagonal_Model)	M = N*2/M_SQRT3;
 	if(struct_Data.fluctuations_Model.geometric_Model == pure_Radial_Model) M = N*2/M_SQRT3;
 
 	// peak half-widths
@@ -1332,14 +1332,15 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 			{
 				double q = q_Vec[q_Index];
 
-				bool zero_Condition = q>0.5/(a*N) || q>0.5/(sigma*sqrt(N)); // q>DBL_MIN
-				if(zero_Condition)
+//				bool zero_Condition = q>0.5/(a*N) || q>0.5/(sigma*sqrt(N)); // q>DBL_MIN
+				if(q>DBL_MIN)
 				{
 					G2_Vec[q_Index] = Global_Variables::G2_Pure_Radial(q, 0, a, sigma, N, M);
 				} else
 				{
 					G2_Vec[q_Index] = G2_Type_q_Zero[thread_Index](q, a, sigma, N, M);
-	//				G2_Vec[q_Index] = 0;
+//					G2_Vec[q_Index] = G1_Type(a);
+//					G2_Vec[q_Index] = 0;
 				}
 			}
 		});
@@ -1353,8 +1354,8 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 			{
 				double q = q_Vec[q_Index];
 
-				bool zero_Condition = q>0.5/(a*N) || q>0.5/(sigma*sqrt(N)); // q>DBL_MIN
-				if(zero_Condition)
+//				bool zero_Condition = q>0.5/(a*N) || q>0.5/(sigma*sqrt(N)); // q>DBL_MIN
+				if(q>DBL_MIN)
 				{
 					// phi division
 					double damp = exp(-0.5*q*q*sigma*sigma);
@@ -1386,7 +1387,8 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 				} else
 				{
 					G2_Vec[q_Index] = G2_Type_q_Zero[thread_Index](q, a, sigma, N, M);
-	//				G2_Vec[q_Index] = 0;
+//					G2_Vec[q_Index] = G1_Type(a);
+//					G2_Vec[q_Index] = 0;
 				}
 			}
 		});

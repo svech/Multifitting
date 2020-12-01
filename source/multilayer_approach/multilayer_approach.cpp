@@ -185,7 +185,7 @@ void Multilayer_Approach::tab_Context_Menu(const QPoint& pos)
 	menu.exec(QCursor::pos());
 }
 
-void Multilayer_Approach::duplicate_Structure(const QPoint &pos)
+void Multilayer_Approach::duplicate_Structure(const QPoint& pos)
 {
 	int old_Tab_Index = multilayer_Tabs->tabBar()->tabAt(pos);
 	Multilayer* new_Multilayer = add_Multilayer(old_Tab_Index);
