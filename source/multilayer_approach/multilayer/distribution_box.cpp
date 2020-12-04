@@ -168,7 +168,7 @@ void Distribution_Box::create_Box()
 		sample_SpinBox->setAccelerated(true);
 		sample_SpinBox->setRange(1, MAX_INTEGER);
 		sample_SpinBox->setValue(distribution.number_of_Samples);
-		sample_SpinBox->setSingleStep(1);
+		sample_SpinBox->setSingleStep(2);
 		sample_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		sample_SpinBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
 	groupbox_Layout->addWidget(sample_SpinBox,4,1,Qt::AlignLeft);

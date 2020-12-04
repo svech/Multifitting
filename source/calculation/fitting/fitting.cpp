@@ -533,7 +533,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 //							target_Curve->fit_Params.expression_Argument = target_Curve->curve.shifted_Values[point_Index].val_1;
 							target_Curve->fit_Params.expression_Argument = target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
 																		   target_Curve->curve.val_Factor.value +
-																		   target_Curve->curve.val_Offset;
+																		   target_Curve->curve.val_Shift;
 
 							fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
 #else

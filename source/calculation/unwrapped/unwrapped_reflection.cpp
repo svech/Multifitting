@@ -3474,7 +3474,7 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 	if(	spec_Scat_mode == SCATTERED_MODE &&
 		unwrapped_Structure->calc_Functions.check_Scattering )
 	{
-		if(multilayer->imperfections_Model.use_Roughness && multilayer->imperfections_Model.use_Fluctuations)
+		if(multilayer->imperfections_Model.use_Roughness || multilayer->imperfections_Model.use_Fluctuations)
 		{
 			// calculated_Values.S_s	[point_Index] already calculated
 			// calculated_Values.S_p	[point_Index] already calculated
