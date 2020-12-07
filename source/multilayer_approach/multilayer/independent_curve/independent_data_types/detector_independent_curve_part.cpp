@@ -361,7 +361,7 @@ void Detector_Independent_Curve_Part::refresh_Spectral_Units()
 	}
 }
 
-void Detector_Independent_Curve_Part::refresh_Argument_Values()
+void Detector_Independent_Curve_Part::refresh_Argument_Values(bool num_Points_Changed)
 {
 	double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
 	independent_Curve->measurement.detector_Theta_Angle.independent.num_Points = num_Points_Spinbox->value();
@@ -374,12 +374,15 @@ void Detector_Independent_Curve_Part::refresh_Argument_Values()
 	independent_Curve->calc_Independent_cos2_k();
 
 	// curve plots
-	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	if(!num_Points_Changed)
 	{
-		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 		{
-			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
-			curve_Plot_1D->plot_All_Data();
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
+				curve_Plot_1D->plot_All_Data();
+			}
 		}
 	}
 }
@@ -472,7 +475,7 @@ void Detector_Independent_Curve_Part::connecting()
 	// number of points
 	connect(num_Points_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 	{
-		refresh_Argument_Values();
+		refresh_Argument_Values(true);
 		global_Multilayer_Approach->global_Recalculate();
 	});
 	// start value

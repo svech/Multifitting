@@ -815,7 +815,7 @@ void Data::calc_Instrumental_Factor()
 //	auto f = [&](double x){return Global_Variables::beam_Profile(x, beam_Geometry.size, beam_Geometry.smoothing);};
 //	double denominator = gauss_kronrod<double,15>::integrate(f, -3*beam_Geometry.size, 3*beam_Geometry.size, 3, 1e-7);
 	auto f = [&](double x){return Global_Variables::beam_Profile(x, 1, beam_Geometry.smoothing);};
-	double denominator = gauss_kronrod<double,15>::integrate(f, -3, 3, 3, 1e-7)*beam_Geometry.size;
+	double denominator = gauss_kronrod<double,31>::integrate(f, -3, 3, 3, 1e-7)*beam_Geometry.size;
 	if(beam_Geometry.smoothing<DBL_EPSILON) denominator = beam_Geometry.size;
 	if( denominator < DBL_EPSILON ) return;
 
@@ -838,7 +838,7 @@ void Data::calc_Instrumental_Factor()
 				} else
 				{
 //					return gauss_kronrod<double,15>::integrate(f, minimum, maximum, 3, 1e-7);
-					return gauss_kronrod<double,15>::integrate(f, minimum/beam_Geometry.size, maximum/beam_Geometry.size, 3, 1e-7)*beam_Geometry.size;
+					return gauss_kronrod<double,31>::integrate(f, minimum/beam_Geometry.size, maximum/beam_Geometry.size, 3, 1e-7)*beam_Geometry.size;
 				}
 			} else
 			{
@@ -846,7 +846,7 @@ void Data::calc_Instrumental_Factor()
 			}
 		}
 //		double shutter_Factor = gauss_kronrod<double,15>::integrate(f, sample_Geometry.z_Position, sample_Geometry.z_Position+3*beam_Geometry.size, 3, 1e-7);
-		double shutter_Factor = gauss_kronrod<double,15>::integrate(f, sample_Geometry.z_Position, sample_Geometry.z_Position+3, 3, 1e-7)*beam_Geometry.size;
+		double shutter_Factor = gauss_kronrod<double,31>::integrate(f, sample_Geometry.z_Position, sample_Geometry.z_Position+3, 3, 1e-7)*beam_Geometry.size;
 		return shutter_Factor;
 	};
 

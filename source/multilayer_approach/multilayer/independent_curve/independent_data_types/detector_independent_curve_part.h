@@ -22,7 +22,7 @@ public:
 
 	void refresh_Angular_Units();
 	void refresh_Spectral_Units();
-	void refresh_Argument_Values();
+	void refresh_Argument_Values(bool num_Points_Changed = false);
 	void refresh_At_Fixed_Wavelength_Value();
 	void refresh_At_Fixed_Beam_Theta_0_Value();
 

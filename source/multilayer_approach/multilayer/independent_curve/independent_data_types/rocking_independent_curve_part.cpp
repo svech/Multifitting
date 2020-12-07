@@ -395,7 +395,7 @@ void Rocking_Independent_Curve_Part::refresh_Spectral_Units()
 	}
 }
 
-void Rocking_Independent_Curve_Part::refresh_Argument_Values()
+void Rocking_Independent_Curve_Part::refresh_Argument_Values(bool num_Points_Changed)
 {
 	double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
 
@@ -417,12 +417,15 @@ void Rocking_Independent_Curve_Part::refresh_Argument_Values()
 	independent_Curve->calc_Independent_cos2_k();
 
 	// curve plots
-	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	if(!num_Points_Changed)
 	{
-		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 		{
-			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
-			curve_Plot_1D->plot_All_Data();
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
+				curve_Plot_1D->plot_All_Data();
+			}
 		}
 	}
 }

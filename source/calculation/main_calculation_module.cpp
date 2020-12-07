@@ -713,12 +713,6 @@ void Main_Calculation_Module::wrap_Curve(const vector<double>& sparse_Argument,
 }
 
 void Main_Calculation_Module::wrap_With_Specular_Single(Calculated_Values& calculated_Values, const Data& measurement)
-//														const vector<double>& argument,
-//												 double beam_FWHM,
-//												 double detector_FWHM,
-//												 double beam_Theta_0,
-//												 QString beam_Function,
-//												 QString detector_Function
 {
 
 	const vector<double>& argument = measurement.detector_Theta_Angle_Vec;
@@ -728,7 +722,7 @@ void Main_Calculation_Module::wrap_With_Specular_Single(Calculated_Values& calcu
 	QString beam_Angular_Function = measurement.beam_Theta_0_Distribution.distribution_Function;
 	QString detector_Function = measurement.theta_Distribution;
 
-	double beam_Range_Limit = 3;
+	double beam_Range_Limit = 2;
 	double beam_Norm_Factor = 1;
 	double(*beam_Distribution)(double, double);
 	if(beam_Angular_Function == distributions[Gate])	{beam_Distribution = Global_Variables::distribution_Gate;	  beam_Norm_Factor = 1./beam_Angular_FWHM;					beam_Range_Limit = 0.5; } else
@@ -736,7 +730,7 @@ void Main_Calculation_Module::wrap_With_Specular_Single(Calculated_Values& calcu
 	if(beam_Angular_Function == distributions[Gaussian]){beam_Distribution = Global_Variables::distribution_Gaussian; beam_Norm_Factor = sqrt(log(16.)/M_PI)/beam_Angular_FWHM; beam_Range_Limit = 3;   } else
 	if(beam_Angular_Function == distributions[Lorentz])	{beam_Distribution = Global_Variables::distribution_Lorentz;  beam_Norm_Factor = 1./(beam_Angular_FWHM*M_PI_2);			beam_Range_Limit = 10000;} else return;
 
-	double detector_Range_Limit = 3;
+	double detector_Range_Limit = 2;
 	double(*detector_Distribution)(double, double);
 	if(detector_Function == distributions[Gate])	{detector_Distribution = Global_Variables::distribution_Gate;	 detector_Range_Limit = 0.5; } else
 	if(detector_Function == distributions[Cosine])	{detector_Distribution = Global_Variables::distribution_Cosine;	 detector_Range_Limit = 1;   } else
@@ -746,48 +740,55 @@ void Main_Calculation_Module::wrap_With_Specular_Single(Calculated_Values& calcu
 	double log_2 = sqrt(log(2));
 	double sqrt_pi = sqrt(M_PI/log(2));
 
-	double distance_t_t0;
-	auto f_Angular_Divergence = [&](double x)
-	{
-		return detector_Distribution(detector_FWHM, x) * beam_Norm_Factor * beam_Distribution(beam_Angular_FWHM, x - distance_t_t0);
-	};
-
 	// for accounting spot
-	double distance_To_Sample = measurement.detector_1D.distance_To_Sample;
-	double beam_Spot_FWHM_Angular = measurement.beam_Geometry.size/distance_To_Sample;
+	double beam_Spot_FWHM_Angular = measurement.beam_Geometry.size/measurement.detector_1D.distance_To_Sample*180/M_PI;
 	double beam_Spot_Smoothing = measurement.beam_Geometry.smoothing;
-
+	double spot_Range_Limit = 3;
+	auto f_Spot = [&](double x){return Global_Variables::beam_Profile(x, 1, beam_Spot_Smoothing);};
+	double spot_Norm_Factor = gauss_kronrod<double,31>::integrate(f_Spot, -spot_Range_Limit, spot_Range_Limit, 3, 1e-7);
 
 	double theta, theta_0;
-	auto f_Angular_Divergence_With_Spot = [&](double x)
+	auto f_Divergence_and_Detector = [&](double theta_a)
 	{
-		auto f_Beam_Spot_Wrap = [&](double y)
+		return detector_Distribution(detector_FWHM, theta_a-theta) * beam_Distribution(beam_Angular_FWHM, theta_a-theta_0)*beam_Norm_Factor;
+	};
+	auto f_Spot_and_Detector = [&](double theta_i)
+	{
+		return detector_Distribution(detector_FWHM, theta_i-theta) * Global_Variables::beam_Profile(theta_i-theta_0, beam_Spot_FWHM_Angular, beam_Spot_Smoothing)/(beam_Spot_FWHM_Angular*spot_Norm_Factor);
+	};
+	auto f_Divergence_and_Spot_and_Detector = [&](double theta_i)
+	{
+		auto f_Divergence_and_Spot = [&](double theta_a)
 		{
-			return beam_Distribution(beam_Angular_FWHM, y) * Global_Variables::beam_Profile(x+theta-theta_0-y, beam_Spot_FWHM_Angular, beam_Spot_Smoothing)/beam_Spot_FWHM_Angular;
+			return Global_Variables::beam_Profile(theta_a-theta_i, beam_Spot_FWHM_Angular, beam_Spot_Smoothing)/beam_Spot_FWHM_Angular * beam_Distribution(beam_Angular_FWHM, theta_a-theta_0)*beam_Norm_Factor;
 		};
-		double left_Bound  = -beam_Range_Limit*beam_Angular_FWHM;
-		double right_Bound =  beam_Range_Limit*beam_Angular_FWHM;
-		return detector_Distribution(detector_FWHM, x) * beam_Norm_Factor *
-				gauss_kronrod<double,31>::integrate(f_Beam_Spot_Wrap, left_Bound, right_Bound, 0, 1e-7); // y integration
+		double left_Bound_a  = max(-spot_Range_Limit*beam_Spot_FWHM_Angular + theta_i, -beam_Range_Limit*beam_Angular_FWHM + theta_0);
+		double right_Bound_a = min( spot_Range_Limit*beam_Spot_FWHM_Angular + theta_i,  beam_Range_Limit*beam_Angular_FWHM + theta_0);
+
+		if(left_Bound_a>=right_Bound_a) return 0.;
+
+		return detector_Distribution(detector_FWHM, theta_i-theta) * gauss_kronrod<double,31>::integrate(f_Divergence_and_Spot, left_Bound_a, right_Bound_a, 3, 1e-7);
 	};
 
-	/// detector diagram
-	auto f_1 = [&](double point_Index)
+	/// detector only (no spot, no divergence)
+	auto f = [&](double point_Index)
 	{
-		distance_t_t0 = beam_Theta_0 - argument[point_Index];
-		double integral = detector_Distribution(detector_FWHM, distance_t_t0);
+		theta = argument[point_Index];
+		theta_0 = beam_Theta_0;
+		double integral = detector_Distribution(detector_FWHM, theta-theta_0);
 		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R.front();
 	};
-	/// detector diagram and angular divergence
-	auto f_2 = [&](double point_Index)
+	/// detector and angular divergence (no spot)
+	auto f_D = [&](double point_Index)
 	{
-		theta_0 = beam_Theta_0;
 		theta = argument[point_Index];
-		distance_t_t0 = beam_Theta_0 - argument[point_Index];
-		double left_Bound  = max(-detector_Range_Limit*detector_FWHM, -beam_Range_Limit*beam_Angular_FWHM + distance_t_t0);
-		double right_Bound = min( detector_Range_Limit*detector_FWHM,  beam_Range_Limit*beam_Angular_FWHM + distance_t_t0);
+		theta_0 = beam_Theta_0;
+		double distance_t_t0 = theta - theta_0;
 
-		if(left_Bound>=right_Bound) return;
+		double left_Bound_a  = max(theta - detector_Range_Limit*detector_FWHM, theta_0 - beam_Range_Limit*beam_Angular_FWHM);
+		double right_Bound_a = min(theta + detector_Range_Limit*detector_FWHM, theta_0 + beam_Range_Limit*beam_Angular_FWHM);
+
+		if(left_Bound_a>=right_Bound_a) return;
 
 		double integral;
 		if(beam_Angular_Function == distributions[Gaussian] && detector_Function == distributions[Gaussian])
@@ -803,39 +804,73 @@ void Main_Calculation_Module::wrap_With_Specular_Single(Calculated_Values& calcu
 			integral = beam_Norm_Factor * 0.25 * detector_FWHM * sqrt_pi * (erf(log_2*(beam_Angular_FWHM-2*distance_t_t0)/detector_FWHM)+erf(log_2*(beam_Angular_FWHM+2*distance_t_t0)/detector_FWHM));
 		} else
 		{
-			integral = gauss_kronrod<double,31>::integrate(f_Angular_Divergence, left_Bound, right_Bound, 0, 1e-7);
+			integral = gauss_kronrod<double,31>::integrate(f_Divergence_and_Detector, left_Bound_a, right_Bound_a, 3, 1e-7);
 		}
 		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R.front();
 	};
-	/// detector diagram and beam spot
-	auto f_3 = [&](double point_Index)
+	/// detector and spot (no divergence)
+	auto f_S = [&](double point_Index)
 	{
-//		distance_t_t0 = beam_Theta_0 - argument[point_Index];
-//		double integral = detector_Distribution(detector_FWHM, distance_t_t0);
-//		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R.front();
+		theta = argument[point_Index];
+		theta_0 = beam_Theta_0;
+
+		double left_Bound_i  = max(theta - detector_Range_Limit*detector_FWHM, theta_0 - spot_Range_Limit*beam_Spot_FWHM_Angular);
+		double right_Bound_i = min(theta + detector_Range_Limit*detector_FWHM, theta_0 + spot_Range_Limit*beam_Spot_FWHM_Angular);
+
+		if(left_Bound_i>=right_Bound_i) return;
+
+		double integral = gauss_kronrod<double,31>::integrate(f_Spot_and_Detector, left_Bound_i, right_Bound_i, 3, 1e-7);
+
+		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R.front();
 	};
-	/// detector diagram and angular divergence and beam spot
-	auto f_4 = [&](double point_Index)
+	/// detector and spot and divergence
+	auto f_SD = [&](double point_Index)
 	{
-//		distance_t_t0 = beam_Theta_0 - argument[point_Index];
-//		double integral = detector_Distribution(detector_FWHM, distance_t_t0);
-//		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R.front();
+		theta = argument[point_Index];
+		theta_0 = beam_Theta_0;
+
+		double left_Bound_i  = -detector_Range_Limit*detector_FWHM + theta;
+		double right_Bound_i =  detector_Range_Limit*detector_FWHM + theta;
+
+		if(left_Bound_i>=right_Bound_i) return;
+
+		double integral = gauss_kronrod<double,31>::integrate(f_Divergence_and_Spot_and_Detector, left_Bound_i, right_Bound_i, 3, 1e-7);
+		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R.front();
 	};
 
 	Global_Variables::parallel_For(argument.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
 	{
 		Q_UNUSED(thread_Index)
-		if(beam_Angular_FWHM>DBL_EPSILON)
+		if(beam_Angular_FWHM>DBL_EPSILON && beam_Spot_FWHM_Angular>DBL_EPSILON)
 		{
+			qInfo() << "SD" << endl;
 			for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
 			{
-				f_2(point_Index);
+				f_SD(point_Index);
 			}
-		} else
+		}
+		if(beam_Angular_FWHM<=DBL_EPSILON && beam_Spot_FWHM_Angular>DBL_EPSILON)
 		{
+			qInfo() << "S" << endl;
 			for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
 			{
-				f_1(point_Index);
+				f_S(point_Index);
+			}
+		}
+		if(beam_Angular_FWHM>DBL_EPSILON && beam_Spot_FWHM_Angular<=DBL_EPSILON)
+		{
+			qInfo() << "D" << endl;
+			for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
+			{
+				f_D(point_Index);
+			}
+		}
+		if(beam_Angular_FWHM<=DBL_EPSILON && beam_Spot_FWHM_Angular<=DBL_EPSILON)
+		{
+			qInfo() << "pure" << endl;
+			for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
+			{
+				f(point_Index);
 			}
 		}
 	});

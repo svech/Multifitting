@@ -370,8 +370,8 @@ void Common_Part::create_Footptint_GroupBox()
 
 		beam_Footprint_Shape_SpinBox = new MyDoubleSpinBox;
 			beam_Footprint_Shape_SpinBox->setAccelerated(true);
-			beam_Footprint_Shape_SpinBox->setRange(0, 1);
-			beam_Footprint_Shape_SpinBox->setDecimals(3);
+			beam_Footprint_Shape_SpinBox->setRange(0.01, 1);
+			beam_Footprint_Shape_SpinBox->setDecimals(2);
 			beam_Footprint_Shape_SpinBox->setValue(measurement.beam_Geometry.smoothing);
 			beam_Footprint_Shape_SpinBox->setSingleStep(0.01);
 			beam_Footprint_Shape_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -566,7 +566,7 @@ void Common_Part::plot_Beam_Profile()
 {
 	int data_Count = 301;
 	double FWHM = measurement.beam_Geometry.size;
-	double sigma = FWHM*measurement.beam_Geometry.smoothing;
+	double sigma = measurement.beam_Geometry.smoothing;
 	double limit = 1.7*FWHM;
 	double delta = (2*limit)/(data_Count-1);
 
