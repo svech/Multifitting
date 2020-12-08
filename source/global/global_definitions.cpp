@@ -277,12 +277,18 @@ QDataStream& operator >>( QDataStream& stream,		 Detector_1D& detector_1D )
 QDataStream& operator <<( QDataStream& stream, const Detector_2D& detector_2D )
 {
 	return stream << detector_2D.detector_Type
+				  << detector_2D.pixel_Azimuthal_Width << detector_2D.pixel_Polar_Height << detector_2D.distance_To_Sample
 				  << detector_2D.detector_Theta_Resolution << detector_2D.detector_Phi_Resolution;
 }
 QDataStream& operator >>( QDataStream& stream,		 Detector_2D& detector_2D )
 {
-	return stream >> detector_2D.detector_Type
-				  >> detector_2D.detector_Theta_Resolution >> detector_2D.detector_Phi_Resolution;
+	stream >> detector_2D.detector_Type;
+
+	if(Global_Variables::check_Loaded_Version(1,11,1))
+	{stream >> detector_2D.pixel_Azimuthal_Width >> detector_2D.pixel_Polar_Height >> detector_2D.distance_To_Sample;}
+
+	stream >> detector_2D.detector_Theta_Resolution >> detector_2D.detector_Phi_Resolution;
+	return stream;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Sample_Geometry& sample_Geometry )

@@ -14,7 +14,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 0
+#define VERSION_BUILD 1
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -572,6 +572,11 @@ struct Detector_1D				{ QString detector_Type;
 
 struct Detector_2D				{ QString detector_Type;
 
+								  // slit
+								  double pixel_Azimuthal_Width;
+								  double pixel_Polar_Height;
+								  double distance_To_Sample;
+
 								  // spherical
 								  Distribution detector_Theta_Resolution;
 								  Distribution detector_Phi_Resolution;
@@ -584,7 +589,7 @@ struct Sample_Geometry			{ double size = 20;
 								};
 
 struct Beam_Geometry			{ double size = 0.055;
-								  double lateral_Width = 10.0;
+								  double lateral_Width = 5.0;
 								  double smoothing = 0.5;
 								};
 

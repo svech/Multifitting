@@ -398,12 +398,51 @@ void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* t
 			if(typeid(Type_Curve) == typeid(Independent_Curve))
 			{
 				Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(type_Curve);
+				if(independent_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
+				{
+					if( imperfections_Model.common_Model == fractal_Gauss_Model ||
+						imperfections_Model.approximation == DWBA_approximation ||
+						imperfections_Model.approximation == SA_approximation ||
+						imperfections_Model.approximation == CSA_approximation )
+					{
+						QString text;
+						if( imperfections_Model.common_Model == fractal_Gauss_Model ) text = "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.";
+						if( imperfections_Model.approximation == DWBA_approximation ) text = "2D scattering can't be simulated in DWBA approximation.\nChange the approximation in Structure Table.";
+						if( imperfections_Model.approximation == SA_approximation   ) text = "2D scattering can't be simulated in SA approximation.\nChange the approximation in Structure Table.";
+						if( imperfections_Model.approximation == CSA_approximation  ) text = "2D scattering can't be simulated in CSA approximation.\nChange the approximation in Structure Table.";
+
+						QMessageBox::information(this,"GISAS simulation", text);
+						independent_Curve->calc_Functions.check_Enabled = false;
+
+						global_Multilayer_Approach->reopen_Calculation_Settings();
+						global_Multilayer_Approach->reopen_Optical_Graphs_2D();
+					}
+				}
 				Independent_Curve_Editor* independent_Curve_Editor = qobject_cast<Independent_Curve_Editor*>(type_Curve_Editor);
 				runned_Independent_Curve_Editors.insert(independent_Curve, independent_Curve_Editor);
 			}
 			if(typeid(Type_Curve) == typeid(Target_Curve))
 			{
-				Target_Curve* target_Curve = qobject_cast<Target_Curve*>(type_Curve);
+				Target_Curve* target_Curve = qobject_cast<Target_Curve*>(type_Curve);			
+				if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
+				{
+					if( imperfections_Model.common_Model == fractal_Gauss_Model ||
+						imperfections_Model.approximation == DWBA_approximation ||
+						imperfections_Model.approximation == SA_approximation ||
+						imperfections_Model.approximation == CSA_approximation )
+					{
+						QString text;
+						if( imperfections_Model.common_Model == fractal_Gauss_Model ) text = "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.";
+						if( imperfections_Model.approximation == DWBA_approximation ) text = "2D scattering can't be simulated in DWBA approximation.\nChange the approximation in Structure Table.";
+						if( imperfections_Model.approximation == SA_approximation   ) text = "2D scattering can't be simulated in SA approximation.\nChange the approximation in Structure Table.";
+						if( imperfections_Model.approximation == CSA_approximation  ) text = "2D scattering can't be simulated in CSA approximation.\nChange the approximation in Structure Table.";
+
+						QMessageBox::information(this,"GISAS simulation", text);
+						target_Curve->fit_Params.calculate = false;
+						global_Multilayer_Approach->reopen_Calculation_Settings();
+						global_Multilayer_Approach->reopen_Optical_Graphs_2D();
+					}
+				}
 				Target_Curve_Editor* target_Curve_Editor = qobject_cast<Target_Curve_Editor*>(type_Curve_Editor);
 				runned_Target_Curve_Editors.insert(target_Curve, target_Curve_Editor);
 			}

@@ -551,7 +551,7 @@ void Rocking_Independent_Curve_Part::connecting()
 	// number of points
 	connect(num_Points_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 	{
-		refresh_Argument_Values();
+		refresh_Argument_Values(true);
 		global_Multilayer_Approach->global_Recalculate();
 	});
 	// start value
