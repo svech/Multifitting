@@ -573,23 +573,23 @@ struct Detector_1D				{ QString detector_Type;
 struct Detector_2D				{ QString detector_Type;
 
 								  // slit
-								  double pixel_Azimuthal_Width;
-								  double pixel_Polar_Height;
-								  double distance_To_Sample;
+								  double pixel_Azimuthal_Width = 100; // mcm
+								  double pixel_Polar_Height    = 100; // mcm
+								  double distance_To_Sample    = 320; // mm
 
 								  // spherical
 								  Distribution detector_Theta_Resolution;
 								  Distribution detector_Phi_Resolution;
 								};
 
-struct Sample_Geometry			{ double size = 20;
-								  double x_Position = 0;
-								  double z_Position = 0;
-								  double curvature = 0;
+struct Sample_Geometry			{ double size = 20;			// mm
+								  double x_Position = 0;	// mm
+								  double z_Position = 0;	// mm
+								  double curvature = 0;		// m-1
 								};
 
-struct Beam_Geometry			{ double size = 0.055;
-								  double lateral_Width = 5.0;
+struct Beam_Geometry			{ double size = 0.055;			// mm
+								  double lateral_Width = 5.0;	// mm
 								  double smoothing = 0.5;
 								};
 

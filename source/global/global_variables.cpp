@@ -2129,7 +2129,7 @@ double Global_Variables::beam_Profile(double x, double FWHM, double smoothing)
 	} else
 	{
 		smoothing*=FWHM;
-		double limit = FWHM/2+1.5*smoothing;
+		double limit = 4*(FWHM/2+1.5*smoothing);
 		if(x <= -limit) return 0;
 		if(-limit < x && x < limit)
 		{
