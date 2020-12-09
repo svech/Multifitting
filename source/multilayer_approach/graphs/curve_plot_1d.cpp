@@ -148,7 +148,7 @@ void Curve_Plot_1D::discretized_Threshold_Line()
 				double asin_Argument = measurement.wavelength.value/(2*multilayer->discretization_Parameters.discretization_Step);
 				if(abs(asin_Argument)<1)
 				{
-					double angle = safety_Factor*(asin(asin_Argument)*180/M_PI);
+					double angle = safety_Factor*qRadiansToDegrees(asin(asin_Argument));
 					double angle_In_Plot_Units = angle/angle_Coefficients_Map.value(angular_Units);
 
 					infLine->point1->setCoords(angle_In_Plot_Units, 0);
@@ -169,7 +169,7 @@ void Curve_Plot_1D::discretized_Threshold_Line()
 		{
 			if(multilayer->discretization_Parameters.enable_Discretization)
 			{
-				double lambda_Argument = 2*multilayer->discretization_Parameters.discretization_Step*sin(measurement.beam_Theta_0_Angle.value*M_PI/180.)/safety_Factor;
+				double lambda_Argument = 2*multilayer->discretization_Parameters.discretization_Step*sin(qDegreesToRadians(measurement.beam_Theta_0_Angle.value))/safety_Factor;
 				double wavelength_In_Plot_Units = Global_Variables::wavelength_Energy(spectral_Units, lambda_Argument)/ wavelength_Coefficients_Map.value(spectral_Units);
 
 				infLine->point1->setCoords(wavelength_In_Plot_Units, 0);

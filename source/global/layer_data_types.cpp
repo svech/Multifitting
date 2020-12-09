@@ -875,11 +875,11 @@ void Data::calc_Mixed_Resolution()
 	if(beam_Geometry.size > sample_Geometry.size*beam_Theta_0_Sin_Value)
 	{
 		alpha_Max = sample_Geometry.size*beam_Theta_0_Sin_Value/beam_Geometry.size*beam_Theta_0_Distribution.FWHM_distribution;	// in degrees
-		beta_Max = asin(sample_Geometry.size/2*curvature_In_Mm)*180/M_PI;			// in degrees, fixed
+		beta_Max = qRadiansToDegrees(asin(sample_Geometry.size/2*curvature_In_Mm));			// in degrees, fixed
 	} else
 	{
 		alpha_Max = beam_Theta_0_Distribution.FWHM_distribution;										 // in degrees, fixed
-		beta_Max = asin(beam_Geometry.size/2/beam_Theta_0_Sin_Value*curvature_In_Mm)*180/M_PI;// in degrees
+		beta_Max = qRadiansToDegrees(asin(beam_Geometry.size/2/beam_Theta_0_Sin_Value*curvature_In_Mm));// in degrees
 	}
 	double real_Alpha = abs(alpha_Max-2*beta_Max);
 
@@ -896,11 +896,11 @@ void Data::calc_Mixed_Resolution()
 			if(beam_Geometry.size > sample_Geometry.size*beam_Theta_0_Sin_Vec[i])
 			{
 				alpha_Max = sample_Geometry.size*beam_Theta_0_Sin_Vec[i]/beam_Geometry.size*beam_Theta_0_Distribution.FWHM_distribution;	// in degrees
-				beta_Max = asin(sample_Geometry.size/2*curvature_In_Mm)*180/M_PI;						// in degrees, fixed
+				beta_Max = qRadiansToDegrees(asin(sample_Geometry.size/2*curvature_In_Mm));						// in degrees, fixed
 			} else
 			{
 				alpha_Max = beam_Theta_0_Distribution.FWHM_distribution;								// in degrees, fixed
-				beta_Max = asin(beam_Geometry.size/2/beam_Theta_0_Sin_Vec[i]*curvature_In_Mm)*180/M_PI; // in degrees
+				beta_Max = qRadiansToDegrees(asin(beam_Geometry.size/2/beam_Theta_0_Sin_Vec[i]*curvature_In_Mm)); // in degrees
 			}
 			theta_0_Resolution_Vec[i] = abs(alpha_Max-2*beta_Max);
 		}
@@ -927,8 +927,8 @@ void Data::calc_Mixed_Resolution()
 		theta_0_Resolution_From_Spectral_Vec.resize(beam_Theta_0_Angle_Vec.size());
 		for(size_t i=0; i<theta_0_Resolution_From_Spectral_Vec.size(); ++i)
 		{
-			double angle_Temp = beam_Theta_0_Angle_Vec[i]*M_PI/180.; // in radians
-			theta_0_Resolution_From_Spectral_Vec[i] = 2*( angle_Temp - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp)) ) * 180./M_PI; // in degrees
+			double angle_Temp = qDegreesToRadians(beam_Theta_0_Angle_Vec[i]); // in radians
+			theta_0_Resolution_From_Spectral_Vec[i] = 2*qRadiansToDegrees( angle_Temp - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp)) ); // in degrees
 		}
 	}
 	// dependent on lambda position
@@ -948,8 +948,8 @@ void Data::calc_Mixed_Resolution()
 			double angular_Component = 0;
 			if(beam_Theta_0_Angle_Value-beam_Theta_0_Distribution.FWHM_distribution/2>0 && beam_Theta_0_Angle_Value>0)
 			{
-				double angle_Temp = beam_Theta_0_Angle_Value*M_PI/180.; // in radians
-				double angular_Resolution_Temp = real_Alpha*M_PI/180.; // in radians
+				double angle_Temp = qDegreesToRadians(beam_Theta_0_Angle_Value); // in radians
+				double angular_Resolution_Temp = qDegreesToRadians(real_Alpha); // in radians
 				angular_Component = 2*(1-sin(angle_Temp-angular_Resolution_Temp/2)/sin(angle_Temp));
 			}
 			spectral_Resolution_From_Theta_0_Vec[i] = angular_Component*lambda_Vec[i];
@@ -967,13 +967,13 @@ void Data::calc_Mixed_Resolution()
 		}
 
 		// from spectral
-		double angle_Temp_0 = beam_Theta_0_Angle_Value*M_PI/180.; // in radians
+		double angle_Temp_0 = qDegreesToRadians(beam_Theta_0_Angle_Value); // in radians
 		theta_0_Resolution_From_Spectral_Vec.resize(detector_Theta_Angle_Vec.size());
 		for(size_t i=0; i<theta_0_Resolution_From_Spectral_Vec.size(); ++i)
 		{
-			double d_th_0 = 2*( angle_Temp_0 - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp_0)) ) * 180./M_PI; // in degrees
-			double angle_Temp = detector_Theta_Angle_Vec[i]*M_PI/180.; // in radians
-			double d_th   = 2*( angle_Temp   - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp  )) ) * 180./M_PI; // in degrees
+			double d_th_0 = 2*qRadiansToDegrees( angle_Temp_0 - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp_0)) ); // in degrees
+			double angle_Temp = qDegreesToRadians(detector_Theta_Angle_Vec[i]); // in radians
+			double d_th   = 2*qRadiansToDegrees( angle_Temp   - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp  )) ); // in degrees
 			theta_0_Resolution_From_Spectral_Vec[i] = sqrt(d_th_0*d_th_0 + d_th*d_th);
 		}
 	}
@@ -983,7 +983,7 @@ void Data::calc_Mixed_Resolution()
 		measurement_Type == measurement_Types[Offset_Scan] )
 	{
 		// pure detector
-		if(detector_1D.detector_Type == detectors[Slit])	{theta_Resolution_FWHM = detector_1D.slit_Width/detector_1D.distance_To_Sample*180/M_PI; theta_Distribution = distributions[Gate];}
+		if(detector_1D.detector_Type == detectors[Slit])	{theta_Resolution_FWHM = qRadiansToDegrees(detector_1D.slit_Width/detector_1D.distance_To_Sample); theta_Distribution = distributions[Gate];}
 		if(detector_1D.detector_Type == detectors[Crystal]) {theta_Resolution_FWHM = detector_1D.detector_Theta_Resolution.FWHM_distribution;		 theta_Distribution = detector_1D.detector_Theta_Resolution.distribution_Function;}
 
 		theta_Resolution_Vec.resize(detector_Theta_Angle_Vec.size());

@@ -741,7 +741,7 @@ void Main_Calculation_Module::wrap_With_Specular_Single(Calculated_Values& calcu
 	double sqrt_pi = sqrt(M_PI/log(2));
 
 	// for accounting spot
-	double beam_Spot_FWHM_Angular = measurement.beam_Geometry.size/measurement.detector_1D.distance_To_Sample*180/M_PI;
+	double beam_Spot_FWHM_Angular = qRadiansToDegrees(measurement.beam_Geometry.size/measurement.detector_1D.distance_To_Sample);
 	double beam_Spot_Smoothing = measurement.beam_Geometry.smoothing;
 	double spot_Range_Limit = 3;
 	auto f_Spot = [&](double x){return Global_Variables::beam_Profile(x, 1, beam_Spot_Smoothing);};
@@ -896,7 +896,7 @@ void Main_Calculation_Module::wrap_With_Specular_Vector(Calculated_Values& calcu
 	double sqrt_pi = sqrt(M_PI/log(2));
 
 	// for accounting spot
-	double beam_Spot_FWHM_Angular = measurement.beam_Geometry.size/measurement.detector_1D.distance_To_Sample*180/M_PI;
+	double beam_Spot_FWHM_Angular = qRadiansToDegrees(measurement.beam_Geometry.size/measurement.detector_1D.distance_To_Sample);
 	double beam_Spot_Smoothing = measurement.beam_Geometry.smoothing;
 	double spot_Range_Limit = 3;
 	auto f_Spot = [&](double x){return Global_Variables::beam_Profile(x, 1, beam_Spot_Smoothing);};
@@ -1087,8 +1087,8 @@ void Main_Calculation_Module::wrap_With_Specular_2D(Calculated_Values& calculate
 	double sqrt_pi = sqrt(M_PI/log(2));
 
 	// for accounting spot
-	double beam_Spot_FWHM_Theta_0 = measurement.beam_Geometry.size         /measurement.detector_2D.distance_To_Sample*180/M_PI;
-	double beam_Spot_FWHM_Phi_0   = measurement.beam_Geometry.lateral_Width/measurement.detector_2D.distance_To_Sample*180/M_PI;
+	double beam_Spot_FWHM_Theta_0 = qRadiansToDegrees(measurement.beam_Geometry.size         /measurement.detector_2D.distance_To_Sample);
+	double beam_Spot_FWHM_Phi_0   = qRadiansToDegrees(measurement.beam_Geometry.lateral_Width/measurement.detector_2D.distance_To_Sample);
 	double beam_Spot_Smoothing = measurement.beam_Geometry.smoothing;
 	double spot_Range_Limit = 4;
 	auto f_Spot = [&](double x){return Global_Variables::beam_Profile(x, 1, beam_Spot_Smoothing);};
@@ -1501,7 +1501,7 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 			}
 			for(size_t point_Index=0; point_Index<working_Curve->size(); ++point_Index)
 			{
-				(*working_Curve)[point_Index]*=measurement.theta_Resolution_FWHM;
+				(*working_Curve)[point_Index]*=qDegreesToRadians(measurement.theta_Resolution_FWHM);
 			}
 		}
 		// specular peak
@@ -1538,7 +1538,7 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 			}
 			for(size_t point_Index=0; point_Index<working_Curve->size(); ++point_Index)
 			{
-				(*working_Curve)[point_Index] *= measurement.theta_Resolution_FWHM;
+				(*working_Curve)[point_Index] *= qDegreesToRadians(measurement.theta_Resolution_FWHM);
 			}
 		}
 		// specular peak
@@ -1594,7 +1594,7 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 					{
 						for(size_t phi_Index=0; phi_Index<calculated_Values.GISAS_Map.size(); ++phi_Index)
 						{
-							calculated_Values.GISAS_Instrumental[phi_Index][theta_Index] = calculated_Values.GISAS_Map[phi_Index][theta_Index]*measurement.theta_Resolution_FWHM*measurement.phi_Resolution_FWHM;
+							calculated_Values.GISAS_Instrumental[phi_Index][theta_Index] = calculated_Values.GISAS_Map[phi_Index][theta_Index]*qDegreesToRadians(measurement.theta_Resolution_FWHM)*qDegreesToRadians(measurement.phi_Resolution_FWHM)*measurement.detector_Theta_Cos_Vec[theta_Index];
 						}
 					}
 //				});

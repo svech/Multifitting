@@ -625,11 +625,11 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	{
 		double w_2 = (measurement.detector_1D.slit_Width/2);
 		double d = (measurement.detector_1D.distance_To_Sample);
-		max_Delta_Theta_Detector = atan(w_2/d) * 180./M_PI;  // in degrees
+		max_Delta_Theta_Detector = qRadiansToDegrees(atan(w_2/d));  // in degrees
 	}
 	if(measurement.detector_1D.detector_Type == detectors[Crystal])
 	{
-		max_Delta_Theta_Detector = measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/2 * 180./M_PI;
+		max_Delta_Theta_Detector = qRadiansToDegrees(measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/2);
 	}
 
 	// measurement points
@@ -676,7 +676,7 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	vector<double> p0(num_Points);
 	for(size_t i = 0; i<num_Points; ++i)
 	{
-		p0[i] = k[i]*abs(cos_Theta_0[i] - cos((angle_Theta_0[i] + max_Delta_Theta_Detector) * M_PI/180.));
+		p0[i] = k[i]*abs(cos_Theta_0[i] - cos(qDegreesToRadians(angle_Theta_0[i] + max_Delta_Theta_Detector)));
 	}
 
 	// integration
@@ -787,7 +787,7 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	for(size_t i = 0; i<num_Points; ++i)
 	{
 		double s2 = sigma*sigma - delta_Sigma_2[i];
-		double hi = k[i]*sin(angle_Theta_0[i] * M_PI/180.);
+		double hi = k[i]*sin(qDegreesToRadians(angle_Theta_0[i]));
 		specular_Debye_Waller_Weak_Factor_R[i] = exp( - 4. * hi*hi * s2 );
 	}
 }

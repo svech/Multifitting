@@ -21,7 +21,7 @@ double function_Scattering_ABC_2D_s (double phi, void* p)
 	// passed argument: phi or cos(phi)
 	double cos_Phi;
 	if(params->phi_As_Angle)
-		cos_Phi = cos(phi*M_PI/180);
+		cos_Phi = cos(qDegreesToRadians(phi));
 	else
 		cos_Phi = phi;
 
@@ -60,7 +60,7 @@ double function_Scattering_ABC_2D_p (double phi, void* p)
 	// passed argument: phi or cos(phi)
 	double cos_Phi;
 	if(params->phi_As_Angle)
-		cos_Phi = cos(phi*M_PI/180);
+		cos_Phi = cos(qDegreesToRadians(phi));
 	else
 		cos_Phi = phi;
 
@@ -99,7 +99,7 @@ double function_Scattering_ABC_2D_sp(double phi, void* p)
 	// passed argument: phi or cos(phi)
 	double cos_Phi;
 	if(params->phi_As_Angle)
-		cos_Phi = cos(phi*M_PI/180);
+		cos_Phi = cos(qDegreesToRadians(phi));
 	else
 		cos_Phi = phi;
 
@@ -143,7 +143,7 @@ double function_Scattering_Linear_2D_s (double phi, void* p)
 	// passed argument: phi or cos(phi)
 	double cos_Phi;
 	if(params->phi_As_Angle)
-		cos_Phi = cos(phi*M_PI/180);
+		cos_Phi = cos(qDegreesToRadians(phi));
 	else
 		cos_Phi = phi;
 
@@ -201,7 +201,7 @@ double function_Scattering_Linear_2D_p (double phi, void* p)
 	// passed argument: phi or cos(phi)
 	double cos_Phi;
 	if(params->phi_As_Angle)
-		cos_Phi = cos(phi*M_PI/180);
+		cos_Phi = cos(qDegreesToRadians(phi));
 	else
 		cos_Phi = phi;
 
@@ -259,7 +259,7 @@ double function_Scattering_Linear_2D_sp(double phi, void* p)
 	// passed argument: phi or cos(phi)
 	double cos_Phi;
 	if(params->phi_As_Angle)
-		cos_Phi = cos(phi*M_PI/180);
+		cos_Phi = cos(qDegreesToRadians(phi));
 	else
 		cos_Phi = phi;
 
@@ -946,7 +946,7 @@ void Unwrapped_Reflection::fill_DW_Factors_From_Node_Vector(int thread_Index, in
 			{
 				angle_Theta_0 = measurement.beam_Theta_0_Angle_Vec[point_Index];
 			}
-			double hi = k*sin(angle_Theta_0 * M_PI/180.);
+			double hi = k*sin(qDegreesToRadians(angle_Theta_0));
 
 			if(multilayer->imperfections_Model.use_Common_Roughness_Function)
 			{
@@ -3383,7 +3383,7 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 //	gsl_integration_qag(function, phi_Min, phi_Max, epsabs, epsrel, w->limit, GSL_INTEG_GAUSS61, w, &result, &abserr);
 //	gsl_integration_workspace_free(w);
 
-	return 2*result*(M_PI/180);
+	return 2*qDegreesToRadians(result);
 }
 
 void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Index)
@@ -3398,8 +3398,8 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 		complex<double> r_s = r_Local_s[thread_Index][0];
 		complex<double> r_p = r_Local_p[thread_Index][0];
 
-		calculated_Values.Phi_R_s[point_Index] = arg(r_s)/M_PI*180.;
-		calculated_Values.Phi_R_p[point_Index] = arg(r_p)/M_PI*180.;
+		calculated_Values.Phi_R_s[point_Index] = qRadiansToDegrees(arg(r_s));
+		calculated_Values.Phi_R_p[point_Index] = qRadiansToDegrees(arg(r_p));
 		calculated_Values.R_s	 [point_Index] = norm(r_s)*specular_Debye_Waller_Weak_Factor_R_Final[thread_Index];
 		calculated_Values.R_p	 [point_Index] = norm(r_p)*specular_Debye_Waller_Weak_Factor_R_Final[thread_Index];
 		calculated_Values.R		 [point_Index] = s_Weight * calculated_Values.R_s[point_Index] + p_Weight * calculated_Values.R_p[point_Index];
@@ -3427,8 +3427,8 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 		complex<double> t_s = t_Local_s[thread_Index][0];
 		complex<double> t_p = t_Local_p[thread_Index][0];
 
-		calculated_Values.Phi_T_s[point_Index] = arg(t_s)/M_PI*180.;
-		calculated_Values.Phi_T_p[point_Index] = arg(t_p)/M_PI*180.;
+		calculated_Values.Phi_T_s[point_Index] = qRadiansToDegrees(arg(t_s));
+		calculated_Values.Phi_T_p[point_Index] = qRadiansToDegrees(arg(t_p));
 		calculated_Values.T_s	 [point_Index] = norm(t_s)*environment_Factor_s[thread_Index];
 		calculated_Values.T_p	 [point_Index] = norm(t_p)*environment_Factor_p[thread_Index];
 		calculated_Values.T		 [point_Index] = s_Weight * calculated_Values.T_s[point_Index] + p_Weight * calculated_Values.T_p[point_Index];
