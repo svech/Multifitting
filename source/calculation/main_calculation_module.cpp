@@ -1594,7 +1594,10 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 					{
 						for(size_t phi_Index=0; phi_Index<calculated_Values.GISAS_Map.size(); ++phi_Index)
 						{
-							calculated_Values.GISAS_Instrumental[phi_Index][theta_Index] = calculated_Values.GISAS_Map[phi_Index][theta_Index]*qDegreesToRadians(measurement.theta_Resolution_FWHM)*qDegreesToRadians(measurement.phi_Resolution_FWHM)*measurement.detector_Theta_Cos_Vec[theta_Index];
+							calculated_Values.GISAS_Instrumental[phi_Index][theta_Index] = calculated_Values.GISAS_Map[phi_Index][theta_Index]*
+							                                                                    qDegreesToRadians(measurement.theta_Resolution_FWHM)*
+							                                                                    qDegreesToRadians(measurement.phi_Resolution_FWHM)*
+							                                                                    measurement.detector_Theta_Cos_Vec[theta_Index];
 						}
 					}
 //				});
