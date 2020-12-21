@@ -714,7 +714,6 @@ void Main_Calculation_Module::wrap_Curve(const vector<double>& sparse_Argument,
 
 void Main_Calculation_Module::wrap_With_Specular_Single(Calculated_Values& calculated_Values, const Data& measurement)
 {
-
 	const vector<double>& argument = measurement.detector_Theta_Angle_Vec;
 	double beam_Angular_FWHM = measurement.beam_Theta_0_Distribution.FWHM_distribution;
 	double detector_FWHM = measurement.theta_Resolution_FWHM;

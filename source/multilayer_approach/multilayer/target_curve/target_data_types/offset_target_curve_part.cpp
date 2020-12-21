@@ -95,6 +95,8 @@ void Offset_Target_Curve_Part::create_Argument_GroupBox()
 	}
 	// specifying interval for fitting
 	{
+		int num_Steps = 500;
+
 		main_Subinterval_Checkbox = new QCheckBox("Fit only data between argument");
 			main_Subinterval_Checkbox->setCheckable(true);
 			main_Subinterval_Checkbox->setChecked(target_Curve->curve.use_Subinterval);
@@ -105,7 +107,7 @@ void Offset_Target_Curve_Part::create_Argument_GroupBox()
 		horizontal_From_Subinterval_SpinBox = new MyDoubleSpinBox;
 			horizontal_From_Subinterval_SpinBox->setAccelerated(true);
 			horizontal_From_Subinterval_SpinBox->setDecimals(4);
-			horizontal_From_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_Right-target_Curve->curve.subinterval_Left)/100.);
+			horizontal_From_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_Right-target_Curve->curve.subinterval_Left)/num_Steps);
 			horizontal_From_Subinterval_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			horizontal_From_Subinterval_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH_SUB);
 			horizontal_From_Subinterval_SpinBox->setEnabled(target_Curve->curve.use_Subinterval);
@@ -123,7 +125,7 @@ void Offset_Target_Curve_Part::create_Argument_GroupBox()
 		horizontal_To_Subinterval_SpinBox = new MyDoubleSpinBox;
 			horizontal_To_Subinterval_SpinBox->setAccelerated(true);
 			horizontal_To_Subinterval_SpinBox->setDecimals(4);
-			horizontal_To_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_Right-target_Curve->curve.subinterval_Left)/100.);
+			horizontal_To_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_Right-target_Curve->curve.subinterval_Left)/num_Steps);
 			horizontal_To_Subinterval_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			horizontal_To_Subinterval_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH_SUB);
 			horizontal_To_Subinterval_SpinBox->setEnabled(target_Curve->curve.use_Subinterval);
@@ -137,6 +139,14 @@ void Offset_Target_Curve_Part::create_Argument_GroupBox()
 			invert_Subinterval_Checkbox->setEnabled(target_Curve->curve.use_Subinterval);
 			invert_Subinterval_Checkbox->setChecked(target_Curve->curve.outer_Area);
 		argument_GroupBox_Layout->addWidget(invert_Subinterval_Checkbox,0,Qt::AlignLeft);
+
+		if(target_Curve->loaded_And_Ready)
+		{
+			double min = *std::min_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+			double max = *std::max_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+			horizontal_From_Subinterval_SpinBox->setSingleStep((max-min)/num_Steps);
+			horizontal_To_Subinterval_SpinBox->setSingleStep((max-min)/num_Steps);
+		}
 
 		reset_Subinterval();
 	}
@@ -450,17 +460,13 @@ void Offset_Target_Curve_Part::reset_Subinterval()
 		double max = *std::max_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
 		horizontal_From_Subinterval_SpinBox->setRange(min,max);
 		horizontal_To_Subinterval_SpinBox->setRange(min,max);
-
-		horizontal_From_Subinterval_SpinBox->setValue(min);
-		horizontal_To_Subinterval_SpinBox->setValue(max);
 	} else
 	{
 		horizontal_From_Subinterval_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
 		horizontal_To_Subinterval_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
-
-		horizontal_From_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Left);
-		horizontal_To_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Right);
 	}
+	horizontal_From_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Left);
+	horizontal_To_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Right);
 }
 
 void Offset_Target_Curve_Part::fill_Offset()

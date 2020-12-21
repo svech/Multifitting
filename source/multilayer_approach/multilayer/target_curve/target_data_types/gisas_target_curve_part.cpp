@@ -539,6 +539,8 @@ void GISAS_Target_Curve_Part::create_Beam_GroupBox()
 
 void GISAS_Target_Curve_Part::reset_Subinterval()
 {
+	int num_Steps = 500;
+
 	from_Subinterval_Theta_SpinBox->blockSignals(true);
 	to_Subinterval_Theta_SpinBox->blockSignals(true);
 	from_Subinterval_Phi_SpinBox->blockSignals(true);
@@ -564,8 +566,8 @@ void GISAS_Target_Curve_Part::reset_Subinterval()
 	from_Subinterval_Theta_SpinBox->setValue(target_Curve->curve.subinterval_Left/coeff);
 	to_Subinterval_Theta_SpinBox  ->setValue(target_Curve->curve.subinterval_Right/coeff);
 
-	from_Subinterval_Theta_SpinBox->setSingleStep((max_Theta-min_Theta)/100./coeff);
-	to_Subinterval_Theta_SpinBox  ->setSingleStep((max_Theta-min_Theta)/100./coeff);
+	from_Subinterval_Theta_SpinBox->setSingleStep((max_Theta-min_Theta)/num_Steps/coeff);
+	to_Subinterval_Theta_SpinBox  ->setSingleStep((max_Theta-min_Theta)/num_Steps/coeff);
 
 	// phi
 	double min_Phi = min(target_Curve->measurement.detector_Phi_Angle.independent.min, target_Curve->measurement.detector_Phi_Angle.independent.max);
@@ -583,8 +585,8 @@ void GISAS_Target_Curve_Part::reset_Subinterval()
 	from_Subinterval_Phi_SpinBox->setValue(target_Curve->curve.subinterval_Bottom/coeff);
 	to_Subinterval_Phi_SpinBox  ->setValue(target_Curve->curve.subinterval_Top/coeff);
 
-	from_Subinterval_Phi_SpinBox->setSingleStep((max_Phi-min_Phi)/100./coeff);
-	to_Subinterval_Phi_SpinBox  ->setSingleStep((max_Phi-min_Phi)/100./coeff);
+	from_Subinterval_Phi_SpinBox->setSingleStep((max_Phi-min_Phi)/num_Steps/coeff);
+	to_Subinterval_Phi_SpinBox  ->setSingleStep((max_Phi-min_Phi)/num_Steps/coeff);
 
 	//----------------------------------------------------------------
 
