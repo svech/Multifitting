@@ -14,7 +14,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 1
+#define VERSION_BUILD 2
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -212,6 +212,7 @@ class Node;
 #define APERIODIC_TABLE_DENSITY_VALUE_WIDTH    110
 #define MIN_FORMULA_WIDTH_LINE_EDIT 80		// master/slave width for dependance formula
 #define id_Of_Thicknesses 9					// used fore refresh/reload of corresponding line_Edits
+#define TARGET_LINE_EDIT_WIDTH_WING 43		// for target_Curve_Editor
 #define TARGET_LINE_EDIT_WIDTH_SUB 52		// for target_Curve_Editor
 #define TARGET_LINE_EDIT_WIDTH 63			// for target_Curve_Editor
 #define TARGET_LINE_AT_FIXED_WIDTH 105		// for target_Curve_Editor
@@ -575,7 +576,7 @@ struct Detector_2D				{ QString detector_Type;
 								  // slit
 								  double pixel_Azimuthal_Width = 100; // mcm
 								  double pixel_Polar_Height    = 100; // mcm
-								  double distance_To_Sample    = 320; // mm
+								  double distance_To_Sample    = 300; // mm
 
 								  // spherical
 								  Distribution detector_Theta_Resolution;
@@ -589,8 +590,13 @@ struct Sample_Geometry			{ double size = 20;			// mm
 								};
 
 struct Beam_Geometry			{ double size = 0.055;			// mm
-								  double lateral_Width = 5.0;	// mm
 								  double smoothing = 0.5;
+
+								  double left_Wing_Width = 0;   // mm
+								  double right_Wing_Width = 0;  // mm
+								  double wings_Intensity = 0;   // share of main beam intensity
+
+								  double lateral_Width = 5.0;	// mm
 								};
 
 

@@ -8,6 +8,7 @@ Curve::Curve()
 
 	// subinterval
 	use_Subinterval = false;
+	outer_Area = false;
 	subinterval_Left = 0;
 	subinterval_Right = 1;
 	// 2D only
@@ -82,7 +83,7 @@ void Fit_Params::create_Expressions_for_Residual()
 Target_Curve::Target_Curve(QLabel* description_Label, QWidget *parent) :
 	description_Label(description_Label),
 	measurement(item_Type_Measurement),
-	QWidget(parent)
+	QObject(parent)
 {
 	plot_Options_Calculated.color=QColor(0, 0, 255);
 	plot_Options_Calculated.scatter_Shape = QCPScatterStyle::ssDisc;
@@ -115,7 +116,7 @@ void Target_Curve::import_Data_From_File(QString bare_Filename)
 	} else
 	{
 		loaded_And_Ready = false;
-		QMessageBox::information(this, "Target_Curve::import_Data", "Can't read file filename \"" + filename.fileName() + "\"");
+		QMessageBox::information(nullptr, "Target_Curve::import_Data", "Can't read file filename \"" + filename.fileName() + "\"");
 		return;
 	}
 }
@@ -187,7 +188,7 @@ void Target_Curve::parse_1D_Data()
 			catch(QString& exception)
 			{
 				loaded_And_Ready = false;
-				QMessageBox::information(this, "Target_Curve::import_Data", exception);
+				QMessageBox::information(nullptr, "Target_Curve::import_Data", exception);
 				return;
 			}
 		} else

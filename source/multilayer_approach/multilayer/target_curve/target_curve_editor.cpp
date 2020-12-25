@@ -193,7 +193,15 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 		// 1D case
 		if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map])
 		{
-			global_Multilayer_Approach->reopen_Optical_Graphs_1D(true, TARGET);
+			if(target_Curve->loaded_And_Ready)
+			{
+				double min = *std::min_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+				double max = *std::max_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+				target_Curve->curve.subinterval_Left = min;
+				target_Curve->curve.subinterval_Right = max;
+				reset_Subinterval();
+			}
+			global_Multilayer_Approach->reopen_Optical_Graphs_1D(true, TARGET);			
 		}
 		// 2D case
 		if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])

@@ -441,7 +441,6 @@ void Specular_Target_Curve_Part::reset_Subinterval()
 	horizontal_To_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Right);
 }
 
-
 void Specular_Target_Curve_Part::fill_Argument_Units()
 {
 	arg_Units_ComboBox->blockSignals(true);

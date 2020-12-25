@@ -85,7 +85,7 @@ struct Fit_Params
 #endif
 };
 
-class Target_Curve : public QWidget
+class Target_Curve : public QObject
 {
 	Q_OBJECT
 public:

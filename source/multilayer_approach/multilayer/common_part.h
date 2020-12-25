@@ -52,9 +52,12 @@ public:
 	QLabel* phi_Resolution_Units_Label;
 
 	// footprint
-	MyDoubleSpinBox* beam_Footprint_Width_SpinBox;
-	MyDoubleSpinBox* beam_Footprint_Lateral_Width_SpinBox;
+	MyDoubleSpinBox* beam_Footprint_Width_SpinBox;	
 	MyDoubleSpinBox* beam_Footprint_Shape_SpinBox;
+	MyDoubleSpinBox* beam_Footprint_Left_Wing_Width_SpinBox;
+	MyDoubleSpinBox* beam_Footprint_Right_Wing_Width_SpinBox;
+	MyDoubleSpinBox* beam_Footprint_Wing_Intensity_SpinBox;
+	MyDoubleSpinBox* beam_Footprint_Lateral_Width_SpinBox;
 	QCustomPlot* beam_Profile_CustomPlot;
 	MyDoubleSpinBox* sample_Size_SpinBox;
 	MyDoubleSpinBox* sample_X_SpinBox;

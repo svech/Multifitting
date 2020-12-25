@@ -234,7 +234,9 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 	QPushButton* new_Add_Button    = new QPushButton("Add Row");
 	QPushButton* new_Remove_Button = new QPushButton("Remove");
 
-	QFrame* new_Frame = new QFrame(this);
+	QFrame* new_Frame = new QFrame;
+		layout_Target_Profile_With_Frame_Vector->insertWidget(index_Pressed,new_Frame);
+
 	Target_Curve* new_Target_Curve = new Target_Curve(new_Description_Label, this);
 	Target_Curve_Editor* new_Target_Curve_Editor;
 
@@ -266,10 +268,6 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 	right_Layout->addWidget(new_Remove_Button);
 	new_Frame_Layout->addLayout(left_Layout, Qt::AlignLeft);
 	new_Frame_Layout->addLayout(right_Layout, Qt::AlignRight);
-
-	new_Frame->setLayout(new_Frame_Layout);
-
-	layout_Target_Profile_With_Frame_Vector->insertWidget(index_Pressed,new_Frame);
 
 	connect(new_Import_Button, &QPushButton::clicked, this, [=]{ open_Editor_Window (new_Target_Curve, new_Target_Curve_Editor); });
 	connect(new_Add_Button,    &QPushButton::clicked, this, [=]{ add_Target_Curve   (data_Target_Profile_Frame_Vector.indexOf(new_Frame)+1); });

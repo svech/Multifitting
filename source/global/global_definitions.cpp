@@ -302,7 +302,8 @@ QDataStream& operator >>( QDataStream& stream,		 Sample_Geometry& sample_Geometr
 
 QDataStream& operator <<( QDataStream& stream, const Beam_Geometry& beam_Geometry )
 {
-	return stream << beam_Geometry.size << beam_Geometry.lateral_Width << beam_Geometry.smoothing;
+	return stream << beam_Geometry.size << beam_Geometry.lateral_Width << beam_Geometry.smoothing
+				  << beam_Geometry.left_Wing_Width << beam_Geometry.right_Wing_Width << beam_Geometry.wings_Intensity;
 }
 QDataStream& operator >>( QDataStream& stream,		 Beam_Geometry& beam_Geometry )
 {
@@ -312,6 +313,10 @@ QDataStream& operator >>( QDataStream& stream,		 Beam_Geometry& beam_Geometry )
 	{stream >> beam_Geometry.lateral_Width;}
 
 	stream >> beam_Geometry.smoothing;
+
+	if(Global_Variables::check_Loaded_Version(1,11,2))
+	{stream >> beam_Geometry.left_Wing_Width >> beam_Geometry.right_Wing_Width >> beam_Geometry.wings_Intensity;}
+
 	return stream;
 }
 
