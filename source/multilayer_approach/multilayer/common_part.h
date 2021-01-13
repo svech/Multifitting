@@ -18,6 +18,7 @@ public:
 	void create_2D_Detector_GroupBox();
 	void create_Footptint_GroupBox();
 	void create_Beam_Plot();
+		void apply_Lin_Log();
 		void plot_Beam_Profile();
 	void create_Sample_Plot();
 		void plot_Sample();
@@ -53,11 +54,15 @@ public:
 
 	// footprint
 	MyDoubleSpinBox* beam_Footprint_Width_SpinBox;	
-	MyDoubleSpinBox* beam_Footprint_Shape_SpinBox;
+	MyDoubleSpinBox* beam_Footprint_Left_Smoothing_SpinBox;
+	QCheckBox* beam_Footprint_Right_Smoothing_Checkbox;
+	MyDoubleSpinBox* beam_Footprint_Right_Smoothing_SpinBox;
 	MyDoubleSpinBox* beam_Footprint_Left_Wing_Width_SpinBox;
+	QCheckBox* beam_Footprint_Right_Wing_Width_Checkbox;
 	MyDoubleSpinBox* beam_Footprint_Right_Wing_Width_SpinBox;
 	MyDoubleSpinBox* beam_Footprint_Wing_Intensity_SpinBox;
 	MyDoubleSpinBox* beam_Footprint_Lateral_Width_SpinBox;
+	QCheckBox* beam_Footprint_Log_Profile_Checkbox;
 	QCustomPlot* beam_Profile_CustomPlot;
 	MyDoubleSpinBox* sample_Size_SpinBox;
 	MyDoubleSpinBox* sample_X_SpinBox;

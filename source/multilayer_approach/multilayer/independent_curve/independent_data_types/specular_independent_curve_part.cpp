@@ -329,7 +329,7 @@ void Specular_Independent_Curve_Part::refresh_Angular_Units()
 		// at fixed
 		at_Fixed_SpinBox->setRange(0,90./coeff);
 
-		at_Fixed_SpinBox->setValue(90./*independent_Curve->measurement.beam_Theta_0_Angle.value*//coeff);
+		at_Fixed_SpinBox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.value/coeff);
 		at_Fixed_Units_Label->setText(independent_Curve->angular_Units);
 	}
 

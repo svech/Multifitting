@@ -128,7 +128,15 @@ Data::Data(QString item_Type_Passed)
 
 		// footprint
 		beam_Geometry.size = 0.055;
-		beam_Geometry.smoothing = 0.5;
+		beam_Geometry.left_Smoothing = 0.5;
+		beam_Geometry.right_Smoothing = 0.5;
+		beam_Geometry.asymmetric_Smoothing = false;
+		beam_Geometry.left_Wing_Width = 0;
+		beam_Geometry.right_Wing_Width = 0;
+		beam_Geometry.asymmetric_Wing_Width = false;
+		beam_Geometry.wings_Intensity = 0;
+		beam_Geometry.lateral_Width = 5.0;
+		beam_Geometry.log_Profile_Plot = false;
 
 		sample_Geometry.size = 20;
 		sample_Geometry.x_Position = 0;
@@ -811,12 +819,12 @@ void Data::calc_Instrumental_Factor()
 	}
 
 	// calculate denominator
-	if( beam_Geometry.size<DBL_EPSILON || sample_Geometry.size<DBL_EPSILON) return;
+	if( beam_Geometry.size<DBL_EPSILON || sample_Geometry.size<DBL_EPSILON ) return;
 //	auto f = [&](double x){return Global_Variables::beam_Profile(x, beam_Geometry.size, beam_Geometry.smoothing);};
 //	double denominator = gauss_kronrod<double,15>::integrate(f, -3*beam_Geometry.size, 3*beam_Geometry.size, 3, 1e-7);
-	auto f = [&](double x){return Global_Variables::beam_Profile(x, 1, beam_Geometry.smoothing);};
+	auto f = [&](double x){return Global_Variables::beam_Profile(x, 1, beam_Geometry.left_Smoothing);};
 	double denominator = gauss_kronrod<double,31>::integrate(f, -3, 3, 3, 1e-7)*beam_Geometry.size;
-	if(beam_Geometry.smoothing<DBL_EPSILON) denominator = beam_Geometry.size;
+	if(beam_Geometry.left_Smoothing<DBL_EPSILON) denominator = beam_Geometry.size;
 	if( denominator < DBL_EPSILON ) return;
 
 	auto factor = [&](double sin_Theta_0)
@@ -832,7 +840,7 @@ void Data::calc_Instrumental_Factor()
 			if( minimum>-3*beam_Geometry.size ||
 				maximum< 3*beam_Geometry.size )
 			{
-				if(beam_Geometry.smoothing<DBL_EPSILON)
+				if(beam_Geometry.left_Smoothing<DBL_EPSILON)
 				{
 					return (min(maximum, beam_Geometry.size/2.) - max(minimum, -beam_Geometry.size/2.));
 				} else

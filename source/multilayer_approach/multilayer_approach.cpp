@@ -285,11 +285,13 @@ void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Tre
 	// generate name
 	QDateTime date_Time = QDateTime::currentDateTime();
 	if( name_Modificator == current_State )	{
-		new_Fitted_Structure.name = "# " + Locale.toString(++fits_Positive_Counter) + " state ||  "                                + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
-	if( name_Modificator == fitted_State )	{
-		new_Fitted_Structure.name = "# " + Locale.toString(++fits_Positive_Counter) + " fit ||  "                                  + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
+		new_Fitted_Structure.name = "# " + Locale.toString(++fits_Positive_Counter) + " state ||  "                                + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");			}
+	if( name_Modificator == before_Fitting_State )	{
+		new_Fitted_Structure.name = "# " + Locale.toString(++fits_Positive_Counter) + " fit ||  "                                  + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss") + " || initial";}
+	if( name_Modificator == after_Fitting_State )	{
+		new_Fitted_Structure.name = "# " + Locale.toString(++fits_Positive_Counter) + " fit ||  "                                  + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss") + " || final";	}
 	if( name_Modificator == fit_Run_State )	{
-		new_Fitted_Structure.name = "# " + Locale.toString(++fits_Positive_Counter) + " fit run " + Locale.toString(run) + " ||  " + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
+		new_Fitted_Structure.name = "# " + Locale.toString(++fits_Positive_Counter) + " fit run " + Locale.toString(run) + " ||  " + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");			}
 
 	// put new instance to storage
 	fitted_Structures.append(new_Fitted_Structure);

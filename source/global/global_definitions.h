@@ -14,7 +14,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 2
+#define VERSION_BUILD 3
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -212,8 +212,9 @@ class Node;
 #define APERIODIC_TABLE_DENSITY_VALUE_WIDTH    110
 #define MIN_FORMULA_WIDTH_LINE_EDIT 80		// master/slave width for dependance formula
 #define id_Of_Thicknesses 9					// used fore refresh/reload of corresponding line_Edits
-#define TARGET_LINE_EDIT_WIDTH_WING 43		// for target_Curve_Editor
+#define TARGET_LINE_EDIT_WIDTH_WING 40		// for target_Curve_Editor
 #define TARGET_LINE_EDIT_WIDTH_SUB 52		// for target_Curve_Editor
+#define TARGET_LINE_EDIT_WIDTH_BEAM 53		// for target_Curve_Editor
 #define TARGET_LINE_EDIT_WIDTH 63			// for target_Curve_Editor
 #define TARGET_LINE_AT_FIXED_WIDTH 105		// for target_Curve_Editor
 #define TARGET_LINE_RESOLUTION_WIDTH 80		// for target_Curve_Editor
@@ -475,9 +476,10 @@ class Node;
 #define SCATTERED_MODE  "SCATTERED_MODE"
 
 // name modificators
-#define current_State	"current_State"
-#define fitted_State	"fitted_State"
-#define fit_Run_State	"fit_Run_State"
+#define current_State		 "current_State"
+#define before_Fitting_State "before_Fitting_State"
+#define after_Fitting_State	 "after_Fitting_State"
+#define fit_Run_State		 "fit_Run_State"
 
 // aperiodic
 #define relate_Thickness "relate_Thickness"
@@ -590,13 +592,18 @@ struct Sample_Geometry			{ double size = 20;			// mm
 								};
 
 struct Beam_Geometry			{ double size = 0.055;			// mm
-								  double smoothing = 0.5;
+								  double left_Smoothing = 0.5;
+								  double right_Smoothing = 0.5;
+								  bool asymmetric_Smoothing = false;
 
 								  double left_Wing_Width = 0;   // mm
 								  double right_Wing_Width = 0;  // mm
+								  bool asymmetric_Wing_Width = false;
 								  double wings_Intensity = 0;   // share of main beam intensity
 
 								  double lateral_Width = 5.0;	// mm
+
+								  bool log_Profile_Plot = false;
 								};
 
 
