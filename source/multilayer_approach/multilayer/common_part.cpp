@@ -954,7 +954,9 @@ void Common_Part::connecting()
 	connect(beam_Footprint_Left_Smoothing_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		measurement.beam_Geometry.left_Smoothing = beam_Footprint_Left_Smoothing_SpinBox->value();
-
+		if(!measurement.beam_Geometry.asymmetric_Smoothing)	{
+			measurement.beam_Geometry.right_Smoothing = measurement.beam_Geometry.left_Smoothing;
+		}
 		plot_Beam_Profile();
 		global_Multilayer_Approach->global_Recalculate();
 	});
@@ -963,7 +965,9 @@ void Common_Part::connecting()
 	{
 		measurement.beam_Geometry.asymmetric_Smoothing = beam_Footprint_Right_Smoothing_Checkbox->isChecked();
 		beam_Footprint_Right_Smoothing_SpinBox->setEnabled(measurement.beam_Geometry.asymmetric_Smoothing);
-
+		if(!measurement.beam_Geometry.asymmetric_Smoothing)	{
+			measurement.beam_Geometry.right_Smoothing = measurement.beam_Geometry.left_Smoothing;
+		}
 		plot_Beam_Profile();
 		global_Multilayer_Approach->global_Recalculate();
 	});
@@ -979,7 +983,9 @@ void Common_Part::connecting()
 	connect(beam_Footprint_Left_Wing_Width_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		measurement.beam_Geometry.left_Wing_Width = beam_Footprint_Left_Wing_Width_SpinBox->value();
-
+		if(!measurement.beam_Geometry.asymmetric_Wing_Width)	{
+			measurement.beam_Geometry.right_Wing_Width = measurement.beam_Geometry.left_Wing_Width;
+		}
 		plot_Beam_Profile();
 		global_Multilayer_Approach->global_Recalculate();
 	});
@@ -988,14 +994,16 @@ void Common_Part::connecting()
 	{
 		measurement.beam_Geometry.asymmetric_Wing_Width = beam_Footprint_Right_Wing_Width_Checkbox->isChecked();
 		beam_Footprint_Right_Wing_Width_SpinBox->setEnabled(measurement.beam_Geometry.asymmetric_Wing_Width);
-
+		if(!measurement.beam_Geometry.asymmetric_Wing_Width)	{
+			measurement.beam_Geometry.right_Wing_Width = measurement.beam_Geometry.left_Wing_Width;
+		}
 		plot_Beam_Profile();
 		global_Multilayer_Approach->global_Recalculate();
 	});
 	// beam right wing
 	connect(beam_Footprint_Right_Wing_Width_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		measurement.beam_Geometry.right_Wing_Width = beam_Footprint_Right_Wing_Width_SpinBox->value();
+		measurement.beam_Geometry.right_Wing_Width = beam_Footprint_Right_Wing_Width_SpinBox->value();		
 
 		plot_Beam_Profile();
 		global_Multilayer_Approach->global_Recalculate();
