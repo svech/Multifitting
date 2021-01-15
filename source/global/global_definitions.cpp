@@ -303,8 +303,8 @@ QDataStream& operator >>( QDataStream& stream,		 Sample_Geometry& sample_Geometr
 QDataStream& operator <<( QDataStream& stream, const Beam_Geometry& beam_Geometry )
 {
 	return stream << beam_Geometry.size << beam_Geometry.lateral_Width
-				  << beam_Geometry.left_Smoothing  << beam_Geometry.right_Smoothing  << beam_Geometry.asymmetric_Smoothing
-				  << beam_Geometry.left_Wing_Width << beam_Geometry.right_Wing_Width << beam_Geometry.asymmetric_Wing_Width << beam_Geometry.wings_Intensity
+				  << beam_Geometry.smoothing  << beam_Geometry.right_Smoothing  << beam_Geometry.asymmetric_Smoothing
+				  << beam_Geometry.wings_Full_Width << beam_Geometry.right_Wing_Width << beam_Geometry.asymmetric_Wing_Width << beam_Geometry.wings_Intensity
 				  << beam_Geometry.log_Profile_Plot;
 }
 QDataStream& operator >>( QDataStream& stream,		 Beam_Geometry& beam_Geometry )
@@ -314,14 +314,14 @@ QDataStream& operator >>( QDataStream& stream,		 Beam_Geometry& beam_Geometry )
 	if(Global_Variables::check_Loaded_Version(1,11,0))
 	{stream >> beam_Geometry.lateral_Width;}
 
-	stream >> beam_Geometry.left_Smoothing;
+	stream >> beam_Geometry.smoothing;
 
 	if(Global_Variables::check_Loaded_Version(1,11,3))
 	{stream >> beam_Geometry.right_Smoothing >> beam_Geometry.asymmetric_Smoothing;}
 
 
 	if(Global_Variables::check_Loaded_Version(1,11,2))
-	{stream >> beam_Geometry.left_Wing_Width >> beam_Geometry.right_Wing_Width;}
+	{stream >> beam_Geometry.wings_Full_Width >> beam_Geometry.right_Wing_Width;}
 
 	if(Global_Variables::check_Loaded_Version(1,11,3))
 	{stream >> beam_Geometry.asymmetric_Wing_Width;}

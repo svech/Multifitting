@@ -312,6 +312,9 @@ public:
 
 	// beam profile
 	static double beam_Profile(double x, double FWHM, double smoothing);
+	static double beam_Profile_Integral(double x, double FWHM, double smoothing);
+	static double beam_Profile_With_Wings(double x, double FWHM, double smoothing, double wings_FW, double wings_Intensity);
+	static double beam_Profile_With_Wings_Integral(double x, double FWHM, double smoothing, double wings_FW, double wings_Intensity);
 
 	// resolution/distribution functions
 	static void   distribution_Sampling(Distribution distribution, QVector<double>& positions, QVector<double>& heights);

@@ -2128,18 +2128,66 @@ double Global_Variables::beam_Profile(double x, double FWHM, double smoothing)
 		if(x >   FWHM/2) return 0;
 	} else
 	{
-		smoothing*=FWHM;
-		double limit = 4*(FWHM/2+1.5*smoothing);
-		if(x <= -limit) return 0;
-		if(-limit < x && x < limit)
-		{
-			double x_Factor = 4*smoothing*acosh(0.5*sqrt(2+2*sqrt(2+pow(sinh(FWHM/smoothing),2))))/FWHM;
+		double co_Smooth = 1./smoothing;
+		double x_Factor = 4*acosh(0.5*sqrt(2+2*sqrt(2+pow(sinh(co_Smooth),2))))/FWHM;
 
-			return  (1+tanh(( x*x_Factor+FWHM)/smoothing))*
-					(1+tanh((-x*x_Factor+FWHM)/smoothing))
-					/pow(1+tanh(FWHM/smoothing),2);
-		}
-		if(x >=  limit)	return 0;
+		return  (1+tanh( x*x_Factor+co_Smooth))*
+				(1+tanh(-x*x_Factor+co_Smooth))
+				/pow(1+tanh(co_Smooth),2);
+	}
+	return 0;
+}
+
+double Global_Variables::beam_Profile_Integral(double x, double FWHM, double smoothing)
+{
+	if(x >  0.55*FWHM+10*FWHM*smoothing) x =  0.55*FWHM+10*FWHM*smoothing;
+	if(x < -0.55*FWHM-10*FWHM*smoothing) x = -0.55*FWHM-10*FWHM*smoothing;
+
+	if(smoothing < DBL_EPSILON)
+	{
+		if(x <=  -FWHM/2) return -FWHM/2;
+		if(-FWHM/2 < x && x < FWHM/2) return x;
+		if(x >=   FWHM/2) return  FWHM/2;
+	} else
+	{
+		double co_Smooth = 1./smoothing;
+		double acosh_Value = acosh(0.5*sqrt(2+M_SQRT2*sqrt(3+cosh(2*co_Smooth))))/FWHM;
+		double denominator = 8*acosh_Value*tanh(co_Smooth);
+		return log( cosh(co_Smooth + 4*x*acosh_Value) / cosh(co_Smooth - 4*x*acosh_Value) ) / denominator;
+	}
+	return 0;
+}
+
+double Global_Variables::beam_Profile_With_Wings(double x, double FWHM, double smoothing, double wings_FW, double wings_Intensity)
+{
+	if(wings_Intensity > DBL_EPSILON && wings_FW > DBL_EPSILON)
+	{
+		double factor = 1.-wings_Intensity;
+		double beam_Pure_value = beam_Profile(x, FWHM, smoothing)*factor;
+
+		if(x <=  -wings_FW/2) return beam_Pure_value;
+		if(-wings_FW/2 < x && x < wings_FW/2) return 1*wings_Intensity + beam_Pure_value;
+		if(x >=   wings_FW/2) return beam_Pure_value;
+	} else
+	{
+		return beam_Profile(x, FWHM, smoothing);
+	}
+	return 0;
+}
+
+double Global_Variables::beam_Profile_With_Wings_Integral(double x, double FWHM, double smoothing, double wings_FW, double wings_Intensity)
+{
+	if(wings_Intensity > DBL_EPSILON && wings_FW > DBL_EPSILON)
+	{
+		double factor = 1.-wings_Intensity;
+		double beam_Integral_Pure_value = beam_Profile_Integral(x, FWHM, smoothing)*factor;
+
+		if(x <=  -wings_FW/2) return -wings_Intensity*wings_FW/2 + beam_Integral_Pure_value;
+		if(-wings_FW/2 < x && x < wings_FW/2) return wings_Intensity*x + beam_Integral_Pure_value;
+		if(x >=   wings_FW/2) return  wings_Intensity*wings_FW/2 + beam_Integral_Pure_value;
+	} else
+	{
+		return beam_Profile_Integral(x, FWHM, smoothing);
 	}
 	return 0;
 }

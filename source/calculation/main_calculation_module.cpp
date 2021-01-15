@@ -741,7 +741,7 @@ void Main_Calculation_Module::wrap_With_Specular_Single(Calculated_Values& calcu
 
 	// for accounting spot
 	double beam_Spot_FWHM_Angular = qRadiansToDegrees(measurement.beam_Geometry.size/measurement.detector_1D.distance_To_Sample);
-	double beam_Spot_Smoothing = measurement.beam_Geometry.left_Smoothing;
+	double beam_Spot_Smoothing = measurement.beam_Geometry.smoothing;
 	double spot_Range_Limit = 3;
 	auto f_Spot = [&](double x){return Global_Variables::beam_Profile(x, 1, beam_Spot_Smoothing);};
 	double spot_Norm_Factor = gauss_kronrod<double,31>::integrate(f_Spot, -spot_Range_Limit, spot_Range_Limit, 3, 1e-7);
@@ -896,7 +896,7 @@ void Main_Calculation_Module::wrap_With_Specular_Vector(Calculated_Values& calcu
 
 	// for accounting spot
 	double beam_Spot_FWHM_Angular = qRadiansToDegrees(measurement.beam_Geometry.size/measurement.detector_1D.distance_To_Sample);
-	double beam_Spot_Smoothing = measurement.beam_Geometry.left_Smoothing;
+	double beam_Spot_Smoothing = measurement.beam_Geometry.smoothing;
 	double spot_Range_Limit = 3;
 	auto f_Spot = [&](double x){return Global_Variables::beam_Profile(x, 1, beam_Spot_Smoothing);};
 	double spot_Norm_Factor = gauss_kronrod<double,31>::integrate(f_Spot, -spot_Range_Limit, spot_Range_Limit, 3, 1e-7);
@@ -1088,7 +1088,7 @@ void Main_Calculation_Module::wrap_With_Specular_2D(Calculated_Values& calculate
 	// for accounting spot
 	double beam_Spot_FWHM_Theta_0 = qRadiansToDegrees(measurement.beam_Geometry.size         /measurement.detector_2D.distance_To_Sample);
 	double beam_Spot_FWHM_Phi_0   = qRadiansToDegrees(measurement.beam_Geometry.lateral_Width/measurement.detector_2D.distance_To_Sample);
-	double beam_Spot_Smoothing = measurement.beam_Geometry.left_Smoothing;
+	double beam_Spot_Smoothing = measurement.beam_Geometry.smoothing;
 	double spot_Range_Limit = 4;
 	auto f_Spot = [&](double x){return Global_Variables::beam_Profile(x, 1, beam_Spot_Smoothing);};
 	double spot_Norm_Factor = gauss_kronrod<double,31>::integrate(f_Spot, -spot_Range_Limit, spot_Range_Limit, 3, 1e-7);

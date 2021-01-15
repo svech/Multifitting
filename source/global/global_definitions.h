@@ -566,8 +566,8 @@ struct Distribution             { double FWHM_distribution = 0;
 struct Detector_1D				{ QString detector_Type;
 
 								  // slit
-								  double slit_Width;
-								  double distance_To_Sample;
+								  double slit_Width = 0.5;
+								  double distance_To_Sample = 300;
 
 								  // crystal
 								  Distribution detector_Theta_Resolution;
@@ -592,13 +592,13 @@ struct Sample_Geometry			{ double size = 20;			// mm
 								};
 
 struct Beam_Geometry			{ double size = 0.055;			// mm
-								  double left_Smoothing = 0.5;
-								  double right_Smoothing = 0.5;
-								  bool asymmetric_Smoothing = false;
+								  double smoothing = 0.5;
+								  double right_Smoothing = 0.5;		// UNUSED
+								  bool asymmetric_Smoothing = false;// UNUSED
 
-								  double left_Wing_Width = 0;   // mm
-								  double right_Wing_Width = 0;  // mm
-								  bool asymmetric_Wing_Width = false;
+								  double wings_Full_Width = 0.25;   // mm
+								  double right_Wing_Width = 0.125;  // mm // UNUSED
+								  bool asymmetric_Wing_Width = false; // UNUSED
 								  double wings_Intensity = 0;   // share of main beam intensity
 
 								  double lateral_Width = 5.0;	// mm

@@ -259,13 +259,15 @@ extern int thickness_transfer_precision		;
 
 // -----------------------------------------------------------------------------------------
 
-// parameters default values
+// measurement default values
 
-// angular and spectral independent variables
 extern int default_num_spectral_points;
 extern int default_num_theta_0_angular_points;
 extern int default_num_theta_angular_points;
 extern int default_num_phi_angular_points;
+
+extern int default_beam_theta_0_specular_position;
+extern int default_detector_theta_offset;
 
 extern double default_theta_0_angle_value;
 extern double default_min_theta_0_angle;
@@ -287,6 +289,42 @@ extern double default_logarithmic_threshold_beta;
 extern double default_logarithmic_threshold_material_density;
 extern double default_logarithmic_threshold_element_concentration;
 
+extern double default_spectral_distribution_FWHM;
+extern double default_spectral_distribution_coverage;
+extern bool	  default_spectral_distribution_use_sampling;
+extern int    default_spectral_distribution_number_of_Samples;
+
+extern double default_beam_Theta_0_distribution_FWHM;
+extern double default_beam_Theta_0_distribution_coverage;
+extern bool   default_beam_Theta_0_distribution_use_sampling;
+extern int    default_beam_Theta_0_distribution_number_of_Samples;
+
+extern double default_beam_Phi_0_distribution_FWHM;
+extern double default_beam_Phi_0_distribution_coverage;
+extern bool   default_beam_Phi_0_distribution_use_sampling;
+extern int    default_beam_Phi_0_distribution_number_of_Samples;
+
+extern double default_detector_1D_slit_width;
+extern double default_detector_1D_distance_to_sample;
+
+extern double default_detector_1D_theta_resolution_FWHM;
+extern double default_detector_2D_theta_resolution_FWHM;
+extern double default_detector_2D_phi_resolution_FWHM;
+
+extern double default_beam_geometry_size;
+extern double default_beam_geometry_smoothing;
+extern double default_beam_wings_full_width;
+extern double default_beam_wings_intensity;
+extern double default_beam_lateral_width;
+extern bool   default_beam_log_profile_plot;
+
+extern double default_sample_geometry_size;
+extern double default_sample_geometry_x_position;
+extern double default_sample_geometry_z_position;
+extern double default_sample_geometry_curvature;
+
+extern double default_polarization;
+extern double default_background;
 // -----------------------------------------------------------------------------------------
 
 

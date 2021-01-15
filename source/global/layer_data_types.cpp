@@ -55,7 +55,7 @@ Data::Data(QString item_Type_Passed)
 			beam_Theta_0_Angle.indicator.whats_This = whats_This_Beam_Theta_0_Angle;
 			beam_Theta_0_Angle.indicator.item_Id = id;
 
-			beam_Theta_0_Specular_Position = 1;
+			beam_Theta_0_Specular_Position = default_beam_theta_0_specular_position;
 		}
 
 		// theta angle
@@ -68,7 +68,7 @@ Data::Data(QString item_Type_Passed)
 			detector_Theta_Angle.indicator.whats_This = whats_This_Detector_Theta_Angle;
 			detector_Theta_Angle.indicator.item_Id = id;
 
-			detector_Theta_Offset = 0.5;
+			detector_Theta_Offset = default_detector_theta_offset;
 		}
 
 		// phi angle
@@ -83,69 +83,69 @@ Data::Data(QString item_Type_Passed)
 		}
 
 		// resolution
-		spectral_Distribution.FWHM_distribution = 0;
+		spectral_Distribution.FWHM_distribution = default_spectral_distribution_FWHM;
 		spectral_Distribution.distribution_Function = distributions[Gaussian];
-		spectral_Distribution.coverage = 2;
-		spectral_Distribution.use_Sampling = false;
-		spectral_Distribution.number_of_Samples = 5;
+		spectral_Distribution.coverage			= default_spectral_distribution_coverage;
+		spectral_Distribution.use_Sampling		= default_spectral_distribution_use_sampling;
+		spectral_Distribution.number_of_Samples = default_spectral_distribution_number_of_Samples;
 
-		beam_Theta_0_Distribution.FWHM_distribution = 0;
+		beam_Theta_0_Distribution.FWHM_distribution = default_beam_Theta_0_distribution_FWHM;
 		beam_Theta_0_Distribution.distribution_Function = distributions[Gaussian];
-		beam_Theta_0_Distribution.coverage = 2;
-		beam_Theta_0_Distribution.use_Sampling = false;
-		beam_Theta_0_Distribution.number_of_Samples = 5;
+		beam_Theta_0_Distribution.coverage			= default_beam_Theta_0_distribution_coverage;
+		beam_Theta_0_Distribution.use_Sampling		= default_beam_Theta_0_distribution_use_sampling;
+		beam_Theta_0_Distribution.number_of_Samples = default_beam_Theta_0_distribution_number_of_Samples;
 
-		beam_Phi_0_Distribution.FWHM_distribution = 0;
+		beam_Phi_0_Distribution.FWHM_distribution	= default_beam_Phi_0_distribution_FWHM;
 		beam_Phi_0_Distribution.distribution_Function = distributions[Gaussian];
-		beam_Phi_0_Distribution.coverage = 2;
-		beam_Phi_0_Distribution.use_Sampling = false;
-		beam_Phi_0_Distribution.number_of_Samples = 5;
+		beam_Phi_0_Distribution.coverage			= default_beam_Phi_0_distribution_coverage;
+		beam_Phi_0_Distribution.use_Sampling		= default_beam_Phi_0_distribution_use_sampling;
+		beam_Phi_0_Distribution.number_of_Samples	= default_beam_Phi_0_distribution_number_of_Samples;
 
 		// detector
 		detector_1D.detector_Type = detectors[Slit];
-//		detector_1D.slit_Width = 0.8;
-		detector_1D.slit_Width=0.05;
-		detector_1D.distance_To_Sample = 320;
-		detector_1D.detector_Theta_Resolution.FWHM_distribution = 0;
+		detector_1D.slit_Width			= default_detector_1D_slit_width;
+		detector_1D.distance_To_Sample	= default_detector_1D_distance_to_sample;
+
+		detector_1D.detector_Theta_Resolution.FWHM_distribution = default_detector_1D_theta_resolution_FWHM;
 		detector_1D.detector_Theta_Resolution.distribution_Function = distributions[Gaussian];
 		detector_1D.detector_Theta_Resolution.coverage = 2;
-		beam_Phi_0_Distribution.use_Sampling = false;
+		detector_1D.detector_Theta_Resolution.use_Sampling = false;
 		detector_1D.detector_Theta_Resolution.number_of_Samples = 5;
 
 
 		detector_2D.detector_Type = detectors[Spherical];		
-		detector_2D.detector_Theta_Resolution.FWHM_distribution = 0;
+		detector_2D.detector_Theta_Resolution.FWHM_distribution = default_detector_2D_theta_resolution_FWHM;
 		detector_2D.detector_Theta_Resolution.distribution_Function = distributions[Gaussian];
 		detector_2D.detector_Theta_Resolution.coverage = 2;
 		detector_2D.detector_Theta_Resolution.use_Sampling = false;
 		detector_2D.detector_Theta_Resolution.number_of_Samples = 5;
 
-		detector_2D.detector_Phi_Resolution.FWHM_distribution = 0;
+		detector_2D.detector_Phi_Resolution.FWHM_distribution = default_detector_2D_phi_resolution_FWHM;
 		detector_2D.detector_Phi_Resolution.distribution_Function = distributions[Gaussian];
 		detector_2D.detector_Phi_Resolution.coverage = 2;
 		detector_2D.detector_Phi_Resolution.use_Sampling = false;
 		detector_2D.detector_Phi_Resolution.number_of_Samples = 5;
 
 		// footprint
-		beam_Geometry.size = 0.055;
-		beam_Geometry.left_Smoothing = 0.5;
-		beam_Geometry.right_Smoothing = 0.5;
+		beam_Geometry.size				= default_beam_geometry_size;
+		beam_Geometry.smoothing			= default_beam_geometry_smoothing;
+		beam_Geometry.right_Smoothing	= default_beam_geometry_smoothing;
 		beam_Geometry.asymmetric_Smoothing = false;
-		beam_Geometry.left_Wing_Width = 0;
-		beam_Geometry.right_Wing_Width = 0;
+		beam_Geometry.wings_Full_Width	= default_beam_wings_full_width;
+		beam_Geometry.right_Wing_Width	= default_beam_wings_full_width/2;
 		beam_Geometry.asymmetric_Wing_Width = false;
-		beam_Geometry.wings_Intensity = 0;
-		beam_Geometry.lateral_Width = 5.0;
-		beam_Geometry.log_Profile_Plot = false;
+		beam_Geometry.wings_Intensity	= default_beam_wings_intensity;
+		beam_Geometry.lateral_Width		= default_beam_lateral_width;
+		beam_Geometry.log_Profile_Plot	= default_beam_log_profile_plot;
 
-		sample_Geometry.size = 20;
-		sample_Geometry.x_Position = 0;
-		sample_Geometry.z_Position = 0;
-		sample_Geometry.curvature = 0;
+		sample_Geometry.size		= default_sample_geometry_size;
+		sample_Geometry.x_Position	= default_sample_geometry_x_position;
+		sample_Geometry.z_Position	= default_sample_geometry_z_position;
+		sample_Geometry.curvature	= default_sample_geometry_curvature;
 
 		// other
-		polarization = 1;
-		background = 0;
+		polarization = default_polarization;
+		background = default_background;
 	}
 
 	// Ambient, Layer, Substrate
@@ -820,41 +820,31 @@ void Data::calc_Instrumental_Factor()
 
 	// calculate denominator
 	if( beam_Geometry.size<DBL_EPSILON || sample_Geometry.size<DBL_EPSILON ) return;
-//	auto f = [&](double x){return Global_Variables::beam_Profile(x, beam_Geometry.size, beam_Geometry.smoothing);};
-//	double denominator = gauss_kronrod<double,15>::integrate(f, -3*beam_Geometry.size, 3*beam_Geometry.size, 3, 1e-7);
-	auto f = [&](double x){return Global_Variables::beam_Profile(x, 1, beam_Geometry.left_Smoothing);};
-	double denominator = gauss_kronrod<double,31>::integrate(f, -3, 3, 3, 1e-7)*beam_Geometry.size;
-	if(beam_Geometry.left_Smoothing<DBL_EPSILON) denominator = beam_Geometry.size;
+
+	double FWHM = beam_Geometry.size;
+	double smoothing = beam_Geometry.smoothing;
+	double wings_FW = beam_Geometry.wings_Full_Width;
+	double wings_Intensity = beam_Geometry.wings_Intensity;
+
+	double arg_Limit = max(10*FWHM,10*wings_FW);
+	double denominator = Global_Variables::beam_Profile_With_Wings_Integral( arg_Limit, FWHM, smoothing, wings_FW, wings_Intensity)-
+						 Global_Variables::beam_Profile_With_Wings_Integral(-arg_Limit, FWHM, smoothing, wings_FW, wings_Intensity);
+
 	if( denominator < DBL_EPSILON ) return;
 
 	auto factor = [&](double sin_Theta_0)
 	{
 		if(sin_Theta_0 > DBL_EPSILON)
 		{
-			double ctan = sqrt(1.-sin_Theta_0*sin_Theta_0)/sin_Theta_0;
-			double minimum, maximum;
-			minimum = (sample_Geometry.x_Position + sample_Geometry.z_Position*ctan - sample_Geometry.size/2.)*sin_Theta_0;
-			maximum = (sample_Geometry.x_Position + sample_Geometry.z_Position*ctan + sample_Geometry.size/2.)*sin_Theta_0;
+			double ctan_Theta_0 = sqrt(1.-sin_Theta_0*sin_Theta_0)/sin_Theta_0;
+			double minimum = (sample_Geometry.x_Position + sample_Geometry.z_Position*ctan_Theta_0 - sample_Geometry.size/2.)*sin_Theta_0;
+			double maximum = (sample_Geometry.x_Position + sample_Geometry.z_Position*ctan_Theta_0 + sample_Geometry.size/2.)*sin_Theta_0;
 
-			// if reasonable to integrate
-			if( minimum>-3*beam_Geometry.size ||
-				maximum< 3*beam_Geometry.size )
-			{
-				if(beam_Geometry.left_Smoothing<DBL_EPSILON)
-				{
-					return (min(maximum, beam_Geometry.size/2.) - max(minimum, -beam_Geometry.size/2.));
-				} else
-				{
-//					return gauss_kronrod<double,15>::integrate(f, minimum, maximum, 3, 1e-7);
-					return gauss_kronrod<double,31>::integrate(f, minimum/beam_Geometry.size, maximum/beam_Geometry.size, 3, 1e-7)*beam_Geometry.size;
-				}
-			} else
-			{
-				return denominator;
-			}
+			return Global_Variables::beam_Profile_With_Wings_Integral(maximum, FWHM, smoothing, wings_FW, wings_Intensity)-
+				   Global_Variables::beam_Profile_With_Wings_Integral(minimum, FWHM, smoothing, wings_FW, wings_Intensity);
 		}
-//		double shutter_Factor = gauss_kronrod<double,15>::integrate(f, sample_Geometry.z_Position, sample_Geometry.z_Position+3*beam_Geometry.size, 3, 1e-7);
-		double shutter_Factor = gauss_kronrod<double,31>::integrate(f, sample_Geometry.z_Position, sample_Geometry.z_Position+3, 3, 1e-7)*beam_Geometry.size;
+		double shutter_Factor = Global_Variables::beam_Profile_With_Wings_Integral(arg_Limit, FWHM, smoothing, wings_FW, wings_Intensity)-
+								Global_Variables::beam_Profile_With_Wings_Integral(sample_Geometry.z_Position, FWHM, smoothing, wings_FW, wings_Intensity);
 		return shutter_Factor;
 	};
 
