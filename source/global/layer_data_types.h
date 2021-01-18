@@ -98,11 +98,6 @@ public:
 		Parameter relative_Density;
 		Parameter absolute_Density;
 
-		// tabular material
-		QString separate_Optical_Constants = TRIL_NOT_DEFINED;
-		Parameter permittivity;
-		Parameter absorption;
-
 		// material composition
 		QList<Stoichiometry> composition;
 		QString get_Composed_Material();

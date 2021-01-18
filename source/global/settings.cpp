@@ -114,53 +114,172 @@ QString aperiodic_default_units_import;
 
 // structure default values
 
-double dispersion; // from [0,1)
-double sigma_Dispersion_Min;	// 2
-double sigma_Dispersion_Max;	// 2
 double default_num_confidence_points;
 bool auto_density_from_elements;
 
-// Ambient_Values
-QString	ambient_default_material;
-double	ambient_default_absolute_density;
-double	ambient_default_relative_density;
-double	ambient_default_permittivity;
-double	ambient_default_absorption;
-bool	ambient_default_composed;
-double	ambient_default_stoichiometry_composition;
-QString	ambient_default_stoichiometry_element;
-
 // Layer_Values
-QString	layer_default_material;
-double	layer_default_absolute_density;
-double	layer_default_relative_density;
-double	layer_default_permittivity;
-double	layer_default_absorption;
-bool	layer_default_composed;
-double	layer_default_stoichiometry_composition;
-QString	layer_default_stoichiometry_element;
-double	layer_default_sigma_diffuse;
-double	layer_default_sigma_roughness;
-double	layer_default_thickness;
-QString	layer_default_drift_model;
-double	layer_default_drift_coefficients;
+QString	default_layer_material;
+
+double	default_layer_absolute_density;
+double	default_layer_absolute_density_min;
+double	default_layer_absolute_density_max;
+
+double	default_layer_relative_density;
+double	default_layer_relative_density_min;
+double	default_layer_relative_density_max;
+
+bool	default_layer_composed_material;
+QString	default_layer_stoichiometry_element;
+
+double	default_layer_thickness;
+double	default_layer_thickness_min;
+double	default_layer_thickness_max;
+
+bool	default_thickness_drift_line_enabled;
+bool	default_thickness_drift_line_show;
+double	default_thickness_drift_line;
+double	default_thickness_drift_line_min;
+double	default_thickness_drift_line_max;
+
+bool	default_thickness_drift_rand_enabled;
+bool	default_thickness_drift_rand_show;
+double	default_thickness_drift_rand;
+double	default_thickness_drift_rand_min;
+double	default_thickness_drift_rand_max;
+
+bool	default_thickness_drift_sine_enabled;
+bool	default_thickness_drift_sine_show;
+double	default_thickness_drift_sine_amplitude;
+double	default_thickness_drift_sine_amplitude_min;
+double	default_thickness_drift_sine_amplitude_max;
+double	default_thickness_drift_sine_frequency;
+double	default_thickness_drift_sine_frequency_min;
+double	default_thickness_drift_sine_frequency_max;
+double	default_thickness_drift_sine_phase;
+double	default_thickness_drift_sine_phase_min;
+double	default_thickness_drift_sine_phase_max;
+
+bool	default_sigma_drift_line_enabled;
+bool	default_sigma_drift_line_show;
+double	default_sigma_drift_line;
+double	default_sigma_drift_line_min;
+double	default_sigma_drift_line_max;
+
+bool	default_sigma_drift_rand_enabled;
+bool	default_sigma_drift_rand_show;
+double	default_sigma_drift_rand;
+double	default_sigma_drift_rand_min;
+double	default_sigma_drift_rand_max;
+
+bool	default_sigma_drift_sine_enabled;
+bool	default_sigma_drift_sine_show;
+double	default_sigma_drift_sine_amplitude;
+double	default_sigma_drift_sine_amplitude_min;
+double	default_sigma_drift_sine_amplitude_max;
+double	default_sigma_drift_sine_frequency;
+double	default_sigma_drift_sine_frequency_min;
+double	default_sigma_drift_sine_frequency_max;
+double	default_sigma_drift_sine_phase;
+double	default_sigma_drift_sine_phase_min;
+double	default_sigma_drift_sine_phase_max;
 
 // Substrate_Values
-QString	substrate_default_material;
-double	substrate_default_absolute_density;
-double	substrate_default_relative_density;
-double	substrate_default_permittivity;
-double	substrate_default_absorption;
-bool	substrate_default_composed;
-double	substrate_default_stoichiometry_composition;
-QString	substrate_default_stoichiometry_element;
-double	substrate_default_sigma_diffuse;
-double	substrate_default_sigma_roughness;
+QString	default_substrate_material;
+double	default_substrate_absolute_density;
+double	default_substrate_absolute_density_min;
+double	default_substrate_absolute_density_max;
+
+double	default_substrate_relative_density;
+double	default_substrate_relative_density_min;
+double	default_substrate_relative_density_max;
+
+bool	default_substrate_composed_material;
+QString	default_substrate_stoichiometry_element;
+
+// Common_Values
+double	default_diffuse_sigma;
+double	default_diffuse_sigma_min;
+double	default_diffuse_sigma_max;
+
+double	default_stoichiometry_composition;
+double	default_stoichiometry_composition_min;
+double	default_stoichiometry_composition_max;
+
+// Roughness_Values
+bool	default_roughness_enabled;
+
+double	default_roughness_sigma;
+double	default_roughness_sigma_min;
+double	default_roughness_sigma_max;
+
+double	default_roughness_correlation_radius;
+double	default_roughness_correlation_radius_min;
+double	default_roughness_correlation_radius_max;
+
+double	default_roughness_fractal_alpha;
+double	default_roughness_fractal_alpha_min;
+double	default_roughness_fractal_alpha_max;
+
+double	default_roughness_omega;
+double	default_roughness_omega_min;
+double	default_roughness_omega_max;
+
+double	default_roughness_mu;
+double	default_roughness_mu_min;
+double	default_roughness_mu_max;
+
+// Fluctuation_Values
+bool	default_fluctuation_enabled;
+bool	default_fluctuation_used;		// true
+
+double	default_fluctuation_absolute_density;
+double	default_fluctuation_absolute_density_min;
+double	default_fluctuation_absolute_density_max;
+
+double	default_fluctuation_relative_density;
+double	default_fluctuation_relative_density_min;
+double	default_fluctuation_relative_density_max;
+
+double	default_fluctuation_particle_radius;
+double	default_fluctuation_particle_radius_min;
+double	default_fluctuation_particle_radius_max;
+
+double	default_fluctuation_particle_height;
+double	default_fluctuation_particle_height_min;
+double	default_fluctuation_particle_height_max;
+
+double	default_fluctuation_particle_distance;
+double	default_fluctuation_particle_distance_min;
+double	default_fluctuation_particle_distance_max;
+
+double	default_fluctuation_particle_distance_deviation;
+double	default_fluctuation_particle_distance_deviation_min;
+double	default_fluctuation_particle_distance_deviation_max;
+
+double	default_fluctuation_domain_size;
+double	default_fluctuation_domain_size_min;
+double	default_fluctuation_domain_size_max;
+
+double	default_fluctuation_z_position;
+double	default_fluctuation_z_position_min;
+double	default_fluctuation_z_position_max;
+
+double	default_fluctuation_z_position_deviation;
+double	default_fluctuation_z_position_deviation_min;
+double	default_fluctuation_z_position_deviation_max;
 
 // Stack_Values
-int		stack_default_number_of_repetition;
-double	stack_default_period;
-double	stack_default_gamma;
+int		default_stack_number_of_repetition;
+int		default_stack_number_of_repetition_min;
+int		default_stack_number_of_repetition_max;
+
+double	default_stack_period;
+double	default_stack_period_min;
+double	default_stack_period_max;
+
+double	default_stack_gamma;
+double	default_stack_gamma_min;
+double	default_stack_gamma_max;
 
 // steps
 double	step_thickness_transfer;
@@ -203,8 +322,6 @@ int line_edit_wavelength_precision	;
 int line_edit_spectral_resolution_precision	;
 int line_edit_polarization_precision;
 int line_edit_density_precision		;
-int line_edit_permittivity_precision;
-int line_edit_absorption_precision	;
 int line_edit_composition_precision	;
 int line_edit_thickness_precision	;
 
@@ -229,8 +346,6 @@ int thumbnail_wavelength_precision	;
 int thumbnail_spectral_resolution_precision	;
 int thumbnail_polarization_precision;
 int thumbnail_density_precision		;
-int thumbnail_permittivity_precision;
-int thumbnail_absorption_precision	;
 int thumbnail_composition_precision	;
 int thumbnail_thickness_precision	;
 
@@ -256,29 +371,29 @@ int thickness_transfer_precision	;
 
 // measurement default values
 
-int default_num_spectral_points;
-int default_num_theta_0_angular_points;
-int default_num_theta_angular_points;
-int default_num_phi_angular_points;
+int default_wavelength_num_points;
+int default_beam_theta_0_angle_num_points;
+int default_detector_theta_angle_num_points;
+int default_phi_angle_num_points;
 
-int default_beam_theta_0_specular_position;
-int default_detector_theta_offset;
+int default_beam_theta_0_angle_specular_position;
+int default_detector_theta_angle_offset;
 
-double default_theta_0_angle_value;
-double default_min_theta_0_angle;
-double default_max_theta_0_angle;
+double default_beam_theta_0_angle;
+double default_beam_theta_0_angle_min;
+double default_beam_theta_0_angle_max;
 
-double default_theta_angle_value;
-double default_min_theta_angle;
-double default_max_theta_angle;
+double default_detector_theta_angle;
+double default_detector_theta_angle_min;
+double default_detector_theta_angle_max;
 
-double default_phi_angle_value;
-double default_min_phi_angle;
-double default_max_phi_angle;
+double default_phi_angle;
+double default_phi_angle_min;
+double default_phi_angle_max;
 
-double default_wavelength_value;
-double default_min_wavelength;
-double default_max_wavelength;
+double default_wavelength;
+double default_wavelength_min;
+double default_wavelength_max;
 
 double default_logarithmic_threshold_beta;
 double default_logarithmic_threshold_material_density;
@@ -289,15 +404,15 @@ double default_spectral_distribution_coverage;
 bool   default_spectral_distribution_use_sampling;
 int    default_spectral_distribution_number_of_Samples;
 
-double default_beam_Theta_0_distribution_FWHM;
-double default_beam_Theta_0_distribution_coverage;
-bool   default_beam_Theta_0_distribution_use_sampling;
-int    default_beam_Theta_0_distribution_number_of_Samples;
+double default_beam_theta_0_distribution_FWHM;
+double default_beam_theta_0_distribution_coverage;
+bool   default_beam_theta_0_distribution_use_sampling;
+int    default_beam_theta_0_distribution_number_of_Samples;
 
-double default_beam_Phi_0_distribution_FWHM;
-double default_beam_Phi_0_distribution_coverage;
-bool   default_beam_Phi_0_distribution_use_sampling;
-int    default_beam_Phi_0_distribution_number_of_Samples;
+double default_beam_phi_0_distribution_FWHM;
+double default_beam_phi_0_distribution_coverage;
+bool   default_beam_phi_0_distribution_use_sampling;
+int    default_beam_phi_0_distribution_number_of_Samples;
 
 double default_detector_1D_slit_width;
 double default_detector_1D_distance_to_sample;
@@ -308,10 +423,10 @@ double default_detector_2D_phi_resolution_FWHM;
 
 double default_beam_geometry_size;
 double default_beam_geometry_smoothing;
-double default_beam_wings_full_width;
-double default_beam_wings_intensity;
-double default_beam_lateral_width;
-bool   default_beam_log_profile_plot;
+double default_beam_geometry_wings_full_width;
+double default_beam_geometry_wings_intensity;
+double default_beam_geometry_lateral_width;
+bool   default_beam_geometry_log_profile_plot;
 
 double default_sample_geometry_size;
 double default_sample_geometry_x_position;
@@ -659,53 +774,173 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 	// structure default values
 		structure_Default_Values.beginGroup( Structure_Init_Values );
 
-		dispersion = structure_Default_Values.value( "dispersion",	0.5 ).toDouble();
-		sigma_Dispersion_Min = structure_Default_Values.value( "sigma_Dispersion_Min",	0 ).toDouble();
-		sigma_Dispersion_Max = structure_Default_Values.value( "sigma_Dispersion_Max",	2 ).toDouble();
 		default_num_confidence_points = structure_Default_Values.value( "default_num_confidence_points",	5 ).toInt();
 		auto_density_from_elements = structure_Default_Values.value( "auto_density_from_elements",	true ).toBool();
 
-			structure_Default_Values.beginGroup( Ambient_Values );
-				ambient_default_material				  = structure_Default_Values.value( "ambient_default_material",				    Vacuum	).toString();
-				ambient_default_absolute_density		  = structure_Default_Values.value( "ambient_default_absolute_density",			0		).toDouble();
-				ambient_default_relative_density		  = structure_Default_Values.value( "ambient_default_relative_density",			0		).toDouble();
-				ambient_default_permittivity			  = structure_Default_Values.value( "ambient_default_permittivity",				100		).toDouble();
-				ambient_default_absorption				  = structure_Default_Values.value( "ambient_default_absorption",				100		).toDouble();
-				ambient_default_composed				  = structure_Default_Values.value( "ambient_default_composed",					false	).toBool();
-				ambient_default_stoichiometry_composition = structure_Default_Values.value( "ambient_default_stoichiometry_composition",1		).toDouble();
-				ambient_default_stoichiometry_element	  = structure_Default_Values.value( "ambient_default_stoichiometry_element",	"Al"	).toString();
-			structure_Default_Values.endGroup();
 			structure_Default_Values.beginGroup( Layer_Values );
-				layer_default_material					= structure_Default_Values.value( "layer_default_material",					"Be"		).toString();
-				layer_default_absolute_density			= structure_Default_Values.value( "layer_default_absolute_density",			2.699		).toDouble();
-				layer_default_relative_density			= structure_Default_Values.value( "layer_default_relative_density",			1			).toDouble();
-				layer_default_permittivity				= structure_Default_Values.value( "layer_default_permittivity",				100			).toDouble();
-				layer_default_absorption				= structure_Default_Values.value( "layer_default_absorption",				100			).toDouble();
-				layer_default_composed					= structure_Default_Values.value( "layer_default_composed",					false		).toBool();
-				layer_default_stoichiometry_composition = structure_Default_Values.value( "layer_default_stoichiometry_composition",1			).toDouble();
-				layer_default_stoichiometry_element		= structure_Default_Values.value( "layer_default_stoichiometry_element",	"Al"		).toString();
-				layer_default_sigma_diffuse				= structure_Default_Values.value( "layer_default_sigma",					0			).toDouble();
-				layer_default_sigma_roughness			= structure_Default_Values.value( "layer_default_sigma_roughness",			0			).toDouble();
-				layer_default_thickness					= structure_Default_Values.value( "layer_default_thickness",				10			).toDouble();
-				layer_default_drift_model				= structure_Default_Values.value( "layer_default_drift_model",				"no_drift"	).toString();
-				layer_default_drift_coefficients		= structure_Default_Values.value( "layer_default_drift_coefficients",		0			).toDouble();
+				default_layer_material					= structure_Default_Values.value( "default_layer_material",					"Be"		).toString();
+
+				default_layer_absolute_density			= structure_Default_Values.value( "default_layer_absolute_density",			2.699		).toDouble();
+				default_layer_absolute_density_min		= structure_Default_Values.value( "default_layer_absolute_density_min",		2.500		).toDouble();
+				default_layer_absolute_density_max		= structure_Default_Values.value( "default_layer_absolute_density_max",		2.700		).toDouble();
+
+				default_layer_relative_density			= structure_Default_Values.value( "default_layer_relative_density",			1			).toDouble();
+				default_layer_relative_density_min		= structure_Default_Values.value( "default_layer_relative_density_min",		0.7			).toDouble();
+				default_layer_relative_density_max		= structure_Default_Values.value( "default_layer_relative_density_max",		1			).toDouble();
+
+				default_layer_composed_material			= structure_Default_Values.value( "default_layer_composed_material",		false		).toBool();
+				default_layer_stoichiometry_element		= structure_Default_Values.value( "default_layer_stoichiometry_element",	"Al"		).toString();
+
+				default_layer_thickness					= structure_Default_Values.value( "default_layer_thickness",				20			).toDouble();
+				default_layer_thickness_min				= structure_Default_Values.value( "default_layer_thickness_min",			10			).toDouble();
+				default_layer_thickness_max				= structure_Default_Values.value( "default_layer_thickness_max",			30			).toDouble();
+
+				default_thickness_drift_line_enabled	= structure_Default_Values.value( "default_thickness_drift_line_enabled",	false		).toBool();
+				default_thickness_drift_line_show		= structure_Default_Values.value( "default_thickness_drift_line_show",		true		).toBool();
+				default_thickness_drift_line			= structure_Default_Values.value( "default_thickness_drift_line",			 0			).toDouble();
+				default_thickness_drift_line_min		= structure_Default_Values.value( "default_thickness_drift_line_min",		-0.01		).toDouble();
+				default_thickness_drift_line_max		= structure_Default_Values.value( "default_thickness_drift_line_max",		 0.01		).toDouble();
+
+				default_thickness_drift_rand_enabled	= structure_Default_Values.value( "default_thickness_drift_rand_enabled",	false		).toBool();
+				default_thickness_drift_rand_show		= structure_Default_Values.value( "default_thickness_drift_rand_show",		false		).toBool();
+				default_thickness_drift_rand			= structure_Default_Values.value( "default_thickness_drift_rand",			 0			).toDouble();
+				default_thickness_drift_rand_min		= structure_Default_Values.value( "default_thickness_drift_rand_min",		-1			).toDouble();
+				default_thickness_drift_rand_max		= structure_Default_Values.value( "default_thickness_drift_rand_max",		 1			).toDouble();
+
+				default_thickness_drift_sine_enabled		= structure_Default_Values.value( "default_thickness_drift_sine_enabled",		false	).toBool();
+				default_thickness_drift_sine_show			= structure_Default_Values.value( "default_thickness_drift_sine_show",			false	).toBool();
+				default_thickness_drift_sine_amplitude		= structure_Default_Values.value( "default_thickness_drift_sine_amplitude",		0		).toDouble();
+				default_thickness_drift_sine_amplitude_min	= structure_Default_Values.value( "default_thickness_drift_sine_amplitude_min",	0		).toDouble();
+				default_thickness_drift_sine_amplitude_max	= structure_Default_Values.value( "default_thickness_drift_sine_amplitude_max",	1		).toDouble();
+				default_thickness_drift_sine_frequency		= structure_Default_Values.value( "default_thickness_drift_sine_frequency",		0.33333 ).toDouble();
+				default_thickness_drift_sine_frequency_min	= structure_Default_Values.value( "default_thickness_drift_sine_frequency_min",	0.01	).toDouble();
+				default_thickness_drift_sine_frequency_max	= structure_Default_Values.value( "default_thickness_drift_sine_frequency_max",	1		).toDouble();
+				default_thickness_drift_sine_phase			= structure_Default_Values.value( "default_thickness_drift_sine_phase",			0		).toDouble();
+				default_thickness_drift_sine_phase_min		= structure_Default_Values.value( "default_thickness_drift_sine_phase_min",		0		).toDouble();
+				default_thickness_drift_sine_phase_max		= structure_Default_Values.value( "default_thickness_drift_sine_phase_max",		1		).toDouble();
+
+				default_sigma_drift_line_enabled	= structure_Default_Values.value( "default_sigma_drift_line_enabled",	false		).toBool();
+				default_sigma_drift_line_show		= structure_Default_Values.value( "default_sigma_drift_line_show",		false		).toBool();
+				default_sigma_drift_line			= structure_Default_Values.value( "default_sigma_drift_line",			 0			).toDouble();
+				default_sigma_drift_line_min		= structure_Default_Values.value( "default_sigma_drift_line_min",		-0.01		).toDouble();
+				default_sigma_drift_line_max		= structure_Default_Values.value( "default_sigma_drift_line_max",		 0.01		).toDouble();
+
+				default_sigma_drift_rand_enabled	= structure_Default_Values.value( "default_sigma_drift_rand_enabled",	false		).toBool();
+				default_sigma_drift_rand_show		= structure_Default_Values.value( "default_sigma_drift_rand_show",		false		).toBool();
+				default_sigma_drift_rand			= structure_Default_Values.value( "default_sigma_drift_rand",			 0			).toDouble();
+				default_sigma_drift_rand_min		= structure_Default_Values.value( "default_sigma_drift_rand_min",		-1			).toDouble();
+				default_sigma_drift_rand_max		= structure_Default_Values.value( "default_sigma_drift_rand_max",		 1			).toDouble();
+
+				default_sigma_drift_sine_enabled		= structure_Default_Values.value( "default_sigma_drift_sine_enabled",		false	).toBool();
+				default_sigma_drift_sine_show			= structure_Default_Values.value( "default_sigma_drift_sine_show",			false	).toBool();
+				default_sigma_drift_sine_amplitude		= structure_Default_Values.value( "default_sigma_drift_sine_amplitude",		0		).toDouble();
+				default_sigma_drift_sine_amplitude_min	= structure_Default_Values.value( "default_sigma_drift_sine_amplitude_min",	0		).toDouble();
+				default_sigma_drift_sine_amplitude_max	= structure_Default_Values.value( "default_sigma_drift_sine_amplitude_max",	1		).toDouble();
+				default_sigma_drift_sine_frequency		= structure_Default_Values.value( "default_sigma_drift_sine_frequency",		0.33333 ).toDouble();
+				default_sigma_drift_sine_frequency_min	= structure_Default_Values.value( "default_sigma_drift_sine_frequency_min",	0.01	).toDouble();
+				default_sigma_drift_sine_frequency_max	= structure_Default_Values.value( "default_sigma_drift_sine_frequency_max",	1		).toDouble();
+				default_sigma_drift_sine_phase			= structure_Default_Values.value( "default_sigma_drift_sine_phase",			0		).toDouble();
+				default_sigma_drift_sine_phase_min		= structure_Default_Values.value( "default_sigma_drift_sine_phase_min",		0		).toDouble();
+				default_sigma_drift_sine_phase_max		= structure_Default_Values.value( "default_sigma_drift_sine_phase_max",		1		).toDouble();
 			structure_Default_Values.endGroup();
 			structure_Default_Values.beginGroup( Substrate_Values );
-				substrate_default_material					= structure_Default_Values.value( "substrate_default_material",				   "Si"	).toString();
-				substrate_default_absolute_density			= structure_Default_Values.value( "substrate_default_absolute_density",		   2.33	).toDouble();
-				substrate_default_relative_density			= structure_Default_Values.value( "substrate_default_relative_density",		   1	).toDouble();
-				substrate_default_permittivity				= structure_Default_Values.value( "substrate_default_permittivity",			   100	).toDouble();
-				substrate_default_absorption				= structure_Default_Values.value( "substrate_default_absorption",			   100	).toDouble();
-				substrate_default_composed					= structure_Default_Values.value( "substrate_default_composed",				   false).toBool();
-				substrate_default_stoichiometry_composition = structure_Default_Values.value( "substrate_default_stoichiometry_composition",1	).toDouble();
-				substrate_default_stoichiometry_element		= structure_Default_Values.value( "substrate_default_stoichiometry_element",   "Si" ).toString();
-				substrate_default_sigma_diffuse				= structure_Default_Values.value( "substrate_default_sigma_diffuse",			0	).toDouble();
-				substrate_default_sigma_roughness			= structure_Default_Values.value( "substrate_default_sigma_roughness",		    0	).toDouble();
+				default_substrate_material					= structure_Default_Values.value( "default_substrate_material",				   "Si"	).toString();
+
+				default_substrate_absolute_density			= structure_Default_Values.value( "default_substrate_absolute_density",		   2.33	).toDouble();
+				default_substrate_absolute_density_min		= structure_Default_Values.value( "default_substrate_absolute_density_min",	   1.90	).toDouble();
+				default_substrate_absolute_density_max		= structure_Default_Values.value( "default_substrate_absolute_density_max",	   2.33	).toDouble();
+
+				default_substrate_relative_density			= structure_Default_Values.value( "default_substrate_relative_density",		   1	).toDouble();
+				default_substrate_relative_density_min		= structure_Default_Values.value( "default_substrate_relative_density_min",	   0.7	).toDouble();
+				default_substrate_relative_density_max		= structure_Default_Values.value( "default_substrate_relative_density_max",	   1	).toDouble();
+
+				default_substrate_composed_material			= structure_Default_Values.value( "default_substrate_composed_material",	   false).toBool();
+				default_substrate_stoichiometry_element		= structure_Default_Values.value( "default_substrate_stoichiometry_element",   "Si" ).toString();
+			structure_Default_Values.endGroup();
+			structure_Default_Values.beginGroup( Common_Values );
+				default_diffuse_sigma				= structure_Default_Values.value( "default_diffuse_sigma",				0	).toDouble();
+				default_diffuse_sigma_min			= structure_Default_Values.value( "default_diffuse_sigma_min",			1	).toDouble();
+				default_diffuse_sigma_max			= structure_Default_Values.value( "default_diffuse_sigma_max",		   20	).toDouble();
+
+				default_stoichiometry_composition	  = structure_Default_Values.value( "default_stoichiometry_composition",	1	).toDouble();
+				default_stoichiometry_composition_min = structure_Default_Values.value( "default_stoichiometry_composition_min",0	).toDouble();
+				default_stoichiometry_composition_max = structure_Default_Values.value( "default_stoichiometry_composition",	2	).toDouble();
+			structure_Default_Values.endGroup();
+			structure_Default_Values.beginGroup( Roughness_Values );
+				default_roughness_enabled					= structure_Default_Values.value( "default_roughness_enabled",					 false	).toBool();
+
+				default_roughness_sigma						= structure_Default_Values.value( "default_roughness_sigma",						 0	).toDouble();
+				default_roughness_sigma_min					= structure_Default_Values.value( "default_roughness_sigma_min",					 1	).toDouble();
+				default_roughness_sigma_max					= structure_Default_Values.value( "default_roughness_sigma_max",					20	).toDouble();
+
+				default_roughness_correlation_radius		= structure_Default_Values.value( "default_roughness_correlation_radius",		 10000	).toDouble();
+				default_roughness_correlation_radius_min	= structure_Default_Values.value( "default_roughness_correlation_radius_min",	  1000	).toDouble();
+				default_roughness_correlation_radius_max	= structure_Default_Values.value( "default_roughness_correlation_radius_max",	500000	).toDouble();
+
+				default_roughness_fractal_alpha				= structure_Default_Values.value( "default_roughness_fractal_alpha",			   0.5	).toDouble();
+				default_roughness_fractal_alpha_min			= structure_Default_Values.value( "default_roughness_fractal_alpha_min",		   0.1	).toDouble();
+				default_roughness_fractal_alpha_max			= structure_Default_Values.value( "default_roughness_fractal_alpha_max",		   1.0	).toDouble();
+
+				default_roughness_omega						= structure_Default_Values.value( "default_roughness_omega",					   100	).toDouble();
+				default_roughness_omega_min					= structure_Default_Values.value( "default_roughness_omega_min",					20	).toDouble();
+				default_roughness_omega_max					= structure_Default_Values.value( "default_roughness_omega_max",				  2000	).toDouble();
+
+				default_roughness_mu						= structure_Default_Values.value( "default_roughness_mu",						   200	).toDouble();
+				default_roughness_mu_min					= structure_Default_Values.value( "default_roughness_mu_min",						10	).toDouble();
+				default_roughness_mu_max					= structure_Default_Values.value( "default_roughness_mu_max",					  1000	).toDouble();
+			structure_Default_Values.endGroup();
+			structure_Default_Values.beginGroup( Fluctuation_Values );
+				default_fluctuation_enabled							= structure_Default_Values.value( "default_fluctuation_enabled",						false ).toBool();
+				default_fluctuation_used							= structure_Default_Values.value( "default_fluctuation_used",							true	 ).toBool();
+
+				default_fluctuation_absolute_density				= structure_Default_Values.value( "default_fluctuation_absolute_density",				2.699 ).toDouble();
+				default_fluctuation_absolute_density_min			= structure_Default_Values.value( "default_fluctuation_absolute_density_min",			2.500 ).toDouble();
+				default_fluctuation_absolute_density_max			= structure_Default_Values.value( "default_fluctuation_absolute_density_max",			2.700 ).toDouble();
+
+				default_fluctuation_relative_density				= structure_Default_Values.value( "default_fluctuation_relative_density",				1	  ).toDouble();
+				default_fluctuation_relative_density_min			= structure_Default_Values.value( "default_fluctuation_relative_density_min",			0.7	  ).toDouble();
+				default_fluctuation_relative_density_max			= structure_Default_Values.value( "default_fluctuation_relative_density_max",			1	  ).toDouble();
+
+				default_fluctuation_particle_radius					= structure_Default_Values.value( "default_fluctuation_particle_radius",				10	  ).toDouble();
+				default_fluctuation_particle_radius_min				= structure_Default_Values.value( "default_fluctuation_particle_radius_min",			 0	  ).toDouble();
+				default_fluctuation_particle_radius_max				= structure_Default_Values.value( "default_fluctuation_particle_radius_max",			20	  ).toDouble();
+
+				default_fluctuation_particle_height					= structure_Default_Values.value( "default_fluctuation_particle_height",				20	  ).toDouble();
+				default_fluctuation_particle_height_min				= structure_Default_Values.value( "default_fluctuation_particle_height_min",			 0	  ).toDouble();
+				default_fluctuation_particle_height_max				= structure_Default_Values.value( "default_fluctuation_particle_height_max",			20	  ).toDouble();
+
+				default_fluctuation_particle_distance				= structure_Default_Values.value( "default_fluctuation_particle_distance",				100	  ).toDouble();
+				default_fluctuation_particle_distance_min			= structure_Default_Values.value( "default_fluctuation_particle_distance_min",			10	  ).toDouble();
+				default_fluctuation_particle_distance_max			= structure_Default_Values.value( "default_fluctuation_particle_distance_max",			200	  ).toDouble();
+
+				default_fluctuation_particle_distance_deviation		= structure_Default_Values.value( "default_fluctuation_particle_distance_deviation",	1	  ).toDouble();
+				default_fluctuation_particle_distance_deviation_min	= structure_Default_Values.value( "default_fluctuation_particle_distance_deviation_min",0.5	  ).toDouble();
+				default_fluctuation_particle_distance_deviation_max	= structure_Default_Values.value( "default_fluctuation_particle_distance_deviation_max",100   ).toDouble();
+
+				default_fluctuation_domain_size						= structure_Default_Values.value( "default_fluctuation_domain_size",				1e4		).toDouble();
+				default_fluctuation_domain_size_min					= structure_Default_Values.value( "default_fluctuation_domain_size_min",			1E2		).toDouble();
+				default_fluctuation_domain_size_max					= structure_Default_Values.value( "default_fluctuation_domain_size_max",			1E8		).toDouble();
+
+				default_fluctuation_z_position						= structure_Default_Values.value( "default_fluctuation_z_position",					  0		).toDouble();
+				default_fluctuation_z_position_min					= structure_Default_Values.value( "default_fluctuation_z_position_min",				-10		).toDouble();
+				default_fluctuation_z_position_max					= structure_Default_Values.value( "default_fluctuation_z_position_max",				 10		).toDouble();
+
+				default_fluctuation_z_position_deviation			= structure_Default_Values.value( "default_fluctuation_z_position_deviation",		  0		).toDouble();
+				default_fluctuation_z_position_deviation_min		= structure_Default_Values.value( "default_fluctuation_z_position_deviation_min",	  0		).toDouble();
+				default_fluctuation_z_position_deviation_max		= structure_Default_Values.value( "default_fluctuation_z_position_deviation_max",     5		).toDouble();
 			structure_Default_Values.endGroup();
 			structure_Default_Values.beginGroup( Stack_Values );
-				stack_default_number_of_repetition	= structure_Default_Values.value( "stack_default_number_of_repetition",	1	).toInt();
-				stack_default_period				= structure_Default_Values.value( "stack_default_period",				20	).toDouble();
-				stack_default_gamma					= structure_Default_Values.value( "stack_default_gamma",				0.5 ).toDouble();
+				default_stack_number_of_repetition		= structure_Default_Values.value( "default_stack_number_of_repetition",		1	).toInt();
+				default_stack_number_of_repetition_min	= structure_Default_Values.value( "default_stack_number_of_repetition_min",	1	).toInt();
+				default_stack_number_of_repetition_max	= structure_Default_Values.value( "default_stack_number_of_repetition_max",	100	).toInt();
+
+				default_stack_period					= structure_Default_Values.value( "default_stack_period",					40	).toDouble();
+				default_stack_period_min				= structure_Default_Values.value( "default_stack_period_min",				20	).toDouble();
+				default_stack_period_max				= structure_Default_Values.value( "default_stack_period_max",				60	).toDouble();
+
+				default_stack_gamma						= structure_Default_Values.value( "default_stack_gamma",					0.5 ).toDouble();
+				default_stack_gamma_min					= structure_Default_Values.value( "default_stack_gamma_min",				0   ).toDouble();
+				default_stack_gamma_max					= structure_Default_Values.value( "default_stack_gamma_max",				1   ).toDouble();
 			structure_Default_Values.endGroup();
 			structure_Default_Values.beginGroup( Steps );
 				step_thickness_transfer	= structure_Default_Values.value( "step_thickness_transfer",0.1 ).toDouble();
@@ -746,53 +981,173 @@ void Settings::save_Structure_Default_Values()
 	// structure default values
 	structure_Default_Values.beginGroup( Structure_Init_Values );
 
-	structure_Default_Values.setValue( "dispersion", dispersion	);
-	structure_Default_Values.setValue( "sigma_Dispersion_Min", sigma_Dispersion_Min	);
-	structure_Default_Values.setValue( "sigma_Dispersion_Max", sigma_Dispersion_Max	);
 	structure_Default_Values.setValue( "default_num_confidence_points", default_num_confidence_points	);
 	structure_Default_Values.setValue( "auto_density_from_elements", auto_density_from_elements	);
 
-		structure_Default_Values.beginGroup( Ambient_Values );
-			structure_Default_Values.setValue( "ambient_default_material",					ambient_default_material					);
-			structure_Default_Values.setValue( "ambient_default_absolute_density",			ambient_default_absolute_density			);
-			structure_Default_Values.setValue( "ambient_default_relative_density",			ambient_default_relative_density			);
-			structure_Default_Values.setValue( "ambient_default_permittivity",				ambient_default_permittivity				);
-			structure_Default_Values.setValue( "ambient_default_absorption",				ambient_default_absorption					);
-			structure_Default_Values.setValue( "ambient_default_composed",					ambient_default_composed					);
-			structure_Default_Values.setValue( "ambient_default_stoichiometry_composition",	ambient_default_stoichiometry_composition	);
-			structure_Default_Values.setValue( "ambient_default_stoichiometry_element",		ambient_default_stoichiometry_element		);
-		structure_Default_Values.endGroup();
 		structure_Default_Values.beginGroup( Layer_Values );
-			structure_Default_Values.setValue( "layer_default_material",					layer_default_material					);
-			structure_Default_Values.setValue( "layer_default_absolute_density",			layer_default_absolute_density			);
-			structure_Default_Values.setValue( "layer_default_relative_density",			layer_default_relative_density			);
-			structure_Default_Values.setValue( "layer_default_permittivity",				layer_default_permittivity				);
-			structure_Default_Values.setValue( "layer_default_absorption",					layer_default_absorption				);
-			structure_Default_Values.setValue( "layer_default_composed",					layer_default_composed					);
-			structure_Default_Values.setValue( "layer_default_stoichiometry_composition",	layer_default_stoichiometry_composition	);
-			structure_Default_Values.setValue( "layer_default_stoichiometry_element",		layer_default_stoichiometry_element		);
-			structure_Default_Values.setValue( "layer_default_sigma_diffuse",				layer_default_sigma_diffuse				);
-			structure_Default_Values.setValue( "layer_default_sigma_roughness",				layer_default_sigma_roughness			);
-			structure_Default_Values.setValue( "layer_default_thickness",					layer_default_thickness					);
-			structure_Default_Values.setValue( "layer_default_drift_model",					layer_default_drift_model				);
-			structure_Default_Values.setValue( "layer_default_drift_coefficients",			layer_default_drift_coefficients		);
+			structure_Default_Values.setValue( "default_layer_material",					default_layer_material						);
+
+			structure_Default_Values.setValue( "default_layer_absolute_density",			default_layer_absolute_density				);
+			structure_Default_Values.setValue( "default_layer_absolute_density_min",		default_layer_absolute_density_min			);
+			structure_Default_Values.setValue( "default_layer_absolute_density_max",		default_layer_absolute_density_max			);
+
+			structure_Default_Values.setValue( "default_layer_relative_density",			default_layer_relative_density				);
+			structure_Default_Values.setValue( "default_layer_relative_density_min",		default_layer_relative_density_min			);
+			structure_Default_Values.setValue( "default_layer_relative_density_max",		default_layer_relative_density_max			);
+
+			structure_Default_Values.setValue( "default_layer_composed_material",			default_layer_composed_material				);
+			structure_Default_Values.setValue( "default_layer_stoichiometry_element",		default_layer_stoichiometry_element			);
+
+			structure_Default_Values.setValue( "default_layer_thickness",					default_layer_thickness						);
+			structure_Default_Values.setValue( "default_layer_thickness_min",				default_layer_thickness_min					);
+			structure_Default_Values.setValue( "default_layer_thickness_max",				default_layer_thickness_max					);
+
+			structure_Default_Values.setValue( "default_thickness_drift_line_enabled",		default_thickness_drift_line_enabled		);
+			structure_Default_Values.setValue( "default_thickness_drift_line_show",			default_thickness_drift_line_show			);
+			structure_Default_Values.setValue( "default_thickness_drift_line",				default_thickness_drift_line				);
+			structure_Default_Values.setValue( "default_thickness_drift_line_min",			default_thickness_drift_line_min			);
+			structure_Default_Values.setValue( "default_thickness_drift_line_max",			default_thickness_drift_line_max			);
+
+			structure_Default_Values.setValue( "default_thickness_drift_rand_enabled",		default_thickness_drift_rand_enabled		);
+			structure_Default_Values.setValue( "default_thickness_drift_rand_show",			default_thickness_drift_rand_show			);
+			structure_Default_Values.setValue( "default_thickness_drift_rand",				default_thickness_drift_rand				);
+			structure_Default_Values.setValue( "default_thickness_drift_rand_min",			default_thickness_drift_rand_min			);
+			structure_Default_Values.setValue( "default_thickness_drift_rand_max",			default_thickness_drift_rand_max			);
+
+			structure_Default_Values.setValue( "default_thickness_drift_sine_enabled",		default_thickness_drift_sine_enabled		);
+			structure_Default_Values.setValue( "default_thickness_drift_sine_show",			default_thickness_drift_sine_show			);
+			structure_Default_Values.setValue( "default_thickness_drift_sine_amplitude",	default_thickness_drift_sine_amplitude		);
+			structure_Default_Values.setValue( "default_thickness_drift_sine_amplitude_min",default_thickness_drift_sine_amplitude_min	);
+			structure_Default_Values.setValue( "default_thickness_drift_sine_amplitude_max",default_thickness_drift_sine_amplitude_max	);
+			structure_Default_Values.setValue( "default_thickness_drift_sine_frequency",	default_thickness_drift_sine_frequency		);
+			structure_Default_Values.setValue( "default_thickness_drift_sine_frequency_min",default_thickness_drift_sine_frequency_min	);
+			structure_Default_Values.setValue( "default_thickness_drift_sine_frequency_max",default_thickness_drift_sine_frequency_max	);
+			structure_Default_Values.setValue( "default_thickness_drift_sine_phase",		default_thickness_drift_sine_phase			);
+			structure_Default_Values.setValue( "default_thickness_drift_sine_phase_min",	default_thickness_drift_sine_phase_min		);
+			structure_Default_Values.setValue( "default_thickness_drift_sine_phase_max",	default_thickness_drift_sine_phase_max		);
+
+			structure_Default_Values.setValue( "default_sigma_drift_line_enabled",			default_sigma_drift_line_enabled			);
+			structure_Default_Values.setValue( "default_sigma_drift_line_show",				default_sigma_drift_line_show				);
+			structure_Default_Values.setValue( "default_sigma_drift_line",					default_sigma_drift_line					);
+			structure_Default_Values.setValue( "default_sigma_drift_line_min",				default_sigma_drift_line_min				);
+			structure_Default_Values.setValue( "default_sigma_drift_line_max",				default_sigma_drift_line_max				);
+
+			structure_Default_Values.setValue( "default_sigma_drift_rand_enabled",			default_sigma_drift_rand_enabled			);
+			structure_Default_Values.setValue( "default_sigma_drift_rand_show",				default_sigma_drift_rand_show				);
+			structure_Default_Values.setValue( "default_sigma_drift_rand",					default_sigma_drift_rand					);
+			structure_Default_Values.setValue( "default_sigma_drift_rand_min",				default_sigma_drift_rand_min				);
+			structure_Default_Values.setValue( "default_sigma_drift_rand_max",				default_sigma_drift_rand_max				);
+
+			structure_Default_Values.setValue( "default_sigma_drift_sine_enabled",			default_sigma_drift_sine_enabled			);
+			structure_Default_Values.setValue( "default_sigma_drift_sine_show",				default_sigma_drift_sine_show				);
+			structure_Default_Values.setValue( "default_sigma_drift_sine_amplitude",		default_sigma_drift_sine_amplitude			);
+			structure_Default_Values.setValue( "default_sigma_drift_sine_amplitude_min",	default_sigma_drift_sine_amplitude_min		);
+			structure_Default_Values.setValue( "default_sigma_drift_sine_amplitude_max",	default_sigma_drift_sine_amplitude_max		);
+			structure_Default_Values.setValue( "default_sigma_drift_sine_frequency",		default_sigma_drift_sine_frequency			);
+			structure_Default_Values.setValue( "default_sigma_drift_sine_frequency_min",	default_sigma_drift_sine_frequency_min		);
+			structure_Default_Values.setValue( "default_sigma_drift_sine_frequency_max",	default_sigma_drift_sine_frequency_max		);
+			structure_Default_Values.setValue( "default_sigma_drift_sine_phase",			default_sigma_drift_sine_phase				);
+			structure_Default_Values.setValue( "default_sigma_drift_sine_phase_min",		default_sigma_drift_sine_phase_min			);
+			structure_Default_Values.setValue( "default_sigma_drift_sine_phase_max",		default_sigma_drift_sine_phase_max			);
 		structure_Default_Values.endGroup();
 		structure_Default_Values.beginGroup( Substrate_Values );
-			structure_Default_Values.setValue( "substrate_default_material",					substrate_default_material					);
-			structure_Default_Values.setValue( "substrate_default_absolute_density",			substrate_default_absolute_density			);
-			structure_Default_Values.setValue( "substrate_default_relative_density",			substrate_default_relative_density			);
-			structure_Default_Values.setValue( "substrate_default_permittivity",				substrate_default_permittivity				);
-			structure_Default_Values.setValue( "substrate_default_absorption",					substrate_default_absorption				);
-			structure_Default_Values.setValue( "substrate_default_composed",					substrate_default_composed					);
-			structure_Default_Values.setValue( "substrate_default_stoichiometry_composition",	substrate_default_stoichiometry_composition	);
-			structure_Default_Values.setValue( "substrate_default_stoichiometry_element",		substrate_default_stoichiometry_element		);
-			structure_Default_Values.setValue( "substrate_default_sigma_diffuse",				substrate_default_sigma_diffuse				);
-			structure_Default_Values.setValue( "substrate_default_sigma_roughness",				substrate_default_sigma_roughness			);
+			structure_Default_Values.setValue( "default_substrate_material",					default_substrate_material					);
+
+			structure_Default_Values.setValue( "default_substrate_absolute_density",			default_substrate_absolute_density			);
+			structure_Default_Values.setValue( "default_substrate_absolute_density_min",		default_substrate_absolute_density_min		);
+			structure_Default_Values.setValue( "default_substrate_absolute_density_max",		default_substrate_absolute_density_max		);
+
+			structure_Default_Values.setValue( "default_substrate_relative_density",			default_substrate_relative_density			);
+			structure_Default_Values.setValue( "default_substrate_relative_density_min",		default_substrate_relative_density_min		);
+			structure_Default_Values.setValue( "default_substrate_relative_density_max",		default_substrate_relative_density_max		);
+
+			structure_Default_Values.setValue( "default_substrate_composed_material",			default_substrate_composed_material			);
+			structure_Default_Values.setValue( "default_substrate_stoichiometry_element",		default_substrate_stoichiometry_element		);
+		structure_Default_Values.endGroup();
+		structure_Default_Values.beginGroup( Common_Values );
+			structure_Default_Values.setValue( "default_diffuse_sigma",							default_diffuse_sigma				);
+			structure_Default_Values.setValue( "default_diffuse_sigma_min",						default_diffuse_sigma_min			);
+			structure_Default_Values.setValue( "default_diffuse_sigma_max",						default_diffuse_sigma_max			);
+
+			structure_Default_Values.setValue( "default_stoichiometry_composition",				default_stoichiometry_composition		);
+			structure_Default_Values.setValue( "default_stoichiometry_composition_min",			default_stoichiometry_composition_min	);
+			structure_Default_Values.setValue( "default_stoichiometry_composition_max",			default_stoichiometry_composition_max	);
+		structure_Default_Values.endGroup();
+		structure_Default_Values.beginGroup( Roughness_Values );
+			structure_Default_Values.setValue( "default_roughness_enabled",					default_roughness_enabled				);
+
+			structure_Default_Values.setValue( "default_roughness_sigma",					default_roughness_sigma					);
+			structure_Default_Values.setValue( "default_roughness_sigma_min",				default_roughness_sigma_min				);
+			structure_Default_Values.setValue( "default_roughness_sigma_max",				default_roughness_sigma_max				);
+
+			structure_Default_Values.setValue( "default_roughness_correlation_radius",		default_roughness_correlation_radius	);
+			structure_Default_Values.setValue( "default_roughness_correlation_radius_min",	default_roughness_correlation_radius_min);
+			structure_Default_Values.setValue( "default_roughness_correlation_radius_max",	default_roughness_correlation_radius_max);
+
+			structure_Default_Values.setValue( "default_roughness_fractal_alpha",			default_roughness_fractal_alpha			);
+			structure_Default_Values.setValue( "default_roughness_fractal_alpha_min",		default_roughness_fractal_alpha_min		);
+			structure_Default_Values.setValue( "default_roughness_fractal_alpha_max",		default_roughness_fractal_alpha_max		);
+
+			structure_Default_Values.setValue( "default_roughness_omega",					default_roughness_omega					);
+			structure_Default_Values.setValue( "default_roughness_omega_min",				default_roughness_omega_min				);
+			structure_Default_Values.setValue( "default_roughness_omega_max",				default_roughness_omega_max				);
+
+			structure_Default_Values.setValue( "default_roughness_mu",						default_roughness_mu					);
+			structure_Default_Values.setValue( "default_roughness_mu_min",					default_roughness_mu_min				);
+			structure_Default_Values.setValue( "default_roughness_mu_max",					default_roughness_mu_max				);
+		structure_Default_Values.endGroup();
+		structure_Default_Values.beginGroup( Fluctuation_Values );
+			structure_Default_Values.setValue( "default_fluctuation_enabled",							default_fluctuation_enabled				);
+			structure_Default_Values.setValue( "default_fluctuation_used",								default_fluctuation_used				);
+
+			structure_Default_Values.setValue( "default_fluctuation_absolute_density",					default_fluctuation_absolute_density	);
+			structure_Default_Values.setValue( "default_fluctuation_absolute_density_min",				default_fluctuation_absolute_density_min);
+			structure_Default_Values.setValue( "default_fluctuation_absolute_density_max",				default_fluctuation_absolute_density_max);
+
+			structure_Default_Values.setValue( "default_fluctuation_relative_density",					default_fluctuation_relative_density	);
+			structure_Default_Values.setValue( "default_fluctuation_relative_density_min",				default_fluctuation_relative_density_min);
+			structure_Default_Values.setValue( "default_fluctuation_relative_density_max",				default_fluctuation_relative_density_max);
+
+			structure_Default_Values.setValue( "default_fluctuation_particle_radius",					default_fluctuation_particle_radius		);
+			structure_Default_Values.setValue( "default_fluctuation_particle_radius_min",				default_fluctuation_particle_radius_min	);
+			structure_Default_Values.setValue( "default_fluctuation_particle_radius_max",				default_fluctuation_particle_radius_max	);
+
+			structure_Default_Values.setValue( "default_fluctuation_particle_height",					default_fluctuation_particle_height		);
+			structure_Default_Values.setValue( "default_fluctuation_particle_height_min",				default_fluctuation_particle_height_min	);
+			structure_Default_Values.setValue( "default_fluctuation_particle_height_max",				default_fluctuation_particle_height_max	);
+
+			structure_Default_Values.setValue( "default_fluctuation_particle_distance",					default_fluctuation_particle_distance		);
+			structure_Default_Values.setValue( "default_fluctuation_particle_distance_min",				default_fluctuation_particle_distance_min	);
+			structure_Default_Values.setValue( "default_fluctuation_particle_distance_max",				default_fluctuation_particle_distance_max	);
+
+			structure_Default_Values.setValue( "default_fluctuation_particle_distance_deviation",		default_fluctuation_particle_distance_deviation		);
+			structure_Default_Values.setValue( "default_fluctuation_particle_distance_deviation_min",	default_fluctuation_particle_distance_deviation_min	);
+			structure_Default_Values.setValue( "default_fluctuation_particle_distance_deviation_max",	default_fluctuation_particle_distance_deviation_max	);
+
+			structure_Default_Values.setValue( "default_fluctuation_domain_size",						default_fluctuation_domain_size					);
+			structure_Default_Values.setValue( "default_fluctuation_domain_size_min",					default_fluctuation_domain_size_min				);
+			structure_Default_Values.setValue( "default_fluctuation_domain_size_max",					default_fluctuation_domain_size_max				);
+
+			structure_Default_Values.setValue( "default_fluctuation_z_position",						default_fluctuation_z_position					);
+			structure_Default_Values.setValue( "default_fluctuation_z_position_min",					default_fluctuation_z_position_min				);
+			structure_Default_Values.setValue( "default_fluctuation_z_position_max",					default_fluctuation_z_position_max				);
+
+			structure_Default_Values.setValue( "default_fluctuation_z_position_deviation",				default_fluctuation_z_position_deviation		);
+			structure_Default_Values.setValue( "default_fluctuation_z_position_deviation_min",			default_fluctuation_z_position_deviation_min	);
+			structure_Default_Values.setValue( "default_fluctuation_z_position_deviation_max",			default_fluctuation_z_position_deviation_max	);
 		structure_Default_Values.endGroup();
 		structure_Default_Values.beginGroup( Stack_Values );
-			structure_Default_Values.setValue( "stack_default_number_of_repetition",	stack_default_number_of_repetition	);
-			structure_Default_Values.setValue( "stack_default_period",					stack_default_period				);
-			structure_Default_Values.setValue( "stack_default_gamma",					stack_default_gamma					);
+			structure_Default_Values.setValue( "default_stack_number_of_repetition",		default_stack_number_of_repetition		);
+			structure_Default_Values.setValue( "default_stack_number_of_repetition_min",	default_stack_number_of_repetition_min	);
+			structure_Default_Values.setValue( "default_stack_number_of_repetition_max",	default_stack_number_of_repetition_max	);
+
+			structure_Default_Values.setValue( "default_stack_period",						default_stack_period					);
+			structure_Default_Values.setValue( "default_stack_period_min",					default_stack_period_min				);
+			structure_Default_Values.setValue( "default_stack_period_max",					default_stack_period_max				);
+
+			structure_Default_Values.setValue( "default_stack_gamma",						default_stack_gamma						);
+			structure_Default_Values.setValue( "default_stack_gamma_min",					default_stack_gamma_min					);
+			structure_Default_Values.setValue( "default_stack_gamma_max",					default_stack_gamma_max					);
 		structure_Default_Values.endGroup();
 		structure_Default_Values.beginGroup( Steps );
 			structure_Default_Values.setValue( "step_thickness_transfer",	step_thickness_transfer	);
@@ -846,8 +1201,6 @@ void Settings::read_Precisions(bool reset_to_default)
 			line_edit_beam_size_precision			= precision_Values.value( "line_edit_beam_size_precision",			4 ).toInt();
 			line_edit_sample_size_precision			= precision_Values.value( "line_edit_sample_size_precision",		2 ).toInt();
 			line_edit_density_precision				= precision_Values.value( "line_edit_density_precision",			4 ).toInt();
-			line_edit_permittivity_precision		= precision_Values.value( "line_edit_permittivity_precision",		4 ).toInt();
-			line_edit_absorption_precision			= precision_Values.value( "line_edit_absorption_precision",			4 ).toInt();
 			line_edit_composition_precision			= precision_Values.value( "line_edit_composition_precision",		4 ).toInt();
 			line_edit_thickness_precision			= precision_Values.value( "line_edit_thickness_precision",			4 ).toInt();
 
@@ -872,8 +1225,6 @@ void Settings::read_Precisions(bool reset_to_default)
 			thumbnail_beam_size_precision			= precision_Values.value( "thumbnail_beam_size_precision",			3 ).toInt();
 			thumbnail_sample_size_precision			= precision_Values.value( "thumbnail_sample_size_precision",		2 ).toInt();
 			thumbnail_density_precision				= precision_Values.value( "thumbnail_density_precision",			3 ).toInt();
-			thumbnail_permittivity_precision		= precision_Values.value( "thumbnail_permittivity_precision",		3 ).toInt();
-			thumbnail_absorption_precision			= precision_Values.value( "thumbnail_absorption_precision",			3 ).toInt();
 			thumbnail_composition_precision			= precision_Values.value( "thumbnail_composition_precision",		3 ).toInt();
 			thumbnail_thickness_precision			= precision_Values.value( "thumbnail_thickness_precision",			3 ).toInt();
 
@@ -907,8 +1258,6 @@ void Settings::save_Precisions()
 			precision_Values.setValue( "line_edit_angle_precision",			line_edit_angle_precision			);
 			precision_Values.setValue( "line_edit_wavelength_precision",	line_edit_wavelength_precision		);
 			precision_Values.setValue( "line_edit_density_precision",		line_edit_density_precision			);
-			precision_Values.setValue( "line_edit_permittivity_precision",	line_edit_permittivity_precision	);
-			precision_Values.setValue( "line_edit_absorption_precision",	line_edit_absorption_precision		);
 			precision_Values.setValue( "line_edit_composition_precision",	line_edit_composition_precision		);
 			precision_Values.setValue( "line_edit_thickness_precision",		line_edit_thickness_precision		);
 
@@ -928,8 +1277,6 @@ void Settings::save_Precisions()
 			precision_Values.setValue( "thumbnail_angle_precision",			thumbnail_angle_precision			);
 			precision_Values.setValue( "thumbnail_wavelength_precision",	thumbnail_wavelength_precision		);
 			precision_Values.setValue( "thumbnail_density_precision",		thumbnail_density_precision			);
-			precision_Values.setValue( "thumbnail_permittivity_precision",	thumbnail_permittivity_precision	);
-			precision_Values.setValue( "thumbnail_absorption_precision",	thumbnail_absorption_precision		);
 			precision_Values.setValue( "thumbnail_composition_precision",	thumbnail_composition_precision		);
 			precision_Values.setValue( "thumbnail_thickness_precision",		thumbnail_thickness_precision		);
 
@@ -960,29 +1307,29 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 
 	// parameters default values
 	parameters_Default_Values.beginGroup( Independent_Values );
-		default_num_spectral_points							= parameters_Default_Values.value( "default_num_spectral_points",							400		).toInt();
-		default_num_theta_0_angular_points					= parameters_Default_Values.value( "default_num_theta_0_angular_points",					1000	).toInt();
-		default_num_theta_angular_points					= parameters_Default_Values.value( "default_num_theta_angular_points",						1000	).toInt();
-		default_num_phi_angular_points						= parameters_Default_Values.value( "default_num_phi_angular_points",						501		).toInt();
+		default_wavelength_num_points							= parameters_Default_Values.value( "default_wavelength_num_points",							400		).toInt();
+		default_beam_theta_0_angle_num_points					= parameters_Default_Values.value( "default_beam_theta_0_angle_num_points",					1000	).toInt();
+		default_detector_theta_angle_num_points					= parameters_Default_Values.value( "default_detector_theta_angle_num_points",						1000	).toInt();
+		default_phi_angle_num_points						= parameters_Default_Values.value( "default_phi_angle_num_points",						501		).toInt();
 
-		default_beam_theta_0_specular_position				= parameters_Default_Values.value( "default_beam_theta_0_specular_position",				1		).toDouble();
-		default_detector_theta_offset						= parameters_Default_Values.value( "default_detector_theta_offset",							0.5		).toDouble();
+		default_beam_theta_0_angle_specular_position				= parameters_Default_Values.value( "default_beam_theta_0_angle_specular_position",				1		).toDouble();
+		default_detector_theta_angle_offset						= parameters_Default_Values.value( "default_detector_theta_angle_offset",							0.5		).toDouble();
 
-		default_wavelength_value							= parameters_Default_Values.value( "default_wavelength_value",								1.540562).toDouble();
-		default_min_wavelength								= parameters_Default_Values.value( "default_min_wavelength",								100		).toDouble();
-		default_max_wavelength								= parameters_Default_Values.value( "default_max_wavelength",								200		).toDouble();
+		default_wavelength							= parameters_Default_Values.value( "default_wavelength",								1.540562).toDouble();
+		default_wavelength_min								= parameters_Default_Values.value( "default_wavelength_min",								100		).toDouble();
+		default_wavelength_max								= parameters_Default_Values.value( "default_wavelength_max",								200		).toDouble();
 
-		default_theta_0_angle_value							= parameters_Default_Values.value( "default_theta_0_angle_value",							0.5		).toDouble();
-		default_min_theta_0_angle							= parameters_Default_Values.value( "default_min_theta_0_angle",								0		).toDouble();
-		default_max_theta_0_angle							= parameters_Default_Values.value( "default_max_theta_0_angle",								7		).toDouble();
+		default_beam_theta_0_angle							= parameters_Default_Values.value( "default_beam_theta_0_angle",							0.5		).toDouble();
+		default_beam_theta_0_angle_min							= parameters_Default_Values.value( "default_beam_theta_0_angle_min",								0		).toDouble();
+		default_beam_theta_0_angle_max							= parameters_Default_Values.value( "default_beam_theta_0_angle_max",								7		).toDouble();
 
-		default_theta_angle_value							= parameters_Default_Values.value( "default_theta_angle_value",								1		).toDouble();
-		default_min_theta_angle								= parameters_Default_Values.value( "default_min_theta_angle",								0.01	).toDouble();
-		default_max_theta_angle								= parameters_Default_Values.value( "default_max_theta_angle",								6		).toDouble();
+		default_detector_theta_angle							= parameters_Default_Values.value( "default_detector_theta_angle",								1		).toDouble();
+		default_detector_theta_angle_min								= parameters_Default_Values.value( "default_detector_theta_angle_min",								0.01	).toDouble();
+		default_detector_theta_angle_max								= parameters_Default_Values.value( "default_detector_theta_angle_max",								6		).toDouble();
 
-		default_phi_angle_value								= parameters_Default_Values.value( "default_phi_angle_value",								0		).toDouble();
-		default_min_phi_angle								= parameters_Default_Values.value( "default_min_phi_angle",									-1.3	).toDouble();
-		default_max_phi_angle								= parameters_Default_Values.value( "default_max_phi_angle",									1.3		).toDouble();
+		default_phi_angle								= parameters_Default_Values.value( "default_phi_angle",								0		).toDouble();
+		default_phi_angle_min								= parameters_Default_Values.value( "default_phi_angle_min",									-1.3	).toDouble();
+		default_phi_angle_max								= parameters_Default_Values.value( "default_phi_angle_max",									1.3		).toDouble();
 
 		default_logarithmic_threshold_beta					= parameters_Default_Values.value( "default_logarithmic_threshold_beta",					1E-17	).toDouble();
 		default_logarithmic_threshold_material_density		= parameters_Default_Values.value( "default_logarithmic_threshold_material_density",		1E-7	).toDouble();
@@ -994,15 +1341,15 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 		default_spectral_distribution_use_sampling			= parameters_Default_Values.value( "default_spectral_distribution_use_sampling",		false	).toBool();
 		default_spectral_distribution_number_of_Samples		= parameters_Default_Values.value( "default_spectral_distribution_number_of_Samples",		5	).toInt();
 
-		default_beam_Theta_0_distribution_FWHM				= parameters_Default_Values.value( "default_beam_Theta_0_distribution_FWHM",				0	).toDouble();
-		default_beam_Theta_0_distribution_coverage			= parameters_Default_Values.value( "default_beam_Theta_0_distribution_coverage",			2	).toInt();
-		default_beam_Theta_0_distribution_use_sampling		= parameters_Default_Values.value( "default_beam_Theta_0_distribution_use_sampling",	false	).toBool();
-		default_beam_Theta_0_distribution_number_of_Samples = parameters_Default_Values.value( "default_beam_Theta_0_distribution_number_of_Samples",	5	).toInt();
+		default_beam_theta_0_distribution_FWHM				= parameters_Default_Values.value( "default_beam_theta_0_distribution_FWHM",				0	).toDouble();
+		default_beam_theta_0_distribution_coverage			= parameters_Default_Values.value( "default_beam_theta_0_distribution_coverage",			2	).toInt();
+		default_beam_theta_0_distribution_use_sampling		= parameters_Default_Values.value( "default_beam_theta_0_distribution_use_sampling",	false	).toBool();
+		default_beam_theta_0_distribution_number_of_Samples = parameters_Default_Values.value( "default_beam_theta_0_distribution_number_of_Samples",	5	).toInt();
 
-		default_beam_Phi_0_distribution_FWHM				= parameters_Default_Values.value( "default_beam_Phi_0_distribution_FWHM",					0	).toDouble();
-		default_beam_Phi_0_distribution_coverage			= parameters_Default_Values.value( "default_beam_Phi_0_distribution_coverage",				2	).toInt();
-		default_beam_Phi_0_distribution_use_sampling		= parameters_Default_Values.value( "default_beam_Phi_0_distribution_use_sampling",		false	).toBool();
-		default_beam_Phi_0_distribution_number_of_Samples	= parameters_Default_Values.value( "default_beam_Phi_0_distribution_number_of_Samples",		5	).toInt();
+		default_beam_phi_0_distribution_FWHM				= parameters_Default_Values.value( "default_beam_phi_0_distribution_FWHM",					0	).toDouble();
+		default_beam_phi_0_distribution_coverage			= parameters_Default_Values.value( "default_beam_phi_0_distribution_coverage",				2	).toInt();
+		default_beam_phi_0_distribution_use_sampling		= parameters_Default_Values.value( "default_beam_phi_0_distribution_use_sampling",		false	).toBool();
+		default_beam_phi_0_distribution_number_of_Samples	= parameters_Default_Values.value( "default_beam_phi_0_distribution_number_of_Samples",		5	).toInt();
 
 		default_detector_1D_slit_width						= parameters_Default_Values.value( "default_detector_1D_slit_width",			0.8	).toDouble();
 		default_detector_1D_distance_to_sample				= parameters_Default_Values.value( "default_detector_1D_distance_to_sample",	300	).toDouble();
@@ -1011,12 +1358,12 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 		default_detector_2D_theta_resolution_FWHM			= parameters_Default_Values.value( "default_detector_2D_theta_resolution_FWHM",	0	).toDouble();
 		default_detector_2D_phi_resolution_FWHM				= parameters_Default_Values.value( "default_detector_2D_phi_resolution_FWHM",	0	).toDouble();
 
-		default_beam_geometry_size							= parameters_Default_Values.value( "default_beam_geometry_size",			0.050	).toDouble();
-		default_beam_geometry_smoothing						= parameters_Default_Values.value( "default_beam_geometry_smoothing",		0.5		).toDouble();
-		default_beam_wings_full_width						= parameters_Default_Values.value( "default_beam_wings_full_width",			0.25	).toDouble();
-		default_beam_wings_intensity						= parameters_Default_Values.value( "default_beam_wings_intensity",			0.0		).toDouble();
-		default_beam_lateral_width							= parameters_Default_Values.value( "default_beam_lateral_width",			5.0		).toDouble();
-		default_beam_log_profile_plot						= parameters_Default_Values.value( "default_beam_log_profile_plot",			false	).toBool();
+		default_beam_geometry_size							= parameters_Default_Values.value( "default_beam_geometry_size",				0.050	).toDouble();
+		default_beam_geometry_smoothing						= parameters_Default_Values.value( "default_beam_geometry_smoothing",			0.5		).toDouble();
+		default_beam_geometry_wings_full_width				= parameters_Default_Values.value( "default_beam_geometry_wings_full_width",	0.25	).toDouble();
+		default_beam_geometry_wings_intensity				= parameters_Default_Values.value( "default_beam_geometry_wings_intensity",		0.0		).toDouble();
+		default_beam_geometry_lateral_width					= parameters_Default_Values.value( "default_beam_geometry_lateral_width",		5.0		).toDouble();
+		default_beam_geometry_log_profile_plot				= parameters_Default_Values.value( "default_beam_geometry_log_profile_plot",	false	).toBool();
 
 		default_sample_geometry_size						= parameters_Default_Values.value( "default_sample_geometry_size",			20		).toDouble();
 		default_sample_geometry_x_position					= parameters_Default_Values.value( "default_sample_geometry_x_position",	0		).toDouble();
@@ -1035,29 +1382,29 @@ void Settings::save_Parameters_Default_Values()
 
 	// parameters default values
 	parameters_Default_Values.beginGroup( Independent_Values );
-		parameters_Default_Values.setValue( "default_num_spectral_points",					default_num_spectral_points			   );
-		parameters_Default_Values.setValue( "default_num_theta_0_angular_points",			default_num_theta_0_angular_points	   );
-		parameters_Default_Values.setValue( "default_num_theta_angular_points",				default_num_theta_angular_points	   );
-		parameters_Default_Values.setValue( "default_num_phi_angular_points",				default_num_phi_angular_points		   );
+		parameters_Default_Values.setValue( "default_wavelength_num_points",					default_wavelength_num_points			   );
+		parameters_Default_Values.setValue( "default_beam_theta_0_angle_num_points",			default_beam_theta_0_angle_num_points	   );
+		parameters_Default_Values.setValue( "default_detector_theta_angle_num_points",				default_detector_theta_angle_num_points	   );
+		parameters_Default_Values.setValue( "default_phi_angle_num_points",				default_phi_angle_num_points		   );
 
-		parameters_Default_Values.setValue( "default_beam_theta_0_specular_position",		default_beam_theta_0_specular_position );
-		parameters_Default_Values.setValue( "default_detector_theta_offset",				default_detector_theta_offset		   );
+		parameters_Default_Values.setValue( "default_beam_theta_0_angle_specular_position",		default_beam_theta_0_angle_specular_position );
+		parameters_Default_Values.setValue( "default_detector_theta_angle_offset",				default_detector_theta_angle_offset		   );
 
-		parameters_Default_Values.setValue( "default_wavelength_value",						default_wavelength_value			   );
-		parameters_Default_Values.setValue( "default_min_wavelength",						default_min_wavelength				   );
-		parameters_Default_Values.setValue( "default_max_wavelength",						default_max_wavelength				   );
+		parameters_Default_Values.setValue( "default_wavelength",						default_wavelength			   );
+		parameters_Default_Values.setValue( "default_wavelength_min",						default_wavelength_min				   );
+		parameters_Default_Values.setValue( "default_wavelength_max",						default_wavelength_max				   );
 
-		parameters_Default_Values.setValue( "default_theta_0_angle_value",					default_theta_0_angle_value			   );
-		parameters_Default_Values.setValue( "default_min_theta_0_angle",					default_min_theta_0_angle			   );
-		parameters_Default_Values.setValue( "default_max_theta_0_angle",					default_max_theta_0_angle			   );
+		parameters_Default_Values.setValue( "default_beam_theta_0_angle",					default_beam_theta_0_angle			   );
+		parameters_Default_Values.setValue( "default_beam_theta_0_angle_min",					default_beam_theta_0_angle_min			   );
+		parameters_Default_Values.setValue( "default_beam_theta_0_angle_max",					default_beam_theta_0_angle_max			   );
 
-		parameters_Default_Values.setValue( "default_theta_angle_value",					default_theta_angle_value			   );
-		parameters_Default_Values.setValue( "default_min_theta_angle",						default_min_theta_angle				   );
-		parameters_Default_Values.setValue( "default_max_theta_angle",						default_max_theta_angle				   );
+		parameters_Default_Values.setValue( "default_detector_theta_angle",					default_detector_theta_angle			   );
+		parameters_Default_Values.setValue( "default_detector_theta_angle_min",						default_detector_theta_angle_min				   );
+		parameters_Default_Values.setValue( "default_detector_theta_angle_max",						default_detector_theta_angle_max				   );
 
-		parameters_Default_Values.setValue( "default_phi_angle_value",						default_phi_angle_value				   );
-		parameters_Default_Values.setValue( "default_min_phi_angle",						default_min_phi_angle				   );
-		parameters_Default_Values.setValue( "default_max_phi_angle",						default_max_phi_angle				   );
+		parameters_Default_Values.setValue( "default_phi_angle",						default_phi_angle				   );
+		parameters_Default_Values.setValue( "default_phi_angle_min",						default_phi_angle_min				   );
+		parameters_Default_Values.setValue( "default_phi_angle_max",						default_phi_angle_max				   );
 
 		parameters_Default_Values.setValue( "default_logarithmic_threshold_beta",					default_logarithmic_threshold_beta				   );
 		parameters_Default_Values.setValue( "default_logarithmic_threshold_material_density",		default_logarithmic_threshold_material_density	   );
@@ -1069,15 +1416,15 @@ void Settings::save_Parameters_Default_Values()
 		parameters_Default_Values.setValue( "default_spectral_distribution_use_sampling",			default_spectral_distribution_use_sampling);
 		parameters_Default_Values.setValue( "default_spectral_distribution_number_of_Samples",		default_spectral_distribution_number_of_Samples);
 
-		parameters_Default_Values.setValue( "default_beam_Theta_0_distribution_FWHM",				default_beam_Theta_0_distribution_FWHM);
-		parameters_Default_Values.setValue( "default_beam_Theta_0_distribution_coverage",			default_beam_Theta_0_distribution_coverage);
-		parameters_Default_Values.setValue( "default_beam_Theta_0_distribution_use_sampling",		default_beam_Theta_0_distribution_use_sampling);
-		parameters_Default_Values.setValue( "default_beam_Theta_0_distribution_number_of_Samples",	default_beam_Theta_0_distribution_number_of_Samples);
+		parameters_Default_Values.setValue( "default_beam_theta_0_distribution_FWHM",				default_beam_theta_0_distribution_FWHM);
+		parameters_Default_Values.setValue( "default_beam_theta_0_distribution_coverage",			default_beam_theta_0_distribution_coverage);
+		parameters_Default_Values.setValue( "default_beam_theta_0_distribution_use_sampling",		default_beam_theta_0_distribution_use_sampling);
+		parameters_Default_Values.setValue( "default_beam_theta_0_distribution_number_of_Samples",	default_beam_theta_0_distribution_number_of_Samples);
 
-		parameters_Default_Values.setValue( "default_beam_Phi_0_distribution_FWHM",					default_beam_Phi_0_distribution_FWHM);
-		parameters_Default_Values.setValue( "default_beam_Phi_0_distribution_coverage",				default_beam_Phi_0_distribution_coverage);
-		parameters_Default_Values.setValue( "default_beam_Phi_0_distribution_use_sampling",			default_beam_Phi_0_distribution_use_sampling);
-		parameters_Default_Values.setValue( "default_beam_Phi_0_distribution_number_of_Samples",	default_beam_Phi_0_distribution_number_of_Samples);
+		parameters_Default_Values.setValue( "default_beam_phi_0_distribution_FWHM",					default_beam_phi_0_distribution_FWHM);
+		parameters_Default_Values.setValue( "default_beam_phi_0_distribution_coverage",				default_beam_phi_0_distribution_coverage);
+		parameters_Default_Values.setValue( "default_beam_phi_0_distribution_use_sampling",			default_beam_phi_0_distribution_use_sampling);
+		parameters_Default_Values.setValue( "default_beam_phi_0_distribution_number_of_Samples",	default_beam_phi_0_distribution_number_of_Samples);
 
 		parameters_Default_Values.setValue( "default_detector_1D_slit_width",						default_detector_1D_slit_width);
 		parameters_Default_Values.setValue( "default_detector_1D_distance_to_sample",				default_detector_1D_distance_to_sample);
@@ -1088,10 +1435,10 @@ void Settings::save_Parameters_Default_Values()
 
 		parameters_Default_Values.setValue( "default_beam_geometry_size",							default_beam_geometry_size);
 		parameters_Default_Values.setValue( "default_beam_geometry_smoothing",						default_beam_geometry_smoothing);
-		parameters_Default_Values.setValue( "default_beam_wings_full_width",						default_beam_wings_full_width);
-		parameters_Default_Values.setValue( "default_beam_wings_intensity",							default_beam_wings_intensity);
-		parameters_Default_Values.setValue( "default_beam_lateral_width",							default_beam_lateral_width);
-		parameters_Default_Values.setValue( "default_beam_log_profile_plot",						default_beam_log_profile_plot);
+		parameters_Default_Values.setValue( "default_beam_geometry_wings_full_width",						default_beam_geometry_wings_full_width);
+		parameters_Default_Values.setValue( "default_beam_geometry_wings_intensity",							default_beam_geometry_wings_intensity);
+		parameters_Default_Values.setValue( "default_beam_geometry_lateral_width",							default_beam_geometry_lateral_width);
+		parameters_Default_Values.setValue( "default_beam_geometry_log_profile_plot",						default_beam_geometry_log_profile_plot);
 
 		parameters_Default_Values.setValue( "default_sample_geometry_size",							default_sample_geometry_size);
 		parameters_Default_Values.setValue( "default_sample_geometry_x_position",					default_sample_geometry_x_position);

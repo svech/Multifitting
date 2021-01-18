@@ -86,30 +86,17 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			/// epsilon
 			/// ---------------------------------------------------------------------------------------------------------------
 
-			// if density
-			if(struct_Data.separate_Optical_Constants != TRIL_TRUE)
-			{
-				// if absolute density
-				if(struct_Data.composed_Material)
-														for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
-														{
-															epsilon[point_Index] = 1. - delta_Epsilon[point_Index];
-														}
-				// if relative density
-				else									for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
-														{
-															epsilon[point_Index] = 1. - struct_Data.average_Layer_density() * delta_Epsilon[point_Index];
-														}
-			} else
-			// if separate optical constants
-			{
-				for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
-				{
-					delta_Epsilon[point_Index] = complex<double>(real(delta_Epsilon[point_Index]) * struct_Data.permittivity.value / 100.,
-																 imag(delta_Epsilon[point_Index]) * struct_Data.absorption  .value / 100.);
-					epsilon[point_Index] = 1. - delta_Epsilon[point_Index];
-				}
-			}
+			// if absolute density
+			if(struct_Data.composed_Material)
+													for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
+													{
+														epsilon[point_Index] = 1. - delta_Epsilon[point_Index];
+													}
+			// if relative density
+			else									for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
+													{
+														epsilon[point_Index] = 1. - struct_Data.average_Layer_density() * delta_Epsilon[point_Index];
+													}
 		}
 	}
 	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
@@ -550,25 +537,14 @@ void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points
 	/// epsilon
 	/// ---------------------------------------------------------------------------------------------------------------
 
-	// if density
-	if(struct_Data.separate_Optical_Constants != TRIL_TRUE)
+	// if absolute density
+	if(struct_Data.composed_Material)		epsilon_Ang = 1. - delta_Epsilon_Ang;
+	// if relative density
+	else
 	{
-		// if absolute density
-		if(struct_Data.composed_Material)		epsilon_Ang = 1. - delta_Epsilon_Ang;
-		// if relative density
-		else
-		{
-			double density = struct_Data.relative_Density.value;
-			if(specular_Case) density = struct_Data.average_Layer_density();
-			epsilon_Ang = 1. - density * delta_Epsilon_Ang;
-		}
-
-	} else
-	// if separate optical constants
-	{
-		delta_Epsilon_Ang = complex<double>(real(delta_Epsilon_Ang) * struct_Data.permittivity.value / 100.,
-											imag(delta_Epsilon_Ang) * struct_Data.absorption  .value / 100.);
-		epsilon_Ang = 1. - delta_Epsilon_Ang;
+		double density = struct_Data.relative_Density.value;
+		if(specular_Case) density = struct_Data.average_Layer_density();
+		epsilon_Ang = 1. - density * delta_Epsilon_Ang;
 	}
 
 	// fill epsilon with equal epsilons

@@ -222,8 +222,6 @@ void Menu::create_Independent_Units_Menu()
 	// if density, permittivity, absorption, composition, num_repetitions, or gamma
 	if((whats_This == whats_This_Absolute_Density)		 ||
 	   (whats_This == whats_This_Relative_Density)		 ||
-	   (whats_This == whats_This_Permittivity)			 ||
-	   (whats_This == whats_This_Absorption)			 ||
 	   (whats_This == whats_This_Composition)			 ||
 	   (whats_This == whats_This_Interlayer_Composition) ||
 	   (whats_This == whats_This_Num_Repetitions)		 ||
@@ -297,24 +295,6 @@ void Menu::create_Independent_Precision_Menu()
 
 			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Density_Precision);
 			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Density_Precision);
-		}
-		// if permittivity
-		if(whats_This == whats_This_Permittivity)
-		{
-			if(index == thumbnail_permittivity_precision) precision_Thumb->setChecked(true);
-			if(index == line_edit_permittivity_precision) precision_Edit->setChecked(true);
-
-			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Permittivity_Precision);
-			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Permittivity_Precision);
-		}
-		// if absorption
-		if(whats_This == whats_This_Absorption)
-		{
-			if(index == thumbnail_absorption_precision) precision_Thumb->setChecked(true);
-			if(index == line_edit_absorption_precision) precision_Edit->setChecked(true);
-
-			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Absorption_Precision);
-			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Absorption_Precision);
 		}
 		// if composition
 		if(whats_This == whats_This_Composition)
@@ -759,30 +739,6 @@ void Menu::set_Thumbnail_Density_Precision()
 void Menu::set_Line_Edit_Density_Precision()
 {
 	line_edit_density_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Thumbnail_Permittivity_Precision()
-{
-	thumbnail_permittivity_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Line_Edit_Permittivity_Precision()
-{
-	line_edit_permittivity_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Thumbnail_Absorption_Precision()
-{
-	thumbnail_absorption_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Line_Edit_Absorption_Precision()
-{
-	line_edit_absorption_precision = sender()->property(index_Property).toInt();
 	emit refresh();
 }
 

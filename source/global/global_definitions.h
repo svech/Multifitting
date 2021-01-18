@@ -14,7 +14,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 3
+#define VERSION_BUILD 4
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -85,12 +85,15 @@ class Node;
 
 // structure default values
 #define Structure_Default_Values_Path Pre_Path + "settings/structure_default_values.ini"
-	#define Structure_Init_Values	"Structure_Init_Values"
-		#define Ambient_Values		"Ambient_Values"
-		#define Layer_Values		"Layer_Values"
-		#define Substrate_Values	"Substrate_Values"
-		#define Stack_Values		"Stack_Values"
-		#define Steps				"Steps"
+	#define Structure_Init_Values			"Structure_Init_Values"
+		#define Ambient_Values				"Ambient_Values"
+		#define Layer_Values				"Layer_Values"
+		#define Substrate_Values			"Substrate_Values"
+		#define Common_Values				"Common_Values"
+		#define Roughness_Values			"Roughness_Values"
+		#define Fluctuation_Values			"Fluctuation_Values"
+		#define Stack_Values				"Stack_Values"
+		#define Steps						"Steps"
 
 // precisions
 #define Precisions_Path Pre_Path + "settings/precisions.ini"
@@ -301,8 +304,6 @@ class Node;
 #define whats_This_Detector_Phi_Angle			"Phi Angle"
 #define whats_This_Absolute_Density				"Absolute Density"
 #define whats_This_Relative_Density				"Relative Density"
-#define whats_This_Permittivity					"Permittivity"
-#define whats_This_Absorption					"Absorption"
 #define whats_This_Composition					"Composition"
 #define whats_This_Thickness					"Thickness"
 #define whats_This_Sigma_Diffuse				"Sigma Diffuse"

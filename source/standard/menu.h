@@ -59,10 +59,6 @@ public:
 	// precisions
 	void set_Thumbnail_Density_Precision();
 	void set_Line_Edit_Density_Precision();
-	void set_Thumbnail_Permittivity_Precision();
-	void set_Line_Edit_Permittivity_Precision();
-	void set_Thumbnail_Absorption_Precision();
-	void set_Line_Edit_Absorption_Precision();
 	void set_Thumbnail_Composition_Precision();
 	void set_Line_Edit_Composition_Precision();
 	void set_Thumbnail_Thickness_Precision();

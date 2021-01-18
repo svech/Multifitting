@@ -851,8 +851,6 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	{
 		if(whats_This == whats_This_Absolute_Density)				text = struct_Data.material + " " + brackets + " Density, " + Rho_Sym;
 		if(whats_This == whats_This_Relative_Density)				text = struct_Data.material + " " + brackets + " Relative density, " + Rho_Sym;
-		if(whats_This == whats_This_Permittivity)					text = struct_Data.material + " " + brackets + " Permittivity, 1-" + Epsilon_Sym;
-		if(whats_This == whats_This_Absorption)						text = struct_Data.material + " " + brackets + " Absorption, " + Cappa_Sym;
 		if(whats_This == whats_This_Composition && index>=0)		text = struct_Data.material + " " + brackets + " " + struct_Data.composition[index].type + " composition, " + Zeta_Sym + "_" + struct_Data.composition[index].type;
 	}
 
@@ -960,18 +958,16 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	// optical properties
 	if(id == struct_Data.absolute_Density.indicator.id)							return &struct_Data.absolute_Density;
 	if(id == struct_Data.relative_Density.indicator.id)							return &struct_Data.relative_Density;
-	if(id == struct_Data.permittivity.indicator.id)								return &struct_Data.permittivity;
-	if(id == struct_Data.absorption.indicator.id)								return &struct_Data.absorption;	
 	for(int i=0; i<struct_Data.composition.size(); ++i)
 	{
 		if(id == struct_Data.composition[i].composition.indicator.id)			return &struct_Data.composition[i].composition;
 	}
 
 	// interface
-	if(id == struct_Data.sigma_Diffuse.indicator.id)									return &struct_Data.sigma_Diffuse;
+	if(id == struct_Data.sigma_Diffuse.indicator.id)							return &struct_Data.sigma_Diffuse;
 	for(int i=0; i<transition_Layer_Functions_Size; ++i)
 	{
-		if(id == struct_Data.interlayer_Composition[i].interlayer.indicator.id)	return &struct_Data.interlayer_Composition[i].interlayer;
+		if(id == struct_Data.interlayer_Composition[i].interlayer.indicator.id)			return &struct_Data.interlayer_Composition[i].interlayer;
 		if(id == struct_Data.interlayer_Composition[i].my_Sigma_Diffuse.indicator.id)	return &struct_Data.interlayer_Composition[i].my_Sigma_Diffuse;
 	}
 	if(id == struct_Data.sigma_Diffuse_Drift.drift_Line_Value.indicator.id)				return &struct_Data.sigma_Diffuse_Drift.drift_Line_Value;
@@ -1031,8 +1027,6 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	// optical properties
 	if(whats_This == whats_This_Absolute_Density)				{*line_edit_precision = line_edit_density_precision;		*thumbnail_precision = thumbnail_density_precision;		*units = " " + density_units;	*coeff = 1;	return &struct_Data.absolute_Density;	}
 	if(whats_This == whats_This_Relative_Density)				{*line_edit_precision = line_edit_density_precision;		*thumbnail_precision = thumbnail_density_precision;		*units = "" ;					*coeff = 1;	return &struct_Data.relative_Density;	}
-	if(whats_This == whats_This_Permittivity)					{*line_edit_precision = line_edit_permittivity_precision;	*thumbnail_precision = thumbnail_permittivity_precision;*units = " " + opt_const_units;	*coeff = 1;	return &struct_Data.permittivity;		}
-	if(whats_This == whats_This_Absorption)						{*line_edit_precision = line_edit_absorption_precision;		*thumbnail_precision = thumbnail_absorption_precision;	*units = " " + opt_const_units;	*coeff = 1;	return &struct_Data.absorption;			}
 	if(whats_This == whats_This_Composition)					{*line_edit_precision = line_edit_composition_precision;	*thumbnail_precision = thumbnail_composition_precision;	*units = "";					*coeff = 1;	return nullptr;							}
 
 	// interface

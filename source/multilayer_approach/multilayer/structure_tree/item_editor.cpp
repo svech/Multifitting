@@ -1169,21 +1169,19 @@ void Item_Editor::more_Elements_Clicked()
 	connect(line_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(line_Edit);});
 
 	// loading settings
-	if(struct_Data.item_Type==item_Type_Ambient)
+	if(struct_Data.item_Type == item_Type_Ambient)
 	{
-		stoich.composition.value = ambient_default_stoichiometry_composition;
-		stoich.type				 = ambient_default_stoichiometry_element;
+		stoich.type = default_layer_stoichiometry_element;
 	}
-	if(struct_Data.item_Type==item_Type_Layer)
+	if(struct_Data.item_Type == item_Type_Layer)
 	{
-		stoich.composition.value = layer_default_stoichiometry_composition;
-		stoich.type				 = layer_default_stoichiometry_element;
+		stoich.type	= default_layer_stoichiometry_element;
 	}
-	if(struct_Data.item_Type==item_Type_Substrate)
+	if(struct_Data.item_Type == item_Type_Substrate)
 	{
-		stoich.composition.value = substrate_default_stoichiometry_composition;
-		stoich.type				 = substrate_default_stoichiometry_element;
+		stoich.type = default_substrate_stoichiometry_element;
 	}
+	stoich.composition.value = default_stoichiometry_composition;
 	stoich.composition.confidence.num_Points = default_num_confidence_points;
 	stoich.composition.confidence.calc_Conf_Interval = false;
 
@@ -1690,8 +1688,8 @@ void Item_Editor::refresh_Data()
 				// only if element changed or added
 				if(auto_Density_On && i == element_Index)
 				{
-					struct_Data.composition[i].composition.fit.min = struct_Data.composition[i].composition.value*(1-dispersion);
-					struct_Data.composition[i].composition.fit.max = struct_Data.composition[i].composition.value*(1+dispersion);
+					struct_Data.composition[i].composition.fit.min = default_stoichiometry_composition_min;
+					struct_Data.composition[i].composition.fit.max = default_stoichiometry_composition_max;
 					struct_Data.composition[i].composition.confidence.min = struct_Data.composition[i].composition.fit.min;
 					struct_Data.composition[i].composition.confidence.max = struct_Data.composition[i].composition.fit.max;
 				}

@@ -119,53 +119,174 @@ extern QString aperiodic_default_units_import;
 
 // structure default values
 
-extern double dispersion;			// from [0,1)
-extern double sigma_Dispersion_Min;	// 2
-extern double sigma_Dispersion_Max;	// 2
 extern double default_num_confidence_points;
 extern bool auto_density_from_elements;
 
-// Ambient_Values
-extern QString	ambient_default_material;
-extern double	ambient_default_absolute_density;
-extern double	ambient_default_relative_density;
-extern double	ambient_default_permittivity;
-extern double	ambient_default_absorption;
-extern bool		ambient_default_composed;
-extern double	ambient_default_stoichiometry_composition;
-extern QString	ambient_default_stoichiometry_element;
-
 // Layer_Values
-extern QString	layer_default_material;
-extern double	layer_default_absolute_density;
-extern double	layer_default_relative_density;
-extern double	layer_default_permittivity;
-extern double	layer_default_absorption;
-extern bool		layer_default_composed;
-extern double	layer_default_stoichiometry_composition;
-extern QString	layer_default_stoichiometry_element;
-extern double	layer_default_sigma_diffuse;
-extern double	layer_default_sigma_roughness;
-extern double	layer_default_thickness;
-extern QString	layer_default_drift_model;
-extern double	layer_default_drift_coefficients;
+extern QString	default_layer_material;
+
+extern double	default_layer_absolute_density;
+extern double	default_layer_absolute_density_min;
+extern double	default_layer_absolute_density_max;
+
+extern double	default_layer_relative_density;
+extern double	default_layer_relative_density_min;
+extern double	default_layer_relative_density_max;
+
+extern bool		default_layer_composed_material;
+extern QString	default_layer_stoichiometry_element;
+
+extern double	default_layer_thickness;
+extern double	default_layer_thickness_min;
+extern double	default_layer_thickness_max;
+
+
+extern bool		default_thickness_drift_line_enabled;
+extern bool		default_thickness_drift_line_show;
+extern double	default_thickness_drift_line;
+extern double	default_thickness_drift_line_min;
+extern double	default_thickness_drift_line_max;
+
+extern bool		default_thickness_drift_rand_enabled;
+extern bool		default_thickness_drift_rand_show;
+extern double	default_thickness_drift_rand;
+extern double	default_thickness_drift_rand_min;
+extern double	default_thickness_drift_rand_max;
+
+extern bool		default_thickness_drift_sine_enabled;
+extern bool		default_thickness_drift_sine_show;
+extern double	default_thickness_drift_sine_amplitude;
+extern double	default_thickness_drift_sine_amplitude_min;
+extern double	default_thickness_drift_sine_amplitude_max;
+extern double	default_thickness_drift_sine_frequency;
+extern double	default_thickness_drift_sine_frequency_min;
+extern double	default_thickness_drift_sine_frequency_max;
+extern double	default_thickness_drift_sine_phase;
+extern double	default_thickness_drift_sine_phase_min;
+extern double	default_thickness_drift_sine_phase_max;
+
+extern bool		default_sigma_drift_line_enabled;
+extern bool		default_sigma_drift_line_show;
+extern double	default_sigma_drift_line;
+extern double	default_sigma_drift_line_min;
+extern double	default_sigma_drift_line_max;
+
+extern bool		default_sigma_drift_rand_enabled;
+extern bool		default_sigma_drift_rand_show;
+extern double	default_sigma_drift_rand;
+extern double	default_sigma_drift_rand_min;
+extern double	default_sigma_drift_rand_max;
+
+extern bool		default_sigma_drift_sine_enabled;
+extern bool		default_sigma_drift_sine_show;
+extern double	default_sigma_drift_sine_amplitude;
+extern double	default_sigma_drift_sine_amplitude_min;
+extern double	default_sigma_drift_sine_amplitude_max;
+extern double	default_sigma_drift_sine_frequency;
+extern double	default_sigma_drift_sine_frequency_min;
+extern double	default_sigma_drift_sine_frequency_max;
+extern double	default_sigma_drift_sine_phase;
+extern double	default_sigma_drift_sine_phase_min;
+extern double	default_sigma_drift_sine_phase_max;
 
 // Substrate_Values
-extern QString	substrate_default_material;
-extern double	substrate_default_absolute_density;
-extern double	substrate_default_relative_density;
-extern double	substrate_default_permittivity;
-extern double	substrate_default_absorption;
-extern bool		substrate_default_composed;
-extern double	substrate_default_stoichiometry_composition;
-extern QString	substrate_default_stoichiometry_element;
-extern double	substrate_default_sigma_diffuse;
-extern double	substrate_default_sigma_roughness;
+extern QString	default_substrate_material;
+
+extern double	default_substrate_absolute_density;
+extern double	default_substrate_absolute_density_min;
+extern double	default_substrate_absolute_density_max;
+
+extern double	default_substrate_relative_density;
+extern double	default_substrate_relative_density_min;
+extern double	default_substrate_relative_density_max;
+
+extern bool		default_substrate_composed_material;
+extern QString	default_substrate_stoichiometry_element;
+
+// Common_Values
+extern double	default_diffuse_sigma;
+extern double	default_diffuse_sigma_min;
+extern double	default_diffuse_sigma_max;
+
+extern double	default_stoichiometry_composition;
+extern double	default_stoichiometry_composition_min;
+extern double	default_stoichiometry_composition_max;
+
+// Roughness_Values
+extern bool		default_roughness_enabled;
+
+extern double	default_roughness_sigma;
+extern double	default_roughness_sigma_min;
+extern double	default_roughness_sigma_max;
+
+extern double	default_roughness_correlation_radius;
+extern double	default_roughness_correlation_radius_min;
+extern double	default_roughness_correlation_radius_max;
+
+extern double	default_roughness_fractal_alpha;
+extern double	default_roughness_fractal_alpha_min;
+extern double	default_roughness_fractal_alpha_max;
+
+extern double	default_roughness_omega;
+extern double	default_roughness_omega_min;
+extern double	default_roughness_omega_max;
+
+extern double	default_roughness_mu;
+extern double	default_roughness_mu_min;
+extern double	default_roughness_mu_max;
+
+// Fluctuation_Values
+extern bool		default_fluctuation_enabled;
+extern bool		default_fluctuation_used;
+
+extern double	default_fluctuation_absolute_density;
+extern double	default_fluctuation_absolute_density_min;
+extern double	default_fluctuation_absolute_density_max;
+
+extern double	default_fluctuation_relative_density;
+extern double	default_fluctuation_relative_density_min;
+extern double	default_fluctuation_relative_density_max;
+
+extern double	default_fluctuation_particle_radius;
+extern double	default_fluctuation_particle_radius_min;
+extern double	default_fluctuation_particle_radius_max;
+
+extern double	default_fluctuation_particle_height;
+extern double	default_fluctuation_particle_height_min;
+extern double	default_fluctuation_particle_height_max;
+
+extern double	default_fluctuation_particle_distance;
+extern double	default_fluctuation_particle_distance_min;
+extern double	default_fluctuation_particle_distance_max;
+
+extern double	default_fluctuation_particle_distance_deviation;
+extern double	default_fluctuation_particle_distance_deviation_min;
+extern double	default_fluctuation_particle_distance_deviation_max;
+
+extern double	default_fluctuation_domain_size;
+extern double	default_fluctuation_domain_size_min;
+extern double	default_fluctuation_domain_size_max;
+
+extern double	default_fluctuation_z_position;
+extern double	default_fluctuation_z_position_min;
+extern double	default_fluctuation_z_position_max;
+
+extern double	default_fluctuation_z_position_deviation;
+extern double	default_fluctuation_z_position_deviation_min;
+extern double	default_fluctuation_z_position_deviation_max;
 
 // Stack_Values
-extern int		stack_default_number_of_repetition;
-extern double	stack_default_period;
-extern double	stack_default_gamma;
+extern int		default_stack_number_of_repetition;
+extern int		default_stack_number_of_repetition_min;
+extern int		default_stack_number_of_repetition_max;
+
+extern double	default_stack_period;
+extern double	default_stack_period_min;
+extern double	default_stack_period_max;
+
+extern double	default_stack_gamma;
+extern double	default_stack_gamma_min;
+extern double	default_stack_gamma_max;
 
 // steps
 extern double	step_thickness_transfer;
@@ -208,8 +329,6 @@ extern int line_edit_wavelength_precision	;
 extern int line_edit_spectral_resolution_precision	;
 extern int line_edit_polarization_precision	;
 extern int line_edit_density_precision		;
-extern int line_edit_permittivity_precision	;
-extern int line_edit_absorption_precision	;
 extern int line_edit_composition_precision	;
 extern int line_edit_thickness_precision	;
 
@@ -234,8 +353,6 @@ extern int thumbnail_wavelength_precision	;
 extern int thumbnail_spectral_resolution_precision	;
 extern int thumbnail_polarization_precision	;
 extern int thumbnail_density_precision		;
-extern int thumbnail_permittivity_precision	;
-extern int thumbnail_absorption_precision	;
 extern int thumbnail_composition_precision	;
 extern int thumbnail_thickness_precision	;
 
@@ -261,29 +378,29 @@ extern int thickness_transfer_precision		;
 
 // measurement default values
 
-extern int default_num_spectral_points;
-extern int default_num_theta_0_angular_points;
-extern int default_num_theta_angular_points;
-extern int default_num_phi_angular_points;
+extern int default_wavelength_num_points;
+extern int default_beam_theta_0_angle_num_points;
+extern int default_detector_theta_angle_num_points;
+extern int default_phi_angle_num_points;
 
-extern int default_beam_theta_0_specular_position;
-extern int default_detector_theta_offset;
+extern int default_beam_theta_0_angle_specular_position;
+extern int default_detector_theta_angle_offset;
 
-extern double default_theta_0_angle_value;
-extern double default_min_theta_0_angle;
-extern double default_max_theta_0_angle;
+extern double default_beam_theta_0_angle;
+extern double default_beam_theta_0_angle_min;
+extern double default_beam_theta_0_angle_max;
 
-extern double default_theta_angle_value;
-extern double default_min_theta_angle;
-extern double default_max_theta_angle;
+extern double default_detector_theta_angle;
+extern double default_detector_theta_angle_min;
+extern double default_detector_theta_angle_max;
 
-extern double default_phi_angle_value;
-extern double default_min_phi_angle;
-extern double default_max_phi_angle;
+extern double default_phi_angle;
+extern double default_phi_angle_min;
+extern double default_phi_angle_max;
 
-extern double default_wavelength_value;
-extern double default_min_wavelength;
-extern double default_max_wavelength;
+extern double default_wavelength;
+extern double default_wavelength_min;
+extern double default_wavelength_max;
 
 extern double default_logarithmic_threshold_beta;
 extern double default_logarithmic_threshold_material_density;
@@ -294,15 +411,15 @@ extern double default_spectral_distribution_coverage;
 extern bool	  default_spectral_distribution_use_sampling;
 extern int    default_spectral_distribution_number_of_Samples;
 
-extern double default_beam_Theta_0_distribution_FWHM;
-extern double default_beam_Theta_0_distribution_coverage;
-extern bool   default_beam_Theta_0_distribution_use_sampling;
-extern int    default_beam_Theta_0_distribution_number_of_Samples;
+extern double default_beam_theta_0_distribution_FWHM;
+extern double default_beam_theta_0_distribution_coverage;
+extern bool   default_beam_theta_0_distribution_use_sampling;
+extern int    default_beam_theta_0_distribution_number_of_Samples;
 
-extern double default_beam_Phi_0_distribution_FWHM;
-extern double default_beam_Phi_0_distribution_coverage;
-extern bool   default_beam_Phi_0_distribution_use_sampling;
-extern int    default_beam_Phi_0_distribution_number_of_Samples;
+extern double default_beam_phi_0_distribution_FWHM;
+extern double default_beam_phi_0_distribution_coverage;
+extern bool   default_beam_phi_0_distribution_use_sampling;
+extern int    default_beam_phi_0_distribution_number_of_Samples;
 
 extern double default_detector_1D_slit_width;
 extern double default_detector_1D_distance_to_sample;
@@ -313,10 +430,10 @@ extern double default_detector_2D_phi_resolution_FWHM;
 
 extern double default_beam_geometry_size;
 extern double default_beam_geometry_smoothing;
-extern double default_beam_wings_full_width;
-extern double default_beam_wings_intensity;
-extern double default_beam_lateral_width;
-extern bool   default_beam_log_profile_plot;
+extern double default_beam_geometry_wings_full_width;
+extern double default_beam_geometry_wings_intensity;
+extern double default_beam_geometry_lateral_width;
+extern bool   default_beam_geometry_log_profile_plot;
 
 extern double default_sample_geometry_size;
 extern double default_sample_geometry_x_position;

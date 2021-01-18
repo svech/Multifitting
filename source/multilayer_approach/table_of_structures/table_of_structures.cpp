@@ -1754,8 +1754,6 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	// optical properties
 	if(whats_This == whats_This_Absolute_Density)			{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.absolute_Density;			}
 	if(whats_This == whats_This_Relative_Density)			{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.relative_Density;			}
-	if(whats_This == whats_This_Permittivity)				{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.permittivity;				}
-	if(whats_This == whats_This_Absorption)					{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.absorption;					}
 
 	// thickness
 	if(whats_This == whats_This_Thickness)						{precision = line_edit_thickness_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.thickness;	}

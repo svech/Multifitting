@@ -36,70 +36,70 @@ Data::Data(QString item_Type_Passed)
 
 		// wavelength
 		{
+			wavelength.value           =		default_wavelength;
 			wavelength.independent.is_Independent = true;
-			wavelength.independent.min = default_min_wavelength;
-			wavelength.independent.max = default_max_wavelength;
-			wavelength.independent.num_Points = default_num_spectral_points;
-			wavelength.value = default_wavelength_value;
+			wavelength.independent.min =		default_wavelength_min;
+			wavelength.independent.max =		default_wavelength_max;
+			wavelength.independent.num_Points = default_wavelength_num_points;
 			wavelength.indicator.whats_This = whats_This_Wavelength;
 			wavelength.indicator.item_Id = id;
 		}
 
 		// theta_0 angle
 		{
-			beam_Theta_0_Angle.value = default_theta_0_angle_value;
+			beam_Theta_0_Angle.value           =		default_beam_theta_0_angle;
 			beam_Theta_0_Angle.independent.is_Independent = true;
-			beam_Theta_0_Angle.independent.min = default_min_theta_0_angle;
-			beam_Theta_0_Angle.independent.max = default_max_theta_0_angle;
-			beam_Theta_0_Angle.independent.num_Points = default_num_theta_0_angular_points;
+			beam_Theta_0_Angle.independent.min =		default_beam_theta_0_angle_min;
+			beam_Theta_0_Angle.independent.max =		default_beam_theta_0_angle_max;
+			beam_Theta_0_Angle.independent.num_Points = default_beam_theta_0_angle_num_points;
 			beam_Theta_0_Angle.indicator.whats_This = whats_This_Beam_Theta_0_Angle;
 			beam_Theta_0_Angle.indicator.item_Id = id;
 
-			beam_Theta_0_Specular_Position = default_beam_theta_0_specular_position;
+			beam_Theta_0_Specular_Position =			default_beam_theta_0_angle_specular_position;
 		}
 
 		// theta angle
 		{
-			detector_Theta_Angle.value = default_theta_angle_value;
+			detector_Theta_Angle.value           =			default_detector_theta_angle;
 			detector_Theta_Angle.independent.is_Independent = true;
-			detector_Theta_Angle.independent.min = default_min_theta_angle;
-			detector_Theta_Angle.independent.max = default_max_theta_angle;
-			detector_Theta_Angle.independent.num_Points = default_num_theta_angular_points;
+			detector_Theta_Angle.independent.min =			default_detector_theta_angle_min;
+			detector_Theta_Angle.independent.max =			default_detector_theta_angle_max;
+			detector_Theta_Angle.independent.num_Points =	default_detector_theta_angle_num_points;
 			detector_Theta_Angle.indicator.whats_This = whats_This_Detector_Theta_Angle;
 			detector_Theta_Angle.indicator.item_Id = id;
 
-			detector_Theta_Offset = default_detector_theta_offset;
+			detector_Theta_Offset =							default_detector_theta_angle_offset;
 		}
 
 		// phi angle
 		{
-			detector_Phi_Angle.value = default_phi_angle_value;
+			detector_Phi_Angle.value           =		default_phi_angle;
 			detector_Phi_Angle.independent.is_Independent = true;
-			detector_Phi_Angle.independent.min = default_min_phi_angle;
-			detector_Phi_Angle.independent.max = default_max_phi_angle;
-			detector_Phi_Angle.independent.num_Points = default_num_phi_angular_points;
+			detector_Phi_Angle.independent.min =		default_phi_angle_min;
+			detector_Phi_Angle.independent.max =		default_phi_angle_max;
+			detector_Phi_Angle.independent.num_Points = default_phi_angle_num_points;
 			detector_Phi_Angle.indicator.whats_This = whats_This_Detector_Phi_Angle;
 			detector_Phi_Angle.indicator.item_Id = id;
 		}
 
 		// resolution
-		spectral_Distribution.FWHM_distribution = default_spectral_distribution_FWHM;
+		spectral_Distribution.FWHM_distribution		= default_spectral_distribution_FWHM;
 		spectral_Distribution.distribution_Function = distributions[Gaussian];
-		spectral_Distribution.coverage			= default_spectral_distribution_coverage;
-		spectral_Distribution.use_Sampling		= default_spectral_distribution_use_sampling;
-		spectral_Distribution.number_of_Samples = default_spectral_distribution_number_of_Samples;
+		spectral_Distribution.coverage				= default_spectral_distribution_coverage;
+		spectral_Distribution.use_Sampling			= default_spectral_distribution_use_sampling;
+		spectral_Distribution.number_of_Samples		= default_spectral_distribution_number_of_Samples;
 
-		beam_Theta_0_Distribution.FWHM_distribution = default_beam_Theta_0_distribution_FWHM;
+		beam_Theta_0_Distribution.FWHM_distribution = default_beam_theta_0_distribution_FWHM;
 		beam_Theta_0_Distribution.distribution_Function = distributions[Gaussian];
-		beam_Theta_0_Distribution.coverage			= default_beam_Theta_0_distribution_coverage;
-		beam_Theta_0_Distribution.use_Sampling		= default_beam_Theta_0_distribution_use_sampling;
-		beam_Theta_0_Distribution.number_of_Samples = default_beam_Theta_0_distribution_number_of_Samples;
+		beam_Theta_0_Distribution.coverage			= default_beam_theta_0_distribution_coverage;
+		beam_Theta_0_Distribution.use_Sampling		= default_beam_theta_0_distribution_use_sampling;
+		beam_Theta_0_Distribution.number_of_Samples = default_beam_theta_0_distribution_number_of_Samples;
 
-		beam_Phi_0_Distribution.FWHM_distribution	= default_beam_Phi_0_distribution_FWHM;
+		beam_Phi_0_Distribution.FWHM_distribution	= default_beam_phi_0_distribution_FWHM;
 		beam_Phi_0_Distribution.distribution_Function = distributions[Gaussian];
-		beam_Phi_0_Distribution.coverage			= default_beam_Phi_0_distribution_coverage;
-		beam_Phi_0_Distribution.use_Sampling		= default_beam_Phi_0_distribution_use_sampling;
-		beam_Phi_0_Distribution.number_of_Samples	= default_beam_Phi_0_distribution_number_of_Samples;
+		beam_Phi_0_Distribution.coverage			= default_beam_phi_0_distribution_coverage;
+		beam_Phi_0_Distribution.use_Sampling		= default_beam_phi_0_distribution_use_sampling;
+		beam_Phi_0_Distribution.number_of_Samples	= default_beam_phi_0_distribution_number_of_Samples;
 
 		// detector
 		detector_1D.detector_Type = detectors[Slit];
@@ -108,35 +108,35 @@ Data::Data(QString item_Type_Passed)
 
 		detector_1D.detector_Theta_Resolution.FWHM_distribution = default_detector_1D_theta_resolution_FWHM;
 		detector_1D.detector_Theta_Resolution.distribution_Function = distributions[Gaussian];
-		detector_1D.detector_Theta_Resolution.coverage = 2;
-		detector_1D.detector_Theta_Resolution.use_Sampling = false;
-		detector_1D.detector_Theta_Resolution.number_of_Samples = 5;
+		detector_1D.detector_Theta_Resolution.coverage = 2;			// unused
+		detector_1D.detector_Theta_Resolution.use_Sampling = false;	// unused
+		detector_1D.detector_Theta_Resolution.number_of_Samples = 5;// unused
 
 
 		detector_2D.detector_Type = detectors[Spherical];		
 		detector_2D.detector_Theta_Resolution.FWHM_distribution = default_detector_2D_theta_resolution_FWHM;
 		detector_2D.detector_Theta_Resolution.distribution_Function = distributions[Gaussian];
-		detector_2D.detector_Theta_Resolution.coverage = 2;
-		detector_2D.detector_Theta_Resolution.use_Sampling = false;
-		detector_2D.detector_Theta_Resolution.number_of_Samples = 5;
+		detector_2D.detector_Theta_Resolution.coverage = 2;			// unused
+		detector_2D.detector_Theta_Resolution.use_Sampling = false;	// unused
+		detector_2D.detector_Theta_Resolution.number_of_Samples = 5;// unused
 
 		detector_2D.detector_Phi_Resolution.FWHM_distribution = default_detector_2D_phi_resolution_FWHM;
 		detector_2D.detector_Phi_Resolution.distribution_Function = distributions[Gaussian];
-		detector_2D.detector_Phi_Resolution.coverage = 2;
-		detector_2D.detector_Phi_Resolution.use_Sampling = false;
-		detector_2D.detector_Phi_Resolution.number_of_Samples = 5;
+		detector_2D.detector_Phi_Resolution.coverage = 2;			// unused
+		detector_2D.detector_Phi_Resolution.use_Sampling = false;	// unused
+		detector_2D.detector_Phi_Resolution.number_of_Samples = 5;	// unused
 
 		// footprint
 		beam_Geometry.size				= default_beam_geometry_size;
 		beam_Geometry.smoothing			= default_beam_geometry_smoothing;
-		beam_Geometry.right_Smoothing	= default_beam_geometry_smoothing;
-		beam_Geometry.asymmetric_Smoothing = false;
-		beam_Geometry.wings_Full_Width	= default_beam_wings_full_width;
-		beam_Geometry.right_Wing_Width	= default_beam_wings_full_width/2;
-		beam_Geometry.asymmetric_Wing_Width = false;
-		beam_Geometry.wings_Intensity	= default_beam_wings_intensity;
-		beam_Geometry.lateral_Width		= default_beam_lateral_width;
-		beam_Geometry.log_Profile_Plot	= default_beam_log_profile_plot;
+		beam_Geometry.right_Smoothing	= default_beam_geometry_smoothing;			// unused
+		beam_Geometry.asymmetric_Smoothing = false;									// unused
+		beam_Geometry.wings_Full_Width	= default_beam_geometry_wings_full_width;
+		beam_Geometry.right_Wing_Width	= default_beam_geometry_wings_full_width/2;	// unused
+		beam_Geometry.asymmetric_Wing_Width = false;								// unused
+		beam_Geometry.wings_Intensity	= default_beam_geometry_wings_intensity;
+		beam_Geometry.lateral_Width		= default_beam_geometry_lateral_width;
+		beam_Geometry.log_Profile_Plot	= default_beam_geometry_log_profile_plot;
 
 		sample_Geometry.size		= default_sample_geometry_size;
 		sample_Geometry.x_Position	= default_sample_geometry_x_position;
@@ -152,20 +152,33 @@ Data::Data(QString item_Type_Passed)
 	{
 		// material
 		{
-			if(item_Type == item_Type_Ambient)		material = ambient_default_material;
-			if(item_Type == item_Type_Layer)		material = layer_default_material;
-			if(item_Type == item_Type_Substrate)	material = substrate_default_material;
+			if(item_Type == item_Type_Ambient)		material = Vacuum;
+			if(item_Type == item_Type_Layer)		material =     default_layer_material;
+			if(item_Type == item_Type_Substrate)	material = default_substrate_material;
 
 			approved_Material = material;
 		}
 		// absolute density
 		{
-			if(item_Type == item_Type_Ambient)		absolute_Density.value =   ambient_default_absolute_density;
-			if(item_Type == item_Type_Layer)		absolute_Density.value =     layer_default_absolute_density;
-			if(item_Type == item_Type_Substrate)	absolute_Density.value = substrate_default_absolute_density;
+			if(item_Type == item_Type_Ambient)
+			{
+				absolute_Density.value   = 0;
+				absolute_Density.fit.min = 0;
+				absolute_Density.fit.max = 0;
+			}
+			if(item_Type == item_Type_Layer)
+			{
+				absolute_Density.value   = default_layer_absolute_density;
+				absolute_Density.fit.min = default_layer_absolute_density_min;
+				absolute_Density.fit.max = default_layer_absolute_density_max;
+			}
+			if(item_Type == item_Type_Substrate)
+			{
+				absolute_Density.value   = default_substrate_absolute_density;
+				absolute_Density.fit.min = default_substrate_absolute_density_min;
+				absolute_Density.fit.max = default_substrate_absolute_density_max;
+			}
 			absolute_Density.fit.is_Fitable = false;
-			absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
-			absolute_Density.fit.max = absolute_Density.value*(1/*+dispersion*/);
 			absolute_Density.indicator.whats_This = whats_This_Absolute_Density;
 			absolute_Density.indicator.item_Id = id;
 
@@ -176,12 +189,25 @@ Data::Data(QString item_Type_Passed)
 		}
 		// relative density
 		{
-			if(item_Type == item_Type_Ambient)		relative_Density.value =   ambient_default_relative_density;
-			if(item_Type == item_Type_Layer)		relative_Density.value =     layer_default_relative_density;
-			if(item_Type == item_Type_Substrate)	relative_Density.value = substrate_default_relative_density;
+			if(item_Type == item_Type_Ambient)
+			{
+				relative_Density.value = 0;
+				relative_Density.fit.min = 0;
+				relative_Density.fit.max = 0;
+			}
+			if(item_Type == item_Type_Layer)
+			{
+				relative_Density.value   = default_layer_relative_density;
+				relative_Density.fit.min = default_layer_relative_density_min;
+				relative_Density.fit.max = default_layer_relative_density_max;
+			}
+			if(item_Type == item_Type_Substrate)
+			{
+				relative_Density.value   = default_substrate_relative_density;
+				relative_Density.fit.min = default_substrate_relative_density_min;
+				relative_Density.fit.max = default_substrate_relative_density_max;
+			}
 			relative_Density.fit.is_Fitable = false;
-			relative_Density.fit.min = relative_Density.value*(1-dispersion);
-			relative_Density.fit.max = relative_Density.value*(1/*+dispersion*/);
 			relative_Density.indicator.whats_This = whats_This_Relative_Density;
 			relative_Density.indicator.item_Id = id;
 
@@ -190,43 +216,11 @@ Data::Data(QString item_Type_Passed)
 			relative_Density.confidence.max = relative_Density.fit.max;
 			relative_Density.confidence.num_Points = default_num_confidence_points;
 		}
-		// permittivity
-		{
-			if(item_Type == item_Type_Ambient)		permittivity.value =   ambient_default_permittivity;
-			if(item_Type == item_Type_Layer)		permittivity.value =     layer_default_permittivity;
-			if(item_Type == item_Type_Substrate)	permittivity.value = substrate_default_permittivity;
-			permittivity.fit.is_Fitable = false;
-			permittivity.fit.min = permittivity.value*(1-dispersion);
-			permittivity.fit.max = permittivity.value*(1+dispersion);
-			permittivity.indicator.whats_This = whats_This_Permittivity;
-			permittivity.indicator.item_Id = id;
-
-			permittivity.confidence.calc_Conf_Interval = false;
-			permittivity.confidence.min = permittivity.fit.min;
-			permittivity.confidence.max = permittivity.fit.max;
-			permittivity.confidence.num_Points = default_num_confidence_points;
-		}
-		// absorption
-		{
-			if(item_Type == item_Type_Ambient)		absorption.value =   ambient_default_absorption;
-			if(item_Type == item_Type_Layer)		absorption.value =     layer_default_absorption;
-			if(item_Type == item_Type_Substrate)	absorption.value = substrate_default_absorption;
-			absorption.fit.is_Fitable = false;
-			absorption.fit.min = absorption.value*(1-dispersion);
-			absorption.fit.max = absorption.value*(1+dispersion);
-			absorption.indicator.whats_This = whats_This_Absorption;
-			absorption.indicator.item_Id = id;
-
-			absorption.confidence.calc_Conf_Interval = false;
-			absorption.confidence.min = absorption.fit.min;
-			absorption.confidence.max = absorption.fit.max;
-			absorption.confidence.num_Points = default_num_confidence_points;
-		}
 		// composed material
 		{
-			if(item_Type == item_Type_Ambient)		composed_Material =   ambient_default_composed;
-			if(item_Type == item_Type_Layer)		composed_Material =     layer_default_composed;
-			if(item_Type == item_Type_Substrate)	composed_Material = substrate_default_composed;
+			if(item_Type == item_Type_Ambient)		composed_Material = false;
+			if(item_Type == item_Type_Layer)		composed_Material =     default_layer_composed_material;
+			if(item_Type == item_Type_Substrate)	composed_Material = default_substrate_composed_material;
 		}
 	}
 
@@ -234,11 +228,10 @@ Data::Data(QString item_Type_Passed)
 	{
 		// sigma diffuse
 		{
-			if(item_Type == item_Type_Layer)		sigma_Diffuse.value = layer_default_sigma_diffuse;
-			if(item_Type == item_Type_Substrate)	sigma_Diffuse.value = substrate_default_sigma_diffuse;
+			sigma_Diffuse.value   = default_diffuse_sigma;
 			sigma_Diffuse.fit.is_Fitable = false;
-			sigma_Diffuse.fit.min = 1;//sigma_Dispersion_Min*sigma.value;
-			sigma_Diffuse.fit.max = max(sigma_Dispersion_Max*sigma_Diffuse.value, 20.);
+			sigma_Diffuse.fit.min = default_diffuse_sigma_min;
+			sigma_Diffuse.fit.max = default_diffuse_sigma_max;
 			sigma_Diffuse.indicator.whats_This = whats_This_Sigma_Diffuse;
 			sigma_Diffuse.indicator.item_Id = id;
 
@@ -253,10 +246,10 @@ Data::Data(QString item_Type_Passed)
 			interlayer_Composition.resize(transition_Layer_Functions_Size);
 			for(int i=0; i<interlayer_Composition.size(); ++i)
 			{
-				if(i==0)	{interlayer_Composition[i].enabled=true; }
-				else 		{interlayer_Composition[i].enabled=false;}
+				if(i==0)	{interlayer_Composition[i].enabled = true; }
+				else 		{interlayer_Composition[i].enabled = false;}
 				{
-					interlayer_Composition[i].interlayer.value=1;
+					interlayer_Composition[i].interlayer.value = 1;
 					interlayer_Composition[i].interlayer.fit.is_Fitable = false;
 					interlayer_Composition[i].interlayer.fit.min = 0;
 					interlayer_Composition[i].interlayer.fit.max = 1;
@@ -268,10 +261,10 @@ Data::Data(QString item_Type_Passed)
 					interlayer_Composition[i].interlayer.confidence.num_Points = default_num_confidence_points;
 				}
 				{
-					interlayer_Composition[i].my_Sigma_Diffuse.value=0;
+					interlayer_Composition[i].my_Sigma_Diffuse.value = default_diffuse_sigma;
 					interlayer_Composition[i].my_Sigma_Diffuse.fit.is_Fitable = false;
-					interlayer_Composition[i].my_Sigma_Diffuse.fit.min = sigma_Dispersion_Min*interlayer_Composition[i].my_Sigma_Diffuse.value;
-					interlayer_Composition[i].my_Sigma_Diffuse.fit.max = sigma_Dispersion_Max*interlayer_Composition[i].my_Sigma_Diffuse.value;
+					interlayer_Composition[i].my_Sigma_Diffuse.fit.min = default_diffuse_sigma_min;
+					interlayer_Composition[i].my_Sigma_Diffuse.fit.max = default_diffuse_sigma_max;
 					interlayer_Composition[i].my_Sigma_Diffuse.indicator.item_Id = id;
 
 					interlayer_Composition[i].my_Sigma_Diffuse.confidence.calc_Conf_Interval = false;
@@ -283,15 +276,14 @@ Data::Data(QString item_Type_Passed)
 		}
 		// roughness
 		{
-			roughness_Model.is_Enabled = false;
+			roughness_Model.is_Enabled = default_roughness_enabled;
 		}
 		// sigma roughness
 		{
-			if(item_Type == item_Type_Layer)		roughness_Model.sigma.value = layer_default_sigma_roughness;
-			if(item_Type == item_Type_Substrate)	roughness_Model.sigma.value = substrate_default_sigma_roughness;
+			roughness_Model.sigma.value   = default_roughness_sigma;
 			roughness_Model.sigma.fit.is_Fitable = false;
-			roughness_Model.sigma.fit.min = 1;
-			roughness_Model.sigma.fit.max = max(sigma_Dispersion_Max*roughness_Model.sigma.value, 20.);
+			roughness_Model.sigma.fit.min = default_roughness_sigma_min;
+			roughness_Model.sigma.fit.max = default_roughness_sigma_max;
 			roughness_Model.sigma.indicator.whats_This = whats_This_Sigma_Roughness;
 			roughness_Model.sigma.indicator.item_Id = id;
 
@@ -302,10 +294,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// correlation radius
 		{
-			roughness_Model.cor_radius.value = 10000;
+			roughness_Model.cor_radius.value   = default_roughness_correlation_radius;
 			roughness_Model.cor_radius.fit.is_Fitable = false;
-			roughness_Model.cor_radius.fit.min = 100;
-			roughness_Model.cor_radius.fit.max = 100000;
+			roughness_Model.cor_radius.fit.min = default_roughness_correlation_radius_min;
+			roughness_Model.cor_radius.fit.max = default_roughness_correlation_radius_max;
 			roughness_Model.cor_radius.indicator.whats_This = whats_This_Correlation_Radius;
 			roughness_Model.cor_radius.indicator.item_Id = id;
 
@@ -316,10 +308,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// fractality / jagednesss
 		{
-			roughness_Model.fractal_alpha.value = 0.5;
+			roughness_Model.fractal_alpha.value   = default_roughness_fractal_alpha;
 			roughness_Model.fractal_alpha.fit.is_Fitable = false;
-			roughness_Model.fractal_alpha.fit.min = 0;
-			roughness_Model.fractal_alpha.fit.max = 1;
+			roughness_Model.fractal_alpha.fit.min = default_roughness_fractal_alpha_min;
+			roughness_Model.fractal_alpha.fit.max = default_roughness_fractal_alpha_max;
 			roughness_Model.fractal_alpha.indicator.whats_This = whats_This_Fractal_Alpha;
 			roughness_Model.fractal_alpha.indicator.item_Id = id;
 
@@ -330,10 +322,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle volume omega
 		{
-			roughness_Model.omega.value = 100;
+			roughness_Model.omega.value   = default_roughness_omega;
 			roughness_Model.omega.fit.is_Fitable = false;
-			roughness_Model.omega.fit.min = 30;
-			roughness_Model.omega.fit.max = 2000;
+			roughness_Model.omega.fit.min = default_roughness_omega_min;
+			roughness_Model.omega.fit.max = default_roughness_omega_max;
 			roughness_Model.omega.indicator.whats_This = whats_This_Linear_PSD_Omega;
 			roughness_Model.omega.indicator.item_Id = id;
 
@@ -344,10 +336,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// factor in growth exponent (depends on alpha?)
 		{
-			roughness_Model.mu.value = 200;
+			roughness_Model.mu.value   = default_roughness_mu;
 			roughness_Model.mu.fit.is_Fitable = false;
-			roughness_Model.mu.fit.min = 10;
-			roughness_Model.mu.fit.max = 1000;
+			roughness_Model.mu.fit.min = default_roughness_mu_min;
+			roughness_Model.mu.fit.max = default_roughness_mu_max;
 			roughness_Model.mu.indicator.whats_This = whats_This_Linear_PSD_Exponenta_Mu;
 			roughness_Model.mu.indicator.item_Id = id;
 
@@ -362,10 +354,10 @@ Data::Data(QString item_Type_Passed)
 	{
 		// thickness
 		{
-			thickness.value	= layer_default_thickness;
+			thickness.value	  = default_layer_thickness;
 			thickness.fit.is_Fitable = false;
-			thickness.fit.min = thickness.value*(1-dispersion);
-			thickness.fit.max = thickness.value*(2+dispersion);
+			thickness.fit.min = default_layer_thickness_min;
+			thickness.fit.max = default_layer_thickness_max;
 			thickness.indicator.whats_This = whats_This_Thickness;
 			thickness.indicator.item_Id = id;
 
@@ -376,17 +368,17 @@ Data::Data(QString item_Type_Passed)
 		}
 		// thickness drift
 		{
-			thickness_Drift.is_Drift_Line = false;
-			thickness_Drift.is_Drift_Sine = false;
-			thickness_Drift.is_Drift_Rand = false;
+			thickness_Drift.is_Drift_Line = default_thickness_drift_line_enabled;
+			thickness_Drift.is_Drift_Rand = default_thickness_drift_rand_enabled;
+			thickness_Drift.is_Drift_Sine = default_thickness_drift_sine_enabled;
 
-			thickness_Drift.show_Drift_Line = true;
-			thickness_Drift.show_Drift_Rand = true;
-			thickness_Drift.show_Drift_Sine = false;
+			thickness_Drift.show_Drift_Line = default_thickness_drift_line_show;
+			thickness_Drift.show_Drift_Rand = default_thickness_drift_rand_show;
+			thickness_Drift.show_Drift_Sine = default_thickness_drift_sine_show;
 			{
-				thickness_Drift.drift_Line_Value.value = 0;
-				thickness_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
-				thickness_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
+				thickness_Drift.drift_Line_Value.value   = default_thickness_drift_line;
+				thickness_Drift.drift_Line_Value.fit.min = default_thickness_drift_line_min;
+				thickness_Drift.drift_Line_Value.fit.max = default_thickness_drift_line_max;
 				thickness_Drift.drift_Line_Value.indicator.whats_This = whats_This_Thickness_Drift_Line_Value;
 				thickness_Drift.drift_Line_Value.indicator.item_Id = id;
 
@@ -396,9 +388,9 @@ Data::Data(QString item_Type_Passed)
 				thickness_Drift.drift_Line_Value.confidence.num_Points = default_num_confidence_points;
 			}
 			{
-				thickness_Drift.drift_Rand_Rms.value = 0;
-				thickness_Drift.drift_Rand_Rms.fit.min = 0;
-				thickness_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
+				thickness_Drift.drift_Rand_Rms.value   = default_thickness_drift_rand;
+				thickness_Drift.drift_Rand_Rms.fit.min = default_thickness_drift_rand_min;
+				thickness_Drift.drift_Rand_Rms.fit.max = default_thickness_drift_rand_max;
 				thickness_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Thickness_Drift_Rand_Rms;
 				thickness_Drift.drift_Rand_Rms.indicator.item_Id = id;
 
@@ -408,9 +400,9 @@ Data::Data(QString item_Type_Passed)
 				thickness_Drift.drift_Rand_Rms.confidence.num_Points = default_num_confidence_points;
 			}
 			{
-				thickness_Drift.drift_Sine_Amplitude.value = 0;
-				thickness_Drift.drift_Sine_Amplitude.fit.min = 0;
-				thickness_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
+				thickness_Drift.drift_Sine_Amplitude.value   = default_thickness_drift_sine_amplitude;
+				thickness_Drift.drift_Sine_Amplitude.fit.min = default_thickness_drift_sine_amplitude_min;
+				thickness_Drift.drift_Sine_Amplitude.fit.max = default_thickness_drift_sine_amplitude_max;
 				thickness_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Thickness_Drift_Sine_Amplitude;
 				thickness_Drift.drift_Sine_Amplitude.indicator.item_Id = id;
 
@@ -420,9 +412,9 @@ Data::Data(QString item_Type_Passed)
 				thickness_Drift.drift_Sine_Amplitude.confidence.num_Points = default_num_confidence_points;
 			}
 			{
-				thickness_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
-				thickness_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
-				thickness_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
+				thickness_Drift.drift_Sine_Frequency.value   = default_thickness_drift_sine_frequency;
+				thickness_Drift.drift_Sine_Frequency.fit.min = default_thickness_drift_sine_frequency_min;
+				thickness_Drift.drift_Sine_Frequency.fit.max = default_thickness_drift_sine_frequency_max;
 				thickness_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Thickness_Drift_Sine_Frequency;
 				thickness_Drift.drift_Sine_Frequency.indicator.item_Id = id;
 
@@ -432,9 +424,9 @@ Data::Data(QString item_Type_Passed)
 				thickness_Drift.drift_Sine_Frequency.confidence.num_Points = default_num_confidence_points;
 			}
 			{
-				thickness_Drift.drift_Sine_Phase.value = 0;
-				thickness_Drift.drift_Sine_Phase.fit.min = 0;
-				thickness_Drift.drift_Sine_Phase.fit.max = 1;
+				thickness_Drift.drift_Sine_Phase.value   = default_thickness_drift_sine_phase;
+				thickness_Drift.drift_Sine_Phase.fit.min = default_thickness_drift_sine_phase_min;
+				thickness_Drift.drift_Sine_Phase.fit.max = default_thickness_drift_sine_phase_max;
 				thickness_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Thickness_Drift_Sine_Phase;
 				thickness_Drift.drift_Sine_Phase.indicator.item_Id = id;
 
@@ -446,17 +438,17 @@ Data::Data(QString item_Type_Passed)
 		}
 		// sigma drift
 		{
-			sigma_Diffuse_Drift.is_Drift_Line = false;
-			sigma_Diffuse_Drift.is_Drift_Sine = false;
-			sigma_Diffuse_Drift.is_Drift_Rand = false;
+			sigma_Diffuse_Drift.is_Drift_Line = default_sigma_drift_line_enabled;
+			sigma_Diffuse_Drift.is_Drift_Sine = default_sigma_drift_rand_enabled;
+			sigma_Diffuse_Drift.is_Drift_Rand = default_sigma_drift_sine_enabled;
 
-			sigma_Diffuse_Drift.show_Drift_Line = false;
-			sigma_Diffuse_Drift.show_Drift_Rand = false;
-			sigma_Diffuse_Drift.show_Drift_Sine = false;
+			sigma_Diffuse_Drift.show_Drift_Line = default_sigma_drift_line_show;
+			sigma_Diffuse_Drift.show_Drift_Rand = default_sigma_drift_rand_show;
+			sigma_Diffuse_Drift.show_Drift_Sine = default_sigma_drift_sine_show;
 			{
-				sigma_Diffuse_Drift.drift_Line_Value.value = 0;
-				sigma_Diffuse_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
-				sigma_Diffuse_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
+				sigma_Diffuse_Drift.drift_Line_Value.value   = default_sigma_drift_line;
+				sigma_Diffuse_Drift.drift_Line_Value.fit.min = default_sigma_drift_line_min;
+				sigma_Diffuse_Drift.drift_Line_Value.fit.max = default_sigma_drift_line_max;
 				sigma_Diffuse_Drift.drift_Line_Value.indicator.whats_This = whats_This_Sigma_Drift_Line_Value;
 				sigma_Diffuse_Drift.drift_Line_Value.indicator.item_Id = id;
 
@@ -466,9 +458,9 @@ Data::Data(QString item_Type_Passed)
 				sigma_Diffuse_Drift.drift_Line_Value.confidence.num_Points = default_num_confidence_points;
 			}
 			{
-				sigma_Diffuse_Drift.drift_Rand_Rms.value = 0;
-				sigma_Diffuse_Drift.drift_Rand_Rms.fit.min = 0;
-				sigma_Diffuse_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
+				sigma_Diffuse_Drift.drift_Rand_Rms.value   = default_sigma_drift_rand;
+				sigma_Diffuse_Drift.drift_Rand_Rms.fit.min = default_sigma_drift_rand_min;
+				sigma_Diffuse_Drift.drift_Rand_Rms.fit.max = default_sigma_drift_rand_max;
 				sigma_Diffuse_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Sigma_Drift_Rand_Rms;
 				sigma_Diffuse_Drift.drift_Rand_Rms.indicator.item_Id = id;
 
@@ -478,9 +470,9 @@ Data::Data(QString item_Type_Passed)
 				sigma_Diffuse_Drift.drift_Rand_Rms.confidence.num_Points = default_num_confidence_points;
 			}
 			{
-				sigma_Diffuse_Drift.drift_Sine_Amplitude.value = 0;
-				sigma_Diffuse_Drift.drift_Sine_Amplitude.fit.min = 0;
-				sigma_Diffuse_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
+				sigma_Diffuse_Drift.drift_Sine_Amplitude.value   = default_sigma_drift_sine_amplitude;
+				sigma_Diffuse_Drift.drift_Sine_Amplitude.fit.min = default_sigma_drift_sine_amplitude_min;
+				sigma_Diffuse_Drift.drift_Sine_Amplitude.fit.max = default_sigma_drift_sine_amplitude_max;
 				sigma_Diffuse_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Sigma_Drift_Sine_Amplitude;
 				sigma_Diffuse_Drift.drift_Sine_Amplitude.indicator.item_Id = id;
 
@@ -490,9 +482,9 @@ Data::Data(QString item_Type_Passed)
 				sigma_Diffuse_Drift.drift_Sine_Amplitude.confidence.num_Points = default_num_confidence_points;
 			}
 			{
-				sigma_Diffuse_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
-				sigma_Diffuse_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
-				sigma_Diffuse_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
+				sigma_Diffuse_Drift.drift_Sine_Frequency.value   = default_sigma_drift_sine_frequency;
+				sigma_Diffuse_Drift.drift_Sine_Frequency.fit.min = default_sigma_drift_sine_frequency_min;
+				sigma_Diffuse_Drift.drift_Sine_Frequency.fit.max = default_sigma_drift_sine_frequency_max;
 				sigma_Diffuse_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Sigma_Drift_Sine_Frequency;
 				sigma_Diffuse_Drift.drift_Sine_Frequency.indicator.item_Id = id;
 
@@ -502,9 +494,9 @@ Data::Data(QString item_Type_Passed)
 				sigma_Diffuse_Drift.drift_Sine_Frequency.confidence.num_Points = default_num_confidence_points;
 			}
 			{
-				sigma_Diffuse_Drift.drift_Sine_Phase.value = 0;
-				sigma_Diffuse_Drift.drift_Sine_Phase.fit.min = 0;
-				sigma_Diffuse_Drift.drift_Sine_Phase.fit.max = 1;
+				sigma_Diffuse_Drift.drift_Sine_Phase.value   = default_sigma_drift_sine_phase;
+				sigma_Diffuse_Drift.drift_Sine_Phase.fit.min = default_sigma_drift_sine_phase_min;
+				sigma_Diffuse_Drift.drift_Sine_Phase.fit.max = default_sigma_drift_sine_phase_max;
 				sigma_Diffuse_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Sigma_Drift_Sine_Phase;
 				sigma_Diffuse_Drift.drift_Sine_Phase.indicator.item_Id = id;
 
@@ -517,16 +509,16 @@ Data::Data(QString item_Type_Passed)
 
 		// density fluctuations
 		{
-			fluctuations_Model.is_Enabled = false;
-			if(item_Type == item_Type_Layer)	fluctuations_Model.is_Used = true;
+			fluctuations_Model.is_Enabled = default_fluctuation_enabled;
+			if(item_Type == item_Type_Layer)	fluctuations_Model.is_Used = default_fluctuation_used;
 			else								fluctuations_Model.is_Used = false;
 		}
 		// particle absolute density
 		{
-			fluctuations_Model.particle_Absolute_Density.value = layer_default_absolute_density;
+			fluctuations_Model.particle_Absolute_Density.value   = default_fluctuation_absolute_density;
 			fluctuations_Model.particle_Absolute_Density.fit.is_Fitable = false;
-			fluctuations_Model.particle_Absolute_Density.fit.min = fluctuations_Model.particle_Absolute_Density.value*(1-dispersion);
-			fluctuations_Model.particle_Absolute_Density.fit.max = fluctuations_Model.particle_Absolute_Density.value*(1/*+dispersion*/);
+			fluctuations_Model.particle_Absolute_Density.fit.min = default_fluctuation_absolute_density_min;
+			fluctuations_Model.particle_Absolute_Density.fit.max = default_fluctuation_absolute_density_max;
 			fluctuations_Model.particle_Absolute_Density.indicator.whats_This = whats_This_Particle_Absolute_Density;
 			fluctuations_Model.particle_Absolute_Density.indicator.item_Id = id;
 
@@ -537,10 +529,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle relative density
 		{
-			fluctuations_Model.particle_Relative_Density.value = layer_default_relative_density;
+			fluctuations_Model.particle_Relative_Density.value   = default_fluctuation_relative_density;
 			fluctuations_Model.particle_Relative_Density.fit.is_Fitable = false;
-			fluctuations_Model.particle_Relative_Density.fit.min = fluctuations_Model.particle_Relative_Density.value*(1-dispersion);
-			fluctuations_Model.particle_Relative_Density.fit.max = fluctuations_Model.particle_Relative_Density.value*(1/*+dispersion*/);
+			fluctuations_Model.particle_Relative_Density.fit.min = default_fluctuation_relative_density_min;
+			fluctuations_Model.particle_Relative_Density.fit.max = default_fluctuation_relative_density_max;
 			fluctuations_Model.particle_Relative_Density.indicator.whats_This = whats_This_Particle_Relative_Density;
 			fluctuations_Model.particle_Relative_Density.indicator.item_Id = id;
 
@@ -551,10 +543,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle radius
 		{
-			fluctuations_Model.particle_Radius.value = thickness.value/2;
+			fluctuations_Model.particle_Radius.value   = default_fluctuation_particle_radius;
 			fluctuations_Model.particle_Radius.fit.is_Fitable = false;
-			fluctuations_Model.particle_Radius.fit.min = 0;
-			fluctuations_Model.particle_Radius.fit.max = thickness.value/2;
+			fluctuations_Model.particle_Radius.fit.min = default_fluctuation_particle_radius_min;
+			fluctuations_Model.particle_Radius.fit.max = default_fluctuation_particle_radius_max;
 			fluctuations_Model.particle_Radius.indicator.whats_This = whats_This_Particle_Radius;
 			fluctuations_Model.particle_Radius.indicator.item_Id = id;
 
@@ -565,10 +557,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle height
 		{
-			fluctuations_Model.particle_Height.value = thickness.value;
+			fluctuations_Model.particle_Height.value   = default_fluctuation_particle_height;
 			fluctuations_Model.particle_Height.fit.is_Fitable = false;
-			fluctuations_Model.particle_Height.fit.min = 0;
-			fluctuations_Model.particle_Height.fit.max = thickness.value;
+			fluctuations_Model.particle_Height.fit.min = default_fluctuation_particle_height_min;
+			fluctuations_Model.particle_Height.fit.max = default_fluctuation_particle_height_max;
 			fluctuations_Model.particle_Height.indicator.whats_This = whats_This_Particle_Height;
 			fluctuations_Model.particle_Height.indicator.item_Id = id;
 
@@ -579,10 +571,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle average distance (disorder case)
 		{
-			fluctuations_Model.particle_Average_Distance.value = max(5*thickness.value,1.);
+			fluctuations_Model.particle_Average_Distance.value   = default_fluctuation_particle_distance;
 			fluctuations_Model.particle_Average_Distance.fit.is_Fitable = false;
-			fluctuations_Model.particle_Average_Distance.fit.min = 1;
-			fluctuations_Model.particle_Average_Distance.fit.max = 10*thickness.value;
+			fluctuations_Model.particle_Average_Distance.fit.min = default_fluctuation_particle_distance_min;
+			fluctuations_Model.particle_Average_Distance.fit.max = default_fluctuation_particle_distance_max;
 			fluctuations_Model.particle_Average_Distance.indicator.whats_This = whats_This_Particle_Average_Distance;
 			fluctuations_Model.particle_Average_Distance.indicator.item_Id = id;
 
@@ -593,10 +585,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle radial distance (radial paracrystal case)
 		{
-			fluctuations_Model.particle_Radial_Distance.value = max(5*thickness.value,1.);
+			fluctuations_Model.particle_Radial_Distance.value   = default_fluctuation_particle_distance;
 			fluctuations_Model.particle_Radial_Distance.fit.is_Fitable = false;
-			fluctuations_Model.particle_Radial_Distance.fit.min = 1;
-			fluctuations_Model.particle_Radial_Distance.fit.max = 10*thickness.value;
+			fluctuations_Model.particle_Radial_Distance.fit.min = default_fluctuation_particle_distance_min;
+			fluctuations_Model.particle_Radial_Distance.fit.max = default_fluctuation_particle_distance_max;
 			fluctuations_Model.particle_Radial_Distance.indicator.whats_This = whats_This_Particle_Radial_Distance;
 			fluctuations_Model.particle_Radial_Distance.indicator.item_Id = id;
 
@@ -607,10 +599,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle radial distance deviation (radial paracrystal case)
 		{
-			fluctuations_Model.particle_Radial_Distance_Deviation.value = 0.5;
+			fluctuations_Model.particle_Radial_Distance_Deviation.value   = default_fluctuation_particle_distance_deviation;
 			fluctuations_Model.particle_Radial_Distance_Deviation.fit.is_Fitable = false;
-			fluctuations_Model.particle_Radial_Distance_Deviation.fit.min = 0.5;
-			fluctuations_Model.particle_Radial_Distance_Deviation.fit.max = 1*fluctuations_Model.particle_Radial_Distance.value;
+			fluctuations_Model.particle_Radial_Distance_Deviation.fit.min = default_fluctuation_particle_distance_deviation_min;
+			fluctuations_Model.particle_Radial_Distance_Deviation.fit.max = default_fluctuation_particle_distance_deviation_max;
 			fluctuations_Model.particle_Radial_Distance_Deviation.indicator.whats_This = whats_This_Particle_Radial_Distance_Deviation;
 			fluctuations_Model.particle_Radial_Distance_Deviation.indicator.item_Id = id;
 
@@ -621,10 +613,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// domain size (radial paracrystal case)
 		{
-			fluctuations_Model.domain_Size.value = 1e4; // 1 mcm
+			fluctuations_Model.domain_Size.value = default_fluctuation_domain_size;
 			fluctuations_Model.domain_Size.fit.is_Fitable = false;
-			fluctuations_Model.domain_Size.fit.min = 1E2;
-			fluctuations_Model.domain_Size.fit.max = 1E8;
+			fluctuations_Model.domain_Size.fit.min = default_fluctuation_domain_size_min;
+			fluctuations_Model.domain_Size.fit.max = default_fluctuation_domain_size_max;
 			fluctuations_Model.domain_Size.indicator.whats_This = whats_This_Domain_Size;
 			fluctuations_Model.domain_Size.indicator.item_Id = id;
 
@@ -635,10 +627,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle z position
 		{
-			fluctuations_Model.particle_Z_Position.value = 0;
+			fluctuations_Model.particle_Z_Position.value = default_fluctuation_z_position;
 			fluctuations_Model.particle_Z_Position.fit.is_Fitable = false;
-			fluctuations_Model.particle_Z_Position.fit.min = -thickness.value/2;
-			fluctuations_Model.particle_Z_Position.fit.max =  thickness.value/2;
+			fluctuations_Model.particle_Z_Position.fit.min = default_fluctuation_z_position_min;
+			fluctuations_Model.particle_Z_Position.fit.max = default_fluctuation_z_position_max;
 			fluctuations_Model.particle_Z_Position.indicator.whats_This = whats_This_Particle_Z_Position;
 			fluctuations_Model.particle_Z_Position.indicator.item_Id = id;
 
@@ -649,10 +641,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle z position deviation
 		{
-			fluctuations_Model.particle_Z_Position_Deviation.value = 0;
+			fluctuations_Model.particle_Z_Position_Deviation.value = default_fluctuation_z_position_deviation;
 			fluctuations_Model.particle_Z_Position_Deviation.fit.is_Fitable = false;
-			fluctuations_Model.particle_Z_Position_Deviation.fit.min = 0;
-			fluctuations_Model.particle_Z_Position_Deviation.fit.max = thickness.value/4;
+			fluctuations_Model.particle_Z_Position_Deviation.fit.min = default_fluctuation_z_position_deviation_min;
+			fluctuations_Model.particle_Z_Position_Deviation.fit.max = default_fluctuation_z_position_deviation_max;
 			fluctuations_Model.particle_Z_Position_Deviation.indicator.whats_This = whats_This_Particle_Z_Position_Deviation;
 			fluctuations_Model.particle_Z_Position_Deviation.indicator.item_Id = id;
 
@@ -667,21 +659,21 @@ Data::Data(QString item_Type_Passed)
 	{
 		// num repetition
 		{
-			num_Repetition.parameter.value = stack_default_number_of_repetition;
+			num_Repetition.parameter.value = default_stack_number_of_repetition;
 			num_Repetition.parameter.coupled.is_Coupled = false;
 			num_Repetition.parameter.confidence.calc_Conf_Interval = false;
 			num_Repetition.parameter.fit.is_Fitable = false;
-			num_Repetition.parameter.fit.min = num_Repetition.parameter.value*(1-dispersion);
-			num_Repetition.parameter.fit.max = num_Repetition.parameter.value*(1+dispersion);
+			num_Repetition.parameter.fit.min = default_stack_number_of_repetition_min;
+			num_Repetition.parameter.fit.max = default_stack_number_of_repetition_max;
 			num_Repetition.parameter.indicator.whats_This = whats_This_Num_Repetitions;
 			num_Repetition.parameter.indicator.item_Id = id;
 		}
 		// period
 		{
-			period.value = stack_default_period;
+			period.value = default_stack_period;
 			period.fit.is_Fitable = false;
-			period.fit.min = period.value*(1-dispersion);
-			period.fit.max = period.value*(1+dispersion);
+			period.fit.min = default_stack_period_min;
+			period.fit.max = default_stack_period_max;
 			period.indicator.whats_This = whats_This_Period;
 			period.indicator.item_Id = id;
 
@@ -692,10 +684,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// gamma
 		{
-			gamma.value	= stack_default_gamma;
+			gamma.value	= default_stack_gamma;
 			gamma.fit.is_Fitable = false;
-			gamma.fit.min = 0;
-			gamma.fit.max = 1;
+			gamma.fit.min = default_stack_gamma_min;
+			gamma.fit.max = default_stack_gamma_max;
 			gamma.indicator.whats_This = whats_This_Gamma;
 			gamma.indicator.item_Id = id;
 
@@ -733,9 +725,6 @@ void Data::reset_All_IDs()
 		relative_Density.indicator.id = Global_Definitions::generate_Id(); relative_Density	.indicator.item_Id = id;		relative_Density	.coupled.clear_Coupled();
 		absolute_Density.indicator.id = Global_Definitions::generate_Id(); absolute_Density	.indicator.item_Id = id;		absolute_Density	.coupled.clear_Coupled();
 
-		permittivity	.indicator.id = Global_Definitions::generate_Id(); permittivity		.indicator.item_Id = id;		permittivity		.coupled.clear_Coupled();
-		absorption		.indicator.id = Global_Definitions::generate_Id(); absorption		.indicator.item_Id = id;		absorption			.coupled.clear_Coupled();
-
 		// material composition
 		for(auto& stoich : composition)
 		{
@@ -748,8 +737,8 @@ void Data::reset_All_IDs()
 		sigma_Diffuse.indicator.id = Global_Definitions::generate_Id();			sigma_Diffuse.indicator.item_Id = id;			sigma_Diffuse.coupled.clear_Coupled();
 		for(Interlayer& inter : interlayer_Composition)
 		{
-			inter.interlayer.indicator.id = Global_Definitions::generate_Id(); inter.interlayer	.indicator.item_Id = id;	inter.interlayer.coupled.clear_Coupled();
-			inter.my_Sigma_Diffuse	.indicator.id = Global_Definitions::generate_Id(); inter.my_Sigma_Diffuse	.indicator.item_Id = id;	inter.my_Sigma_Diffuse.	 coupled.clear_Coupled();
+			inter.interlayer      .indicator.id = Global_Definitions::generate_Id(); inter.interlayer	   .indicator.item_Id = id;	inter.interlayer      .coupled.clear_Coupled();
+			inter.my_Sigma_Diffuse.indicator.id = Global_Definitions::generate_Id(); inter.my_Sigma_Diffuse.indicator.item_Id = id;	inter.my_Sigma_Diffuse.coupled.clear_Coupled();
 		}
 
 		roughness_Model.sigma			.indicator.id = Global_Definitions::generate_Id(); roughness_Model.sigma.			  indicator.item_Id = id;	roughness_Model.sigma.				coupled.clear_Coupled();
@@ -793,8 +782,8 @@ void Data::reset_All_IDs()
 	// Multilayer, Aperiodic
 	//---------------------------------------------
 		num_Repetition.parameter.indicator.id = Global_Definitions::generate_Id(); num_Repetition.parameter	.indicator.item_Id = id;	num_Repetition.parameter.coupled.clear_Coupled();
-		period.indicator.id					  = Global_Definitions::generate_Id(); period	.indicator.item_Id				   = id;	period.coupled.clear_Coupled();
-		gamma .indicator.id					  = Global_Definitions::generate_Id(); gamma	.indicator.item_Id				   = id;	gamma. coupled.clear_Coupled();
+		period.indicator.id					  = Global_Definitions::generate_Id(); period					.indicator.item_Id = id;	period.					 coupled.clear_Coupled();
+		gamma .indicator.id					  = Global_Definitions::generate_Id(); gamma					.indicator.item_Id = id;	gamma.					 coupled.clear_Coupled();
 }
 
 void Data::calc_Instrumental_Factor()
@@ -1441,10 +1430,6 @@ void Data::prepare_Layer_For_Regular_Component()
 	make_Free(relative_Density);
 	make_Free(absolute_Density);
 
-	// tabular material
-	make_Free(permittivity);
-	make_Free(absorption);
-
 	for(Stoichiometry& comp : composition)	{
 		make_Free(comp.composition);
 	}
@@ -1556,8 +1541,7 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 				<< data.polarization << data.background
 
 			// Ambient, Layer, Substrate
-				<< data.composed_Material << data.material << data.approved_Material << data.absolute_Density << data.relative_Density
-				<< data.separate_Optical_Constants << data.permittivity << data.absorption << data.composition
+				<< data.composed_Material << data.material << data.approved_Material << data.absolute_Density << data.relative_Density << data.composition
 			// Layer, Substrate
 				<< data.common_Sigma_Diffuse << data.sigma_Diffuse << data.interlayer_Composition
 				<< data.roughness_Model << data.fluctuations_Model
@@ -1634,10 +1618,18 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 		if(data.beam_Theta_0_Angle.independent.num_Points>1) {data.argument_Type = argument_Types[Beam_Grazing_Angle];} else
 															 {data.argument_Type = argument_Types[Beam_Grazing_Angle];}
 	}
-			// Ambient, Layer, Substrate
-		stream	>> data.composed_Material >> data.material >> data.approved_Material >> data.absolute_Density >> data.relative_Density
-				>> data.separate_Optical_Constants >> data.permittivity >> data.absorption >> data.composition;
-			// Layer, Substrate
+		// Ambient, Layer, Substrate
+		stream	>> data.composed_Material >> data.material >> data.approved_Material >> data.absolute_Density >> data.relative_Density;
+
+		if(!Global_Variables::check_Loaded_Version(1,11,4))
+		{
+			QString separate_Optical_Constants;
+			Parameter permittivity;
+			Parameter absorption;
+			stream >> separate_Optical_Constants >> permittivity >> absorption;
+		}
+		stream  >> data.composition;
+		// Layer, Substrate
 		if(!Global_Variables::check_Loaded_Version(1,11,0))
 		{
 			bool use_PSD;
@@ -1647,9 +1639,9 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 		if(Global_Variables::check_Loaded_Version(1,11,0))
 		{stream >> data.roughness_Model >> data.fluctuations_Model;}
 
-			// Layer
+		// Layer
 		stream  >> data.layer_Index >> data.has_Parent >> data.thickness >> data.thickness_Drift >> data.sigma_Diffuse_Drift
-			// Multilayer
+		// Multilayer
 				>> data.first_Layer_Index >> data.last_Layer_Index >> data.num_Repetition >> data.period >> data.gamma;
 
 
