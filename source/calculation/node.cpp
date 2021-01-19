@@ -1068,13 +1068,13 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	double a = struct_Data.fluctuations_Model.particle_Radial_Distance.value;
 	double b = a;
 	double sigma = struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation.value;
-	G2_Type.resize(reflectivity_Calc_Threads);
-	G2_Type_q_Zero.resize(reflectivity_Calc_Threads);
-	G2_Type_long.resize(reflectivity_Calc_Threads);
+	G2_Type.resize(reflectivity_calc_threads);
+	G2_Type_q_Zero.resize(reflectivity_calc_threads);
+	G2_Type_long.resize(reflectivity_calc_threads);
 	if(struct_Data.fluctuations_Model.geometric_Model == square_Model)
 	{
 		G1_Type = Global_Variables::G1_Square;
-		for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+		for(int thread_Index = 0; thread_Index<reflectivity_calc_threads; thread_Index++)
 		{
 			G2_Type			[thread_Index] = Global_Variables::G2_Square;
 			G2_Type_q_Zero	[thread_Index] = Global_Variables::G2_Square_q_Zero;
@@ -1103,7 +1103,7 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	if(struct_Data.fluctuations_Model.geometric_Model == hexagonal_Model)
 	{
 		G1_Type = Global_Variables::G1_Hexagone;
-		for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+		for(int thread_Index = 0; thread_Index<reflectivity_calc_threads; thread_Index++)
 		{
 			G2_Type			[thread_Index] = Global_Variables::G2_Hexagone;
 			G2_Type_q_Zero	[thread_Index] = Global_Variables::G2_Hexagone_q_Zero;
@@ -1138,7 +1138,7 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	if(struct_Data.fluctuations_Model.geometric_Model == pure_Radial_Model)
 	{
 		G1_Type = Global_Variables::G1_Square;
-		for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+		for(int thread_Index = 0; thread_Index<reflectivity_calc_threads; thread_Index++)
 		{
 			G2_Type			[thread_Index] = Global_Variables::G2_Pure_Radial;
 			G2_Type_q_Zero	[thread_Index] = Global_Variables::G2_Pure_Radial_q_Zero;
@@ -1297,12 +1297,12 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	int num_Phi_Points_Per_hw = 1;//1
 	int max_Phi_Division = 20;
 	vector<double> G2_Vec(q_Vec.size());
-	vector<bool> too_Narrow(reflectivity_Calc_Threads);
+	vector<bool> too_Narrow(reflectivity_calc_threads);
 
 
 	if(struct_Data.fluctuations_Model.geometric_Model == pure_Radial_Model)
 	{
-		Global_Variables::parallel_For(int(q_Vec.size()), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+		Global_Variables::parallel_For(int(q_Vec.size()), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 		{
 			for(size_t q_Index = n_Min; q_Index<n_Max; q_Index++)
 			{
@@ -1322,7 +1322,7 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 		});
 	} else
 	{
-		Global_Variables::parallel_For(int(q_Vec.size()), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+		Global_Variables::parallel_For(int(q_Vec.size()), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 		{
 			too_Narrow[thread_Index] = false;
 			vector<double> phi_Vec; phi_Vec.reserve(max_Phi_Division+1);

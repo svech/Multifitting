@@ -111,7 +111,7 @@ void Unwrapped_Structure::fill_Epsilon_Sharp()
 		size_t num_Lambda_Points = measurement.lambda_Vec.size();
 		epsilon_Dependent.resize(num_Lambda_Points, vector<complex<double>>(num_Media_Sharp));
 
-		Global_Variables::parallel_For(num_Lambda_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+		Global_Variables::parallel_For(num_Lambda_Points, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 		{
 			Q_UNUSED(thread_Index)
 			for(int point_Index = n_Min; point_Index<n_Max; ++point_Index)
@@ -176,10 +176,10 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 	}
 
 	// threaded copy
-	boundary_Interlayer_Composition_Threaded.resize(reflectivity_Calc_Threads);
-	sigma_Roughness_Threaded.resize(reflectivity_Calc_Threads);
+	boundary_Interlayer_Composition_Threaded.resize(reflectivity_calc_threads);
+	sigma_Roughness_Threaded.resize(reflectivity_calc_threads);
 
-	for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+	for(int thread_Index=0; thread_Index<reflectivity_calc_threads; thread_Index++)
 	{
 		boundary_Interlayer_Composition_Threaded[thread_Index] = boundary_Interlayer_Composition;
 		sigma_Roughness_Threaded[thread_Index] = sigma_Roughness;
@@ -205,10 +205,10 @@ void Unwrapped_Structure::fill_Thickness_And_Boundaries_Position()
 	}
 
 	// threaded copy
-	boundaries_Position_Threaded.resize(reflectivity_Calc_Threads);
-	thickness_Threaded.resize(reflectivity_Calc_Threads);
+	boundaries_Position_Threaded.resize(reflectivity_calc_threads);
+	thickness_Threaded.resize(reflectivity_calc_threads);
 
-	for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)	{
+	for(int thread_Index=0; thread_Index<reflectivity_calc_threads; thread_Index++)	{
 		boundaries_Position_Threaded[thread_Index] = boundaries_Position;
 		thickness_Threaded[thread_Index] = thickness;
 	}
@@ -247,12 +247,12 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 	}
 
 	// threaded copy
-	sigma_Roughness_Threaded.resize(reflectivity_Calc_Threads);
-	omega_Threaded.			 resize(reflectivity_Calc_Threads);
-	mu_Threaded.			 resize(reflectivity_Calc_Threads);
-	omega_pow23_Threaded.	 resize(reflectivity_Calc_Threads);
-	alpha_Threaded.			 resize(reflectivity_Calc_Threads);
-	for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+	sigma_Roughness_Threaded.resize(reflectivity_calc_threads);
+	omega_Threaded.			 resize(reflectivity_calc_threads);
+	mu_Threaded.			 resize(reflectivity_calc_threads);
+	omega_pow23_Threaded.	 resize(reflectivity_calc_threads);
+	alpha_Threaded.			 resize(reflectivity_calc_threads);
+	for(int thread_Index=0; thread_Index<reflectivity_calc_threads; thread_Index++)
 	{
 		sigma_Roughness_Threaded[thread_Index] = sigma_Roughness;
 		omega_Threaded			[thread_Index] = omega;
@@ -274,9 +274,9 @@ void Unwrapped_Structure::fill_PSD_Inheritance_Powers()
 	}
 
 	// threaded copy
-	PSD_mu_alpha_Threaded.	resize(reflectivity_Calc_Threads);
-	PSD_mu_alpha_h_Threaded.resize(reflectivity_Calc_Threads);
-	for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+	PSD_mu_alpha_Threaded.	resize(reflectivity_calc_threads);
+	PSD_mu_alpha_h_Threaded.resize(reflectivity_calc_threads);
+	for(int thread_Index=0; thread_Index<reflectivity_calc_threads; thread_Index++)
 	{
 		PSD_mu_alpha_Threaded  [thread_Index] = PSD_mu_alpha;
 		PSD_mu_alpha_h_Threaded[thread_Index] = PSD_mu_alpha_h;
@@ -328,8 +328,8 @@ void Unwrapped_Structure::layer_Normalizing()
 //	gsl_integration_workspace_free(w);
 
 	// threaded copy
-	layer_Norm_Vector_Threaded.resize(reflectivity_Calc_Threads);
-	for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++) {
+	layer_Norm_Vector_Threaded.resize(reflectivity_calc_threads);
+	for(int thread_Index=0; thread_Index<reflectivity_calc_threads; thread_Index++) {
 		layer_Norm_Vector_Threaded[thread_Index] = layer_Norm_Vector;
 	}
 }
@@ -403,7 +403,7 @@ void Unwrapped_Structure::fill_Discretized_Epsilon()
 	discretized_Epsilon.front() = epsilon.front();
 
 	// main part
-	Global_Variables::parallel_For(discretized_Thickness.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+	Global_Variables::parallel_For(discretized_Thickness.size(), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 	{
 		for(int i=n_Min; i<n_Max; ++i)
 //		for(int i=0; i<discretized_Thickness.size(); ++i)
@@ -425,7 +425,7 @@ void Unwrapped_Structure::fill_Discretized_Epsilon_Dependent(int num_Lambda_Poin
 	}
 
 	// main part
-	Global_Variables::parallel_For(discretized_Thickness.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+	Global_Variables::parallel_For(discretized_Thickness.size(), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 	{
 		for(int i=n_Min; i<n_Max; ++i)
 //		for(int i=0; i<discretized_Thickness.size(); ++i)

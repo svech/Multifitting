@@ -71,13 +71,13 @@ void General_Settings_Editor::create_Calculation_Tab()
 		QSpinBox* reflectivity_Threads_Spinbox = new QSpinBox;
 			reflectivity_Threads_Spinbox->setRange(1,QThread::idealThreadCount());
 			reflectivity_Threads_Spinbox->setSingleStep(1);
-			reflectivity_Threads_Spinbox->setValue(reflectivity_Calc_Threads);
+			reflectivity_Threads_Spinbox->setValue(reflectivity_calc_threads);
 			reflectivity_Threads_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		groupbox_Layout->addWidget(reflectivity_Threads_Spinbox,row,1);
 		connect(reflectivity_Threads_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 		{
-			reflectivity_Calc_Threads = reflectivity_Threads_Spinbox->value();
-			global_Workers.resize(reflectivity_Calc_Threads);
+			reflectivity_calc_threads = reflectivity_Threads_Spinbox->value();
+			global_Workers.resize(reflectivity_calc_threads);
 		});
 		row++;
 		//----------------------------------------------------------------------------
@@ -87,12 +87,12 @@ void General_Settings_Editor::create_Calculation_Tab()
 		QSpinBox* optical_Constants_Read_Threads_Spinbox = new QSpinBox;
 			optical_Constants_Read_Threads_Spinbox->setRange(1,QThread::idealThreadCount());
 			optical_Constants_Read_Threads_Spinbox->setSingleStep(1);
-			optical_Constants_Read_Threads_Spinbox->setValue(optical_Constants_Read_Threads);
+			optical_Constants_Read_Threads_Spinbox->setValue(optical_constants_read_threads);
 			optical_Constants_Read_Threads_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		groupbox_Layout->addWidget(optical_Constants_Read_Threads_Spinbox,row,1);
 		connect(optical_Constants_Read_Threads_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 		{
-			optical_Constants_Read_Threads = optical_Constants_Read_Threads_Spinbox->value();
+			optical_constants_read_threads = optical_Constants_Read_Threads_Spinbox->value();
 		});
 		row++;
 	}
@@ -105,18 +105,18 @@ void General_Settings_Editor::create_Calculation_Tab()
 		//----------------------------------------------------------------------------
 
 		QCheckBox* global_Recalculation_Checkbox = new QCheckBox("Recalculate on any change");
-			global_Recalculation_Checkbox->setChecked(recalculate_Spinbox_Global);
+			global_Recalculation_Checkbox->setChecked(recalculate_spinbox_global);
 		groupbox_Layout->addWidget(global_Recalculation_Checkbox);
-		connect(global_Recalculation_Checkbox, &QCheckBox::toggled,	[=]{recalculate_Spinbox_Global = global_Recalculation_Checkbox->isChecked();});
+		connect(global_Recalculation_Checkbox, &QCheckBox::toggled,	[=]{recalculate_spinbox_global = global_Recalculation_Checkbox->isChecked();});
 
 		//----------------------------------------------------------------------------
 
-		table_Recalculation_Checkbox = new QCheckBox("Recalculate on change in Table");
-			table_Recalculation_Checkbox->setChecked(recalculate_Spinbox_Table);
-		groupbox_Layout->addWidget(table_Recalculation_Checkbox);
-		connect(table_Recalculation_Checkbox, &QCheckBox::toggled,	[=]
+		structure_Table_Recalculation_Checkbox = new QCheckBox("Recalculate on change in Structure Table");
+			structure_Table_Recalculation_Checkbox->setChecked(recalculate_spinbox_structure_table);
+		groupbox_Layout->addWidget(structure_Table_Recalculation_Checkbox);
+		connect(structure_Table_Recalculation_Checkbox, &QCheckBox::toggled,	[=]
 		{
-			recalculate_Spinbox_Table = table_Recalculation_Checkbox->isChecked();
+			recalculate_spinbox_structure_table = structure_Table_Recalculation_Checkbox->isChecked();
 			if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Of_Structures_Key))
 			{
 				for(int i=0; i<global_Multilayer_Approach->table_Of_Structures->main_Tabs->count(); i++)
@@ -139,12 +139,12 @@ void General_Settings_Editor::create_Calculation_Tab()
 		QSpinBox* n_Max_Series_Spinbox = new QSpinBox;
 			n_Max_Series_Spinbox->setRange(1, 150);
 			n_Max_Series_Spinbox->setSingleStep(1);
-			n_Max_Series_Spinbox->setValue(n_Max_Series);
+			n_Max_Series_Spinbox->setValue(n_max_series);
 			n_Max_Series_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		groupbox_Layout->addWidget(n_Max_Series_Spinbox,row,1);
 		connect(n_Max_Series_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 		{
-			n_Max_Series = n_Max_Series_Spinbox->value();
+			n_max_series = n_Max_Series_Spinbox->value();
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		row++;
@@ -170,24 +170,69 @@ void General_Settings_Editor::create_Interface_Tab()
 
 	//----------------------------------------------------------------------------
 
-	QCheckBox* synchronize_Tabs_CheckBox = new QCheckBox("Structural tabs synchronization");
-		synchronize_Tabs_CheckBox->setChecked(tab_synchronization);
-	layout->addWidget(synchronize_Tabs_CheckBox);
-	connect(synchronize_Tabs_CheckBox, &QCheckBox::toggled,	[=]{tab_synchronization = synchronize_Tabs_CheckBox->isChecked();});
+	QGroupBox* names_Groupbox = new QGroupBox("Default titles");
+	layout->addWidget(names_Groupbox);
+	QGridLayout* names_Layout = new QGridLayout(names_Groupbox);
+	{
+		QLabel* multilayer_Tab_Name_Label = new QLabel("New structure tab name");
+		names_Layout->addWidget(multilayer_Tab_Name_Label,0,0,Qt::AlignLeft);
 
-	//----------------------------------------------------------------------------
+		QLineEdit* multilayer_Tab_Name_LineEdit = new QLineEdit;
+			multilayer_Tab_Name_LineEdit->setText(default_multilayer_tab_name);
+			multilayer_Tab_Name_LineEdit->setFixedWidth(95);
+		names_Layout->addWidget(multilayer_Tab_Name_LineEdit,0,1/*,Qt::AlignLeft*/);
+		connect(multilayer_Tab_Name_LineEdit, &QLineEdit::textEdited, this, [=]
+		{
+			default_multilayer_tab_name = multilayer_Tab_Name_LineEdit->text();
+		});
 
-	QCheckBox* calculation_Time_CheckBox = new QCheckBox("Show single calculation time");
-		calculation_Time_CheckBox->setChecked(calculation_time);
-	layout->addWidget(calculation_Time_CheckBox);
-	connect(calculation_Time_CheckBox, &QCheckBox::toggled,	[=]{calculation_time = calculation_Time_CheckBox->isChecked();});
+		//----------------------------------------------------------------------------
 
-	//----------------------------------------------------------------------------
+		QLabel* independent_Tab_Name_Label = new QLabel("New curve tab name");
+		names_Layout->addWidget(independent_Tab_Name_Label,1,0,Qt::AlignLeft);
 
-	QCheckBox* individual_Residuals_CheckBox = new QCheckBox("Show individual residuals");
-		individual_Residuals_CheckBox->setChecked(show_residuals);
-	layout->addWidget(individual_Residuals_CheckBox);
-	connect(individual_Residuals_CheckBox, &QCheckBox::toggled,	[=]{show_residuals = individual_Residuals_CheckBox->isChecked();});
+		QLineEdit* independent_Tab_Name_LineEdit = new QLineEdit;
+			independent_Tab_Name_LineEdit->setText(default_independent_curve_tab_name);
+			independent_Tab_Name_LineEdit->setFixedWidth(95);
+		names_Layout->addWidget(independent_Tab_Name_LineEdit,1,1/*,Qt::AlignLeft*/);
+		connect(independent_Tab_Name_LineEdit, &QLineEdit::textEdited, this, [=]
+		{
+			default_independent_curve_tab_name = independent_Tab_Name_LineEdit->text();
+		});
+	}
+
+	QGroupBox* other_Groupbox = new QGroupBox("Other");
+	layout->addWidget(other_Groupbox);
+	QVBoxLayout* other_Layout = new QVBoxLayout(other_Groupbox);
+	{
+		//----------------------------------------------------------------------------
+
+		QCheckBox* synchronize_Tabs_CheckBox = new QCheckBox("Structural tabs synchronization");
+			synchronize_Tabs_CheckBox->setChecked(tab_synchronization);
+		other_Layout->addWidget(synchronize_Tabs_CheckBox);
+		connect(synchronize_Tabs_CheckBox, &QCheckBox::toggled,	[=]{tab_synchronization = synchronize_Tabs_CheckBox->isChecked();});
+
+		//----------------------------------------------------------------------------
+
+		QCheckBox* calculation_Time_CheckBox = new QCheckBox("Show single calculation time");
+			calculation_Time_CheckBox->setChecked(calculation_time);
+		other_Layout->addWidget(calculation_Time_CheckBox);
+		connect(calculation_Time_CheckBox, &QCheckBox::toggled,	[=]{calculation_time = calculation_Time_CheckBox->isChecked();});
+
+		//----------------------------------------------------------------------------
+
+		QCheckBox* individual_Residuals_CheckBox = new QCheckBox("Show individual residuals");
+			individual_Residuals_CheckBox->setChecked(show_residuals);
+		other_Layout->addWidget(individual_Residuals_CheckBox);
+		connect(individual_Residuals_CheckBox, &QCheckBox::toggled,	[=]{show_residuals = individual_Residuals_CheckBox->isChecked();});
+
+		//----------------------------------------------------------------------------
+
+		QCheckBox* replot_Graphs_During_Fitting_CheckBox = new QCheckBox("Replot 1D graphs while fitting");
+			replot_Graphs_During_Fitting_CheckBox->setChecked(replot_graphs_during_fitting_1D);
+		other_Layout->addWidget(replot_Graphs_During_Fitting_CheckBox);
+		connect(replot_Graphs_During_Fitting_CheckBox, &QCheckBox::toggled,	[=]{replot_graphs_during_fitting_1D = replot_Graphs_During_Fitting_CheckBox->isChecked();});
+	}
 }
 
 void General_Settings_Editor::create_Output_Tab()

@@ -349,17 +349,9 @@ QList<double> angle_Coefficients_List		{1.		   ,1./60    ,1./3600         ,0.18/
 QMap<QString, double>  angle_Coefficients_Map;
 QMap<QString, QString> angle_Units_Legend_Map;
 
-// density
-QStringList density_Units_List				{"g/cm" + Cube_Sym};
-
-// optical constants
-QStringList opt_Const_Units_List			{"% of nominal"};
-
-// drift
-QStringList drift_Units_List				{"% per period"};
-
-// size units
-QStringList size_Units_List					{"mm"};				// change enum!
+// units
+QString length_units;
+QString density_units = "g/cm" + Cube_Sym;
 
 // -----------------------------------------------------------------------------------------
 

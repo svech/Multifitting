@@ -58,21 +58,14 @@ class Node;
 	#define Pre_Path QString("../")
 #endif
 
-// paths
-#define Paths_Settings_Path Pre_Path + "settings/paths.ini"
-	#define Resource_Paths				"Resource_Paths"
-	#define Last_Paths					"Last_Paths"
-
 #define Paths_Icon_Path Pre_Path + "icons/"
 
-// gui
-#define Gui_Settings_Path Pre_Path + "settings/gui.ini"
+// windows geometry
+#define Windows_Geometry_Settings_Path Pre_Path + "settings/windows_geometry.ini"
 	#define Application_Style						"Application_Style"
-	#define Launcher_Geometry						"Launcher_Geometry"
 	#define Multilayer_Window_Geometry				"Multilayer_Window_Geometry"
-	#define Curve_Window_Geometry					"Curve_Window_Geometry"
+	#define Curve_Editor_Window_Geometry			"Curve_Editor_Window_Geometry"
 	#define Structure_Table_Window_Geometry			"Structure_Table_Window_Geometry"
-	#define Roughness_Table_Window_Geometry			"Roughness_Table_Window_Geometry"
 	#define Regular_Aperiodic_Table_Window_Geometry	"Regular_Aperiodic_Table_Window_Geometry"
 	#define Graphs_Window_Geometry					"Graphs_Window_Geometry"
 	#define Profile_Plots_Window_Geometry			"Profile_Plots_Window_Geometry"
@@ -80,8 +73,6 @@ class Node;
 	#define Calculation_Settings_Window_Geometry	"Calculation_Settings_Window_Geometry"
 	#define General_Settings_Window_Geometry		"General_Settings_Window_Geometry"
 	#define Fits_Selector_Window_Geometry			"Fits_Selector_Window_Geometry"
-
-	#define Multilayer_Tabs							"Multilayer_Tabs"
 
 // structure default values
 #define Structure_Default_Values_Path Pre_Path + "settings/structure_default_values.ini"
@@ -94,10 +85,10 @@ class Node;
 		#define Fluctuation_Values			"Fluctuation_Values"
 		#define Stack_Values				"Stack_Values"
 		#define Steps						"Steps"
+		#define Units						"Units"
 
 // precisions
 #define Precisions_Path Pre_Path + "settings/precisions.ini"
-	#define Precisions "Precisions"
 		#define Line_Edit "Line_Edit"
 		#define Thumbnail "Thumbnail"
 		#define Other	  "Other"
@@ -108,20 +99,14 @@ class Node;
 	#define Optimization_Values "Optimization_Values"
 	#define Fitting_Values		"Fitting_Values"
 
-// units
-#define Units_Path Pre_Path + "settings/units.ini"
-	#define Units "Units"
-
 // calculations
-#define General_Settings_Path Pre_Path + "settings/general.ini"
-	#define Threads		  "Threads"
-	#define Recalculation "Recalculation"
-	#define Output "Output"
+#define General_Settings_Path Pre_Path + "settings/general_settings.ini"
+	#define Output_Tab		  "Output_Tab"
+	#define Calculation_Tab	  "Calculation_Tab"
+	#define Interface_Tab	  "Interface_Tab"
 
 // measurements
-#define Measurements_Path Pre_Path + "settings/measurements.ini"
-	#define Filenames "Filenames"
-	#define Aperiodic "Aperiodic"
+#define Regular_Aperiodic_Path Pre_Path + "settings/regular_aperiodic.ini"
 
 // -----------------------------------------------------------------------------------------
 
@@ -439,7 +424,6 @@ class Node;
 // keys
 #define multilayer_Approach_Key	"multilayer_Approach_Key"
 #define table_Of_Structures_Key	"table_Of_Structures_Key"
-#define table_Of_Roughness_Key	"table_Of_Roughness_Key"
 #define optical_Graphs_1D_Key	"optical_Graphs_1D_Key"
 #define optical_Graphs_2D_Key	"optical_Graphs_2D_Key"
 #define profile_Plots_Key		"profile_Plots_Key"

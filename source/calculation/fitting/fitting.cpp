@@ -277,7 +277,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 
 	// replot
 	// 1D
-	if(replot_Graphs_During_Fitting_1D && global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	if(replot_graphs_during_fitting_1D && global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 	{
 		for(QVector<Curve_Plot_1D*>& tab_Plots : global_Multilayer_Approach->optical_Graphs_1D->plots_1D)
 		{
@@ -294,8 +294,8 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 		}
 	}
 	// 2D
-	if(replot_Graphs_During_Fitting_2D && global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
-	{
+//	if(replot_graphs_during_fitting_2D && global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+//	{
 //		for(QVector<Curve_Plot_2D*>& tab_Plots : global_Multilayer_Approach->optical_Graphs_2D->plots_2D)
 //		{
 //			for(Curve_Plot_2D* curve_Plot : tab_Plots)
@@ -311,7 +311,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 //				curve_Plot->plot_Options_Second.rescale = plot_Options_Second_Rescale;
 //			}
 //		}
-	}
+//	}
 }
 
 void Fitting::regular_Restriction_Tree_Iteration(const tree<Node>::iterator& parent, Fitting_Params* params, gsl_vector* f, size_t& counter)

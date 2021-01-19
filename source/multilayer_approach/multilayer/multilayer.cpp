@@ -138,8 +138,8 @@ void Multilayer::add_Independent_Variables_Tab()
 	connect(new_Independent_Curve->setup_Button, &QPushButton::clicked, this, [=]{ open_Editor_Window(new_Independent_Curve, independent_Curve_Editor); });
 
 	// add new tab
-	independent_Curve_Tabs->addTab(new_Independent_Curve, default_independent_variable_tab_name);
-	new_Independent_Curve->tab_Name = default_independent_variable_tab_name+Locale.toString(independent_Curve_Tabs->count());
+	independent_Curve_Tabs->addTab(new_Independent_Curve, default_independent_curve_tab_name);
+	new_Independent_Curve->tab_Name = default_independent_curve_tab_name+Locale.toString(independent_Curve_Tabs->count());
 	independent_Curve_Tabs->setTabText(independent_Curve_Tabs->count()-1, new_Independent_Curve->tab_Name + new_Independent_Curve->enlarge_Tab_Name());
 
 	if(independent_Curve_Tabs->count()>1)

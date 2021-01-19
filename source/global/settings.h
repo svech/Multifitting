@@ -6,14 +6,10 @@
 
 // -----------------------------------------------------------------------------------------
 
-// gui
+/// gui
 
 // application style
 extern QString application_style;
-
-// launcher window geometry
-extern int launcher_x_corner;
-extern int launcher_y_corner;
 
 // multilayer window geometry
 extern int multilayer_x_corner;
@@ -36,12 +32,6 @@ extern int structure_table_x_corner;
 extern int structure_table_y_corner;
 extern int structure_table_width;
 extern int structure_table_height;
-
-// roughness table window geometry
-extern int roughness_table_x_corner;
-extern int roughness_table_y_corner;
-extern int roughness_table_width;
-extern int roughness_table_height;
 
 // regular aperiodic table window geometry
 extern int regular_aperiodic_table_x_corner;
@@ -89,14 +79,6 @@ extern int fits_selector_settings_y_corner;
 extern int fits_selector_settings_width;
 extern int fits_selector_settings_height;
 
-// tab names
-extern QString default_multilayer_tab_name;
-extern QString default_independent_variable_tab_name;
-
-// paths and names
-extern bool use_working_directory;
-extern bool use_multifitting_directory;
-extern bool use_last_directory;
 //extern QString icon_path;
 extern QString working_directory;
 extern QString preliminary_last_directory;
@@ -107,10 +89,10 @@ extern QString last_data_directory;
 extern QString last_file;
 
 
-// measurement default file
-extern QString default_Measured_Filename;
+// aperiodic parameters
+extern bool recalculate_spinbox_aperiodic_table;
+extern bool mouse_wheel_spinbox_aperiodic_table;
 
-// aperiodic import default parameters
 extern bool aperiodic_default_sigma_import;
 extern bool aperiodic_default_density_import;
 extern QString aperiodic_default_units_import;
@@ -332,11 +314,11 @@ extern int line_edit_density_precision		;
 extern int line_edit_composition_precision	;
 extern int line_edit_thickness_precision	;
 
-extern int line_edit_sigma_precision				;
-extern int line_edit_cor_radius_precision			;
-extern int line_edit_fractal_alpha_precision		;
-extern int line_edit_omega_precision				;
-extern int line_edit_mu_precision					;
+extern int line_edit_sigma_precision		;
+extern int line_edit_cor_radius_precision	;
+extern int line_edit_fractal_alpha_precision;
+extern int line_edit_omega_precision		;
+extern int line_edit_mu_precision			;
 
 extern int line_edit_interlayer_precision	;
 extern int line_edit_drift_precision		;
@@ -444,40 +426,34 @@ extern double default_polarization;
 extern double default_background;
 // -----------------------------------------------------------------------------------------
 
-
-// units
-extern QString length_units;
-extern QString density_units;
-extern QString opt_const_units;
-
-
-// -----------------------------------------------------------------------------------------
-
 // general settings
 extern int general_Settings_Tab_Index;
-extern int optical_Constants_Read_Threads;
-extern int reflectivity_Calc_Threads;
-extern int epsilon_Partial_Fill_Threads;
-extern int n_Max_Series;
-extern bool use_Simplified_Scattering_Weak_Factor;
+extern int reflectivity_calc_threads;
+extern int optical_constants_read_threads;
 
-extern bool recalculate_Spinbox_Global;
-extern bool recalculate_Spinbox_Table;
-extern bool mouse_Wheel_Spinbox_Table;
-extern bool refill_Dependent_Table;
-extern bool aperiodic_Recalculate_Spinbox_Table;
-extern bool aperiodic_Mouse_Wheel_Spinbox_Table;
-extern bool replot_Graphs_During_Fitting_1D;
-extern bool replot_Graphs_During_Fitting_2D;
+extern bool recalculate_spinbox_global;
+
+extern bool recalculate_spinbox_structure_table;
+extern bool mouse_wheel_spinbox_structure_table;
+extern bool refill_dependent_structure_table;
+extern bool replot_graphs_during_fitting_1D;
+//extern bool replot_graphs_during_fitting_2D;
+
+extern int n_max_series;
+
 extern bool print_1D_Data_On_Recalculation;
 extern bool print_2D_Data_On_Recalculation;
 
-// -----------------------------------------------------------------------------------------
+extern bool use_working_directory;
+extern bool use_multifitting_directory;
+extern bool use_last_directory;
+
+extern QString default_multilayer_tab_name;
+extern QString default_independent_curve_tab_name;
 
 extern bool tab_synchronization;
 extern bool calculation_time;
 extern bool show_residuals;
-
 // -----------------------------------------------------------------------------------------
 
 class Settings
@@ -485,13 +461,9 @@ class Settings
 public:
 	Settings();
 
-	// paths
-	static void read_Paths(bool reset_to_default = false);
-	static void save_Paths();
-
 	// gui
-	static void read_Gui_Settings(bool reset_to_default = false);
-	static void save_Gui_Settings();
+	static void read_Windows_Geometry_Settings(bool reset_to_default = false);
+	static void save_Windows_Geometry_Settings();
 
 	// structure default values
 	static void read_Structure_Default_Values(bool reset_to_default = false);
@@ -505,17 +477,13 @@ public:
 	static void read_Parameters_Default_Values(bool reset_to_default = false);
 	static void save_Parameters_Default_Values();
 
-	// units
-	static void read_Units(bool reset_to_default = false);
-	static void save_Units();
-
-	// calculation params
+	// general settings
 	static void read_General_Settings(bool reset_to_default = false);
 	static void save_General_Settings();
 
-	// measurements
-	static void read_Measurements(bool reset_to_default = false);
-	static void save_Measurements();
+	// regular aperiodic parameters
+	static void read_Regular_Aperiodic(bool reset_to_default = false);
+	static void save_Regular_Aperiodic();
 
 	// -----------------------------------------------------------------------------------------
 

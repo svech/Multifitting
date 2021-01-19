@@ -117,10 +117,6 @@ void Optical_Graphs::settings_1D()
 		show_Title_CheckBox->setChecked(multilayer->graph_Options_1D.show_Title);
 		plots_Settings_Group_Box_Layout->addWidget(show_Title_CheckBox);
 
-	QCheckBox* replot_Graphs_During_Fitting_CheckBox = new QCheckBox("Replot while fitting");
-		replot_Graphs_During_Fitting_CheckBox->setChecked(replot_Graphs_During_Fitting_1D);
-		plots_Settings_Group_Box_Layout->addWidget(replot_Graphs_During_Fitting_CheckBox);
-
 	// buttons
 	QHBoxLayout* buttons_Layout = new QHBoxLayout;
 		buttons_Layout->setSpacing(10);
@@ -145,7 +141,6 @@ void Optical_Graphs::settings_1D()
 		multilayer->graph_Options_1D.show_Max_Value = show_Max_Value_CheckBox->isChecked();
 		multilayer->graph_Options_1D.show_Current_Coordinate = show_Current_Coordinate_CheckBox->isChecked();
 		multilayer->graph_Options_1D.show_Title = show_Title_CheckBox->isChecked();
-		replot_Graphs_During_Fitting_1D = replot_Graphs_During_Fitting_CheckBox->isChecked();
 
 		global_Multilayer_Approach->reopen_Optical_Graphs_1D(true);
 		settings_Window->close();

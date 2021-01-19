@@ -244,8 +244,8 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 	// period influence
 	connect(period_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		bool copy_Recalculate = recalculate_Spinbox_Table;
-		recalculate_Spinbox_Table = false;
+		bool copy_Recalculate = recalculate_spinbox_structure_table;
+		recalculate_spinbox_structure_table = false;
 
 		double period_Coeff = period_SpinBox->value()/period_SpinBox->property(previous_Value_Property).toDouble();
 
@@ -283,15 +283,15 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 		reload();
 
 		// recalculate
-		recalculate_Spinbox_Table = copy_Recalculate;
-		if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calculate(true);}
+		recalculate_spinbox_structure_table = copy_Recalculate;
+		if(recalculate_spinbox_structure_table) {global_Multilayer_Approach->calculate(true);}
 	});
 }
 
 void Layer_Thickness_Transfer::spinBox_Lambda(MyDoubleSpinBox* current_Child_SpinBox, MyDoubleSpinBox* partner_SpinBox)
 {
-	bool copy_Recalculate = recalculate_Spinbox_Table;
-	recalculate_Spinbox_Table = false;
+	bool copy_Recalculate = recalculate_spinbox_structure_table;
+	recalculate_spinbox_structure_table = false;
 
 	const Data current_Child_Data = map_Of_Items.value(current_Child_SpinBox)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	const Data partner_Data       = map_Of_Items.value(partner_SpinBox)      ->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
@@ -357,8 +357,8 @@ void Layer_Thickness_Transfer::spinBox_Lambda(MyDoubleSpinBox* current_Child_Spi
 	Global_Variables::resize_Line_Edit(current_Child_SpinBox);
 
 	// recalculate
-	recalculate_Spinbox_Table = copy_Recalculate;
-	if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calculate(true);}
+	recalculate_spinbox_structure_table = copy_Recalculate;
+	if(recalculate_spinbox_structure_table) {global_Multilayer_Approach->calculate(true);}
 }
 
 void Layer_Thickness_Transfer::refresh(MyDoubleSpinBox* spinbox)

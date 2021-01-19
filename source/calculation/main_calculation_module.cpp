@@ -300,7 +300,6 @@ void Main_Calculation_Module::calculation_With_Sampling_Spectral_Single(Calculat
 		}
 	};
 
-
 	// anyway
 	QVector<double> sampled_Position_Vec(1, 0);
 	QVector<double> sampled_Weight_Vec(1, 1.);
@@ -695,7 +694,7 @@ void Main_Calculation_Module::wrap_Curve(const vector<double>& sparse_Argument,
 
 	if(sparse_Argument.size()*resolution_FWHM[0]>50) // tunable
 	{
-		Global_Variables::parallel_For(sparse_Argument.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+		Global_Variables::parallel_For(sparse_Argument.size(), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 		{
 			Q_UNUSED(thread_Index)
 			for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
@@ -834,7 +833,7 @@ void Main_Calculation_Module::wrap_With_Specular_Single(Calculated_Values& calcu
 		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R.front();
 	};
 
-	Global_Variables::parallel_For(argument.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+	Global_Variables::parallel_For(argument.size(), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 	{
 		Q_UNUSED(thread_Index)
 		if(beam_Angular_FWHM>DBL_EPSILON && beam_Spot_FWHM_Angular>DBL_EPSILON)
@@ -1018,7 +1017,7 @@ void Main_Calculation_Module::wrap_With_Specular_Vector(Calculated_Values& calcu
 		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R.front();
 	};
 
-	Global_Variables::parallel_For(argument.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+	Global_Variables::parallel_For(argument.size(), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 	{
 		Q_UNUSED(thread_Index)
 		for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
@@ -1273,7 +1272,7 @@ void Main_Calculation_Module::wrap_With_Specular_2D(Calculated_Values& calculate
 
 	// parallelizing phi calculations
 	vector<double> f_Phi_Vec(calculated_Values.GISAS_Instrumental.size(),-2020);
-	Global_Variables::parallel_For(int(f_Phi_Vec.size()), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+	Global_Variables::parallel_For(int(f_Phi_Vec.size()), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 	{
 		if(use_Beam_Spot)
 		{
@@ -1296,7 +1295,7 @@ void Main_Calculation_Module::wrap_With_Specular_2D(Calculated_Values& calculate
 		}
 	});
 
-	Global_Variables::parallel_For(int(measurement.detector_Theta_Angle_Vec.size()), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+	Global_Variables::parallel_For(int(measurement.detector_Theta_Angle_Vec.size()), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 	{
 		Q_UNUSED(thread_Index)
 
@@ -1402,7 +1401,7 @@ void Main_Calculation_Module::wrap_2D_Curve(const Data& measurement, Calculated_
 	};
 
 	// program
-	Global_Variables::parallel_For(measurement.detector_Theta_Angle_Vec.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+	Global_Variables::parallel_For(measurement.detector_Theta_Angle_Vec.size(), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 	{
 		Q_UNUSED(thread_Index)
 		if(theta_Phi == "theta")
@@ -1586,7 +1585,7 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 
 			if(measurement.phi_Resolution_FWHM>DBL_EPSILON)
 			{
-//				Global_Variables::parallel_For(calculated_Values.GISAS_Map.front().size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+//				Global_Variables::parallel_For(calculated_Values.GISAS_Map.front().size(), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 //				{
 //					for(int theta_Index=n_Min; theta_Index<n_Max; ++theta_Index)
 					for(size_t theta_Index=0; theta_Index<calculated_Values.GISAS_Map.front().size(); ++theta_Index)

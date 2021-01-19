@@ -1402,7 +1402,7 @@ void Multilayer_Approach::calculate(bool silent)
 
 void Multilayer_Approach::global_Recalculate(bool silent)
 {
-	if(recalculate_Spinbox_Global)
+	if(recalculate_spinbox_global)
 	{
 		calculate(silent);
 	}

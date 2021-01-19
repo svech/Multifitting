@@ -20,7 +20,7 @@ bool Table_Of_Structures::eventFilter(QObject *obj, QEvent *event)
 	Q_UNUSED(obj);
 	if(event->type() == QEvent::Wheel)
 	{
-		return !mouse_Wheel_Spinbox_Table;
+		return !mouse_wheel_spinbox_structure_table;
 	}
 	return false;
 }
@@ -606,7 +606,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 					// refresh view in main window
 					emit_Data_Edited();
-					if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calculate(true);}
+					if(recalculate_spinbox_structure_table) {global_Multilayer_Approach->calculate(true);}
 				});
 			}
 
@@ -2591,7 +2591,7 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 	connect(check_Box, &QCheckBox::clicked, this, [=]
 	{		
 		// recalculation at change
-		if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calculate(true);}
+		if(recalculate_spinbox_structure_table) {global_Multilayer_Approach->calculate(true);}
 	});
 
 	table->setCellWidget(current_Row, current_Column, back_Widget);
@@ -3975,27 +3975,27 @@ void Table_Of_Structures::spin_Box_Recalculate(My_Table_Widget *table, int curre
 	add_Columns(table,current_Column);
 
 	QCheckBox* checkbox_Recalculate = new QCheckBox("Recalculate");
-		checkbox_Recalculate->setChecked(recalculate_Spinbox_Table);
+		checkbox_Recalculate->setChecked(recalculate_spinbox_structure_table);
 	table->setCellWidget(current_Row, current_Column, checkbox_Recalculate);
 
 	connect(checkbox_Recalculate, &QCheckBox::toggled, this, [=]
 	{
-		recalculate_Spinbox_Table = checkbox_Recalculate->isChecked();
-		if(recalculate_Spinbox_Table)	checkbox_Recalculate->setStyleSheet("QWidget { background: rgb(245, 228, 158); }");
+		recalculate_spinbox_structure_table = checkbox_Recalculate->isChecked();
+		if(recalculate_spinbox_structure_table)	checkbox_Recalculate->setStyleSheet("QWidget { background: rgb(245, 228, 158); }");
 		else							checkbox_Recalculate->setStyleSheet("background-color: white");
 
 		if(global_Multilayer_Approach->runned_General_Settings_Editor.contains(general_Settings_Key))
 		{
-			global_Multilayer_Approach->general_Settings_Editor->table_Recalculation_Checkbox->setChecked(recalculate_Spinbox_Table);
+			global_Multilayer_Approach->general_Settings_Editor->structure_Table_Recalculation_Checkbox->setChecked(recalculate_spinbox_structure_table);
 		}
 	});
 
 	// refresh in each table
 	connect(main_Tabs, &QTabWidget::tabBarClicked, this, [=]
 	{
-		checkbox_Recalculate->setChecked(recalculate_Spinbox_Table);
+		checkbox_Recalculate->setChecked(recalculate_spinbox_structure_table);
 	});
-	checkbox_Recalculate->toggled(recalculate_Spinbox_Table);
+	checkbox_Recalculate->toggled(recalculate_spinbox_structure_table);
 }
 
 void Table_Of_Structures::spin_Box_Mouse_Wheel(My_Table_Widget *table, int current_Row, int current_Column)
@@ -4003,13 +4003,13 @@ void Table_Of_Structures::spin_Box_Mouse_Wheel(My_Table_Widget *table, int curre
 	add_Columns(table,current_Column);
 
 	QCheckBox* checkbox_Mouse_Wheel = new QCheckBox("Mouse Wheel");
-		checkbox_Mouse_Wheel->setChecked(mouse_Wheel_Spinbox_Table);
+		checkbox_Mouse_Wheel->setChecked(mouse_wheel_spinbox_structure_table);
 	table->setCellWidget(current_Row, current_Column, checkbox_Mouse_Wheel);
 
 	connect(checkbox_Mouse_Wheel, &QCheckBox::toggled, this, [=]
 	{
-		mouse_Wheel_Spinbox_Table = checkbox_Mouse_Wheel->isChecked();
-		if(mouse_Wheel_Spinbox_Table)
+		mouse_wheel_spinbox_structure_table = checkbox_Mouse_Wheel->isChecked();
+		if(mouse_wheel_spinbox_structure_table)
 			checkbox_Mouse_Wheel->setStyleSheet("QWidget { background: rgb(255, 170, 137); }");
 		else
 			checkbox_Mouse_Wheel->setStyleSheet("background-color: white");
@@ -4018,9 +4018,9 @@ void Table_Of_Structures::spin_Box_Mouse_Wheel(My_Table_Widget *table, int curre
 	// refresh in each table
 	connect(main_Tabs, &QTabWidget::tabBarClicked, this, [=]
 	{
-		checkbox_Mouse_Wheel->setChecked(mouse_Wheel_Spinbox_Table);
+		checkbox_Mouse_Wheel->setChecked(mouse_wheel_spinbox_structure_table);
 	});
-	checkbox_Mouse_Wheel->toggled(mouse_Wheel_Spinbox_Table);
+	checkbox_Mouse_Wheel->toggled(mouse_wheel_spinbox_structure_table);
 }
 
 void Table_Of_Structures::spin_Box_Change_Dependent(My_Table_Widget* table, int current_Row, int current_Column)
@@ -4028,17 +4028,17 @@ void Table_Of_Structures::spin_Box_Change_Dependent(My_Table_Widget* table, int 
 	add_Columns(table,current_Column);
 
 	QCheckBox* checkbox_Dependent = new QCheckBox("Change dependent");
-		checkbox_Dependent->setChecked(refill_Dependent_Table);
+		checkbox_Dependent->setChecked(refill_dependent_structure_table);
 	table->setCellWidget(current_Row, current_Column, checkbox_Dependent);
 
 	connect(checkbox_Dependent, &QCheckBox::toggled, this, [=]
 	{
-		refill_Dependent_Table = checkbox_Dependent->isChecked();
+		refill_dependent_structure_table = checkbox_Dependent->isChecked();
 
 		// immediately refill all tables
 		refill_All_Dependent();
 
-		if(refill_Dependent_Table)
+		if(refill_dependent_structure_table)
 			checkbox_Dependent->setStyleSheet("QWidget { background: rgb(180, 255, 150); }");
 		else
 			checkbox_Dependent->setStyleSheet("background-color: white");
@@ -4047,11 +4047,11 @@ void Table_Of_Structures::spin_Box_Change_Dependent(My_Table_Widget* table, int 
 	// refresh in each table
 	connect(main_Tabs, &QTabWidget::tabBarClicked, this, [=]
 	{
-		checkbox_Dependent->setChecked(refill_Dependent_Table);
+		checkbox_Dependent->setChecked(refill_dependent_structure_table);
 	});
 
 	// just colorize
-	if(refill_Dependent_Table)
+	if(refill_dependent_structure_table)
 		checkbox_Dependent->setStyleSheet("QWidget { background: rgb(180, 255, 150); }");
 	else
 		checkbox_Dependent->setStyleSheet("background-color: white");
@@ -4135,7 +4135,7 @@ void Table_Of_Structures::change_Slaves_in_Structure_Tree(Parameter& master, con
 		Data slave_Struct_Data = slave_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 		Parameter* slave_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(slave_Struct_Data, slave_Indicator.id);
 
-		if(refill_Dependent_Table)
+		if(refill_dependent_structure_table)
 		{
 #ifdef EXPRTK
 			// local parsing
@@ -4201,7 +4201,7 @@ void Table_Of_Structures::refresh_Dependents(const QVector<id_Type>& ids, bool m
 				id_Type slave_ID = widget_To_Reload->property(id_Property).toInt();
 				if(ids.contains(slave_ID))
 				{
-					if(refill_Dependent_Table)
+					if(refill_dependent_structure_table)
 					{
 						reload_One_Widget(widget_To_Reload);
 					}
@@ -4210,7 +4210,7 @@ void Table_Of_Structures::refresh_Dependents(const QVector<id_Type>& ids, bool m
 				// reload period and gamma
 				if(widget_To_Reload->property(period_Gamma_Property).toBool() && reload_Period_Gamma)
 				{
-					if(refill_Dependent_Table)
+					if(refill_dependent_structure_table)
 					{
 						reload_One_Widget(widget_To_Reload);
 					}
@@ -4218,7 +4218,7 @@ void Table_Of_Structures::refresh_Dependents(const QVector<id_Type>& ids, bool m
 			}
 		}
 
-		if(refill_Dependent_Table && manual_Refresh)
+		if(refill_dependent_structure_table && manual_Refresh)
 		{
 			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 			multilayer->structure_Tree->refresh__StructureTree__Data_and_Text();
@@ -4248,7 +4248,7 @@ void Table_Of_Structures::lock_Unlock_Dependents(const QVector<id_Type>& ids)
 
 				if(ids.contains(id))
 				{
-					if(refill_Dependent_Table)	{spin_Box->setReadOnly(true); }
+					if(refill_dependent_structure_table)	{spin_Box->setReadOnly(true); }
 					else						{spin_Box->setReadOnly(false);}
 				} else
 				{
@@ -4289,7 +4289,7 @@ void Table_Of_Structures::check_Multilayer_Item_For_Dependent_Thicknesses(QTreeW
 			Data child_Data = child_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 			if(child_Data.item_Type == item_Type_Layer)
 			{
-				if(child_Data.thickness.coupled.master.exist && refill_Dependent_Table)
+				if(child_Data.thickness.coupled.master.exist && refill_dependent_structure_table)
 				{
 					has_Dependent = true;
 					return;
@@ -4492,7 +4492,7 @@ void Table_Of_Structures::refresh_Stoich()
 
 		// change dependent if necessary
 		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
-		if( refill_Dependent_Table &&
+		if( refill_dependent_structure_table &&
 			!comp.coupled.master.exist && comp.coupled.slaves.size()>0 )
 		{
 			// change dependent chain
@@ -4508,7 +4508,7 @@ void Table_Of_Structures::refresh_Stoich()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload && value_Type == VAL) {global_Multilayer_Approach->calculate(true);}
+		if(recalculate_spinbox_structure_table && !reload && value_Type == VAL) {global_Multilayer_Approach->calculate(true);}
 	}
 }
 
@@ -4886,7 +4886,7 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 		reload_Related_Widgets(QObject::sender());
 
 		//	recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calculate(true);}
+		if(recalculate_spinbox_structure_table && !reload) {global_Multilayer_Approach->calculate(true);}
 	}
 }
 
@@ -4953,7 +4953,7 @@ void Table_Of_Structures::change_Child_Layers_Thickness(QTreeWidgetItem* multila
 	// change dependent if necessary
 	if(struct_Data.item_Type == item_Type_Layer)
 	{
-		if( refill_Dependent_Table &&
+		if( refill_dependent_structure_table &&
 			!struct_Data.thickness.coupled.master.exist && struct_Data.thickness.coupled.slaves.size()>0 )
 		{
 			// change dependent chain
@@ -4988,7 +4988,7 @@ void Table_Of_Structures::reset_Layer_Thickness(QTreeWidgetItem* layer_Item, dou
 	layer_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	// change dependent if necessary
-	if( refill_Dependent_Table &&
+	if( refill_dependent_structure_table &&
 		!layer.thickness.coupled.master.exist && layer.thickness.coupled.slaves.size()>0 )
 	{
 		// change dependent chain
@@ -5333,7 +5333,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 
 		// change dependent if necessary
 		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
-		if( refill_Dependent_Table &&
+		if( refill_dependent_structure_table &&
 			!parameter.coupled.master.exist && parameter.coupled.slaves.size()>0 )
 		{
 
@@ -5353,7 +5353,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 		emit_Data_Edited();
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload && value_Type == VAL) {global_Multilayer_Approach->calculate(true);}
+		if(recalculate_spinbox_structure_table && !reload && value_Type == VAL) {global_Multilayer_Approach->calculate(true);}
 	}
 }
 
@@ -5540,7 +5540,7 @@ void Table_Of_Structures::refresh_Check_Box_Label_Interlayer(bool)
 		}
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calculate(true);}
+		if(recalculate_spinbox_structure_table && !reload) {global_Multilayer_Approach->calculate(true);}
 	}
 }
 
@@ -5613,7 +5613,7 @@ void Table_Of_Structures::refresh_Weigts_Interlayer()
 
 		// change dependent if necessary
 		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
-		if( refill_Dependent_Table &&
+		if( refill_dependent_structure_table &&
 			!interlayer.coupled.master.exist && interlayer.coupled.slaves.size()>0 )
 		{
 			// change dependent chain
@@ -5629,7 +5629,7 @@ void Table_Of_Structures::refresh_Weigts_Interlayer()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload && value_Type == VAL) {global_Multilayer_Approach->calculate(true);}
+		if(recalculate_spinbox_structure_table && !reload && value_Type == VAL) {global_Multilayer_Approach->calculate(true);}
 	}
 }
 
@@ -5728,7 +5728,7 @@ void Table_Of_Structures::refresh_MySigma_Interlayer()
 
 		// change dependent if necessary
 		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
-		if( refill_Dependent_Table &&
+		if( refill_dependent_structure_table &&
 			!interlayer.my_Sigma_Diffuse.coupled.master.exist && interlayer.my_Sigma_Diffuse.coupled.slaves.size()>0 )
 		{
 			// change dependent chain
@@ -5744,7 +5744,7 @@ void Table_Of_Structures::refresh_MySigma_Interlayer()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calculate(true);}
+		if(recalculate_spinbox_structure_table && !reload) {global_Multilayer_Approach->calculate(true);}
 	}
 }
 

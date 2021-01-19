@@ -198,13 +198,10 @@ extern QStringList length_Units_List;		extern QMap<QString, double> length_Coeff
 extern QStringList angle_Units_List;		extern QMap<QString, double> angle_Coefficients_Map;		extern QMap<QString, QString> angle_Units_Legend_Map;
 enum angle_Units_List_Enum {degree, minute, second, mrad}; // radian
 
-extern QStringList density_Units_List;
-extern QStringList opt_Const_Units_List;
-extern QStringList drift_Units_List;
+// units
+extern QString length_units;
+extern QString density_units;
 
-// size units
-extern QStringList size_Units_List;
-enum size_Units_List_Enum {mm};
 // -----------------------------------------------------------------------------------------
 
 extern QString fit_Color;

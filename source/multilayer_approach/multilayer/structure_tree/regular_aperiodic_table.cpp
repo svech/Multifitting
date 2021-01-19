@@ -41,7 +41,7 @@ bool Regular_Aperiodic_Table::eventFilter(QObject *obj, QEvent *event)
 	Q_UNUSED(obj);
 	if(event->type() == QEvent::Wheel)
 	{
-		return !aperiodic_Mouse_Wheel_Spinbox_Table;
+		return !mouse_wheel_spinbox_aperiodic_table;
 	}
 	return false;
 }
@@ -342,18 +342,18 @@ void Regular_Aperiodic_Table::create_Table()
 	// controls
 	/// mouse wheel
 	QCheckBox* checkbox_Mouse_Wheel = new QCheckBox("Mouse Wheel");
-		checkbox_Mouse_Wheel->setChecked(aperiodic_Mouse_Wheel_Spinbox_Table);
+		checkbox_Mouse_Wheel->setChecked(mouse_wheel_spinbox_aperiodic_table);
 		checkbox_Mouse_Wheel->setProperty(fit_Column_Property, true);
 	regular_Table->setCellWidget(current_Row, 0, checkbox_Mouse_Wheel);
 	connect(checkbox_Mouse_Wheel, &QCheckBox::toggled, this, [=]
 	{
-		aperiodic_Mouse_Wheel_Spinbox_Table = checkbox_Mouse_Wheel->isChecked();
-		if(aperiodic_Mouse_Wheel_Spinbox_Table)
+		mouse_wheel_spinbox_aperiodic_table = checkbox_Mouse_Wheel->isChecked();
+		if(mouse_wheel_spinbox_aperiodic_table)
 			checkbox_Mouse_Wheel->setStyleSheet("QWidget { background: rgb(255, 170, 137); }");
 		else
 			checkbox_Mouse_Wheel->setStyleSheet("background-color: white");
 	});
-	checkbox_Mouse_Wheel->toggled(aperiodic_Mouse_Wheel_Spinbox_Table);
+	checkbox_Mouse_Wheel->toggled(mouse_wheel_spinbox_aperiodic_table);
 
 	/// thickness step label
 	create_Simple_Label(current_Row,2," z step ");
@@ -368,18 +368,18 @@ void Regular_Aperiodic_Table::create_Table()
 
 	/// recalculate
 	QCheckBox* checkbox_Recalculate = new QCheckBox("Recalculate");
-		checkbox_Recalculate->setChecked(aperiodic_Recalculate_Spinbox_Table);
+		checkbox_Recalculate->setChecked(recalculate_spinbox_aperiodic_table);
 		checkbox_Recalculate->setProperty(fit_Column_Property, true);
 	regular_Table->setCellWidget(current_Row, 0, checkbox_Recalculate);
 	connect(checkbox_Recalculate, &QCheckBox::toggled, this, [=]
 	{
-		aperiodic_Recalculate_Spinbox_Table = checkbox_Recalculate->isChecked();
-		if(aperiodic_Recalculate_Spinbox_Table)
-			checkbox_Recalculate->setStyleSheet("QWidget { background: rgb(245, 228, 158); }");
+		recalculate_spinbox_aperiodic_table = checkbox_Recalculate->isChecked();
+		if(recalculate_spinbox_aperiodic_table)
+		{	checkbox_Recalculate->setStyleSheet("QWidget { background: rgb(245, 228, 158); }");}
 		else
-			checkbox_Recalculate->setStyleSheet("background-color: white");
+		{	checkbox_Recalculate->setStyleSheet("background-color: white");}
 	});
-	checkbox_Recalculate->toggled(aperiodic_Recalculate_Spinbox_Table);
+	checkbox_Recalculate->toggled(recalculate_spinbox_aperiodic_table);
 	current_Row++;
 
 	// labels
@@ -736,7 +736,7 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 	}
 
 	// recalculation at change
-	if(aperiodic_Recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calculate(true);}
+	if(recalculate_spinbox_aperiodic_table && !reload) {global_Multilayer_Approach->calculate(true);}
 }
 
 void Regular_Aperiodic_Table::refresh_Thickness_Checkboxes(int i, int n)

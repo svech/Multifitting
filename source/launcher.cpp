@@ -16,9 +16,9 @@ Launcher::Launcher(QWidget *parent) :
 	Settings::read_All_Settings(/*true*/);
 //	Settings::save_All_Settings();
 	Global_Variables::fill_Units_Maps();
-	global_Workers.resize(reflectivity_Calc_Threads);
+	global_Workers.resize(reflectivity_calc_threads);
 
-	printf("\n%d logical cores, %d used\n", QThread::idealThreadCount(),reflectivity_Calc_Threads);
+	printf("\n%d logical cores, %d used\n", QThread::idealThreadCount(),reflectivity_calc_threads);
 	printf("\nMultifitting version %d.%d.%d\n\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
 
 
@@ -71,7 +71,7 @@ void Launcher::create_Buttons()
 
 void Launcher::set_Window_Geometry()
 {
-	setGeometry(launcher_x_corner, launcher_x_corner, 0, 0);
+	setGeometry(300, 300, 0, 0);
 }
 
 void Launcher::open_Multilayer_Approach()

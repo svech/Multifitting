@@ -3,7 +3,7 @@
 using namespace std;
 
 Optical_Constants::Optical_Constants():
-	num_Threads(optical_Constants_Read_Threads),
+	num_Threads(optical_constants_read_threads),
 	part_Material_Maps(num_Threads),
 	part_Element_Maps(num_Threads)
 {

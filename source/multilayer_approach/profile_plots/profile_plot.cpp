@@ -3,7 +3,7 @@
 Profile_Plot::Profile_Plot(Multilayer* multilayer, Profile_Plots_Window* profile_Plots_Window, QWidget *parent) :
 	multilayer(multilayer),
 	profile_Plots_Window(profile_Plots_Window),
-	plotting_Threads(reflectivity_Calc_Threads),
+	plotting_Threads(reflectivity_calc_threads),
 	QWidget(parent)
 {
 	create_Main_Layout();
@@ -909,7 +909,7 @@ void Profile_Plot::calculate_Profile()
 				arg.resize(data_Count);
 				val.resize(data_Count);
 
-				Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+				Global_Variables::parallel_For(data_Count, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 				{
 					for(int i=n_Min; i<n_Max; ++i)
 					{
@@ -1040,7 +1040,7 @@ void Profile_Plot::calculate_Profile()
 				arg.resize(data_Count);
 				val.resize(data_Count);
 
-				Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+				Global_Variables::parallel_For(data_Count, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 				{
 					for(int i=n_Min; i<n_Max; ++i)
 					{
@@ -1196,7 +1196,7 @@ void Profile_Plot::calculate_Profile()
 					arg.resize(data_Count);
 					materials_To_Plot_Vector_Vector[material_index].resize(data_Count);
 
-					Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+					Global_Variables::parallel_For(data_Count, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 					{
 						for(int i=n_Min; i<n_Max; ++i)
 						{
@@ -1356,7 +1356,7 @@ void Profile_Plot::calculate_Profile()
 					arg.resize(data_Count);
 					elements_To_Plot_Vector_Vector[element_Index].resize(data_Count);
 
-					Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+					Global_Variables::parallel_For(data_Count, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 					{
 						for(int i=n_Min; i<n_Max; ++i)
 						{

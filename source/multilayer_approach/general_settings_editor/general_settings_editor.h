@@ -21,7 +21,7 @@ public:
 	QVBoxLayout* main_Layout;
 	QTabWidget* main_Tabs;
 	QPushButton* close_Button;
-	QCheckBox* table_Recalculation_Checkbox;
+	QCheckBox* structure_Table_Recalculation_Checkbox;
 };
 
 #endif // GENERAL_SETTINGS_EDITOR_H

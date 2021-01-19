@@ -334,7 +334,7 @@ void Target_Curve_Editor::show_Filepath()
 	if(target_Curve->filepath.isEmpty()) // check for previous directory
 	{
 		// default directory
-		current_Filepath = QDir::toNativeSeparators(QDir::currentPath()+"/"+default_Measured_Filename);
+		current_Filepath = QDir::toNativeSeparators(QDir::currentPath());
 	} else
 	{
 		// previous directory
