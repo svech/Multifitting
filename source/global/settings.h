@@ -6,7 +6,9 @@
 
 // -----------------------------------------------------------------------------------------
 
-/// gui
+///====================================================================
+/// windows geometry
+///====================================================================
 
 // application style
 extern QString application_style;
@@ -79,17 +81,10 @@ extern int fits_selector_settings_y_corner;
 extern int fits_selector_settings_width;
 extern int fits_selector_settings_height;
 
-//extern QString icon_path;
-extern QString working_directory;
-extern QString preliminary_last_directory;
-extern QString preliminary_last_data_directory;
-extern QString preliminary_last_file;
-extern QString last_directory;
-extern QString last_data_directory;
-extern QString last_file;
+///====================================================================
+/// aperiodic
+///====================================================================
 
-
-// aperiodic parameters
 extern bool recalculate_spinbox_aperiodic_table;
 extern bool mouse_wheel_spinbox_aperiodic_table;
 
@@ -97,9 +92,9 @@ extern bool aperiodic_default_sigma_import;
 extern bool aperiodic_default_density_import;
 extern QString aperiodic_default_units_import;
 
-// -----------------------------------------------------------------------------------------
-
-// structure default values
+///====================================================================
+/// structure default values
+///====================================================================
 
 extern double default_num_confidence_points;
 extern bool auto_density_from_elements;
@@ -299,9 +294,9 @@ extern double	step_drift;
 extern double	step_thickness_aperiodic;
 extern double	step_sigma_aperiodic;
 
-// -----------------------------------------------------------------------------------------
-
-// precisions
+///====================================================================
+/// precisions
+///====================================================================
 
 // lineedit
 extern char line_edit_double_format			;
@@ -356,9 +351,9 @@ extern int thumbnail_background_precision	;
 extern int at_weight_precision				;
 extern int thickness_transfer_precision		;
 
-// -----------------------------------------------------------------------------------------
-
-// measurement default values
+///====================================================================
+/// measurement default values
+///====================================================================
 
 extern int default_wavelength_num_points;
 extern int default_beam_theta_0_angle_num_points;
@@ -424,9 +419,11 @@ extern double default_sample_geometry_curvature;
 
 extern double default_polarization;
 extern double default_background;
-// -----------------------------------------------------------------------------------------
 
-// general settings
+///====================================================================
+/// general settings
+///====================================================================
+
 extern int general_Settings_Tab_Index;
 extern int reflectivity_calc_threads;
 extern int optical_constants_read_threads;
@@ -444,9 +441,17 @@ extern int n_max_series;
 extern bool print_1D_Data_On_Recalculation;
 extern bool print_2D_Data_On_Recalculation;
 
-extern bool use_working_directory;
 extern bool use_multifitting_directory;
+extern bool use_working_directory;
+extern QString  working_directory;
+
 extern bool use_last_directory;
+extern QString  last_directory;
+extern QString preliminary_last_directory;
+extern QString preliminary_last_data_directory;
+extern QString			   last_data_directory;
+extern QString preliminary_last_file;
+extern QString			   last_file;
 
 extern QString default_multilayer_tab_name;
 extern QString default_independent_curve_tab_name;
@@ -454,7 +459,8 @@ extern QString default_independent_curve_tab_name;
 extern bool tab_synchronization;
 extern bool calculation_time;
 extern bool show_residuals;
-// -----------------------------------------------------------------------------------------
+
+///====================================================================
 
 class Settings
 {
@@ -474,8 +480,8 @@ public:
 	static void save_Precisions();
 
 	// parameters default values
-	static void read_Parameters_Default_Values(bool reset_to_default = false);
-	static void save_Parameters_Default_Values();
+	static void read_Measurement_Default_Values(bool reset_to_default = false);
+	static void save_Measurement_Default_Values();
 
 	// general settings
 	static void read_General_Settings(bool reset_to_default = false);

@@ -42,7 +42,6 @@ extern QMap<QString, double> sorted_Density;
 // lists of types
 extern QStringList transition_Layer_Functions; extern int transition_Layer_Functions_Size;
 enum transitional_Function_Types_Enum    { Erf, Lin, Exp, Tanh, Sin, Step };
-extern QStringList tril;
 
 // multilayer toolbar
 enum multilayer_Toolbar_Enum    { Add_Layer,

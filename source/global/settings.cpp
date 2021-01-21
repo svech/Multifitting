@@ -75,16 +75,10 @@ int fits_selector_settings_y_corner;
 int fits_selector_settings_width;
 int fits_selector_settings_height;
 
-//QString icon_path;
-QString working_directory;
-QString preliminary_last_directory;
-QString preliminary_last_data_directory;
-QString preliminary_last_file;
-QString last_directory;
-QString last_data_directory;
-QString last_file;
+///====================================================================
+/// aperiodic
+///====================================================================
 
-// aperiodic import default parameters
 bool recalculate_spinbox_aperiodic_table;
 bool mouse_wheel_spinbox_aperiodic_table;
 
@@ -92,9 +86,9 @@ bool aperiodic_default_sigma_import;
 bool aperiodic_default_density_import;
 QString aperiodic_default_units_import;
 
-// -----------------------------------------------------------------------------------------
-
-// structure default values
+///====================================================================
+/// structure default values
+///====================================================================
 
 double default_num_confidence_points;
 bool auto_density_from_elements;
@@ -292,9 +286,9 @@ double	step_drift;
 double	step_thickness_aperiodic;
 double	step_sigma_aperiodic;
 
-// -----------------------------------------------------------------------------------------
-
-// precisions
+///====================================================================
+/// precisions
+///====================================================================
 
 // lineedit
 char line_edit_double_format		;
@@ -307,11 +301,11 @@ int line_edit_density_precision		;
 int line_edit_composition_precision	;
 int line_edit_thickness_precision	;
 
-int line_edit_sigma_precision				;
-int line_edit_cor_radius_precision			;
-int line_edit_fractal_alpha_precision		;
-int line_edit_omega_precision				;
-int line_edit_mu_precision					;
+int line_edit_sigma_precision			;
+int line_edit_cor_radius_precision		;
+int line_edit_fractal_alpha_precision	;
+int line_edit_omega_precision			;
+int line_edit_mu_precision				;
 
 int line_edit_interlayer_precision	;
 int line_edit_drift_precision		;
@@ -331,11 +325,11 @@ int thumbnail_density_precision		;
 int thumbnail_composition_precision	;
 int thumbnail_thickness_precision	;
 
-int thumbnail_sigma_precision				;
-int thumbnail_cor_radius_precision			;
-int thumbnail_fractal_alpha_precision		;
-int thumbnail_omega_precision				;
-int thumbnail_mu_precision					;
+int thumbnail_sigma_precision			;
+int thumbnail_cor_radius_precision		;
+int thumbnail_fractal_alpha_precision	;
+int thumbnail_omega_precision			;
+int thumbnail_mu_precision				;
 
 int thumbnail_interlayer_precision	;
 int thumbnail_drift_precision		;
@@ -349,9 +343,9 @@ int thumbnail_background_precision	;
 int at_weight_precision				;
 int thickness_transfer_precision	;
 
-// -----------------------------------------------------------------------------------------
-
-// measurement default values
+///====================================================================
+/// measurement default values
+///====================================================================
 
 int default_wavelength_num_points;
 int default_beam_theta_0_angle_num_points;
@@ -417,9 +411,11 @@ double default_sample_geometry_curvature;
 
 double default_polarization;
 double default_background;
-// -----------------------------------------------------------------------------------------
 
-// general settings
+///====================================================================
+/// general settings
+///====================================================================
+
 int general_Settings_Tab_Index;
 int reflectivity_calc_threads;
 int optical_constants_read_threads;
@@ -437,9 +433,17 @@ int n_max_series;
 bool print_1D_Data_On_Recalculation;
 bool print_2D_Data_On_Recalculation;
 
-bool use_working_directory;
 bool use_multifitting_directory;
+bool use_working_directory;
+QString  working_directory;
+
 bool use_last_directory;
+QString  last_directory;
+QString preliminary_last_directory;
+QString preliminary_last_data_directory;
+QString				last_data_directory;
+QString preliminary_last_file;
+QString				last_file;
 
 QString default_multilayer_tab_name;
 QString default_independent_curve_tab_name;
@@ -447,7 +451,8 @@ QString default_independent_curve_tab_name;
 bool tab_synchronization;
 bool calculation_time;
 bool show_residuals;
-// -----------------------------------------------------------------------------------------
+
+///====================================================================
 
 Settings::Settings()
 {
@@ -1168,156 +1173,156 @@ void Settings::save_Precisions()
 	precision_Values.endGroup();
 }
 
-void Settings::read_Parameters_Default_Values(bool reset_to_default)
+void Settings::read_Measurement_Default_Values(bool reset_to_default)
 {
 	QString add_reset;
 	if(reset_to_default) add_reset = "wrong_path";
 
-	QSettings parameters_Default_Values(Parameters_Default_Values_Path + add_reset, QSettings::IniFormat);
+	QSettings measurement_Default_Values(Measurement_Default_Values_Path + add_reset, QSettings::IniFormat);
 
 	// parameters default values
-	parameters_Default_Values.beginGroup( Independent_Values );
-		default_wavelength_num_points						= parameters_Default_Values.value( "default_wavelength_num_points",							400		).toInt();
-		default_beam_theta_0_angle_num_points				= parameters_Default_Values.value( "default_beam_theta_0_angle_num_points",					1000	).toInt();
-		default_detector_theta_angle_num_points				= parameters_Default_Values.value( "default_detector_theta_angle_num_points",				1000	).toInt();
-		default_phi_angle_num_points						= parameters_Default_Values.value( "default_phi_angle_num_points",							501		).toInt();
+	measurement_Default_Values.beginGroup( Independent_Values );
+		default_wavelength_num_points						= measurement_Default_Values.value( "default_wavelength_num_points",						400		).toInt();
+		default_beam_theta_0_angle_num_points				= measurement_Default_Values.value( "default_beam_theta_0_angle_num_points",				1000	).toInt();
+		default_detector_theta_angle_num_points				= measurement_Default_Values.value( "default_detector_theta_angle_num_points",				1000	).toInt();
+		default_phi_angle_num_points						= measurement_Default_Values.value( "default_phi_angle_num_points",							501		).toInt();
 
-		default_beam_theta_0_angle_specular_position		= parameters_Default_Values.value( "default_beam_theta_0_angle_specular_position",			1		).toDouble();
-		default_detector_theta_angle_offset					= parameters_Default_Values.value( "default_detector_theta_angle_offset",					0.5		).toDouble();
+		default_beam_theta_0_angle_specular_position		= measurement_Default_Values.value( "default_beam_theta_0_angle_specular_position",			1		).toDouble();
+		default_detector_theta_angle_offset					= measurement_Default_Values.value( "default_detector_theta_angle_offset",					0.5		).toDouble();
 
-		default_wavelength									= parameters_Default_Values.value( "default_wavelength",									1.540562).toDouble();
-		default_wavelength_min								= parameters_Default_Values.value( "default_wavelength_min",								100		).toDouble();
-		default_wavelength_max								= parameters_Default_Values.value( "default_wavelength_max",								200		).toDouble();
+		default_wavelength									= measurement_Default_Values.value( "default_wavelength",									1.540562).toDouble();
+		default_wavelength_min								= measurement_Default_Values.value( "default_wavelength_min",								100		).toDouble();
+		default_wavelength_max								= measurement_Default_Values.value( "default_wavelength_max",								200		).toDouble();
 
-		default_beam_theta_0_angle							= parameters_Default_Values.value( "default_beam_theta_0_angle",							0.5		).toDouble();
-		default_beam_theta_0_angle_min						= parameters_Default_Values.value( "default_beam_theta_0_angle_min",						0		).toDouble();
-		default_beam_theta_0_angle_max						= parameters_Default_Values.value( "default_beam_theta_0_angle_max",						7		).toDouble();
+		default_beam_theta_0_angle							= measurement_Default_Values.value( "default_beam_theta_0_angle",							0.5		).toDouble();
+		default_beam_theta_0_angle_min						= measurement_Default_Values.value( "default_beam_theta_0_angle_min",						0		).toDouble();
+		default_beam_theta_0_angle_max						= measurement_Default_Values.value( "default_beam_theta_0_angle_max",						7		).toDouble();
 
-		default_detector_theta_angle						= parameters_Default_Values.value( "default_detector_theta_angle",							1		).toDouble();
-		default_detector_theta_angle_min					= parameters_Default_Values.value( "default_detector_theta_angle_min",						0.01	).toDouble();
-		default_detector_theta_angle_max					= parameters_Default_Values.value( "default_detector_theta_angle_max",						6		).toDouble();
+		default_detector_theta_angle						= measurement_Default_Values.value( "default_detector_theta_angle",							1		).toDouble();
+		default_detector_theta_angle_min					= measurement_Default_Values.value( "default_detector_theta_angle_min",						0.01	).toDouble();
+		default_detector_theta_angle_max					= measurement_Default_Values.value( "default_detector_theta_angle_max",						6		).toDouble();
 
-		default_phi_angle									= parameters_Default_Values.value( "default_phi_angle",										0		).toDouble();
-		default_phi_angle_min								= parameters_Default_Values.value( "default_phi_angle_min",									-1.3	).toDouble();
-		default_phi_angle_max								= parameters_Default_Values.value( "default_phi_angle_max",									1.3		).toDouble();
+		default_phi_angle									= measurement_Default_Values.value( "default_phi_angle",									0		).toDouble();
+		default_phi_angle_min								= measurement_Default_Values.value( "default_phi_angle_min",							   -1.3		).toDouble();
+		default_phi_angle_max								= measurement_Default_Values.value( "default_phi_angle_max",								1.3		).toDouble();
 
-		default_logarithmic_threshold_beta					= parameters_Default_Values.value( "default_logarithmic_threshold_beta",					1E-17	).toDouble();
-		default_logarithmic_threshold_material_density		= parameters_Default_Values.value( "default_logarithmic_threshold_material_density",		1E-7	).toDouble();
-		default_logarithmic_threshold_element_concentration = parameters_Default_Values.value( "default_logarithmic_threshold_element_concentration",	1E15	).toDouble();
+		default_logarithmic_threshold_beta					= measurement_Default_Values.value( "default_logarithmic_threshold_beta",					1E-17	).toDouble();
+		default_logarithmic_threshold_material_density		= measurement_Default_Values.value( "default_logarithmic_threshold_material_density",		1E-7	).toDouble();
+		default_logarithmic_threshold_element_concentration = measurement_Default_Values.value( "default_logarithmic_threshold_element_concentration",	1E15	).toDouble();
 
 
-		default_spectral_distribution_FWHM					= parameters_Default_Values.value( "default_spectral_distribution_FWHM",					0	).toDouble();
-		default_spectral_distribution_coverage				= parameters_Default_Values.value( "default_spectral_distribution_coverage",				2	).toInt();
-		default_spectral_distribution_use_sampling			= parameters_Default_Values.value( "default_spectral_distribution_use_sampling",		false	).toBool();
-		default_spectral_distribution_number_of_Samples		= parameters_Default_Values.value( "default_spectral_distribution_number_of_Samples",		5	).toInt();
+		default_spectral_distribution_FWHM					= measurement_Default_Values.value( "default_spectral_distribution_FWHM",					0	).toDouble();
+		default_spectral_distribution_coverage				= measurement_Default_Values.value( "default_spectral_distribution_coverage",				2	).toInt();
+		default_spectral_distribution_use_sampling			= measurement_Default_Values.value( "default_spectral_distribution_use_sampling",		false	).toBool();
+		default_spectral_distribution_number_of_Samples		= measurement_Default_Values.value( "default_spectral_distribution_number_of_Samples",		5	).toInt();
 
-		default_beam_theta_0_distribution_FWHM				= parameters_Default_Values.value( "default_beam_theta_0_distribution_FWHM",				0	).toDouble();
-		default_beam_theta_0_distribution_coverage			= parameters_Default_Values.value( "default_beam_theta_0_distribution_coverage",			2	).toInt();
-		default_beam_theta_0_distribution_use_sampling		= parameters_Default_Values.value( "default_beam_theta_0_distribution_use_sampling",	false	).toBool();
-		default_beam_theta_0_distribution_number_of_Samples = parameters_Default_Values.value( "default_beam_theta_0_distribution_number_of_Samples",	5	).toInt();
+		default_beam_theta_0_distribution_FWHM				= measurement_Default_Values.value( "default_beam_theta_0_distribution_FWHM",				0	).toDouble();
+		default_beam_theta_0_distribution_coverage			= measurement_Default_Values.value( "default_beam_theta_0_distribution_coverage",			2	).toInt();
+		default_beam_theta_0_distribution_use_sampling		= measurement_Default_Values.value( "default_beam_theta_0_distribution_use_sampling",	false	).toBool();
+		default_beam_theta_0_distribution_number_of_Samples = measurement_Default_Values.value( "default_beam_theta_0_distribution_number_of_Samples",	5	).toInt();
 
-		default_beam_phi_0_distribution_FWHM				= parameters_Default_Values.value( "default_beam_phi_0_distribution_FWHM",					0	).toDouble();
-		default_beam_phi_0_distribution_coverage			= parameters_Default_Values.value( "default_beam_phi_0_distribution_coverage",				2	).toInt();
-		default_beam_phi_0_distribution_use_sampling		= parameters_Default_Values.value( "default_beam_phi_0_distribution_use_sampling",		false	).toBool();
-		default_beam_phi_0_distribution_number_of_Samples	= parameters_Default_Values.value( "default_beam_phi_0_distribution_number_of_Samples",		5	).toInt();
+		default_beam_phi_0_distribution_FWHM				= measurement_Default_Values.value( "default_beam_phi_0_distribution_FWHM",					0	).toDouble();
+		default_beam_phi_0_distribution_coverage			= measurement_Default_Values.value( "default_beam_phi_0_distribution_coverage",				2	).toInt();
+		default_beam_phi_0_distribution_use_sampling		= measurement_Default_Values.value( "default_beam_phi_0_distribution_use_sampling",		false	).toBool();
+		default_beam_phi_0_distribution_number_of_Samples	= measurement_Default_Values.value( "default_beam_phi_0_distribution_number_of_Samples",	5	).toInt();
 
-		default_detector_1D_slit_width						= parameters_Default_Values.value( "default_detector_1D_slit_width",					0.8		).toDouble();
-		default_detector_1D_distance_to_sample				= parameters_Default_Values.value( "default_detector_1D_distance_to_sample",			300		).toDouble();
+		default_detector_1D_slit_width						= measurement_Default_Values.value( "default_detector_1D_slit_width",					0.8		).toDouble();
+		default_detector_1D_distance_to_sample				= measurement_Default_Values.value( "default_detector_1D_distance_to_sample",			300		).toDouble();
 
-		default_detector_1D_theta_resolution_FWHM			= parameters_Default_Values.value( "default_detector_1D_theta_resolution_FWHM",			0		).toDouble();
-		default_detector_2D_theta_resolution_FWHM			= parameters_Default_Values.value( "default_detector_2D_theta_resolution_FWHM",			0		).toDouble();
-		default_detector_2D_phi_resolution_FWHM				= parameters_Default_Values.value( "default_detector_2D_phi_resolution_FWHM",			0		).toDouble();
+		default_detector_1D_theta_resolution_FWHM			= measurement_Default_Values.value( "default_detector_1D_theta_resolution_FWHM",		0		).toDouble();
+		default_detector_2D_theta_resolution_FWHM			= measurement_Default_Values.value( "default_detector_2D_theta_resolution_FWHM",		0		).toDouble();
+		default_detector_2D_phi_resolution_FWHM				= measurement_Default_Values.value( "default_detector_2D_phi_resolution_FWHM",			0		).toDouble();
 
-		default_beam_geometry_size							= parameters_Default_Values.value( "default_beam_geometry_size",						0.050	).toDouble();
-		default_beam_geometry_smoothing						= parameters_Default_Values.value( "default_beam_geometry_smoothing",					0.5		).toDouble();
-		default_beam_geometry_wings_full_width				= parameters_Default_Values.value( "default_beam_geometry_wings_full_width",			0.25	).toDouble();
-		default_beam_geometry_wings_intensity				= parameters_Default_Values.value( "default_beam_geometry_wings_intensity",				0.0		).toDouble();
-		default_beam_geometry_lateral_width					= parameters_Default_Values.value( "default_beam_geometry_lateral_width",				5.0		).toDouble();
-		default_beam_geometry_log_profile_plot				= parameters_Default_Values.value( "default_beam_geometry_log_profile_plot",			false	).toBool();
+		default_beam_geometry_size							= measurement_Default_Values.value( "default_beam_geometry_size",						0.050	).toDouble();
+		default_beam_geometry_smoothing						= measurement_Default_Values.value( "default_beam_geometry_smoothing",					0.5		).toDouble();
+		default_beam_geometry_wings_full_width				= measurement_Default_Values.value( "default_beam_geometry_wings_full_width",			0.25	).toDouble();
+		default_beam_geometry_wings_intensity				= measurement_Default_Values.value( "default_beam_geometry_wings_intensity",			0.0		).toDouble();
+		default_beam_geometry_lateral_width					= measurement_Default_Values.value( "default_beam_geometry_lateral_width",				5.0		).toDouble();
+		default_beam_geometry_log_profile_plot				= measurement_Default_Values.value( "default_beam_geometry_log_profile_plot",			false	).toBool();
 
-		default_sample_geometry_size						= parameters_Default_Values.value( "default_sample_geometry_size",						20		).toDouble();
-		default_sample_geometry_x_position					= parameters_Default_Values.value( "default_sample_geometry_x_position",				0		).toDouble();
-		default_sample_geometry_z_position					= parameters_Default_Values.value( "default_sample_geometry_z_position",				0		).toDouble();
-		default_sample_geometry_curvature					= parameters_Default_Values.value( "default_sample_geometry_curvature",					0		).toDouble();
+		default_sample_geometry_size						= measurement_Default_Values.value( "default_sample_geometry_size",						20		).toDouble();
+		default_sample_geometry_x_position					= measurement_Default_Values.value( "default_sample_geometry_x_position",				0		).toDouble();
+		default_sample_geometry_z_position					= measurement_Default_Values.value( "default_sample_geometry_z_position",				0		).toDouble();
+		default_sample_geometry_curvature					= measurement_Default_Values.value( "default_sample_geometry_curvature",				0		).toDouble();
 
-		default_polarization								= parameters_Default_Values.value( "default_polarization",								1		).toDouble();
-		default_background									= parameters_Default_Values.value( "default_background",								0		).toDouble();
+		default_polarization								= measurement_Default_Values.value( "default_polarization",								1		).toDouble();
+		default_background									= measurement_Default_Values.value( "default_background",								0		).toDouble();
 
-	parameters_Default_Values.endGroup();
+	measurement_Default_Values.endGroup();
 }
 
-void Settings::save_Parameters_Default_Values()
+void Settings::save_Measurement_Default_Values()
 {
-	QSettings parameters_Default_Values(Parameters_Default_Values_Path, QSettings::IniFormat);
+	QSettings measurement_Default_Values(Measurement_Default_Values_Path, QSettings::IniFormat);
 
 	// parameters default values
-	parameters_Default_Values.beginGroup( Independent_Values );
-		parameters_Default_Values.setValue( "default_wavelength_num_points",						default_wavelength_num_points						);
-		parameters_Default_Values.setValue( "default_beam_theta_0_angle_num_points",				default_beam_theta_0_angle_num_points				);
-		parameters_Default_Values.setValue( "default_detector_theta_angle_num_points",				default_detector_theta_angle_num_points				);
-		parameters_Default_Values.setValue( "default_phi_angle_num_points",							default_phi_angle_num_points						);
+	measurement_Default_Values.beginGroup( Independent_Values );
+		measurement_Default_Values.setValue( "default_wavelength_num_points",						default_wavelength_num_points						);
+		measurement_Default_Values.setValue( "default_beam_theta_0_angle_num_points",				default_beam_theta_0_angle_num_points				);
+		measurement_Default_Values.setValue( "default_detector_theta_angle_num_points",				default_detector_theta_angle_num_points				);
+		measurement_Default_Values.setValue( "default_phi_angle_num_points",							default_phi_angle_num_points						);
 
-		parameters_Default_Values.setValue( "default_beam_theta_0_angle_specular_position",			default_beam_theta_0_angle_specular_position		);
-		parameters_Default_Values.setValue( "default_detector_theta_angle_offset",					default_detector_theta_angle_offset					);
+		measurement_Default_Values.setValue( "default_beam_theta_0_angle_specular_position",			default_beam_theta_0_angle_specular_position		);
+		measurement_Default_Values.setValue( "default_detector_theta_angle_offset",					default_detector_theta_angle_offset					);
 
-		parameters_Default_Values.setValue( "default_wavelength",									default_wavelength									);
-		parameters_Default_Values.setValue( "default_wavelength_min",								default_wavelength_min								);
-		parameters_Default_Values.setValue( "default_wavelength_max",								default_wavelength_max								);
+		measurement_Default_Values.setValue( "default_wavelength",									default_wavelength									);
+		measurement_Default_Values.setValue( "default_wavelength_min",								default_wavelength_min								);
+		measurement_Default_Values.setValue( "default_wavelength_max",								default_wavelength_max								);
 
-		parameters_Default_Values.setValue( "default_beam_theta_0_angle",							default_beam_theta_0_angle							);
-		parameters_Default_Values.setValue( "default_beam_theta_0_angle_min",						default_beam_theta_0_angle_min						);
-		parameters_Default_Values.setValue( "default_beam_theta_0_angle_max",						default_beam_theta_0_angle_max						);
+		measurement_Default_Values.setValue( "default_beam_theta_0_angle",							default_beam_theta_0_angle							);
+		measurement_Default_Values.setValue( "default_beam_theta_0_angle_min",						default_beam_theta_0_angle_min						);
+		measurement_Default_Values.setValue( "default_beam_theta_0_angle_max",						default_beam_theta_0_angle_max						);
 
-		parameters_Default_Values.setValue( "default_detector_theta_angle",							default_detector_theta_angle						);
-		parameters_Default_Values.setValue( "default_detector_theta_angle_min",						default_detector_theta_angle_min					);
-		parameters_Default_Values.setValue( "default_detector_theta_angle_max",						default_detector_theta_angle_max					);
+		measurement_Default_Values.setValue( "default_detector_theta_angle",							default_detector_theta_angle						);
+		measurement_Default_Values.setValue( "default_detector_theta_angle_min",						default_detector_theta_angle_min					);
+		measurement_Default_Values.setValue( "default_detector_theta_angle_max",						default_detector_theta_angle_max					);
 
-		parameters_Default_Values.setValue( "default_phi_angle",									default_phi_angle									);
-		parameters_Default_Values.setValue( "default_phi_angle_min",								default_phi_angle_min								);
-		parameters_Default_Values.setValue( "default_phi_angle_max",								default_phi_angle_max								);
+		measurement_Default_Values.setValue( "default_phi_angle",									default_phi_angle									);
+		measurement_Default_Values.setValue( "default_phi_angle_min",								default_phi_angle_min								);
+		measurement_Default_Values.setValue( "default_phi_angle_max",								default_phi_angle_max								);
 
-		parameters_Default_Values.setValue( "default_logarithmic_threshold_beta",					default_logarithmic_threshold_beta					);
-		parameters_Default_Values.setValue( "default_logarithmic_threshold_material_density",		default_logarithmic_threshold_material_density		);
-		parameters_Default_Values.setValue( "default_logarithmic_threshold_element_concentration",	default_logarithmic_threshold_element_concentration	);
+		measurement_Default_Values.setValue( "default_logarithmic_threshold_beta",					default_logarithmic_threshold_beta					);
+		measurement_Default_Values.setValue( "default_logarithmic_threshold_material_density",		default_logarithmic_threshold_material_density		);
+		measurement_Default_Values.setValue( "default_logarithmic_threshold_element_concentration",	default_logarithmic_threshold_element_concentration	);
 
 
-		parameters_Default_Values.setValue( "default_spectral_distribution_FWHM",					default_spectral_distribution_FWHM					);
-		parameters_Default_Values.setValue( "default_spectral_distribution_coverage",				default_spectral_distribution_coverage				);
-		parameters_Default_Values.setValue( "default_spectral_distribution_use_sampling",			default_spectral_distribution_use_sampling			);
-		parameters_Default_Values.setValue( "default_spectral_distribution_number_of_Samples",		default_spectral_distribution_number_of_Samples		);
+		measurement_Default_Values.setValue( "default_spectral_distribution_FWHM",					default_spectral_distribution_FWHM					);
+		measurement_Default_Values.setValue( "default_spectral_distribution_coverage",				default_spectral_distribution_coverage				);
+		measurement_Default_Values.setValue( "default_spectral_distribution_use_sampling",			default_spectral_distribution_use_sampling			);
+		measurement_Default_Values.setValue( "default_spectral_distribution_number_of_Samples",		default_spectral_distribution_number_of_Samples		);
 
-		parameters_Default_Values.setValue( "default_beam_theta_0_distribution_FWHM",				default_beam_theta_0_distribution_FWHM				);
-		parameters_Default_Values.setValue( "default_beam_theta_0_distribution_coverage",			default_beam_theta_0_distribution_coverage			);
-		parameters_Default_Values.setValue( "default_beam_theta_0_distribution_use_sampling",		default_beam_theta_0_distribution_use_sampling		);
-		parameters_Default_Values.setValue( "default_beam_theta_0_distribution_number_of_Samples",	default_beam_theta_0_distribution_number_of_Samples	);
+		measurement_Default_Values.setValue( "default_beam_theta_0_distribution_FWHM",				default_beam_theta_0_distribution_FWHM				);
+		measurement_Default_Values.setValue( "default_beam_theta_0_distribution_coverage",			default_beam_theta_0_distribution_coverage			);
+		measurement_Default_Values.setValue( "default_beam_theta_0_distribution_use_sampling",		default_beam_theta_0_distribution_use_sampling		);
+		measurement_Default_Values.setValue( "default_beam_theta_0_distribution_number_of_Samples",	default_beam_theta_0_distribution_number_of_Samples	);
 
-		parameters_Default_Values.setValue( "default_beam_phi_0_distribution_FWHM",					default_beam_phi_0_distribution_FWHM				);
-		parameters_Default_Values.setValue( "default_beam_phi_0_distribution_coverage",				default_beam_phi_0_distribution_coverage			);
-		parameters_Default_Values.setValue( "default_beam_phi_0_distribution_use_sampling",			default_beam_phi_0_distribution_use_sampling		);
-		parameters_Default_Values.setValue( "default_beam_phi_0_distribution_number_of_Samples",	default_beam_phi_0_distribution_number_of_Samples	);
+		measurement_Default_Values.setValue( "default_beam_phi_0_distribution_FWHM",					default_beam_phi_0_distribution_FWHM				);
+		measurement_Default_Values.setValue( "default_beam_phi_0_distribution_coverage",				default_beam_phi_0_distribution_coverage			);
+		measurement_Default_Values.setValue( "default_beam_phi_0_distribution_use_sampling",			default_beam_phi_0_distribution_use_sampling		);
+		measurement_Default_Values.setValue( "default_beam_phi_0_distribution_number_of_Samples",	default_beam_phi_0_distribution_number_of_Samples	);
 
-		parameters_Default_Values.setValue( "default_detector_1D_slit_width",						default_detector_1D_slit_width						);
-		parameters_Default_Values.setValue( "default_detector_1D_distance_to_sample",				default_detector_1D_distance_to_sample				);
+		measurement_Default_Values.setValue( "default_detector_1D_slit_width",						default_detector_1D_slit_width						);
+		measurement_Default_Values.setValue( "default_detector_1D_distance_to_sample",				default_detector_1D_distance_to_sample				);
 
-		parameters_Default_Values.setValue( "default_detector_1D_theta_resolution_FWHM",			default_detector_1D_theta_resolution_FWHM			);
-		parameters_Default_Values.setValue( "default_detector_2D_theta_resolution_FWHM",			default_detector_2D_theta_resolution_FWHM			);
-		parameters_Default_Values.setValue( "default_detector_2D_phi_resolution_FWHM",				default_detector_2D_phi_resolution_FWHM				);
+		measurement_Default_Values.setValue( "default_detector_1D_theta_resolution_FWHM",			default_detector_1D_theta_resolution_FWHM			);
+		measurement_Default_Values.setValue( "default_detector_2D_theta_resolution_FWHM",			default_detector_2D_theta_resolution_FWHM			);
+		measurement_Default_Values.setValue( "default_detector_2D_phi_resolution_FWHM",				default_detector_2D_phi_resolution_FWHM				);
 
-		parameters_Default_Values.setValue( "default_beam_geometry_size",							default_beam_geometry_size							);
-		parameters_Default_Values.setValue( "default_beam_geometry_smoothing",						default_beam_geometry_smoothing						);
-		parameters_Default_Values.setValue( "default_beam_geometry_wings_full_width",				default_beam_geometry_wings_full_width				);
-		parameters_Default_Values.setValue( "default_beam_geometry_wings_intensity",				default_beam_geometry_wings_intensity				);
-		parameters_Default_Values.setValue( "default_beam_geometry_lateral_width",					default_beam_geometry_lateral_width					);
-		parameters_Default_Values.setValue( "default_beam_geometry_log_profile_plot",				default_beam_geometry_log_profile_plot				);
+		measurement_Default_Values.setValue( "default_beam_geometry_size",							default_beam_geometry_size							);
+		measurement_Default_Values.setValue( "default_beam_geometry_smoothing",						default_beam_geometry_smoothing						);
+		measurement_Default_Values.setValue( "default_beam_geometry_wings_full_width",				default_beam_geometry_wings_full_width				);
+		measurement_Default_Values.setValue( "default_beam_geometry_wings_intensity",				default_beam_geometry_wings_intensity				);
+		measurement_Default_Values.setValue( "default_beam_geometry_lateral_width",					default_beam_geometry_lateral_width					);
+		measurement_Default_Values.setValue( "default_beam_geometry_log_profile_plot",				default_beam_geometry_log_profile_plot				);
 
-		parameters_Default_Values.setValue( "default_sample_geometry_size",							default_sample_geometry_size						);
-		parameters_Default_Values.setValue( "default_sample_geometry_x_position",					default_sample_geometry_x_position					);
-		parameters_Default_Values.setValue( "default_sample_geometry_z_position",					default_sample_geometry_z_position					);
-		parameters_Default_Values.setValue( "default_sample_geometry_curvature",					default_sample_geometry_curvature					);
+		measurement_Default_Values.setValue( "default_sample_geometry_size",							default_sample_geometry_size						);
+		measurement_Default_Values.setValue( "default_sample_geometry_x_position",					default_sample_geometry_x_position					);
+		measurement_Default_Values.setValue( "default_sample_geometry_z_position",					default_sample_geometry_z_position					);
+		measurement_Default_Values.setValue( "default_sample_geometry_curvature",					default_sample_geometry_curvature					);
 
-		parameters_Default_Values.setValue( "default_polarization",									default_polarization								);
-		parameters_Default_Values.setValue( "default_background",									default_background									);
-	parameters_Default_Values.endGroup();
+		measurement_Default_Values.setValue( "default_polarization",									default_polarization								);
+		measurement_Default_Values.setValue( "default_background",									default_background									);
+	measurement_Default_Values.endGroup();
 }
 
 void Settings::read_General_Settings(bool reset_to_default)
@@ -1450,7 +1455,7 @@ void Settings::read_All_Settings(bool reset_to_default)
 	read_Windows_Geometry_Settings(reset_to_default);
 	read_Structure_Default_Values(reset_to_default);
 	read_Precisions(reset_to_default);
-	read_Parameters_Default_Values(reset_to_default);
+	read_Measurement_Default_Values(reset_to_default);
 	read_General_Settings(reset_to_default);
 	read_Regular_Aperiodic(reset_to_default);
 }
@@ -1460,7 +1465,7 @@ void Settings::save_All_Settings()
 	save_Windows_Geometry_Settings();
 	save_Structure_Default_Values();
 	save_Precisions();
-	save_Parameters_Default_Values();
+	save_Measurement_Default_Values();
 	save_General_Settings();
 	save_Regular_Aperiodic();
 }

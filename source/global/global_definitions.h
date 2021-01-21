@@ -75,7 +75,7 @@ class Node;
 	#define Fits_Selector_Window_Geometry			"Fits_Selector_Window_Geometry"
 
 // structure default values
-#define Structure_Default_Values_Path Pre_Path + "settings/structure_default_values.ini"
+#define Structure_Default_Values_Path Pre_Path + "settings/structure_default_parameters.ini"
 	#define Structure_Init_Values			"Structure_Init_Values"
 		#define Ambient_Values				"Ambient_Values"
 		#define Layer_Values				"Layer_Values"
@@ -94,7 +94,7 @@ class Node;
 		#define Other	  "Other"
 
 // parameters default values
-#define Parameters_Default_Values_Path Pre_Path + "settings/parameters_default_values.ini"
+#define Measurement_Default_Values_Path Pre_Path + "settings/measurement_default_parameters.ini"
 	#define Independent_Values  "Independent_Values"
 	#define Optimization_Values "Optimization_Values"
 	#define Fitting_Values		"Fitting_Values"
@@ -379,9 +379,6 @@ class Node;
 #define period_Gamma_Property	"period_Gamma"
 #define min_Size_Property		"min_Size"
 #define index_Property			"index"
-#define TRIL_TRUE				"True"
-#define TRIL_FALSE				"False"
-#define TRIL_NOT_DEFINED		"NotDefined"
 #define NOPARENT				"No parents"
 #define previous_Expression_Property "previous_Expression"
 #define abort_Property			"abort"

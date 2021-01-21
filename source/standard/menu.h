@@ -35,9 +35,6 @@ public:
 		void create_Optical_Constants_Menu();
 		void create_Help_Menu();
 
-		void create_Independent_Units_Menu();
-		void create_Independent_Precision_Menu();
-
 		void create_Item_Length_Units_Menu();
 		void create_Item_Precision_Menu();
 
@@ -77,7 +74,6 @@ public:
 		QMenu* calculate_Menu;
 		QMenu* optical_Constants_Menu;
 		QMenu* help_Menu;
-		QMenu* units_Menu;		
 		QMenu* menu_Wavelength_Units;
 		QMenu* menu_Length_Units;
 		QMenu* precision_Menu;

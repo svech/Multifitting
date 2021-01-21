@@ -216,7 +216,6 @@ QMap<QString, double> sorted_Elements;
 
 // lists of types
 QStringList transition_Layer_Functions	{"erf","lin","exp","tanh","sin","step"}; int transition_Layer_Functions_Size = int(transition_Layer_Functions.size());
-QStringList tril						{TRIL_TRUE, TRIL_FALSE, TRIL_NOT_DEFINED};
 
 // data types
 QString no_Measurement_Type = "no measurement type";
@@ -331,14 +330,14 @@ QStringList SO_Methods = { /* Mesh Iteration. */
 // units
 
 // wavelength
-QStringList   wavelength_Units_List				{Angstrom_Sym,"nm","eV","keV"}; // Mu_Sym + "m"	// change enum!
-QStringList   wavelength_Units_Legend_List		{"A"         ,"nm","eV","keV"}; // Mu_Sym + "m"	// change enum!
+QStringList   wavelength_Units_List				{Angstrom_Sym,"nm","eV","keV"}; // Mu_Sym+"m"	// change enum!
+QStringList   wavelength_Units_Legend_List		{"A"         ,"nm","eV","keV"}; // Mu_Sym+"m"	// change enum!
 QList<double> wavelength_Coefficients_List		{1.           ,1E1,1.  ,1E3  }; // 1E4
 QMap<QString, double>  wavelength_Coefficients_Map;
 QMap<QString, QString> wavelength_Units_Legend_Map;
 
 // length
-QStringList   length_Units_List					{Angstrom_Sym,"nm"}; // Mu_Sym + "m"				// change enum!
+QStringList   length_Units_List					{Angstrom_Sym,"nm"}; // Mu_Sym + "m"			// change enum!
 QList<double> length_Coefficients_List			{1.          , 1E1}; // 1E4
 QMap<QString, double>  length_Coefficients_Map;
 
@@ -496,11 +495,14 @@ void Global_Variables::find_Gui_Shifts()
 
 void Global_Variables::read_Optical_Constants()
 {
+	if(optical_Constants != nullptr) delete optical_Constants;
 	optical_Constants = new Optical_Constants;
 }
 
 void Global_Variables::create_Sorted_Elements_Map()
 {
+	sorted_Elements.clear();
+	sorted_Density.clear();
 	// map of sorted chemical elements
 	for(int i=0; i<element_Name.size(); ++i)
 	{
@@ -587,7 +589,6 @@ void Global_Variables::deserialize_Tree(QDataStream& in, QTreeWidget* tree)
 	{
 		tree_Map.value(id_Parent_List[i])->addChild(item_Vec[i]);
 	}
-
 	tree->expandAll();
 }
 
@@ -676,7 +677,7 @@ double Global_Variables::wavelength_Energy(QString wavelength_Units, double y)
 	{
 		if(wavelength_Units == wavelength_Units_List[i])
 		{
-			if( 0<=i && i<=nm)                    value = y;
+			if( 0<=i && i<=nm)							 value = y;
 			if( eV<=i && i<wavelength_Units_List.size()) value = angstrom_eV(y);
 		}
 	}

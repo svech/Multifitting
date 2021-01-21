@@ -191,7 +191,8 @@ void Multilayer_Approach::duplicate_Structure(const QPoint& pos)
 	Multilayer* new_Multilayer = add_Multilayer(old_Tab_Index);
 	Multilayer* old_Multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(old_Tab_Index));
 
-	*new_Multilayer = *old_Multilayer;
+	*new_Multilayer = *old_Multilayer;	
+	new_Multilayer->structure_Tree->tree->expandAll();
 }
 
 Multilayer* Multilayer_Approach::add_Multilayer(int index)
