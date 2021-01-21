@@ -83,11 +83,11 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 	multilayer_Tabs->setCornerWidget(add_Tab_Corner_Button);
 	main_Layout->addWidget(multilayer_Tabs);
 
-	connect(multilayer_Tabs->tabBar(), &QTabBar::customContextMenuRequested,  this, &Multilayer_Approach::tab_Context_Menu);
-	connect(add_Tab_Corner_Button,  &QToolButton::clicked,			 this, [=]{add_Multilayer();});
-	connect(multilayer_Tabs,		&QTabWidget::tabCloseRequested,  this, &Multilayer_Approach::remove_Multilayer);
-	connect(multilayer_Tabs,		&QTabWidget::currentChanged,	 this, &Multilayer_Approach::change_Tab_Color);
-	connect(multilayer_Tabs,		&QTabWidget::tabBarDoubleClicked,this, &Multilayer_Approach::rename_Multilayer);
+	connect(multilayer_Tabs->tabBar(),	&QTabBar::customContextMenuRequested,	this, &Multilayer_Approach::tab_Context_Menu);
+	connect(add_Tab_Corner_Button,		&QToolButton::clicked,					this, [=]{add_Multilayer();});
+	connect(multilayer_Tabs,			&QTabWidget::tabCloseRequested,			this, &Multilayer_Approach::remove_Multilayer);
+	connect(multilayer_Tabs,			&QTabWidget::currentChanged,			this, &Multilayer_Approach::change_Tab_Color);
+	connect(multilayer_Tabs,			&QTabWidget::tabBarDoubleClicked,		this, &Multilayer_Approach::rename_Multilayer);
 
 	add_Multilayer();
 

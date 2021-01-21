@@ -11,7 +11,7 @@ Curve_Plot_2D::Curve_Plot_2D(Multilayer* multilayer, Target_Curve* target_Curve,
 	plot_Options		(curve_Class == INDEPENDENT ? independent_Curve->plot_Options	   : target_Curve->plot_Options_Experimental),
 	spectral_Units		(curve_Class == INDEPENDENT ? independent_Curve->spectral_Units	   : target_Curve->spectral_Units			),
 	angular_Units		(curve_Class == INDEPENDENT ? independent_Curve->angular_Units	   : target_Curve->angular_Units			),
-	plot_Indicator		(curve_Class == INDEPENDENT ? independent_Curve->tab_Name		   : target_Curve->index					),
+	plot_Indicator		(curve_Class == INDEPENDENT ? independent_Curve->tab_Name		   : target_Curve->index_Name				),
 	graph_2D_Positions	(curve_Class == INDEPENDENT ? independent_Curve->graph_2D_Positions: target_Curve->graph_2D_Positions		),
 
 	QWidget(parent)

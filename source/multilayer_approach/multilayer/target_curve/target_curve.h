@@ -126,6 +126,8 @@ public:
 
 	QString label_Text = "<no description>";
 	QString index;
+	QString name = "";
+	QString index_Name;
 
 	// units
 	QString angular_Units;

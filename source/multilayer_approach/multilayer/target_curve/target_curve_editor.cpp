@@ -169,16 +169,70 @@ void Target_Curve_Editor::create_Plot()
 
 void Target_Curve_Editor::create_Filepath_GroupBox()
 {
-	filepath_GroupBox = new QGroupBox("File path");
-	bottom_Part_Layout->addWidget(filepath_GroupBox);
+	measurement_GroupBox = new QGroupBox("Measurement");
+	bottom_Part_Layout->addWidget(measurement_GroupBox);
 
-	QHBoxLayout* filepath_GroupBox_Layout = new QHBoxLayout(filepath_GroupBox);
-		filepath_GroupBox_Layout->setAlignment(Qt::AlignLeft);
+	QHBoxLayout* measurement_GroupBox_Layout = new QHBoxLayout(measurement_GroupBox);
+		measurement_GroupBox_Layout->setAlignment(Qt::AlignLeft);
+
+	// name
+	QLabel* name_Label = new QLabel("Name");
+	measurement_GroupBox_Layout->addWidget(name_Label,0,Qt::AlignLeft);
+
+	QLineEdit* name_LineEdit = new QLineEdit;
+		name_LineEdit->setText(target_Curve->name);
+		name_LineEdit->setProperty(min_Size_Property,90);
+		name_LineEdit->setFixedWidth(90);
+	measurement_GroupBox_Layout->addWidget(name_LineEdit,0,Qt::AlignLeft);
+	connect(name_LineEdit, &QLineEdit::textEdited, this, [=]
+	{
+		target_Curve->name = name_LineEdit->text();
+		if( target_Curve->name.size()>0)
+		{	target_Curve->index_Name = target_Curve->index + ": " + target_Curve->name;}
+		else
+		{	target_Curve->index_Name = target_Curve->index;}
+
+
+		Global_Variables::resize_Line_Edit(name_LineEdit);
+		target_Curve->refresh_Description_Label();
+
+		// refresh plot titles
+		if(target_Curve->loaded_And_Ready)
+		{
+			// 1D case
+			if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map])
+			{
+				if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+				{
+					if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+					{
+						Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+						curve_Plot_1D->set_Title_Text();
+					}
+				}
+			}
+			// 2D case
+			if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
+			{
+				if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+				{
+					if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(target_Curve->measurement.id))
+					{
+						Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(target_Curve->measurement.id);
+						curve_Plot_2D->set_Title_Text();
+					}
+				}
+			}
+		}
+	});
 
 	// filepath
+	QLabel* filepath_Label = new QLabel("         File path");
+	measurement_GroupBox_Layout->addWidget(filepath_Label,0,Qt::AlignLeft);
+
 	filepath_ComboBox = new QComboBox;
 		filepath_ComboBox->setEditable(true);
-	filepath_GroupBox_Layout->addWidget(filepath_ComboBox,0,Qt::AlignLeft);
+	measurement_GroupBox_Layout->addWidget(filepath_ComboBox,0,Qt::AlignLeft);
 
 	connect(filepath_ComboBox->lineEdit(), &QLineEdit::textEdited, this, [=]{resize_ComboBox();} );
 	connect(filepath_ComboBox, &QComboBox::currentTextChanged, this, [=](QString str){ filepath_ComboBox->lineEdit()->textEdited(str); } );
@@ -213,7 +267,7 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 	// browse
 	browse_Button = new QPushButton("Browse...");
 		browse_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	filepath_GroupBox_Layout->addWidget(browse_Button,0,Qt::AlignLeft);
+	measurement_GroupBox_Layout->addWidget(browse_Button,0,Qt::AlignLeft);
 	connect(browse_Button, &QPushButton::clicked, this, &Target_Curve_Editor::browse_Data_File);
 
 	// show

@@ -55,7 +55,7 @@ public:
 		QWidget* bottom_Part_Widget;
 		QVBoxLayout* bottom_Part_Layout;
 
-		QGroupBox* filepath_GroupBox;
+		QGroupBox* measurement_GroupBox;
 			QComboBox* filepath_ComboBox;
 			QPushButton* browse_Button;
 

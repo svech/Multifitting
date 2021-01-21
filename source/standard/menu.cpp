@@ -510,7 +510,7 @@ void Menu::open_About()
 	about_Box.setText(  "Multifitting v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+"<br><br>"+
 						"Mikhail Svechnikov<br>"
 						"svechnikovmv@gmail.com<br>"
-						"2018-2020<br><br>"
+						"2018-2021<br><br>"
 						"Multifitting is based on Qt5 framework<br>"//(GNU LGPL/GPL)
 						"and also uses the following libraries:<br><br>"
 						"<a href='https://www.gnu.org/software/gsl/'>GSL</a> - GNU Scientific Library<br>"//(GNU GPL)

@@ -14,7 +14,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 4
+#define VERSION_BUILD 5
 
 using namespace std;
 using namespace boost::math::quadrature;

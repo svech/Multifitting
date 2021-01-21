@@ -483,7 +483,10 @@ void Target_Curve::refresh_Description_Label()
 			}
 		}
 
-		description_Label->setText(index + ": " + label_Text);
+		if(name.size()>0)
+		{	description_Label->setText(index + ": " + name + "; " + label_Text);}
+		else
+		{	description_Label->setText(index + ": " + label_Text);}
 	} else
 	{
 		label_Text = "<no description>";
@@ -792,9 +795,12 @@ Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve
 	loaded_And_Ready = referent_Target_Curve.loaded_And_Ready;
 	plot_Options_Experimental = referent_Target_Curve.plot_Options_Experimental;
 	plot_Options_Calculated = referent_Target_Curve.plot_Options_Calculated;
+	graph_2D_Positions = referent_Target_Curve.graph_2D_Positions;
 	lines_List = referent_Target_Curve.lines_List;
 	label_Text = referent_Target_Curve.label_Text;
 	index = referent_Target_Curve.index;
+	name = referent_Target_Curve.name+" (Copy)";
+	index_Name = referent_Target_Curve.index_Name;
 
 	return *this;
 }
@@ -947,7 +953,7 @@ QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve 
 					<< target_Curve->calc_Functions
 					<< target_Curve->plot_Options_Experimental
 					<< target_Curve->plot_Options_Calculated
-					<< target_Curve->header << target_Curve->label_Text
+					<< target_Curve->header << target_Curve->label_Text << target_Curve->name
 					<< target_Curve->angular_Units << target_Curve->spectral_Units << target_Curve->loaded_And_Ready
 					<< target_Curve->graph_2D_Positions;
 }
@@ -960,8 +966,12 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 				>> target_Curve->calc_Functions
 				>> target_Curve->plot_Options_Experimental
 				>> target_Curve->plot_Options_Calculated
-				>> target_Curve->header >> target_Curve->label_Text
-				>> target_Curve->angular_Units >> target_Curve->spectral_Units >> target_Curve->loaded_And_Ready
+				>> target_Curve->header >> target_Curve->label_Text;
+
+		if(Global_Variables::check_Loaded_Version(1,11,5))
+		{stream	>> target_Curve->name;}
+
+		stream	>> target_Curve->angular_Units >> target_Curve->spectral_Units >> target_Curve->loaded_And_Ready
 				>> target_Curve->graph_2D_Positions;
 	} else
 	{

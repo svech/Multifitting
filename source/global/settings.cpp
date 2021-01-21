@@ -1351,7 +1351,7 @@ void Settings::read_General_Settings(bool reset_to_default)
 		reflectivity_calc_threads			= general_Settings.value( "reflectivity_calc_threads",		max(QThread::idealThreadCount(),1) ).toInt();
 		optical_constants_read_threads		= general_Settings.value( "optical_constants_read_threads",	max(QThread::idealThreadCount(),1) ).toInt();
 
-		recalculate_spinbox_global			= general_Settings.value( "recalculate_spinbox_global",				false	).toBool();
+		recalculate_spinbox_global			= general_Settings.value( "recalculate_spinbox_global",				true	).toBool();
 
 		recalculate_spinbox_structure_table	= general_Settings.value( "recalculate_spinbox_structure_table",	true	).toBool();
 		mouse_wheel_spinbox_structure_table	= general_Settings.value( "mouse_wheel_spinbox_structure_table",	true	).toBool();

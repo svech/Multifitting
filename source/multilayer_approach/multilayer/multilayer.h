@@ -29,13 +29,17 @@ public:
 		void create_Independent_Variables_Tabs();
 		void create_Data_Frame();
 
-	void add_Independent_Variables_Tab();
+	Independent_Curve* add_Independent_Variables_Tab(int index = -2021);
 	void change_Tab_Independent_Variables_Tab_Color(int index);
 	void remove_Independent_Variables_Tab(int index);
 	void rename_Independent_Variables_Tab(int tab_Index);
-
+	void independent_Tab_Context_Menu(const QPoint& pos);
+	void duplicate_Independent_Curve(const QPoint& pos);
 	void refresh_Structure_And_Independent(QObject* my_Sender = nullptr);
-	void add_Target_Curve   (int index_Pressed, bool opening = false);
+
+	Target_Curve* add_Target_Curve (int index_Pressed, bool opening = false);
+	void target_Curve_Context_Menu(const QPoint& pos);
+	void duplicate_Target_Curve(int old_Index);
 	void remove_Target_Curve(int index_Pressed, bool clean = false);
 	template<typename Type_Curve, typename Type_Curve_Editor>
 	void open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* type_Editor);
@@ -58,8 +62,7 @@ public:
 				QGroupBox* data_Target_Profile_Group_Box;
 					QVBoxLayout* layout_Target_Profile_With_Frame_Vector;
 						QVector<QFrame*> data_Target_Profile_Frame_Vector;
-						QVector<QPushButton*> add_Buttons_To_Lock;
-						QVector<QPushButton*> remove_Buttons_To_Lock;
+						QVector<QLabel*> description_Label_Vector;
 						QVector<Target_Curve*> target_Profiles_Vector;
 						QMap<Target_Curve*, Target_Curve_Editor*> runned_Target_Curve_Editors;
 

@@ -100,7 +100,9 @@ void Multilayer::create_Independent_Variables_Tabs()
 {
 	independent_Curve_Tabs = new QTabWidget;
 		independent_Curve_Tabs->setMovable(true);
-		independent_Curve_Tabs->setTabsClosable(true);
+		independent_Curve_Tabs->setTabsClosable(true);		
+		independent_Curve_Tabs->tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
+
 	bottom_Part_Layout->addWidget(independent_Curve_Tabs);
 
 	independent_Variables_Corner_Button = new QToolButton;
@@ -109,10 +111,11 @@ void Multilayer::create_Independent_Variables_Tabs()
 		independent_Variables_Corner_Button->setFont(tmp_Qf);
 		independent_Curve_Tabs->setCornerWidget(independent_Variables_Corner_Button);
 
-	connect(independent_Variables_Corner_Button,&QToolButton::clicked,			 this, &Multilayer::add_Independent_Variables_Tab);
-	connect(independent_Curve_Tabs,	&QTabWidget::currentChanged,	 this, &Multilayer::change_Tab_Independent_Variables_Tab_Color);
-	connect(independent_Curve_Tabs,	&QTabWidget::tabCloseRequested,  this, &Multilayer::remove_Independent_Variables_Tab);
-	connect(independent_Curve_Tabs,	&QTabWidget::tabBarDoubleClicked,this, &Multilayer::rename_Independent_Variables_Tab);
+	connect(independent_Variables_Corner_Button,&QToolButton::clicked,					this, [=]{add_Independent_Variables_Tab();});
+	connect(independent_Curve_Tabs,				&QTabWidget::currentChanged,			this, &Multilayer::change_Tab_Independent_Variables_Tab_Color);
+	connect(independent_Curve_Tabs,				&QTabWidget::tabCloseRequested,			this, &Multilayer::remove_Independent_Variables_Tab);
+	connect(independent_Curve_Tabs,				&QTabWidget::tabBarDoubleClicked,		this, &Multilayer::rename_Independent_Variables_Tab);
+	connect(independent_Curve_Tabs->tabBar(),	&QTabBar::customContextMenuRequested,	this, &Multilayer::independent_Tab_Context_Menu);
 
 	add_Independent_Variables_Tab();
 }
@@ -131,16 +134,22 @@ void Multilayer::create_Data_Frame()
 
 //// --------------------------------------------------------------------------------------
 
-void Multilayer::add_Independent_Variables_Tab()
+Independent_Curve* Multilayer::add_Independent_Variables_Tab(int index)
 {
 	Independent_Curve* new_Independent_Curve = new Independent_Curve;
 	Independent_Curve_Editor* independent_Curve_Editor;
 	connect(new_Independent_Curve->setup_Button, &QPushButton::clicked, this, [=]{ open_Editor_Window(new_Independent_Curve, independent_Curve_Editor); });
 
-	// add new tab
-	independent_Curve_Tabs->addTab(new_Independent_Curve, default_independent_curve_tab_name);
-	new_Independent_Curve->tab_Name = default_independent_curve_tab_name+Locale.toString(independent_Curve_Tabs->count());
-	independent_Curve_Tabs->setTabText(independent_Curve_Tabs->count()-1, new_Independent_Curve->tab_Name + new_Independent_Curve->enlarge_Tab_Name());
+	// add new tab	
+	if(index < 0)
+	{
+		independent_Curve_Tabs->addTab(new_Independent_Curve, default_independent_curve_tab_name);
+		new_Independent_Curve->tab_Name = default_independent_curve_tab_name+Locale.toString(independent_Curve_Tabs->count());
+		independent_Curve_Tabs->setTabText(independent_Curve_Tabs->count()-1, new_Independent_Curve->tab_Name + new_Independent_Curve->enlarge_Tab_Name());
+	} else
+	{
+		independent_Curve_Tabs->insertTab(index+1, new_Independent_Curve, independent_Curve_Tabs->tabText(index) + " (copy)");
+	}
 
 	if(independent_Curve_Tabs->count()>1)
 	{
@@ -149,6 +158,8 @@ void Multilayer::add_Independent_Variables_Tab()
 	}
 	if(new_Independent_Curve->calc_Functions.if_Something_Enabled_1D()) qobject_cast<Multilayer_Approach*>(parent)->independent_Added_1D = true;
 	if(new_Independent_Curve->calc_Functions.if_Something_Enabled_2D()) qobject_cast<Multilayer_Approach*>(parent)->independent_Added_2D = true;
+
+	return new_Independent_Curve;
 }
 
 void Multilayer::change_Tab_Independent_Variables_Tab_Color(int index)
@@ -207,6 +218,33 @@ void Multilayer::rename_Independent_Variables_Tab(int tab_Index)
 	}
 }
 
+void Multilayer::independent_Tab_Context_Menu(const QPoint& pos)
+{
+	QMenu menu;
+	QAction duplicate_Action("Duplicate curve");
+	menu.addAction(&duplicate_Action);
+	connect(&duplicate_Action, &QAction::triggered, this, [=]{duplicate_Independent_Curve(pos);});
+	menu.exec(QCursor::pos());
+}
+
+void Multilayer::duplicate_Independent_Curve(const QPoint& pos)
+{
+	int old_Tab_Index = independent_Curve_Tabs->tabBar()->tabAt(pos);
+	Independent_Curve* new_Independent_Curve = add_Independent_Variables_Tab(old_Tab_Index);
+	Independent_Curve* old_Independent_Curve = qobject_cast<Independent_Curve*>(independent_Curve_Tabs->widget(old_Tab_Index));
+	*new_Independent_Curve = *old_Independent_Curve;
+	new_Independent_Curve->tab_Name += " (copy)";
+	new_Independent_Curve->refresh_Description_Label();
+
+	// reopening windows
+	if(new_Independent_Curve->measurement.measurement_Type != no_Measurement_Type)
+	{
+		global_Multilayer_Approach->reopen_Calculation_Settings();
+		global_Multilayer_Approach->reopen_Optical_Graphs_1D();
+		global_Multilayer_Approach->reopen_Optical_Graphs_2D();
+	}
+}
+
 void Multilayer::refresh_Structure_And_Independent(QObject* my_Sender)
 {
 	structure_Tree->refresh__StructureTree__Data_and_Text();
@@ -218,7 +256,7 @@ void Multilayer::refresh_Structure_And_Independent(QObject* my_Sender)
 
 //// --------------------------------------------------------------------------------------
 
-void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
+Target_Curve* Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 {
 	// window resizing
 	if(!data_Target_Profile_Frame_Vector.isEmpty())
@@ -231,8 +269,18 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 
 	QPushButton* new_Import_Button = new QPushButton("Import");
 	QLabel* new_Description_Label  = new QLabel("<no description>");
+		new_Description_Label->setContextMenuPolicy(Qt::CustomContextMenu);
 	QPushButton* new_Add_Button    = new QPushButton("Add Row");
-	QPushButton* new_Remove_Button = new QPushButton("Remove");
+//	QToolButton* new_Add_Button    = new QToolButton;	new_Add_Button   ->setText("+");
+//	QPushButton* new_Remove_Button = new QPushButton("x");//("Remove");
+	QToolButton* new_Remove_Button = new QToolButton;	new_Remove_Button->setText("x");
+		QFont remove_Font; remove_Font.setBold(true);
+		new_Remove_Button->setFont(remove_Font);
+//		QPalette remove_Palette = new_Remove_Button->palette();
+//		QColor remove_Color = QColor(226,143,102);
+//		remove_Palette.setColor(QPalette::NoRole, remove_Color);
+//		new_Remove_Button->setPalette(remove_Palette);
+		new_Remove_Button->setStyleSheet("color: white; background-color: rgb(226,143,102)");
 
 	QFrame* new_Frame = new QFrame;
 		layout_Target_Profile_With_Frame_Vector->insertWidget(index_Pressed,new_Frame);
@@ -240,9 +288,8 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 	Target_Curve* new_Target_Curve = new Target_Curve(new_Description_Label, this);
 	Target_Curve_Editor* new_Target_Curve_Editor;
 
-	add_Buttons_To_Lock.insert(index_Pressed,new_Add_Button);
-	remove_Buttons_To_Lock.insert(index_Pressed,new_Remove_Button);
 	data_Target_Profile_Frame_Vector.insert(index_Pressed,new_Frame);
+	description_Label_Vector.insert(index_Pressed,new_Description_Label);
 	target_Profiles_Vector.insert(index_Pressed, new_Target_Curve);
 
 	QHBoxLayout* new_Frame_Layout = new QHBoxLayout(new_Frame);
@@ -260,18 +307,60 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 
 	new_Import_Button->		setFixedWidth(60);
 	new_Add_Button->		setFixedWidth(63);
-	new_Remove_Button->		setFixedWidth(60);
+	new_Remove_Button->		setFixedSize(21,21);
 
 	left_Layout->addWidget(new_Import_Button);
 	left_Layout->addWidget(new_Description_Label, 0, Qt::AlignLeft);
 	right_Layout->addWidget(new_Add_Button);
-	right_Layout->addWidget(new_Remove_Button);
+	right_Layout->addWidget(new_Remove_Button,Qt::AlignHCenter);
 	new_Frame_Layout->addLayout(left_Layout, Qt::AlignLeft);
 	new_Frame_Layout->addLayout(right_Layout, Qt::AlignRight);
 
-	connect(new_Import_Button, &QPushButton::clicked, this, [=]{ open_Editor_Window (new_Target_Curve, new_Target_Curve_Editor); });
-	connect(new_Add_Button,    &QPushButton::clicked, this, [=]{ add_Target_Curve   (data_Target_Profile_Frame_Vector.indexOf(new_Frame)+1); });
-	connect(new_Remove_Button, &QPushButton::clicked, this, [=]{ remove_Target_Curve(data_Target_Profile_Frame_Vector.indexOf(new_Frame)  ); });
+	connect(new_Description_Label,&QLabel::customContextMenuRequested, this, &Multilayer::target_Curve_Context_Menu);
+	connect(new_Import_Button,	  &QPushButton::clicked, this, [=]{ open_Editor_Window (new_Target_Curve, new_Target_Curve_Editor); });
+	connect(new_Add_Button,		  &QToolButton::clicked, this, [=]{ add_Target_Curve   (data_Target_Profile_Frame_Vector.indexOf(new_Frame)+1); });
+	connect(new_Remove_Button,	  &QPushButton::clicked, this, [=]{ remove_Target_Curve(data_Target_Profile_Frame_Vector.indexOf(new_Frame)  ); });
+
+	return new_Target_Curve;
+}
+
+void Multilayer::target_Curve_Context_Menu(const QPoint& pos)
+{
+	QLabel* description_Label = qobject_cast<QLabel*>(QObject::sender());
+
+	QMenu menu;
+	QAction duplicate_Action("Duplicate curve");
+	menu.addAction(&duplicate_Action);
+	connect(&duplicate_Action, &QAction::triggered, this, [=]
+	{
+		int old_Index = description_Label_Vector.indexOf(description_Label);
+		duplicate_Target_Curve(old_Index);
+	});
+	menu.exec(QCursor::pos());
+}
+
+void Multilayer::duplicate_Target_Curve(int old_Index)
+{
+	Target_Curve* new_Target_Curve = add_Target_Curve(old_Index+1);
+	Target_Curve* old_Target_Curve = target_Profiles_Vector[old_Index];
+	*new_Target_Curve = *old_Target_Curve;
+	set_Index_To_Target_Curves();
+
+	// reopening windows
+	if(new_Target_Curve->loaded_And_Ready)
+	{
+		global_Multilayer_Approach->reopen_Calculation_Settings();
+		// 1D case
+		if(new_Target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map])
+		{
+			global_Multilayer_Approach->reopen_Optical_Graphs_1D(true, TARGET);
+		}
+		// 2D case
+		if(new_Target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
+		{
+			global_Multilayer_Approach->reopen_Optical_Graphs_2D(true, TARGET);
+		}
+	}
 }
 
 void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
@@ -279,8 +368,7 @@ void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
 	// delete frame	
 	delete data_Target_Profile_Frame_Vector[index_Pressed];
 	data_Target_Profile_Frame_Vector.removeAt(index_Pressed);
-	add_Buttons_To_Lock.removeAt(index_Pressed);
-	remove_Buttons_To_Lock.removeAt(index_Pressed);
+	description_Label_Vector.removeAt(index_Pressed);
 
 	// reopening
 	bool reopen_Windows = target_Profiles_Vector[index_Pressed]->loaded_And_Ready;
@@ -459,6 +547,11 @@ void Multilayer::set_Index_To_Target_Curves()
 		{
 			serial_Index+=1;
 			target_Profiles_Vector[i]->index = QString::number(serial_Index);
+			if(target_Profiles_Vector[i]->name.size()>0)
+			{	target_Profiles_Vector[i]->index_Name = target_Profiles_Vector[i]->index + ": " + target_Profiles_Vector[i]->name;}
+			else
+			{	target_Profiles_Vector[i]->index_Name = target_Profiles_Vector[i]->index;}
+
 			target_Profiles_Vector[i]->refresh_Description_Label();
 		}
 	}
