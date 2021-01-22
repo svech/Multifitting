@@ -1422,6 +1422,7 @@ void Data::prepare_Layer_For_Regular_Component()
 {
 	// PARAMETER
 
+	parent_Item_Type = item_Type_Regular_Aperiodic;
 	item_Enabled = true;
 ///---------------------------------------------
 ///---------------------------------------------

@@ -1772,7 +1772,7 @@ void Item_Editor::refresh_Data()
 		double coeff = length_Coefficients_Map.value(length_units);
 		double init_Period = struct_Data.period.value;
 
-		struct_Data.num_Repetition.parameter.value = Locale.toDouble(repetitions_Line_Edit->text());
+		struct_Data.num_Repetition.parameter.value = repetitions_Line_Edit->value();
 		if(!forbid_Period_Gamma)
 		{
 			struct_Data.period.value = Locale.toDouble(period_Line_Edit->text())*coeff;
@@ -1820,8 +1820,8 @@ void Item_Editor::fast_Refresh_Stack()
 	if(struct_Data.item_Type == item_Type_Multilayer && !forbid_Period_Gamma)
 	if( abs(Locale.toDouble(period_Line_Edit->text())) > DBL_MIN || abs(struct_Data.period.value) < DBL_MIN )
 	{
-		if(Locale.toInt(repetitions_Line_Edit->text())!=0 || struct_Data.num_Repetition.value() == 0)
-		{
+//		if(Locale.toInt(repetitions_Line_Edit->text())!=0 || struct_Data.num_Repetition.value() == 0)
+//		{
 			if(item->childCount()==2)
 			{
 				if( abs(Locale.toDouble(gamma_Line_Edit->text())) > DBL_MIN || abs(struct_Data.gamma.value) < DBL_MIN )
@@ -1835,7 +1835,7 @@ void Item_Editor::fast_Refresh_Stack()
 			{
 				refresh_Data();
 			}
-		}
+//		}
 	}
 }
 
@@ -1925,16 +1925,18 @@ void Item_Editor::multilayer_Or_Regular_Aperiodic_To_General_Aperiodic()
 		for(int i=0; i<old_Child_Count; i++)
 		{
 			new_Layer = item->child(i)->clone();
+			Data new_Layer_Data = new_Layer->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			new_Layer_Data.parent_Item_Type = item_Type_General_Aperiodic;
 
 			if(	struct_Data.item_Type == item_Type_Regular_Aperiodic)
 			{
-				Data new_Layer_Data = new_Layer->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 				new_Layer_Data.thickness.value    = struct_Data.regular_Components[i].components[n].thickness.value;
 				new_Layer_Data.sigma_Diffuse.value= struct_Data.regular_Components[i].components[n].sigma_Diffuse.value;
-				QVariant var;
-				var.setValue( new_Layer_Data );
-				new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 			}
+			QVariant var;
+			var.setValue( new_Layer_Data );
+			new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
 			structure_Tree->structure_Toolbar->change_IDs_Of_Subtree(new_Layer);
 			item->insertChild(item->childCount(), new_Layer);
 		}
@@ -2064,6 +2066,18 @@ void Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString t
 			item->removeChild(item->child(item->childCount()-1));
 		}
 
+		// change children's parent type to target Item Type
+		for(int i=0; i<item->childCount(); ++i)
+		{
+			Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			child.parent_Item_Type = target_Item_Type;
+
+			// save changes in children
+			QVariant var;
+			var.setValue( child );
+			item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
+
 		// set up multilayer or regular aperiodic
 		struct_Data.item_Type = target_Item_Type;
 		struct_Data.num_Repetition.parameter.value = N;
@@ -2098,6 +2112,18 @@ void Item_Editor::regular_Aperiodic_To_Multilayer()
 	if(struct_Data.regular_Components.size() == 0) { qInfo() << "Item_Editor::regular_Aperiodic_To_Multilayer  :  regular_Components.size() == 0" << endl; exit(EXIT_FAILURE);}
 	struct_Data.num_Repetition.parameter.value = struct_Data.regular_Components.first().components.size();
 	struct_Data.regular_Components.clear();
+
+	// change children's parent type to multilayer
+	for(int i=0; i<item->childCount(); ++i)
+	{
+		Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		child.parent_Item_Type = item_Type_Regular_Aperiodic;
+
+		// save changes in children
+		QVariant var;
+		var.setValue( child );
+		item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	}
 
 	// save
 	save_Data();

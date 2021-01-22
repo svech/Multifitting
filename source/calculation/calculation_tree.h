@@ -72,8 +72,7 @@ public:
 	void calculate_Unwrapped_Reflectivity(const vector<Node*>& short_Flat_Calc_Tree, Calculated_Values& calculated_Values, Unwrapped_Structure*  unwrapped_Structure, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element, QString mode);
 
 	static void print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree);
-//	void print_Flat_list(QList<Node> flat_List);
-//	void print_Item_Tree(QTreeWidgetItem* item);
+	static void print_Flat_Tree(const vector<Node*>& flat_Tree);
 
 	Multilayer* multilayer;
 	gsl_rng* r;

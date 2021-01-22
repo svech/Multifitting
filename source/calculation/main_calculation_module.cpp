@@ -290,9 +290,15 @@ void Main_Calculation_Module::calculation_With_Sampling_Spectral_Single(Calculat
 	// in each spectral sampling point we will first do angular sampling
 	auto f_Sampling_Theta_0 = [&](double lambda_Shift = 0)
 	{
-		if(single_Vector_Theta_0 == single_Theta_0)	calculation_With_Sampling_Theta_0_Single(calculation_Tree, data_Element, num_Points, calculated_Curve, lambda_Shift, R_and_T);
+		if(single_Vector_Theta_0 == single_Theta_0)
+		{
+			calculation_With_Sampling_Theta_0_Single(calculation_Tree, data_Element, num_Points, calculated_Curve, lambda_Shift, R_and_T);
+		}
 		else
-		if(single_Vector_Theta_0 == vector_Theta_0)	calculation_With_Sampling_Theta_0_Vector(calculation_Tree, data_Element, num_Points, calculated_Curve, lambda_Shift);
+		if(single_Vector_Theta_0 == vector_Theta_0)
+		{
+			calculation_With_Sampling_Theta_0_Vector(calculation_Tree, data_Element, num_Points, calculated_Curve, lambda_Shift);
+		}
 		else
 		{
 			data_Element.the_Class->calc_cos2_k(0, lambda_Shift);

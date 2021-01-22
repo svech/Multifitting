@@ -223,7 +223,7 @@ void Calculation_Tree::fill_Calc_Trees()
 			independent_Data_Element.flat_Calc_Tree.clear();
 			flatten_Tree(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.calc_Tree, independent_Data_Element.flat_Calc_Tree);
 			short_Tree(independent_Data_Element.flat_Calc_Tree, independent_Data_Element.short_Flat_Calc_Tree);
-			unwrap_Calc_Tree_Node(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.media_Node_Map_Vector);
+			unwrap_Calc_Tree_Node(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.media_Node_Map_Vector);			
 		}
 	}
 }
@@ -335,12 +335,18 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 			// if 1 period ( Regular Aperiodic, Multilayer, General Aperiodic )
 			if(chosen_Child.node->data.struct_Data.num_Repetition.value() == 1)
 			{
+				// Regular Aperiodic, Multilayer, General Aperiodic
+				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
+				{
+					calc_Tree.insert_subtree(chosen_Child, tree<Node>::child(chosen_Child,child_Index));
+				}
+				// for Multilayer and General Aperiodic
 				if(chosen_Child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic)
 				{
-					for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
-					{
-						calc_Tree.insert_subtree(chosen_Child, tree<Node>::child(chosen_Child,child_Index));
-					}
+					//for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
+					//{
+					//	calc_Tree.insert_subtree(chosen_Child, tree<Node>::child(chosen_Child,child_Index));
+					//}
 					// delete
 					{calc_Tree.erase(chosen_Child);}
 					// not delete
@@ -472,6 +478,7 @@ int Calculation_Tree::unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, 
 		Node& child_Node = child.node->data;
 		Data& child_Data = child_Node.struct_Data;
 
+		// for children of multilayer or general aperiodic
 		if(child_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 		{
 			if(child_Data.item_Type == item_Type_Ambient ||
@@ -507,6 +514,11 @@ int Calculation_Tree::unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, 
 			{
 				media_Index = unwrap_Calc_Tree_Data(child, media_Data_Map_Vector, media_Period_Index_Map_Vector, media_Index, period_Index);
 			}
+		}
+		// go 1 level deeper
+		if(child_Data.item_Type == item_Type_General_Aperiodic)
+		{
+			media_Index = unwrap_Calc_Tree_Data(child, media_Data_Map_Vector, media_Period_Index_Map_Vector, media_Index, 0);
 		}
 	}
 	return media_Index;
@@ -749,5 +761,15 @@ void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, tree<Node>
 			print_Tree(child, calc_Tree);
 		}
 	}
+}
+
+void Calculation_Tree::print_Flat_Tree(const vector<Node*>& flat_Tree)
+{
+	for(unsigned i=0; i<flat_Tree.size(); ++i)
+	{
+		const Data& child = flat_Tree[i]->struct_Data;
+		std::cout << child.item_Type.toStdString() << "\t" << child.material.toStdString() << endl;
+	}
+	std::cout << endl;
 }
 

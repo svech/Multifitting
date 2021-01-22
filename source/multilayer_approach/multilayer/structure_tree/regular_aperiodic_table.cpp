@@ -222,6 +222,8 @@ void Regular_Aperiodic_Table::read_Data_File(QString fileName)
 	int first_Different_Material_Index = -2019;
 	QString first_Different_Material = "";
 
+	double length_Coeff = length_Coefficients_Map.value(aperiodic_Settings.length_Units);
+
 	for(int n=0; n<regular_Aperiodic_Data.num_Repetition.value(); n++)
 	{
 		for(int i=0; i<regular_Aperiodic_Data.regular_Components.size(); i++)
@@ -230,9 +232,9 @@ void Regular_Aperiodic_Table::read_Data_File(QString fileName)
 
 			Data& regular_Layer = regular_Aperiodic_Data.regular_Components[i].components[n];
 
-			regular_Layer.thickness.value = thicknesses[absolute_Layer_Index];
+			regular_Layer.thickness.value = thicknesses[absolute_Layer_Index]*length_Coeff;
 			if(aperiodic_Settings.column_4 == whats_This_Sigma_Diffuse)		{
-				regular_Layer.sigma_Diffuse.value = sigmas[absolute_Layer_Index];
+				regular_Layer.sigma_Diffuse.value = sigmas[absolute_Layer_Index]*length_Coeff;
 			}
 
 			// if inconsistent
