@@ -1,5 +1,6 @@
 #include "node.h"
 #include <iostream>
+#include <boost/math/quadrature/exp_sinh.hpp>
 
 Node::Node()
 {
@@ -641,10 +642,11 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	double sigma = struct_Data.roughness_Model.sigma.value;
 	double xi =    struct_Data.roughness_Model.cor_radius.value;
 	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+	double p_Bound = 0;
 
 	specular_Debye_Waller_Weak_Factor_R.resize(num_Points,1);
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
-	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return; // if use_Common_Roughness_Function we calculate DW factor only for substrate
 	if(sigma<DBL_EPSILON) return;
 	if(!imperfections_Model.use_Roughness) return;
 
@@ -656,25 +658,27 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	}
 
 	// integration
-	vector<double> delta_Sigma_2(num_Points);
+	vector<double> sigma_2(num_Points);
+	exp_sinh<double> sigma_Integrator;
+	double termination = sqrt(std::numeric_limits<double>::epsilon()), error, L1;
 	if(imperfections_Model.common_Model == ABC_model)
 	{
-		auto f_2 = [&](double p){return 2./sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+p*p*xi*xi, alpha+0.5);};
+		auto f_2 = [&](double p){return 2./sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(p+p_Bound)*(p+p_Bound)*xi*xi, alpha+0.5);};
 		for(size_t i = 0; i<num_Points; ++i)
 		{
 			double z = -p0[i]*p0[i]*xi*xi;
 			if(abs(z)<1)
 			{
-				delta_Sigma_2[i] = 2*p0[i]*xi*sigma*sigma*tgamma(alpha+0.5) * boost::math::hypergeometric_pFq({0.5, 0.5+alpha}, {1.5}, z) / (sqrt(M_PI) * tgamma(alpha));
+				sigma_2[i] = sigma*sigma - 2*p0[i]*xi*sigma*sigma*tgamma(alpha+0.5) * boost::math::hypergeometric_pFq({0.5, 0.5+alpha}, {1.5}, z) / (sqrt(M_PI) * tgamma(alpha));
 			} else
 			{
 				if(p0[i]>DBL_MIN)
 				{
-					if(p0[i]*xi<1e2) delta_Sigma_2[i] = min(gauss_kronrod<double, 15>::integrate(f_2, 0, p0[i], 0, 1e-7), sigma*sigma);
-					else			 delta_Sigma_2[i] = sigma*sigma;
+					p_Bound = p0[i];
+					sigma_2[i] = sigma_Integrator.integrate(f_2, termination, &error, &L1);
 				} else
 				{
-					delta_Sigma_2[i] = 0;
+					sigma_2[i] = sigma*sigma;
 				}
 			}
 		}
@@ -684,24 +688,25 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 		vector<double> sorted_p0 = p0;
 		std::sort(sorted_p0.begin(), sorted_p0.end());
 		double addition = 1E-10;
-		double p_Max = sorted_p0.back() + addition;
+		double p_Min = max(sorted_p0.front() - addition,DBL_MIN);
+		double p_Max =     sorted_p0.back()  + addition;
 
 		int num_Sections = 4; // plus zero point
 		vector<int> interpoints(num_Sections);
 		int common_Size = 0;
 		for(int i=0; i<num_Sections; i++)
 		{
-			interpoints[i] = 10-2*i;
+			interpoints[i] = 20;
 			common_Size+=interpoints[i];
 		}
 		vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
 		vector<double> interpoints_Sum_Value_Vec(1+common_Size);
 
 		vector<double> starts(num_Sections); // open start
-		starts[0] = 0;
-		starts[1] = p_Max/50;
-		starts[2] = p_Max/10;
-		starts[3] = p_Max/2;
+		starts[0] = p_Min;
+		starts[1] = p_Min+(p_Max-p_Min)*0.1;
+		starts[2] = p_Min+(p_Max-p_Min)*0.30;
+		starts[3] = p_Min+(p_Max-p_Min)*0.6;
 
 		vector<double> dp(num_Sections);
 		for(int i=0; i<num_Sections-1; i++)
@@ -710,18 +715,12 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 		}
 		dp.back() = (p_Max - starts.back())/interpoints.back();
 
-		// zero point
-		{
-			interpoints_Sum_Argum_Vec[0] = 0;
-			interpoints_Sum_Value_Vec[0] = M_2_PI*sigma*sigma*xi*tgamma(1.+1/(2*alpha));
-		}
-
-		double p = 0, result = 0;
+		double p = p_Min, result = 0;
 		int counter = 1;
 		// boost integrator
-		auto f = [&](double r) {return sigma*sigma * exp(-pow(r/xi,2*alpha));};
+		auto f = [&](double r) {return 1/r * sigma*sigma * exp(-pow(r/xi,2*alpha));};
 
-		ooura_fourier_cos<double> integrator;
+		ooura_fourier_sin<double> integrator;
 		for(int sec=0; sec<num_Sections; sec++)
 		{
 			for(int i=0; i<interpoints[sec]; i++)
@@ -738,22 +737,19 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 			}
 		}
 
-		acc_PSD = gsl_interp_accel_alloc();
-		if(p_Max<10*addition) 	spline_PSD = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
-		else					spline_PSD = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
-		gsl_spline_init(spline_PSD, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
+		gsl_interp_accel* acc_Delta_Sigma_2 = gsl_interp_accel_alloc();
+		gsl_spline* spline_Delta_Sigma_2 = gsl_spline_alloc(gsl_interp_steffen, interpoints_Sum_Value_Vec.size());
+		gsl_spline_init(spline_Delta_Sigma_2, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 
-		// integration
-		auto f_2 = [&](double p){return gsl_spline_eval(spline_PSD, p, acc_PSD);};
+		// "integration"
 		for(size_t i = 0; i<num_Points; ++i)
 		{
 			if(p0[i]>DBL_MIN)
 			{
-				if(p0[i]*xi<1e2) delta_Sigma_2[i] = min(gauss_kronrod<double, 15>::integrate(f_2, 0, p0[i], 0, 1e-7), sigma*sigma);
-				else			 delta_Sigma_2[i] = sigma*sigma;
+				sigma_2[i] = sigma*sigma-gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2);
 			} else
 			{
-				delta_Sigma_2[i] = 0;
+				sigma_2[i] = sigma*sigma;
 			}
 		}
 		gsl_spline_free(spline_PSD);
@@ -762,9 +758,8 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 
 	for(size_t i = 0; i<num_Points; ++i)
 	{
-		double s2 = sigma*sigma - delta_Sigma_2[i];
 		double hi = k[i]*sin(qDegreesToRadians(angle_Theta_0[i]));
-		specular_Debye_Waller_Weak_Factor_R[i] = exp( - 4. * hi*hi * s2 );
+		specular_Debye_Waller_Weak_Factor_R[i] = exp( - 4. * hi*hi * sigma_2[i] );
 	}
 }
 
