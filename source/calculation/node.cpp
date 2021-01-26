@@ -661,6 +661,7 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	vector<double> sigma_2(num_Points);
 	exp_sinh<double> sigma_Integrator;
 	double termination = sqrt(std::numeric_limits<double>::epsilon()), error, L1;
+
 	if(imperfections_Model.common_Model == ABC_model)
 	{
 		auto f_2 = [&](double p){return 2./sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(p+p_Bound)*(p+p_Bound)*xi*xi, alpha+0.5);};
@@ -683,6 +684,7 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 			}
 		}
 	}
+
 	if(imperfections_Model.common_Model == fractal_Gauss_Model)
 	{
 		vector<double> sorted_p0 = p0;
@@ -746,14 +748,14 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 		{
 			if(p0[i]>DBL_MIN)
 			{
-				sigma_2[i] = sigma*sigma-gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2);
+				sigma_2[i] = sigma*sigma - gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2);
 			} else
 			{
 				sigma_2[i] = sigma*sigma;
 			}
 		}
-		gsl_spline_free(spline_PSD);
-		gsl_interp_accel_free(acc_PSD);
+		gsl_spline_free(spline_Delta_Sigma_2);
+		gsl_interp_accel_free(acc_Delta_Sigma_2);
 	}
 
 	for(size_t i = 0; i<num_Points; ++i)

@@ -89,8 +89,11 @@ void Menu::create_File_Menu()
 				else
 				{
 					QString path = "";
+
+					if(use_multifitting_directory) path = QDir::currentPath() + "/";
 					if(use_working_directory) path = working_directory + "/";
 					if(use_last_directory)	  path = last_directory + "/";
+
 					global_Multilayer_Approach->open(path + default_File);
 				}
 			});
