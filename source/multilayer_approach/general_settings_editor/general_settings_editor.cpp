@@ -127,11 +127,21 @@ void General_Settings_Editor::create_Calculation_Tab()
 		});
 	}
 
-	QGroupBox* approximation_Groupbox = new QGroupBox("Approximations");
-	layout->addWidget(approximation_Groupbox);
+	QGroupBox* other_Groupbox = new QGroupBox("Other");
+	layout->addWidget(other_Groupbox);
 	{
-		QGridLayout* groupbox_Layout = new QGridLayout(approximation_Groupbox);
+		QGridLayout* groupbox_Layout = new QGridLayout(other_Groupbox);
 		int row = 0;
+		//----------------------------------------------------------------------------
+		QCheckBox* use_Beam_Spot_In_Specular_Scattering_Checkbox = new QCheckBox("Use beam shape for specular peak");
+			use_Beam_Spot_In_Specular_Scattering_Checkbox->setChecked(use_beam_spot_in_specular_peak);
+		groupbox_Layout->addWidget(use_Beam_Spot_In_Specular_Scattering_Checkbox,row,0,1,2);
+		connect(use_Beam_Spot_In_Specular_Scattering_Checkbox, &QCheckBox::toggled, this, [=]
+		{
+			use_beam_spot_in_specular_peak = use_Beam_Spot_In_Specular_Scattering_Checkbox->isChecked();
+			global_Multilayer_Approach->global_Recalculate();
+		});
+		row++;
 		//----------------------------------------------------------------------------
 		QLabel* n_Max_Series_Label = new QLabel("Number of terms for DWBA, SA, CSA");
 		groupbox_Layout->addWidget(n_Max_Series_Label,row,0);
@@ -148,16 +158,6 @@ void General_Settings_Editor::create_Calculation_Tab()
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		row++;
-//		//----------------------------------------------------------------------------
-//		QCheckBox* simplified_Scattering_Weak_Factor = new QCheckBox("Simplified interlayers with scattering");
-//			simplified_Scattering_Weak_Factor->setChecked(use_Simplified_Scattering_Weak_Factor);
-//		groupbox_Layout->addWidget(simplified_Scattering_Weak_Factor,row,0,1,2);
-//		connect(simplified_Scattering_Weak_Factor, &QCheckBox::toggled, this, [=]
-//		{
-//			use_Simplified_Scattering_Weak_Factor = simplified_Scattering_Weak_Factor->isChecked();
-//			global_Multilayer_Approach->global_Recalculate();
-//		});
-//		row++;
 	}
 }
 

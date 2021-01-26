@@ -240,8 +240,7 @@ QStringList value_Types		  {"Reflectance", "Transmittance", "Absorptance", "Scat
 QStringList value_Types_Short {"R", "T", "A", "S"};											  // change enum!
 
 // distributions
-QStringList distributions			 { "Gate", "Cosine", "Gaussian", "Lorentz" };
-QStringList distributions_No_Lorentz { "Gate", "Cosine", "Gaussian" };
+QStringList distributions	{ "Gate", "Gaussian" }; //  { "Gate", "Cosine", "Gaussian", "Lorentz" };
 
 // detector types
 QStringList detectors = { "Slit", "Crystal", "Spherical", "Rectangular" };
@@ -2193,9 +2192,7 @@ void Global_Variables::distribution_Sampling(Distribution distribution, QVector<
 double Global_Variables::distribution_Function(QString function, double FWHM, double x)
 {
 	if(function == distributions[Gate])		{return distribution_Gate	 (FWHM, x);} else
-	if(function == distributions[Cosine])	{return distribution_Cosine	 (FWHM, x);} else
 	if(function == distributions[Gaussian]) {return distribution_Gaussian(FWHM, x);} else
-	if(function == distributions[Lorentz])	{return distribution_Lorentz (FWHM, x);} else
 	return -2020;
 }
 

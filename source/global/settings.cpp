@@ -428,7 +428,8 @@ bool refill_dependent_structure_table;
 bool replot_graphs_during_fitting_1D;
 //bool replot_graphs_during_fitting_2D;
 
-int n_max_series;
+int  n_max_series;
+bool use_beam_spot_in_specular_peak;
 
 bool print_1D_Data_On_Recalculation;
 bool print_2D_Data_On_Recalculation;
@@ -1358,6 +1359,7 @@ void Settings::read_General_Settings(bool reset_to_default)
 		refill_dependent_structure_table	= general_Settings.value( "refill_dependent_structure_table",		true	).toBool();
 
 		n_max_series						= general_Settings.value( "n_max_series",							5		).toInt();
+		use_beam_spot_in_specular_peak		= general_Settings.value( "use_beam_spot_in_specular_peak",			true	).toInt();
 	general_Settings.endGroup();
 
 	general_Settings.beginGroup( Interface_Tab );
@@ -1407,6 +1409,7 @@ void Settings::save_General_Settings()
 		general_Settings.setValue("refill_dependent_structure_table",	refill_dependent_structure_table	);
 
 		general_Settings.setValue("n_max_series",						n_max_series						);
+		general_Settings.setValue("use_beam_spot_in_specular_peak",		use_beam_spot_in_specular_peak		);
 	general_Settings.endGroup();
 
 	general_Settings.beginGroup( Interface_Tab );
