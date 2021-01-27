@@ -696,7 +696,20 @@ void Curve_Plot_1D::plot_All_Data()
 
 	if(plot_Options_First.rescale)
 	{
-		custom_Plot->yAxis->setRange(min_Value_Left,max_Value_Left);
+		double range = max_Value_Left - min_Value_Left;
+		double min_Value_For_Plot = min_Value_Left, max_Value_For_Plot = max_Value_Left;
+		if(plot_Options_First.y_Scale == lin_Scale)
+		{
+			min_Value_For_Plot = min_Value_Left - range * 0.05;
+			max_Value_For_Plot = max_Value_Left + range * 0.1;
+		}
+		if(plot_Options_First.y_Scale == log_Scale)
+		{
+			min_Value_For_Plot = min_Value_Left * 0.9;
+			max_Value_For_Plot = max_Value_Left * 1.1;
+		}
+
+		custom_Plot->yAxis->setRange(min_Value_For_Plot,max_Value_For_Plot);
 		custom_Plot->xAxis->setRange(argument.front(), argument.back());
 	}
 
