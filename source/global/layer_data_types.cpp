@@ -831,10 +831,12 @@ void Data::calc_Instrumental_Factor()
 
 			return Global_Variables::beam_Profile_With_Wings_Integral(maximum, FWHM, smoothing, wings_FW, wings_Intensity)-
 				   Global_Variables::beam_Profile_With_Wings_Integral(minimum, FWHM, smoothing, wings_FW, wings_Intensity);
+		} else
+		{
+			double shutter_Factor = Global_Variables::beam_Profile_With_Wings_Integral(arg_Limit, FWHM, smoothing, wings_FW, wings_Intensity)-
+									Global_Variables::beam_Profile_With_Wings_Integral(sample_Geometry.z_Position, FWHM, smoothing, wings_FW, wings_Intensity);
+			return shutter_Factor;
 		}
-		double shutter_Factor = Global_Variables::beam_Profile_With_Wings_Integral(arg_Limit, FWHM, smoothing, wings_FW, wings_Intensity)-
-								Global_Variables::beam_Profile_With_Wings_Integral(sample_Geometry.z_Position, FWHM, smoothing, wings_FW, wings_Intensity);
-		return shutter_Factor;
 	};
 
 	// calculate factor

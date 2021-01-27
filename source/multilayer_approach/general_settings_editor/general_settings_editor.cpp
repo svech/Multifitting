@@ -133,15 +133,15 @@ void General_Settings_Editor::create_Calculation_Tab()
 		QGridLayout* groupbox_Layout = new QGridLayout(other_Groupbox);
 		int row = 0;
 		//----------------------------------------------------------------------------
-		QCheckBox* use_Beam_Spot_In_Specular_Scattering_Checkbox = new QCheckBox("Use beam shape for specular peak");
-			use_Beam_Spot_In_Specular_Scattering_Checkbox->setChecked(use_beam_spot_in_specular_peak);
-		groupbox_Layout->addWidget(use_Beam_Spot_In_Specular_Scattering_Checkbox,row,0,1,2);
-		connect(use_Beam_Spot_In_Specular_Scattering_Checkbox, &QCheckBox::toggled, this, [=]
-		{
-			use_beam_spot_in_specular_peak = use_Beam_Spot_In_Specular_Scattering_Checkbox->isChecked();
-			global_Multilayer_Approach->global_Recalculate();
-		});
-		row++;
+//		QCheckBox* use_Beam_Spot_In_Specular_Scattering_Checkbox = new QCheckBox("Use beam shape for specular peak");
+//			use_Beam_Spot_In_Specular_Scattering_Checkbox->setChecked(use_beam_spot_in_specular_peak);
+//		groupbox_Layout->addWidget(use_Beam_Spot_In_Specular_Scattering_Checkbox,row,0,1,2);
+//		connect(use_Beam_Spot_In_Specular_Scattering_Checkbox, &QCheckBox::toggled, this, [=]
+//		{
+//			use_beam_spot_in_specular_peak = use_Beam_Spot_In_Specular_Scattering_Checkbox->isChecked();
+//			global_Multilayer_Approach->global_Recalculate();
+//		});
+//		row++;
 		//----------------------------------------------------------------------------
 		QLabel* n_Max_Series_Label = new QLabel("Number of terms for DWBA, SA, CSA");
 		groupbox_Layout->addWidget(n_Max_Series_Label,row,0);

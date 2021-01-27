@@ -226,7 +226,7 @@ QStringList measurement_Types {	/** 1D */			/// change enum!
 								"Offset scan",		// R-,T-Scattering vs angle, wavelength
 													/// change enum!
 								/** 2D */
-								"GISAS map"			// R-,T-Scattering vs theta & phi // from 0 or from specular direction
+								"GISAS map"			// R-,T-Scattering vs theta_a & phi // from 0 or from specular direction
 };
 
 // argument types
@@ -2126,8 +2126,8 @@ double Global_Variables::beam_Profile(double x, double FWHM, double smoothing)
 
 double Global_Variables::beam_Profile_Integral(double x, double FWHM, double smoothing)
 {
-	if(x >  0.55*FWHM+10*FWHM*smoothing) x =  0.55*FWHM+10*FWHM*smoothing;
-	if(x < -0.55*FWHM-10*FWHM*smoothing) x = -0.55*FWHM-10*FWHM*smoothing;
+	if(x >  0.7*FWHM+10*FWHM*smoothing) x =  0.7*FWHM+10*FWHM*smoothing;
+	if(x < -0.7*FWHM-10*FWHM*smoothing) x = -0.7*FWHM-10*FWHM*smoothing;
 
 	if(smoothing < DBL_EPSILON)
 	{
@@ -2141,6 +2141,14 @@ double Global_Variables::beam_Profile_Integral(double x, double FWHM, double smo
 		double denominator = 8*acosh_Value*tanh(co_Smooth);
 		return log( cosh(co_Smooth + 4*x*acosh_Value) / cosh(co_Smooth - 4*x*acosh_Value) ) / denominator;
 	}
+	return 0;
+}
+
+double Global_Variables::beam_Profile_Integral_Bounded(double x, double FWHM, double smoothing, double left_Bound, double right_Bound)
+{
+	if(x < left_Bound)						return beam_Profile_Integral(left_Bound,  FWHM, smoothing);
+	if(left_Bound <= x && x <= right_Bound) return beam_Profile_Integral(x,			  FWHM, smoothing);
+	if(x > right_Bound)						return beam_Profile_Integral(right_Bound, FWHM, smoothing);
 	return 0;
 }
 
@@ -2176,6 +2184,55 @@ double Global_Variables::beam_Profile_With_Wings_Integral(double x, double FWHM,
 		return beam_Profile_Integral(x, FWHM, smoothing);
 	}
 	return 0;
+}
+
+double Global_Variables::gate_Gate_Integral(double FWHM_a, double FWHM_b, double theta_a, double theta_b)
+{
+	double integral = -2020;
+	if(((FWHM_a == FWHM_b) && ((FWHM_a + 2*theta_a  ) == (FWHM_b + 2*theta_b))) ||
+	   ((FWHM_b <  FWHM_a) && ((FWHM_a + 2*theta_b)  > (FWHM_b + 2*theta_a  )) &&
+		((FWHM_a + 2*theta_a) >= (FWHM_b + 2*theta_b))))
+	{
+		integral = FWHM_b;
+	} else
+	if(	(FWHM_b > FWHM_a) &&
+		((FWHM_a + 2*theta_a  ) < (FWHM_b + 2*theta_b)) &&
+		((FWHM_a + 2*theta_b) < (FWHM_b + 2*theta_a  )))
+	{
+		integral = FWHM_a;
+	} else
+	if( ((FWHM_a + FWHM_b + 2*theta_a) > 2*theta_b) &&
+		((((FWHM_a + 2*theta_a) < (FWHM_b + 2*theta_b)) &&
+		((FWHM_a == FWHM_b) || (FWHM_b < FWHM_a))) || ((FWHM_b > FWHM_a) &&
+		((FWHM_a + 2*theta_b) >= (FWHM_b + 2*theta_a)))))
+	{
+		integral = 0.5*(FWHM_a + FWHM_b + 2*theta_a - 2*theta_b);
+	} else
+	if( ((FWHM_a + FWHM_b + 2*theta_b) > 2*theta_a) &&
+		(((FWHM_a == FWHM_b) &&
+		((FWHM_a + 2*theta_a) > (FWHM_b + 2*theta_b))) || ((FWHM_b < FWHM_a) &&
+		((FWHM_a + 2*theta_b) <= (FWHM_b + 2*theta_a))) || ((FWHM_b > FWHM_a) &&
+		((FWHM_a + 2*theta_a) >= (FWHM_b + 2*theta_b)))))
+	{
+		integral = 0.5*(FWHM_a + FWHM_b - 2*theta_a + 2*theta_b);
+	} else
+	{
+		integral = 0;
+	}
+	return integral;
+}
+
+double Global_Variables::gate_Gauss_Integral(double FWHM_a, double FWHM_b, double distance_ta_tb)
+{
+	// "a" Gate , "b" Gauss
+	double log_2s = sqrt(log(2));
+	double sqrt_pi_l = sqrt(M_PI/log(2));
+	return 0.25 * FWHM_b * sqrt_pi_l * (erf(log_2s*(FWHM_a-2*distance_ta_tb)/FWHM_b)+erf(log_2s*(FWHM_a+2*distance_ta_tb)/FWHM_b));
+}
+
+double Global_Variables::gauss_Gauss_Integral(double FWHM_a, double FWHM_b, double distance_ta_tb)
+{
+	return sqrt(M_PI/log(2)) / sqrt(pow(FWHM_a,-2) + pow(FWHM_b,-2)) * pow(2.,-1-4*distance_ta_tb*distance_ta_tb/(FWHM_a*FWHM_a + FWHM_b*FWHM_b));
 }
 
 void Global_Variables::distribution_Sampling(Distribution distribution, QVector<double>& positions, QVector<double>& heights)

@@ -308,8 +308,12 @@ public:
 	// beam profile
 	static double beam_Profile(double x, double FWHM, double smoothing);
 	static double beam_Profile_Integral(double x, double FWHM, double smoothing);
+	static double beam_Profile_Integral_Bounded(double x, double FWHM, double smoothing, double left_Bound, double right_Bound);
 	static double beam_Profile_With_Wings(double x, double FWHM, double smoothing, double wings_FW, double wings_Intensity);
 	static double beam_Profile_With_Wings_Integral(double x, double FWHM, double smoothing, double wings_FW, double wings_Intensity);
+	static double gate_Gate_Integral  (double FWHM_a, double FWHM_b, double theta_a, double theta_b);
+	static double gate_Gauss_Integral (double FWHM_a, double FWHM_b, double distance_ta_tb);
+	static double gauss_Gauss_Integral(double FWHM_a, double FWHM_b, double distance_ta_tb);
 
 	// resolution/distribution functions
 	static void   distribution_Sampling(Distribution distribution, QVector<double>& positions, QVector<double>& heights);
