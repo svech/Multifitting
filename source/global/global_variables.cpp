@@ -2125,21 +2125,21 @@ double Global_Variables::beam_Profile(double x, double FWHM, double smoothing)
 }
 
 double Global_Variables::beam_Profile_Integral(double x, double FWHM, double smoothing)
-{
+{	
 	if(x >  0.7*FWHM+10*FWHM*smoothing) x =  0.7*FWHM+10*FWHM*smoothing;
 	if(x < -0.7*FWHM-10*FWHM*smoothing) x = -0.7*FWHM-10*FWHM*smoothing;
 
 	if(smoothing < DBL_EPSILON)
 	{
-		if(x <=  -FWHM/2) return -FWHM/2;
-		if(-FWHM/2 < x && x < FWHM/2) return x;
-		if(x >=   FWHM/2) return  FWHM/2;
+		if(x <=  -FWHM/2) return 0;
+		if(-FWHM/2 < x && x < FWHM/2) return x+FWHM/2;
+		if(x >=   FWHM/2) return FWHM;
 	} else
 	{
 		double co_Smooth = 1./smoothing;
 		double acosh_Value = acosh(0.5*sqrt(2+M_SQRT2*sqrt(3+cosh(2*co_Smooth))))/FWHM;
 		double denominator = 8*acosh_Value*tanh(co_Smooth);
-		return log( cosh(co_Smooth + 4*x*acosh_Value) / cosh(co_Smooth - 4*x*acosh_Value) ) / denominator;
+		return FWHM/2 + log( cosh(co_Smooth + 4*x*acosh_Value) / cosh(co_Smooth - 4*x*acosh_Value) ) / denominator;
 	}
 	return 0;
 }
@@ -2175,10 +2175,11 @@ double Global_Variables::beam_Profile_With_Wings_Integral(double x, double FWHM,
 	{
 		double factor = 1.-wings_Intensity;
 		double beam_Integral_Pure_value = beam_Profile_Integral(x, FWHM, smoothing)*factor;
+		if(FWHM <= DBL_EPSILON) beam_Integral_Pure_value = 0;
 
-		if(x <=  -wings_FW/2) return -wings_Intensity*wings_FW/2 + beam_Integral_Pure_value;
-		if(-wings_FW/2 < x && x < wings_FW/2) return wings_Intensity*x + beam_Integral_Pure_value;
-		if(x >=   wings_FW/2) return  wings_Intensity*wings_FW/2 + beam_Integral_Pure_value;
+		if(x <=  -wings_FW/2) return beam_Integral_Pure_value;
+		if(-wings_FW/2 < x && x < wings_FW/2) return wings_Intensity*wings_FW/2 + wings_Intensity*x + beam_Integral_Pure_value;
+		if(x >=   wings_FW/2) return  wings_Intensity*wings_FW + beam_Integral_Pure_value;
 	} else
 	{
 		return beam_Profile_Integral(x, FWHM, smoothing);
