@@ -715,6 +715,244 @@ void Main_Calculation_Module::wrap_Curve(const vector<double>& sparse_Argument,
 	}
 }
 
+void Main_Calculation_Module::wrap_With_Specular(Calculated_Values& calculated_Values, const Data& measurement)
+{
+	vector<double> theta_0_Vec, theta_Vec, beam_Angular_Divergence_FWHM_Vec, R, max_Beam_Size_Angular_Vec;
+	if(measurement.measurement_Type == measurement_Types[Detector_Scan])	{
+		theta_Vec = measurement.detector_Theta_Angle_Vec;
+		theta_0_Vec.resize(theta_Vec.size(), measurement.beam_Theta_0_Angle_Value);
+		beam_Angular_Divergence_FWHM_Vec.resize(theta_Vec.size(),measurement.beam_Theta_0_Distribution.FWHM_distribution);
+		R.resize(theta_Vec.size(), calculated_Values.R.front());
+		max_Beam_Size_Angular_Vec.resize(theta_Vec.size(), qRadiansToDegrees(measurement.sample_Geometry.size*measurement.beam_Theta_0_Sin_Value/measurement.detector_1D.distance_To_Sample));
+	} else
+	if(measurement.measurement_Type == measurement_Types[Rocking_Curve])	{
+		theta_0_Vec = measurement.beam_Theta_0_Angle_Vec;
+		theta_Vec.resize(theta_0_Vec.size());
+		for(int i=0; i<theta_0_Vec.size(); i++)
+		{theta_Vec[i] = 2*measurement.beam_Theta_0_Specular_Position - theta_0_Vec[i];}
+		beam_Angular_Divergence_FWHM_Vec = measurement.theta_0_Resolution_Vec;
+		R = calculated_Values.R;
+		max_Beam_Size_Angular_Vec.resize(theta_Vec.size());
+		for(int i=0; i<max_Beam_Size_Angular_Vec.size(); i++)
+		{max_Beam_Size_Angular_Vec[i] = qRadiansToDegrees(measurement.sample_Geometry.size*measurement.beam_Theta_0_Sin_Vec[i]/measurement.detector_1D.distance_To_Sample);}
+	} else
+	if(measurement.measurement_Type == measurement_Types[Offset_Scan])		{
+		theta_0_Vec = measurement.beam_Theta_0_Angle_Vec;
+		theta_Vec.resize(theta_0_Vec.size());
+		for(int i=0; i<theta_0_Vec.size(); i++)
+		{theta_Vec[i] = theta_0_Vec[i] + measurement.detector_Theta_Offset;}
+		beam_Angular_Divergence_FWHM_Vec = measurement.theta_0_Resolution_Vec;
+		R = calculated_Values.R;
+		max_Beam_Size_Angular_Vec.resize(theta_0_Vec.size());
+		for(int i=0; i<max_Beam_Size_Angular_Vec.size(); i++)
+		{max_Beam_Size_Angular_Vec[i] = qRadiansToDegrees(measurement.sample_Geometry.size*measurement.beam_Theta_0_Sin_Vec[i]/measurement.detector_1D.distance_To_Sample);}
+	} else return;
+
+	// detector
+	double detector_Angular_Width_FWHM		= measurement.theta_Resolution_FWHM;
+	QString detector_Sensitivity_Function	= measurement.theta_Distribution;
+	double detector_Range_Limit = 3;
+	double(*detector_Distribution)(double, double);
+	if(detector_Sensitivity_Function == distributions[Gate])	{detector_Distribution = Global_Variables::distribution_Gate;	 detector_Range_Limit = 0.5;  } else
+	if(detector_Sensitivity_Function == distributions[Gaussian]){detector_Distribution = Global_Variables::distribution_Gaussian;detector_Range_Limit = 3;    } else return;
+
+	// beam angular divergence
+	QString beam_Angular_Divergence_Function= measurement.beam_Theta_0_Distribution.distribution_Function;
+	double beam_Angular_Divergence_Range_Limit = 2;
+	vector<double> beam_Angular_Divergence_Norm_Factor_Vec(beam_Angular_Divergence_FWHM_Vec.size(),1);
+	double(*beam_Angular_Distribution)(double, double);
+	if(beam_Angular_Divergence_Function == distributions[Gate])		{beam_Angular_Distribution = Global_Variables::distribution_Gate;	  for(size_t i=0;i<beam_Angular_Divergence_Norm_Factor_Vec.size();i++) {beam_Angular_Divergence_Norm_Factor_Vec[i] =                  1./beam_Angular_Divergence_FWHM_Vec[i];}beam_Angular_Divergence_Range_Limit = 0.5;  } else
+	if(beam_Angular_Divergence_Function == distributions[Gaussian])	{beam_Angular_Distribution = Global_Variables::distribution_Gaussian; for(size_t i=0;i<beam_Angular_Divergence_Norm_Factor_Vec.size();i++) {beam_Angular_Divergence_Norm_Factor_Vec[i] = sqrt(log(16.)/M_PI)/beam_Angular_Divergence_FWHM_Vec[i];}beam_Angular_Divergence_Range_Limit = 2;    } else return;
+
+	// beam spot
+	double beam_Spot_FWHM_Angular = qRadiansToDegrees(measurement.beam_Geometry.size			/measurement.detector_1D.distance_To_Sample);
+	double beam_Spot_Wing_Angular = qRadiansToDegrees(measurement.beam_Geometry.wings_Full_Width/measurement.detector_1D.distance_To_Sample);
+	double beam_Spot_Wings_Intensity = measurement.beam_Geometry.wings_Intensity;
+	double beam_Spot_Smoothing = measurement.beam_Geometry.smoothing;
+	double spot_Range_Main_Limit = 3;
+	double spot_Range_Wing_Limit = 0.5;
+
+	// in units of beam_Spot_FWHM_Angular
+	double arg_Limit = max(10*beam_Spot_FWHM_Angular,10*beam_Spot_Wing_Angular);
+	double spot_Norm_Factor = Global_Variables::beam_Profile_With_Wings_Integral( arg_Limit, beam_Spot_FWHM_Angular, beam_Spot_Smoothing, beam_Spot_Wing_Angular, beam_Spot_Wings_Intensity)-
+							  Global_Variables::beam_Profile_With_Wings_Integral(-arg_Limit, beam_Spot_FWHM_Angular, beam_Spot_Smoothing, beam_Spot_Wing_Angular, beam_Spot_Wings_Intensity);
+	double spot_Norm_Factor_Gate = Global_Variables::beam_Profile_With_Wings_Integral( arg_Limit, beam_Spot_FWHM_Angular, 0, beam_Spot_Wing_Angular, beam_Spot_Wings_Intensity)-
+								   Global_Variables::beam_Profile_With_Wings_Integral(-arg_Limit, beam_Spot_FWHM_Angular, 0, beam_Spot_Wing_Angular, beam_Spot_Wings_Intensity);
+
+
+	/// detector only (no spot, no divergence)
+	auto f = [&](double point_Index)
+	{
+		const double& theta   = theta_Vec  [point_Index];
+		const double& theta_0 = theta_0_Vec[point_Index];
+		return detector_Distribution(detector_Angular_Width_FWHM, theta-theta_0);
+	};
+	/// detector and angular divergence (no spot)
+	auto f_D = [&](double point_Index)
+	{
+		const double& theta   = theta_Vec  [point_Index];
+		const double& theta_0 = theta_0_Vec[point_Index];
+		double distance_t_t0 = theta - theta_0;
+		const double& beam_Angular_Divergence_FWHM = beam_Angular_Divergence_FWHM_Vec[point_Index];
+		const double& beam_Angular_Divergence_Norm_Factor = beam_Angular_Divergence_Norm_Factor_Vec[point_Index];
+
+		double left_Bound_a  = max(theta - detector_Range_Limit*detector_Angular_Width_FWHM, theta_0 - beam_Angular_Divergence_Range_Limit*beam_Angular_Divergence_FWHM);
+		double right_Bound_a = min(theta + detector_Range_Limit*detector_Angular_Width_FWHM, theta_0 + beam_Angular_Divergence_Range_Limit*beam_Angular_Divergence_FWHM);
+
+		if(left_Bound_a>=right_Bound_a) return 0.;
+
+		// specific cases
+		double integral;
+
+		if(beam_Angular_Divergence_Function == distributions[Gaussian] && detector_Sensitivity_Function == distributions[Gaussian])
+		{
+			integral = Global_Variables::gauss_Gauss_Integral(detector_Angular_Width_FWHM, beam_Angular_Divergence_FWHM, distance_t_t0);
+		} else
+		if(beam_Angular_Divergence_Function == distributions[Gaussian] && detector_Sensitivity_Function == distributions[Gate])
+		{
+			integral = Global_Variables::gate_Gauss_Integral(detector_Angular_Width_FWHM, beam_Angular_Divergence_FWHM, distance_t_t0);
+		} else
+		if(beam_Angular_Divergence_Function == distributions[Gate] && detector_Sensitivity_Function == distributions[Gaussian])
+		{
+			integral = Global_Variables::gate_Gauss_Integral(beam_Angular_Divergence_FWHM, detector_Angular_Width_FWHM, distance_t_t0);
+		} else
+		if(beam_Angular_Divergence_Function == distributions[Gate] && detector_Sensitivity_Function == distributions[Gate])
+		{
+			integral = Global_Variables::gate_Gate_Integral(detector_Angular_Width_FWHM, beam_Angular_Divergence_FWHM, theta, theta_0);
+		}
+		return beam_Angular_Divergence_Norm_Factor * integral;
+	};
+	/// detector and spot (no divergence)
+	auto f_S = [&](double point_Index, double my_Theta_0)
+	{
+		const double& theta   = theta_Vec  [point_Index];
+		const double& theta_0 = my_Theta_0;
+		double distance_t_t0 = theta - theta_0;
+		const double& max_Beam_Size_Angular = max_Beam_Size_Angular_Vec[point_Index];
+
+		double left_Bound_Wings  = max(theta - detector_Range_Limit*detector_Angular_Width_FWHM, theta_0 - spot_Range_Wing_Limit*beam_Spot_Wing_Angular);
+		double right_Bound_Wings = min(theta + detector_Range_Limit*detector_Angular_Width_FWHM, theta_0 + spot_Range_Wing_Limit*beam_Spot_Wing_Angular);
+
+		double left_Bound_i  = max(theta - detector_Range_Limit*detector_Angular_Width_FWHM, theta_0 - spot_Range_Main_Limit*beam_Spot_FWHM_Angular);
+		double right_Bound_i = min(theta + detector_Range_Limit*detector_Angular_Width_FWHM, theta_0 + spot_Range_Main_Limit*beam_Spot_FWHM_Angular);
+
+		// specific cases
+		double integral = 0;
+
+		// wings
+		if(beam_Spot_Wing_Angular > DBL_EPSILON && beam_Spot_Wings_Intensity > DBL_EPSILON && right_Bound_Wings>left_Bound_Wings)
+		{
+			double wings_Width_Angular = min(beam_Spot_Wing_Angular, max_Beam_Size_Angular);
+
+			if(detector_Sensitivity_Function == distributions[Gate])
+			{
+				integral += beam_Spot_Wings_Intensity/spot_Norm_Factor*Global_Variables::gate_Gate_Integral(detector_Angular_Width_FWHM, wings_Width_Angular, theta, theta_0);
+			} else
+			if(detector_Sensitivity_Function == distributions[Gaussian])
+			{
+				integral += beam_Spot_Wings_Intensity/spot_Norm_Factor*Global_Variables::gate_Gauss_Integral(wings_Width_Angular, detector_Angular_Width_FWHM, distance_t_t0);
+			}
+		}
+		if(beam_Spot_Wing_Angular <= DBL_EPSILON || beam_Spot_Wings_Intensity <= DBL_EPSILON)
+		{
+			beam_Spot_Wings_Intensity = 0; // for using in beam weight
+		}
+
+		// main beam
+		if(right_Bound_i>left_Bound_i)
+		{
+			if(beam_Spot_FWHM_Angular > DBL_EPSILON)
+			{
+				if(detector_Sensitivity_Function == distributions[Gate])
+				{
+					integral += (1.-beam_Spot_Wings_Intensity)/spot_Norm_Factor*(
+							Global_Variables::beam_Profile_Integral_Bounded(distance_t_t0+detector_Angular_Width_FWHM/2, beam_Spot_FWHM_Angular, beam_Spot_Smoothing, -max_Beam_Size_Angular/2, max_Beam_Size_Angular/2)
+						   -Global_Variables::beam_Profile_Integral_Bounded(distance_t_t0-detector_Angular_Width_FWHM/2, beam_Spot_FWHM_Angular, beam_Spot_Smoothing, -max_Beam_Size_Angular/2, max_Beam_Size_Angular/2)
+								);
+				} else
+				if(detector_Sensitivity_Function == distributions[Gaussian])
+				{
+//					double weight_Gate = 1-beam_Spot_Smoothing;
+//					double weight_Gauss =  beam_Spot_Smoothing;
+
+					/// use trimmed gate beam profile for Gauss detector sensitivity
+					double beam_Width_Angular = min(beam_Spot_FWHM_Angular, max_Beam_Size_Angular);
+					integral += /*weight_Gate **/(1.-beam_Spot_Wings_Intensity)/spot_Norm_Factor_Gate*Global_Variables::gate_Gauss_Integral (beam_Width_Angular, detector_Angular_Width_FWHM, distance_t_t0);
+//					integral += /*weight_Gauss**/(1.-beam_Spot_Wings_Intensity)/spot_Norm_Factor*Global_Variables::gauss_Gauss_Integral(beam_Spot_FWHM_Angular, detector_Angular_Width_FWHM, distance_t_t0);
+				}
+			}
+		}
+		return integral;
+	};
+	/// detector and spot and divergence
+	auto f_SD = [&](double point_Index)
+	{
+		const double& theta_0 = theta_0_Vec[point_Index];
+		const double& beam_Angular_Divergence_FWHM = beam_Angular_Divergence_FWHM_Vec[point_Index];
+		const double& beam_Angular_Divergence_Norm_Factor = beam_Angular_Divergence_Norm_Factor_Vec[point_Index];
+		const double& max_Beam_Size_Angular = max_Beam_Size_Angular_Vec[point_Index];
+		auto f_Divergence_and_Spot_and_Detector = [&](double theta_0_i)
+		{
+			return beam_Angular_Divergence_Norm_Factor * beam_Angular_Distribution(beam_Angular_Divergence_FWHM, theta_0_i-theta_0) * f_S(point_Index, theta_0_i);
+		};
+		double max_Beam_Range = max(spot_Range_Main_Limit*beam_Spot_FWHM_Angular,spot_Range_Wing_Limit*beam_Spot_Wing_Angular);
+		max_Beam_Range = min(max_Beam_Range, max_Beam_Size_Angular);
+
+		double left_Bound_a  = theta_0 - beam_Angular_Divergence_Range_Limit*beam_Angular_Divergence_FWHM;
+		double right_Bound_a = theta_0 + beam_Angular_Divergence_Range_Limit*beam_Angular_Divergence_FWHM;
+		if(left_Bound_a>=right_Bound_a) return 0.;
+
+		double integral = 0;
+		vector<double> interpoints(4+1);
+		interpoints[0] = left_Bound_a;
+		for(int i=1; i<interpoints.size(); i++)
+		{
+			interpoints[i] = left_Bound_a + i*(right_Bound_a-left_Bound_a)/(interpoints.size()-1);
+			integral += gauss_kronrod<double,31>::integrate(f_Divergence_and_Spot_and_Detector, interpoints[i-1], interpoints[i], 3, 1e-7);
+		}
+		return integral;
+	};
+
+	double nominal_Divergence = measurement.beam_Theta_0_Distribution.FWHM_distribution;
+	Global_Variables::parallel_For(theta_Vec.size(), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
+	{
+		Q_UNUSED(thread_Index)
+		if(nominal_Divergence>DBL_EPSILON && (beam_Spot_FWHM_Angular>DBL_EPSILON || (beam_Spot_Wing_Angular>DBL_EPSILON && beam_Spot_Wings_Intensity>DBL_EPSILON)))
+		{
+			for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
+			{
+				double integral = f_SD(point_Index);
+				calculated_Values.S_Instrumental[point_Index] += integral*R[point_Index]/measurement.footprint_Factor_Vec[point_Index];
+			}
+		}
+		if(nominal_Divergence<=DBL_EPSILON && (beam_Spot_FWHM_Angular>DBL_EPSILON || (beam_Spot_Wing_Angular>DBL_EPSILON && beam_Spot_Wings_Intensity>DBL_EPSILON)))
+		{
+			for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
+			{
+				double integral = f_S(point_Index, theta_0_Vec[point_Index]);
+				calculated_Values.S_Instrumental[point_Index] += integral*R[point_Index]/measurement.footprint_Factor_Vec[point_Index];
+			}
+		}
+		if(nominal_Divergence>DBL_EPSILON && (beam_Spot_FWHM_Angular<=DBL_EPSILON && (beam_Spot_Wing_Angular<=DBL_EPSILON || beam_Spot_Wings_Intensity<=DBL_EPSILON)))
+		{
+			for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
+			{
+				double integral = f_D(point_Index);
+				calculated_Values.S_Instrumental[point_Index] += integral*R[point_Index]/measurement.footprint_Factor_Vec[point_Index];
+			}
+		}
+		if(nominal_Divergence<=DBL_EPSILON && (beam_Spot_FWHM_Angular<=DBL_EPSILON && (beam_Spot_Wing_Angular<=DBL_EPSILON || beam_Spot_Wings_Intensity<=DBL_EPSILON)))
+		{
+			for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
+			{
+				double integral = f(point_Index);
+				calculated_Values.S_Instrumental[point_Index] += integral*R[point_Index]/measurement.footprint_Factor_Vec[point_Index];
+			}
+		}
+	});
+}
+
+// deprecated
 void Main_Calculation_Module::wrap_With_Specular_Single(Calculated_Values& calculated_Values, const Data& measurement)
 {
 	// detector
@@ -752,6 +990,8 @@ void Main_Calculation_Module::wrap_With_Specular_Single(Calculated_Values& calcu
 	double arg_Limit = max(10*beam_Spot_FWHM_Angular,10*beam_Spot_Wing_Angular);
 	double spot_Norm_Factor = Global_Variables::beam_Profile_With_Wings_Integral( arg_Limit, beam_Spot_FWHM_Angular, beam_Spot_Smoothing, beam_Spot_Wing_Angular, beam_Spot_Wings_Intensity)-
 							  Global_Variables::beam_Profile_With_Wings_Integral(-arg_Limit, beam_Spot_FWHM_Angular, beam_Spot_Smoothing, beam_Spot_Wing_Angular, beam_Spot_Wings_Intensity);
+	double spot_Norm_Factor_Gate = Global_Variables::beam_Profile_With_Wings_Integral( arg_Limit, beam_Spot_FWHM_Angular, 0, beam_Spot_Wing_Angular, beam_Spot_Wings_Intensity)-
+								   Global_Variables::beam_Profile_With_Wings_Integral(-arg_Limit, beam_Spot_FWHM_Angular, 0, beam_Spot_Wing_Angular, beam_Spot_Wings_Intensity);
 
 
 	/// detector only (no spot, no divergence)
@@ -848,7 +1088,7 @@ void Main_Calculation_Module::wrap_With_Specular_Single(Calculated_Values& calcu
 
 					/// use trimmed gate beam profile for Gauss detector sensitivity
 					double beam_Width_Angular = min(beam_Spot_FWHM_Angular, max_Beam_Size_Angular);
-					integral += /*weight_Gate **/(1.-beam_Spot_Wings_Intensity)/spot_Norm_Factor*Global_Variables::gate_Gauss_Integral (beam_Width_Angular, detector_Angular_Width_FWHM, distance_t_t0);
+					integral += /*weight_Gate **/(1.-beam_Spot_Wings_Intensity)/spot_Norm_Factor_Gate*Global_Variables::gate_Gauss_Integral (beam_Width_Angular, detector_Angular_Width_FWHM, distance_t_t0);
 //					integral += /*weight_Gauss**/(1.-beam_Spot_Wings_Intensity)/spot_Norm_Factor*Global_Variables::gauss_Gauss_Integral(beam_Spot_FWHM_Angular, detector_Angular_Width_FWHM, distance_t_t0);
 				}
 			}
@@ -918,7 +1158,6 @@ void Main_Calculation_Module::wrap_With_Specular_Single(Calculated_Values& calcu
 		}
 	});
 }
-
 void Main_Calculation_Module::wrap_With_Specular_Vector(Calculated_Values& calculated_Values, const Data& measurement)
 {
 	const vector<double>& argument = measurement.beam_Theta_0_Angle_Vec;
@@ -961,7 +1200,7 @@ void Main_Calculation_Module::wrap_With_Specular_Vector(Calculated_Values& calcu
 		}
 
 		double integral = detector_Distribution(detector_FWHM, theta-theta_0);
-		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R.front();
+		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R[point_Index];
 	};
 	/// detector and angular divergence (no spot)
 	auto f_D = [&](double point_Index)
@@ -1003,7 +1242,7 @@ void Main_Calculation_Module::wrap_With_Specular_Vector(Calculated_Values& calcu
 		{
 			integral = gauss_kronrod<double,31>::integrate(f_Divergence_and_Detector, left_Bound_a, right_Bound_a, 3, 1e-7);
 		}
-		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R.front();
+		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R[point_Index];
 	};
 	/// detector and spot (no divergence)
 	auto f_S = [&](double point_Index)
@@ -1027,7 +1266,7 @@ void Main_Calculation_Module::wrap_With_Specular_Vector(Calculated_Values& calcu
 		if(left_Bound_i>=right_Bound_i) return;
 
 		double integral = gauss_kronrod<double,31>::integrate(f_Spot_and_Detector, left_Bound_i, right_Bound_i, 3, 1e-7);
-		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R.front();
+		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R[point_Index];
 	};
 	/// detector and spot and divergence
 	auto f_SD = [&](double point_Index)
@@ -1062,7 +1301,7 @@ void Main_Calculation_Module::wrap_With_Specular_Vector(Calculated_Values& calcu
 		if(left_Bound_i>=right_Bound_i) return;
 
 		double integral = gauss_kronrod<double,31>::integrate(f_Divergence_and_Spot_and_Detector, left_Bound_i, right_Bound_i, 3, 1e-7);
-		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R.front();
+		calculated_Values.S_Instrumental[point_Index] += integral*calculated_Values.R[point_Index];
 	};
 
 	Global_Variables::parallel_For(argument.size(), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
@@ -1544,7 +1783,8 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
 			if(data_Element.calc_Functions.add_Specular_Peak)
 			{
-				wrap_With_Specular_Vector(calculated_Values, measurement);
+				wrap_With_Specular(calculated_Values, measurement);
+//				wrap_With_Specular_Vector(calculated_Values, measurement);
 			}
 		}
 	}
@@ -1581,7 +1821,8 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
 			if(data_Element.calc_Functions.add_Specular_Peak)
 			{
-				wrap_With_Specular_Single(calculated_Values, measurement);
+				wrap_With_Specular(calculated_Values, measurement);
+//				wrap_With_Specular_Single(calculated_Values, measurement);
 			}
 		}
 	}

@@ -49,6 +49,7 @@ public:
 	void single_Calculation(bool print_And_Verbose = true);
 
 	void wrap_Curve(const vector<double>& sparse_Argument, const vector<double>* sparse_Input_Curve, const vector<double>& resolution_FWHM, vector<double>* output_Sparse_Curve, QString distribution_Function);
+	void wrap_With_Specular		  (Calculated_Values& calculated_Values, const Data& measurement);
 	void wrap_With_Specular_Single(Calculated_Values& calculated_Values, const Data& measurement);
 	void wrap_With_Specular_Vector(Calculated_Values& calculated_Values, const Data& measurement);
 	void wrap_With_Specular_2D(Calculated_Values& calculated_Values, const Data& measurement);

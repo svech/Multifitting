@@ -696,12 +696,13 @@ void Curve_Plot_1D::plot_All_Data()
 
 	if(plot_Options_First.rescale)
 	{
-		double range = max_Value_Left - min_Value_Left;
+		double range = max(max_Value_Left - min_Value_Left,max_Value_Left*1E-2);
+		if(range<DBL_EPSILON) range = 1;
 		double min_Value_For_Plot = min_Value_Left, max_Value_For_Plot = max_Value_Left;
 		if(plot_Options_First.y_Scale == lin_Scale)
 		{
-			min_Value_For_Plot = min_Value_Left - range * 0.05;
-			max_Value_For_Plot = max_Value_Left + range * 0.1;
+			min_Value_For_Plot = min_Value_Left - range * 0.06;
+			max_Value_For_Plot = max_Value_Left + range * 0.06;
 		}
 		if(plot_Options_First.y_Scale == log_Scale)
 		{
