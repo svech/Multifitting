@@ -57,6 +57,29 @@ void Common_Part::create_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+		QLabel* slit_Distance_Label = new QLabel("        Distance from detector to sample");
+		detector_Type_Layout->addWidget(slit_Distance_Label,0,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		detector_Distance_SpinBox = new MyDoubleSpinBox;
+			detector_Distance_SpinBox->setAccelerated(true);
+			detector_Distance_SpinBox->setRange(0, MAX_DOUBLE);
+			detector_Distance_SpinBox->setDecimals(1);
+			detector_Distance_SpinBox->setValue(measurement.detector_1D.distance_To_Sample);
+			detector_Distance_SpinBox->setSingleStep(1);
+			detector_Distance_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			detector_Distance_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+		detector_Type_Layout->addWidget(detector_Distance_SpinBox,0,Qt::AlignLeft);
+		Global_Variables::resize_Line_Edit(detector_Distance_SpinBox);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		QLabel* mm_Distance_Label = new QLabel("mm");
+		detector_Type_Layout->addWidget(mm_Distance_Label,0,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 		detectors_Stack = new QStackedWidget;
 		if(is_Independent)
 		{
@@ -98,32 +121,6 @@ void Common_Part::create_Detector_GroupBox()
 		slit_Layout->addWidget(mm_Width_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		QLabel* spacing_Label = new QLabel("       ");
-		slit_Layout->addWidget(spacing_Label,0,Qt::AlignLeft);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		QLabel* slit_Distance_Label = new QLabel("Distance from detector to sample");
-		slit_Layout->addWidget(slit_Distance_Label,0,Qt::AlignLeft);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		slit_Distance_SpinBox = new MyDoubleSpinBox;
-			slit_Distance_SpinBox->setAccelerated(true);
-			slit_Distance_SpinBox->setRange(0, MAX_DOUBLE);
-			slit_Distance_SpinBox->setDecimals(1);
-			slit_Distance_SpinBox->setValue(measurement.detector_1D.distance_To_Sample);
-			slit_Distance_SpinBox->setSingleStep(1);
-			slit_Distance_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			slit_Distance_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		slit_Layout->addWidget(slit_Distance_SpinBox,0,Qt::AlignLeft);
-		Global_Variables::resize_Line_Edit(slit_Distance_SpinBox);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		QLabel* mm_Distance_Label = new QLabel("mm");
-		slit_Layout->addWidget(mm_Distance_Label,0,Qt::AlignLeft);
 	}
 	// crystal
 	{
@@ -203,6 +200,29 @@ void Common_Part::create_2D_Detector_GroupBox()
 			detector_Type_ComboBox->setCurrentText(measurement.detector_2D.detector_Type);
 			detector_Type_ComboBox->setFixedWidth(130);
 		detector_Type_Layout->addWidget(detector_Type_ComboBox,0,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		QLabel* slit_Distance_Label = new QLabel("        Distance from detector to sample");
+		detector_Type_Layout->addWidget(slit_Distance_Label,0,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		detector_Distance_SpinBox = new MyDoubleSpinBox;
+			detector_Distance_SpinBox->setAccelerated(true);
+			detector_Distance_SpinBox->setRange(0, MAX_DOUBLE);
+			detector_Distance_SpinBox->setDecimals(1);
+			detector_Distance_SpinBox->setValue(measurement.detector_2D.distance_To_Sample);
+			detector_Distance_SpinBox->setSingleStep(1);
+			detector_Distance_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			detector_Distance_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+		detector_Type_Layout->addWidget(detector_Distance_SpinBox,0,Qt::AlignLeft);
+		Global_Variables::resize_Line_Edit(detector_Distance_SpinBox);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		QLabel* mm_Distance_Label = new QLabel("mm");
+		detector_Type_Layout->addWidget(mm_Distance_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -914,14 +934,12 @@ void Common_Part::refresh_Curvature_Radius()
 void Common_Part::connecting()
 {
 	/// detector box
-
-	// 1D slit width
 	if( measurement.measurement_Type == measurement_Types[Specular_Scan] ||
 		measurement.measurement_Type == measurement_Types[Detector_Scan] ||
 		measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 		measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{
-		// detector type
+		// 1D detector type
 		connect(detector_Type_ComboBox, &QComboBox::currentTextChanged, this, [=]
 		{
 			measurement.detector_1D.detector_Type = detector_Type_ComboBox->currentText();
@@ -929,17 +947,17 @@ void Common_Part::connecting()
 
 			global_Multilayer_Approach->global_Recalculate();
 		});
+		// 1D detector distance
+		connect(detector_Distance_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			measurement.detector_1D.distance_To_Sample = detector_Distance_SpinBox->value();
+
+			global_Multilayer_Approach->global_Recalculate();
+		});
 		// 1D slit width
 		connect(slit_Width_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{
 			measurement.detector_1D.slit_Width = slit_Width_SpinBox->value();
-
-			global_Multilayer_Approach->global_Recalculate();
-		});
-		// 1D slit distance
-		connect(slit_Distance_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-		{
-			measurement.detector_1D.distance_To_Sample = slit_Distance_SpinBox->value();
 
 			global_Multilayer_Approach->global_Recalculate();
 		});
@@ -961,11 +979,18 @@ void Common_Part::connecting()
 	}
 	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
-		// detector type
+		// 2D detector type
 		connect(detector_Type_ComboBox, &QComboBox::currentTextChanged, this, [=]
 		{
 			measurement.detector_2D.detector_Type = detector_Type_ComboBox->currentText();
 			detectors_Stack->setCurrentIndex(detector_Type_ComboBox->findText(measurement.detector_2D.detector_Type));
+
+			global_Multilayer_Approach->global_Recalculate();
+		});
+		// 2D detector distance
+		connect(detector_Distance_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			measurement.detector_2D.distance_To_Sample = detector_Distance_SpinBox->value();
 
 			global_Multilayer_Approach->global_Recalculate();
 		});

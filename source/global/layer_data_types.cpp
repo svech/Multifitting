@@ -113,7 +113,11 @@ Data::Data(QString item_Type_Passed)
 		detector_1D.detector_Theta_Resolution.number_of_Samples = 5;// unused
 
 
-		detector_2D.detector_Type = detectors[Spherical];		
+		detector_2D.detector_Type = detectors[Spherical];
+		detector_2D.pixel_Polar_Height    = default_detector_2D_pixel_polar_height;
+		detector_2D.pixel_Azimuthal_Width = default_detector_2D_pixel_azimuthal_width;
+		detector_2D.distance_To_Sample	  = default_detector_2D_distance_to_sample;
+
 		detector_2D.detector_Theta_Resolution.FWHM_distribution = default_detector_2D_theta_resolution_FWHM;
 		detector_2D.detector_Theta_Resolution.distribution_Function = distributions[Gaussian];
 		detector_2D.detector_Theta_Resolution.coverage = 2;			// unused

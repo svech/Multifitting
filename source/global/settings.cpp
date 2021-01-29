@@ -392,8 +392,11 @@ int    default_beam_phi_0_distribution_number_of_Samples;
 
 double default_detector_1D_slit_width;
 double default_detector_1D_distance_to_sample;
-
 double default_detector_1D_theta_resolution_FWHM;
+
+double default_detector_2D_pixel_polar_height;
+double default_detector_2D_pixel_azimuthal_width;
+double default_detector_2D_distance_to_sample;
 double default_detector_2D_theta_resolution_FWHM;
 double default_detector_2D_phi_resolution_FWHM;
 
@@ -1229,8 +1232,11 @@ void Settings::read_Measurement_Default_Values(bool reset_to_default)
 
 		default_detector_1D_slit_width						= measurement_Default_Values.value( "default_detector_1D_slit_width",					0.8		).toDouble();
 		default_detector_1D_distance_to_sample				= measurement_Default_Values.value( "default_detector_1D_distance_to_sample",			300		).toDouble();
-
 		default_detector_1D_theta_resolution_FWHM			= measurement_Default_Values.value( "default_detector_1D_theta_resolution_FWHM",		0		).toDouble();
+
+		default_detector_2D_pixel_polar_height				= measurement_Default_Values.value( "default_detector_2D_pixel_polar_height",			172		).toDouble();
+		default_detector_2D_pixel_azimuthal_width			= measurement_Default_Values.value( "default_detector_2D_pixel_azimuthal_width",		172		).toDouble();
+		default_detector_2D_distance_to_sample				= measurement_Default_Values.value( "default_detector_2D_distance_to_sample",			300		).toDouble();
 		default_detector_2D_theta_resolution_FWHM			= measurement_Default_Values.value( "default_detector_2D_theta_resolution_FWHM",		0		).toDouble();
 		default_detector_2D_phi_resolution_FWHM				= measurement_Default_Values.value( "default_detector_2D_phi_resolution_FWHM",			0		).toDouble();
 
@@ -1261,9 +1267,9 @@ void Settings::save_Measurement_Default_Values()
 		measurement_Default_Values.setValue( "default_wavelength_num_points",						default_wavelength_num_points						);
 		measurement_Default_Values.setValue( "default_beam_theta_0_angle_num_points",				default_beam_theta_0_angle_num_points				);
 		measurement_Default_Values.setValue( "default_detector_theta_angle_num_points",				default_detector_theta_angle_num_points				);
-		measurement_Default_Values.setValue( "default_phi_angle_num_points",							default_phi_angle_num_points						);
+		measurement_Default_Values.setValue( "default_phi_angle_num_points",						default_phi_angle_num_points						);
 
-		measurement_Default_Values.setValue( "default_beam_theta_0_angle_specular_position",			default_beam_theta_0_angle_specular_position		);
+		measurement_Default_Values.setValue( "default_beam_theta_0_angle_specular_position",		default_beam_theta_0_angle_specular_position		);
 		measurement_Default_Values.setValue( "default_detector_theta_angle_offset",					default_detector_theta_angle_offset					);
 
 		measurement_Default_Values.setValue( "default_wavelength",									default_wavelength									);
@@ -1274,9 +1280,9 @@ void Settings::save_Measurement_Default_Values()
 		measurement_Default_Values.setValue( "default_beam_theta_0_angle_min",						default_beam_theta_0_angle_min						);
 		measurement_Default_Values.setValue( "default_beam_theta_0_angle_max",						default_beam_theta_0_angle_max						);
 
-		measurement_Default_Values.setValue( "default_detector_theta_angle",							default_detector_theta_angle						);
-		measurement_Default_Values.setValue( "default_detector_theta_angle_min",						default_detector_theta_angle_min					);
-		measurement_Default_Values.setValue( "default_detector_theta_angle_max",						default_detector_theta_angle_max					);
+		measurement_Default_Values.setValue( "default_detector_theta_angle",						default_detector_theta_angle						);
+		measurement_Default_Values.setValue( "default_detector_theta_angle_min",					default_detector_theta_angle_min					);
+		measurement_Default_Values.setValue( "default_detector_theta_angle_max",					default_detector_theta_angle_max					);
 
 		measurement_Default_Values.setValue( "default_phi_angle",									default_phi_angle									);
 		measurement_Default_Values.setValue( "default_phi_angle_min",								default_phi_angle_min								);
@@ -1297,15 +1303,18 @@ void Settings::save_Measurement_Default_Values()
 		measurement_Default_Values.setValue( "default_beam_theta_0_distribution_use_sampling",		default_beam_theta_0_distribution_use_sampling		);
 		measurement_Default_Values.setValue( "default_beam_theta_0_distribution_number_of_Samples",	default_beam_theta_0_distribution_number_of_Samples	);
 
-		measurement_Default_Values.setValue( "default_beam_phi_0_distribution_FWHM",					default_beam_phi_0_distribution_FWHM				);
-		measurement_Default_Values.setValue( "default_beam_phi_0_distribution_coverage",				default_beam_phi_0_distribution_coverage			);
-		measurement_Default_Values.setValue( "default_beam_phi_0_distribution_use_sampling",			default_beam_phi_0_distribution_use_sampling		);
+		measurement_Default_Values.setValue( "default_beam_phi_0_distribution_FWHM",				default_beam_phi_0_distribution_FWHM				);
+		measurement_Default_Values.setValue( "default_beam_phi_0_distribution_coverage",			default_beam_phi_0_distribution_coverage			);
+		measurement_Default_Values.setValue( "default_beam_phi_0_distribution_use_sampling",		default_beam_phi_0_distribution_use_sampling		);
 		measurement_Default_Values.setValue( "default_beam_phi_0_distribution_number_of_Samples",	default_beam_phi_0_distribution_number_of_Samples	);
 
 		measurement_Default_Values.setValue( "default_detector_1D_slit_width",						default_detector_1D_slit_width						);
 		measurement_Default_Values.setValue( "default_detector_1D_distance_to_sample",				default_detector_1D_distance_to_sample				);
-
 		measurement_Default_Values.setValue( "default_detector_1D_theta_resolution_FWHM",			default_detector_1D_theta_resolution_FWHM			);
+
+		measurement_Default_Values.setValue( "default_detector_2D_pixel_polar_height",				default_detector_2D_pixel_polar_height				);
+		measurement_Default_Values.setValue( "default_detector_2D_pixel_azimuthal_width",			default_detector_2D_pixel_azimuthal_width			);
+		measurement_Default_Values.setValue( "default_detector_2D_distance_to_sample",				default_detector_2D_distance_to_sample				);
 		measurement_Default_Values.setValue( "default_detector_2D_theta_resolution_FWHM",			default_detector_2D_theta_resolution_FWHM			);
 		measurement_Default_Values.setValue( "default_detector_2D_phi_resolution_FWHM",				default_detector_2D_phi_resolution_FWHM				);
 
@@ -1316,12 +1325,12 @@ void Settings::save_Measurement_Default_Values()
 		measurement_Default_Values.setValue( "default_beam_geometry_lateral_width",					default_beam_geometry_lateral_width					);
 		measurement_Default_Values.setValue( "default_beam_geometry_log_profile_plot",				default_beam_geometry_log_profile_plot				);
 
-		measurement_Default_Values.setValue( "default_sample_geometry_size",							default_sample_geometry_size						);
+		measurement_Default_Values.setValue( "default_sample_geometry_size",						default_sample_geometry_size						);
 		measurement_Default_Values.setValue( "default_sample_geometry_x_position",					default_sample_geometry_x_position					);
 		measurement_Default_Values.setValue( "default_sample_geometry_z_position",					default_sample_geometry_z_position					);
 		measurement_Default_Values.setValue( "default_sample_geometry_curvature",					default_sample_geometry_curvature					);
 
-		measurement_Default_Values.setValue( "default_polarization",									default_polarization								);
+		measurement_Default_Values.setValue( "default_polarization",								default_polarization								);
 		measurement_Default_Values.setValue( "default_background",									default_background									);
 	measurement_Default_Values.endGroup();
 }

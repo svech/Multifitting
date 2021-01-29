@@ -39,11 +39,11 @@ public:
 
 	// detector
 	QComboBox* detector_Type_ComboBox;
+	MyDoubleSpinBox* detector_Distance_SpinBox;
 	QStackedWidget* detectors_Stack;
 	QComboBox* resolution_Function_ComboBox;
 	// 1D
 	MyDoubleSpinBox* slit_Width_SpinBox;
-	MyDoubleSpinBox* slit_Distance_SpinBox;
 	MyDoubleSpinBox* crystal_Resolution_SpinBox;
 	QLabel* crystal_Resolution_Units_Label;
 	// 2D

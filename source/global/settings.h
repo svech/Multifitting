@@ -400,8 +400,11 @@ extern int    default_beam_phi_0_distribution_number_of_Samples;
 
 extern double default_detector_1D_slit_width;
 extern double default_detector_1D_distance_to_sample;
-
 extern double default_detector_1D_theta_resolution_FWHM;
+
+extern double default_detector_2D_pixel_polar_height;
+extern double default_detector_2D_pixel_azimuthal_width;
+extern double default_detector_2D_distance_to_sample;
 extern double default_detector_2D_theta_resolution_FWHM;
 extern double default_detector_2D_phi_resolution_FWHM;
 
