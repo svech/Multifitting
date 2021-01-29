@@ -160,9 +160,27 @@ void Curve_Plot_2D::create_Main_Layout()
 		});
 		connect(color_Scale->axis(), static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, [=](const QCPRange& new_Range)
 		{
-			bottom_Horizontal_Custom_Plot->yAxis->setRange(new_Range);
-			bottom_Vertical_Custom_Plot->yAxis->setRange(new_Range);
-			left_Vertical_Custom_Plot->xAxis->setRange(new_Range);
+			double max_Val = new_Range.upper;
+			double min_Val = new_Range.lower;
+			double range = max(max_Val - min_Val,max_Val*1E-2);
+			if(plot_Options.z_Scale == lin_Scale)
+			{
+				min_Val = min_Val - range * 0.06;
+				max_Val = max_Val + range * 0.06;
+			}
+			if(plot_Options.z_Scale == log_Scale)
+			{
+				min_Val = min_Val * 0.9;
+				max_Val = max_Val * 1.5;
+			}
+			bottom_Horizontal_Custom_Plot->yAxis->setRange(QCPRange(min_Val,max_Val));
+			bottom_Vertical_Custom_Plot->yAxis->setRange(QCPRange(min_Val,max_Val));
+			left_Vertical_Custom_Plot->xAxis->setRange(QCPRange(min_Val,max_Val));
+
+			// no "range margins", old style
+//			bottom_Horizontal_Custom_Plot->yAxis->setRange(new_Range);
+//			bottom_Vertical_Custom_Plot->yAxis->setRange(new_Range);
+//			left_Vertical_Custom_Plot->xAxis->setRange(new_Range);
 
 			replot_All();
 		});
@@ -696,6 +714,7 @@ void Curve_Plot_2D::plot_Data(bool rescale_Axes)
 			if(min_Val>val && (plot_Options.z_Scale == lin_Scale || val > DBL_MIN)) {min_Val = val;}
 		}
 	}
+
 	// x,y ranges
 	refresh_Axes_Range(rescale_Axes);
 	// z range
