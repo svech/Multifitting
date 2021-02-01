@@ -195,8 +195,8 @@ void Common_Part::create_2D_Detector_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		detector_Type_ComboBox = new QComboBox;
+			detector_Type_ComboBox->addItem(detectors[Matrix]);
 			detector_Type_ComboBox->addItem(detectors[Spherical]);
-			//detector_Type_ComboBox->addItem(detectors[Rectangular]);
 			detector_Type_ComboBox->setCurrentText(measurement.detector_2D.detector_Type);
 			detector_Type_ComboBox->setFixedWidth(130);
 		detector_Type_Layout->addWidget(detector_Type_ComboBox,0,Qt::AlignLeft);
@@ -233,6 +233,63 @@ void Common_Part::create_2D_Detector_GroupBox()
 		} else
 		{
 			detector_GroupBox_Layout->addWidget(detectors_Stack,0,1);
+		}
+	}
+	// matrix
+	{
+		QWidget* matrix_Page = new QWidget;
+		detectors_Stack->addWidget(matrix_Page);
+		QGridLayout* matrix_Layout = new QGridLayout(matrix_Page);
+			matrix_Layout->setContentsMargins(0,0,0,0);
+		matrix_Layout->setAlignment(Qt::AlignLeft);
+
+		// height
+		{
+			QLabel* pixel_Height_Size_Label = new QLabel("    Pixel height (polar)");
+			matrix_Layout->addWidget(pixel_Height_Size_Label,0,0,Qt::AlignLeft);
+
+			// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+			pixel_Polar_Height_SpinBox = new MyDoubleSpinBox;
+				pixel_Polar_Height_SpinBox->setAccelerated(true);
+				pixel_Polar_Height_SpinBox->setRange(0, MAX_DOUBLE);
+				pixel_Polar_Height_SpinBox->setDecimals(1);
+				pixel_Polar_Height_SpinBox->setValue(measurement.detector_2D.pixel_Polar_Height);
+//				pixel_Polar_Height_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+				pixel_Polar_Height_SpinBox->setSingleStep(1);
+				pixel_Polar_Height_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				pixel_Polar_Height_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH_SUB);
+			matrix_Layout->addWidget(pixel_Polar_Height_SpinBox,0,1,Qt::AlignLeft);
+			Global_Variables::resize_Line_Edit(pixel_Polar_Height_SpinBox);
+
+			// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+			QLabel* pixel_Polar_Height_Units_Label = new QLabel(Mu_Sym+"m");
+			matrix_Layout->addWidget(pixel_Polar_Height_Units_Label,0,2,Qt::AlignLeft);
+		}
+		// phi
+		{
+			QLabel* pixel_Width_Size_Label = new QLabel("    Pixel width (azimuthal)");
+			matrix_Layout->addWidget(pixel_Width_Size_Label,1,0,Qt::AlignLeft);
+
+			// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+			pixel_Azimuthal_Width_SpinBox = new MyDoubleSpinBox;
+				pixel_Azimuthal_Width_SpinBox->setAccelerated(true);
+				pixel_Azimuthal_Width_SpinBox->setRange(0, MAX_DOUBLE);
+				pixel_Azimuthal_Width_SpinBox->setDecimals(1);
+				pixel_Azimuthal_Width_SpinBox->setValue(measurement.detector_2D.pixel_Azimuthal_Width);
+//				pixel_Azimuthal_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+				pixel_Azimuthal_Width_SpinBox->setSingleStep(1);
+				pixel_Azimuthal_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				pixel_Azimuthal_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH_SUB);
+			matrix_Layout->addWidget(pixel_Azimuthal_Width_SpinBox,1,1,Qt::AlignLeft);
+			Global_Variables::resize_Line_Edit(pixel_Azimuthal_Width_SpinBox);
+
+			// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+			QLabel* pixel_Azimuthal_Width_Units_Label = new QLabel(Mu_Sym+"m");
+			matrix_Layout->addWidget(pixel_Azimuthal_Width_Units_Label,1,2,Qt::AlignLeft);
 		}
 	}
 	// spherical
@@ -308,8 +365,8 @@ void Common_Part::create_2D_Detector_GroupBox()
 		spherical_Layout->addWidget(resolution_Function_ComboBox,0,4,2,1,Qt::AlignLeft);
 	}
 
-	if(measurement.detector_2D.detector_Type == detectors[Spherical])	detectors_Stack->setCurrentIndex(0);
-	if(measurement.detector_2D.detector_Type == detectors[Rectangular]) detectors_Stack->setCurrentIndex(1);
+	if(measurement.detector_2D.detector_Type == detectors[Matrix])		detectors_Stack->setCurrentIndex(0);
+	if(measurement.detector_2D.detector_Type == detectors[Spherical])	detectors_Stack->setCurrentIndex(1);
 }
 
 void Common_Part::create_Footptint_GroupBox()
@@ -944,21 +1001,18 @@ void Common_Part::connecting()
 		{
 			measurement.detector_1D.detector_Type = detector_Type_ComboBox->currentText();
 			detectors_Stack->setCurrentIndex(detector_Type_ComboBox->findText(measurement.detector_1D.detector_Type));
-
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		// 1D detector distance
 		connect(detector_Distance_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{
 			measurement.detector_1D.distance_To_Sample = detector_Distance_SpinBox->value();
-
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		// 1D slit width
 		connect(slit_Width_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{
 			measurement.detector_1D.slit_Width = slit_Width_SpinBox->value();
-
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		// 1D crystal resolution
@@ -966,14 +1020,12 @@ void Common_Part::connecting()
 		{
 			double coeff = angle_Coefficients_Map.value(angular_Units);
 			measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution = crystal_Resolution_SpinBox->value()*coeff;
-
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		// resolution function
 		connect(resolution_Function_ComboBox, &QComboBox::currentTextChanged, this, [=]
 		{
 			measurement.detector_1D.detector_Theta_Resolution.distribution_Function = resolution_Function_ComboBox->currentText();
-
 			global_Multilayer_Approach->global_Recalculate();
 		});
 	}
@@ -984,14 +1036,24 @@ void Common_Part::connecting()
 		{
 			measurement.detector_2D.detector_Type = detector_Type_ComboBox->currentText();
 			detectors_Stack->setCurrentIndex(detector_Type_ComboBox->findText(measurement.detector_2D.detector_Type));
-
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		// 2D detector distance
 		connect(detector_Distance_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{
 			measurement.detector_2D.distance_To_Sample = detector_Distance_SpinBox->value();
-
+			global_Multilayer_Approach->global_Recalculate();
+		});
+		// 2D pixel polar height
+		connect(pixel_Polar_Height_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			measurement.detector_2D.pixel_Polar_Height = pixel_Polar_Height_SpinBox->value();
+			global_Multilayer_Approach->global_Recalculate();
+		});
+		// 2D pixel azimuthal width
+		connect(pixel_Azimuthal_Width_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			measurement.detector_2D.pixel_Azimuthal_Width = pixel_Azimuthal_Width_SpinBox->value();
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		// 2D theta resolution
@@ -999,7 +1061,6 @@ void Common_Part::connecting()
 		{
 			double coeff = angle_Coefficients_Map.value(angular_Units);
 			measurement.detector_2D.detector_Theta_Resolution.FWHM_distribution = theta_Resolution_SpinBox->value()*coeff;
-
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		// 2D phi resolution
@@ -1007,7 +1068,6 @@ void Common_Part::connecting()
 		{
 			double coeff = angle_Coefficients_Map.value(angular_Units);
 			measurement.detector_2D.detector_Phi_Resolution.FWHM_distribution = phi_Resolution_SpinBox->value()*coeff;
-
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		// resolution function
@@ -1015,7 +1075,6 @@ void Common_Part::connecting()
 		{
 			measurement.detector_2D.detector_Theta_Resolution.distribution_Function = resolution_Function_ComboBox->currentText();
 			measurement.detector_2D.detector_Phi_Resolution.distribution_Function = resolution_Function_ComboBox->currentText();
-
 			global_Multilayer_Approach->global_Recalculate();
 		});
 	}

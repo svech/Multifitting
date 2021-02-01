@@ -47,6 +47,8 @@ public:
 	MyDoubleSpinBox* crystal_Resolution_SpinBox;
 	QLabel* crystal_Resolution_Units_Label;
 	// 2D
+	MyDoubleSpinBox* pixel_Polar_Height_SpinBox;
+	MyDoubleSpinBox* pixel_Azimuthal_Width_SpinBox;
 	MyDoubleSpinBox* theta_Resolution_SpinBox;
 	QLabel* theta_Resolution_Units_Label;
 	MyDoubleSpinBox* phi_Resolution_SpinBox;

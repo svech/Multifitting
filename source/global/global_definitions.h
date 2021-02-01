@@ -558,8 +558,8 @@ struct Detector_1D				{ QString detector_Type;
 struct Detector_2D				{ QString detector_Type;
 
 								  // matrix
-								  double pixel_Azimuthal_Width = 100; // mcm
-								  double pixel_Polar_Height    = 100; // mcm
+								  double pixel_Azimuthal_Width = 172; // mcm
+								  double pixel_Polar_Height    = 172; // mcm
 								  double distance_To_Sample    = 300; // mm
 
 								  // spherical

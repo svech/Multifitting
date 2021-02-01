@@ -673,9 +673,31 @@ void Main_Calculation_Module::wrap_Curve(const vector<double>& sparse_Argument,
 		double weight_Accumulator = 1;
 		double weight = DBL_MIN;
 
+//		/* condition is symmetrical in both directions */
+//		double distance = 0;
+//		for(int diff_Index=1; (distance<range_Limit*resolution_FWHM[point_Index] && (point_Index+diff_Index)<sparse_Argument.size() && (point_Index-diff_Index)>=0); diff_Index++)
+//		{
+//			/* positive */
+//			int i = point_Index+diff_Index;
+//			distance = abs(sparse_Argument[i] - sparse_Argument[point_Index]);
+//			weight = distribution(resolution_FWHM[point_Index], distance);
+
+//			(*output_Sparse_Curve)[point_Index] += weight*(*sparse_Input_Curve)[i];
+//			weight_Accumulator += weight;
+
+//			/* negative */
+//			i = point_Index-diff_Index;
+//			distance = abs(sparse_Argument[i] - sparse_Argument[point_Index]);
+//			weight = distribution(resolution_FWHM[point_Index], distance);
+
+//			(*output_Sparse_Curve)[point_Index] += weight*(*sparse_Input_Curve)[i];
+//			weight_Accumulator += weight;
+//		}
+
+		/*  asymmetrical condition  */
 		/*  positive direction  */
-		double distance = 0;;
-		for(size_t i=point_Index+1; (distance<range_Limit*resolution_FWHM[point_Index] && i<sparse_Argument.size()); i++)
+		double distance = 0;
+		for(int i=point_Index+1; (distance<range_Limit*resolution_FWHM[point_Index] && i<sparse_Argument.size()); i++)
 		{
 			distance = abs(sparse_Argument[i] - sparse_Argument[point_Index]);
 			weight = distribution(resolution_FWHM[point_Index], distance);

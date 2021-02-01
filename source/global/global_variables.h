@@ -97,7 +97,7 @@ enum distributions_Enum    { Gate, Gaussian }; // { Gate, Cosine, Gaussian, Lore
 
 // detector types
 extern QStringList detectors;
-enum detectors_Enum    { Slit, Crystal, Spherical, Rectangular };
+enum detectors_Enum    { Slit, Crystal, Spherical, Matrix };
 
 
 /// -------------------------------------------------------------------------
