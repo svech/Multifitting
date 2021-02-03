@@ -332,7 +332,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 		horizontal_Layout->addWidget(box);
 
 		// switching is here
-		if(current_Row < first_Long_Row_Index) length = targets_in_Short_Row; else length = targets_in_Short_Row + 1;
+		if(current_Row < first_Long_Row_Index) {length = targets_in_Short_Row;} else {length = targets_in_Short_Row + 1;}
 		if(target_Index == targets_in_Filled_Rows+length-1)
 		{
 			targets_in_Filled_Rows += length;

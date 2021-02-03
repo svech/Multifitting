@@ -442,7 +442,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			target_Vertical_Splitter->setChildrenCollapsible(false);
 			target_Vertical_Splitter->setHandleWidth(1);
 			target_Vertical_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
-		target_Layout->addWidget(target_Vertical_Splitter);
+		target_Layout->addWidget(target_Vertical_Splitter);	
 		target_Vertical_Splitter_Vec[tab_Index] = target_Vertical_Splitter;
 
 		int num_Target_Rows = dimension == dim_1D ? multilayer->graph_Options_1D.num_Target_Graph_Rows : multilayer->graph_Options_2D.num_Target_Graph_Rows;
@@ -484,7 +484,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 				tab_Plots_2D.append(new_Curve_Plot_2D);
 				target_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot_2D);
 			}
-			if(current_Row < first_Long_Row_Index) length = graphs_in_Short_Row; else length = graphs_in_Short_Row + 1;
+			if(current_Row < first_Long_Row_Index) {length = graphs_in_Short_Row;} else {length = graphs_in_Short_Row + 1;}
 
 			if(graph_Index == graphs_in_Filled_Rows+length-1)
 			{
@@ -499,6 +499,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		// calculate total number of graphs
 		total_Number_of_Independent_Graphs[tab_Index] = 0;
 		QVector<Independent_Curve*> independent_Profiles_to_Show;
+
 		if(multilayer->enable_Calc_Independent_Curves)
 		for(int i=0; i<multilayer->independent_Curve_Tabs->count(); ++i)
 		{
@@ -526,8 +527,8 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		target_Independent_Splitter->addWidget(independent_Group_Box);
 
 		QHBoxLayout* independent_Layout = new QHBoxLayout(independent_Group_Box);
-		independent_Layout->setSpacing(0);
-		independent_Layout->setContentsMargins(0,8,0,3);
+			independent_Layout->setSpacing(0);
+			independent_Layout->setContentsMargins(0,8,0,3);
 
 		QSplitter* independent_Vertical_Splitter = new QSplitter;
 			independent_Vertical_Splitter->setOrientation(Qt::Vertical);
@@ -535,10 +536,10 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			independent_Vertical_Splitter->setHandleWidth(1);
 			independent_Vertical_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
 		independent_Layout->addWidget(independent_Vertical_Splitter);
+		independent_Vertical_Splitter_Vec[tab_Index] = independent_Vertical_Splitter;
 
 		int num_Independent_Rows = dimension == dim_1D ? multilayer->graph_Options_1D.num_Independent_Graph_Rows : multilayer->graph_Options_2D.num_Independent_Graph_Rows;
 
-		independent_Vertical_Splitter_Vec[tab_Index] = independent_Vertical_Splitter;
 		independent_Horizontal_Splitter_Vec_Vec[tab_Index].resize(num_Independent_Rows);
 		for(int row=0; row<num_Independent_Rows; row++)
 		{
@@ -576,7 +577,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 				tab_Plots_2D.append(new_Curve_Plot_2D);
 				independent_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot_2D);
 			}
-			if(current_Row < first_Long_Row_Index) length = graphs_in_Short_Row; else length = graphs_in_Short_Row + 1;
+			if(current_Row < first_Long_Row_Index) {length = graphs_in_Short_Row;} else {length = graphs_in_Short_Row + 1;}
 
 			if(graph_Index == graphs_in_Filled_Rows+length-1)
 			{

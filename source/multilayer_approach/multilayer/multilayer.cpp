@@ -196,6 +196,35 @@ void Multilayer::remove_Independent_Variables_Tab(int index)
 		delete independent_Curve;	//detele independent_Curve_Tabs->widget(index);
 		if(independent_Curve_Tabs->count()==0) add_Independent_Variables_Tab();
 
+		// correcting number of rows
+		int counter_1D_Curves = 0, counter_2D_Curves = 0;
+		for(int i=0; i<independent_Curve_Tabs->count(); i++)
+		{
+			Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(independent_Curve_Tabs->widget(i));
+
+			if( independent_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan])
+			{
+				counter_1D_Curves++;
+			}
+			if( independent_Curve->measurement.measurement_Type == measurement_Types[GISAS])
+			{
+				counter_2D_Curves++;
+			}
+		}
+		graph_Options_1D.num_Independent_Graph_Rows = min(graph_Options_1D.num_Independent_Graph_Rows,counter_1D_Curves);
+		graph_Options_1D.num_Independent_Graph_Rows = max(graph_Options_1D.num_Independent_Graph_Rows,1);
+
+		graph_Options_2D.num_Independent_Graph_Rows = min(graph_Options_2D.num_Independent_Graph_Rows,counter_2D_Curves);
+		graph_Options_2D.num_Independent_Graph_Rows = max(graph_Options_2D.num_Independent_Graph_Rows,1);
+
+		// for calculation_Settings
+		int total_Curves = counter_1D_Curves + counter_2D_Curves;
+		num_Independent_Rows = min(num_Independent_Rows,total_Curves);
+		num_Independent_Rows = max(num_Independent_Rows,1);
+
 		if(reopen_Windows)
 		{
 			global_Multilayer_Approach->reopen_Calculation_Settings();
@@ -391,6 +420,33 @@ void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
 	if(data_Target_Profile_Frame_Vector.isEmpty() && !clean)	add_Target_Curve(0);
 
 	set_Index_To_Target_Curves();
+
+	// correcting number of rows
+	int counter_1D_Curves = 0, counter_2D_Curves = 0;
+	for(Target_Curve* target_Curve : target_Profiles_Vector)
+	{
+		if( target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+			target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+			target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+			target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan])
+		{
+			counter_1D_Curves++;
+		}
+		if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS])
+		{
+			counter_2D_Curves++;
+		}
+	}
+	graph_Options_1D.num_Target_Graph_Rows = min(graph_Options_1D.num_Target_Graph_Rows,counter_1D_Curves);
+	graph_Options_1D.num_Target_Graph_Rows = max(graph_Options_1D.num_Target_Graph_Rows,1);
+
+	graph_Options_2D.num_Target_Graph_Rows = min(graph_Options_2D.num_Target_Graph_Rows,counter_2D_Curves);
+	graph_Options_2D.num_Target_Graph_Rows = max(graph_Options_2D.num_Target_Graph_Rows,1);
+
+	// for calculation_Settings
+	int total_Curves = counter_1D_Curves + counter_2D_Curves;
+	num_Target_Rows = min(num_Target_Rows,total_Curves);
+	num_Target_Rows = max(num_Target_Rows,1);
 
 	if(reopen_Windows)
 	{
