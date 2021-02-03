@@ -210,8 +210,8 @@ void Curve_Plot_1D::create_Plot_Frame_And_Scale()
 	if(plot_Options_First.x_Scale == lin_Scale)	apply_Lin_Scale("x");
 	if(plot_Options_First.x_Scale == log_Scale) apply_Log_Scale("x");
 	/// Y axis
-	if(plot_Options_First.y_Scale == lin_Scale) apply_Lin_Scale("y");
-	if(plot_Options_First.y_Scale == log_Scale) apply_Log_Scale("y");
+	if(plot_Options_Second.y_Scale == lin_Scale) apply_Lin_Scale("y");
+	if(plot_Options_Second.y_Scale == log_Scale) apply_Log_Scale("y");
 
 	// create 2 graphs + additional
 	if(custom_Plot->graphCount()!=2+additional_Curves.size())
@@ -341,13 +341,14 @@ void Curve_Plot_1D::create_Options()
 		// -------------------------------------------------
 
 		QRadioButton* lin_Y_RadioButton = new QRadioButton("Lin");
-			lin_Y_RadioButton->setChecked(plot_Options_First.y_Scale == lin_Scale);
+//			lin_Y_RadioButton->setChecked(plot_Options_First.y_Scale == lin_Scale);
+			lin_Y_RadioButton->setChecked(plot_Options_Second.y_Scale == lin_Scale);
 		options_Layout->addWidget(lin_Y_RadioButton);
 		connect(lin_Y_RadioButton, &QRadioButton::toggled, this, [=]
 		{
 			if(lin_Y_RadioButton->isChecked())
 			{
-				plot_Options_First. y_Scale = lin_Scale;
+//				plot_Options_First. y_Scale = lin_Scale;
 				plot_Options_Second.y_Scale = lin_Scale;
 			}
 			apply_Lin_Scale("y");
@@ -359,13 +360,14 @@ void Curve_Plot_1D::create_Options()
 		// -------------------------------------------------
 
 		QRadioButton* log_Y_RadioButton = new QRadioButton("Log");
-			log_Y_RadioButton->setChecked(plot_Options_First.y_Scale == log_Scale);
+//			log_Y_RadioButton->setChecked(plot_Options_First.y_Scale == log_Scale);
+			log_Y_RadioButton->setChecked(plot_Options_Second.y_Scale == log_Scale);
 		options_Layout->addWidget(log_Y_RadioButton);
 		connect(log_Y_RadioButton, &QRadioButton::toggled, this, [=]
 		{
 			if(log_Y_RadioButton->isChecked())
 			{
-				plot_Options_First. y_Scale = log_Scale;
+//				plot_Options_First. y_Scale = log_Scale;
 				plot_Options_Second.y_Scale = log_Scale;
 			}
 			apply_Log_Scale("y");
@@ -606,7 +608,7 @@ void Curve_Plot_1D::plot_All_Data()
 				}
 			}
 			plot_Data(argument, values, plot_Options_First, 0);
-			get_Min_Max_For_Graph(plot_Options_First, values, min_Value_Left, max_Value_Left);
+			get_Min_Max_For_Graph(plot_Options_Second.y_Scale, values, min_Value_Left, max_Value_Left);
 		}
 		/// calculated data
 		{
@@ -622,7 +624,7 @@ void Curve_Plot_1D::plot_All_Data()
 				for(size_t i=0; i<values.size(); i++) {values[i] = 0;}
 			}
 			plot_Data(argument, values, plot_Options_Second, 1);
-			get_Min_Max_For_Graph(plot_Options_Second, values, min_Value_Left, max_Value_Left);
+			get_Min_Max_For_Graph(plot_Options_Second.y_Scale, values, min_Value_Left, max_Value_Left);
 		}
 	}
 
@@ -691,7 +693,7 @@ void Curve_Plot_1D::plot_All_Data()
 			}
 		}
 		plot_Data(argument, values, plot_Options_First, 0);
-		get_Min_Max_For_Graph(plot_Options_First, values, min_Value_Left, max_Value_Left);
+		get_Min_Max_For_Graph(plot_Options_Second.y_Scale, values, min_Value_Left, max_Value_Left);
 	}
 
 	if(plot_Options_First.rescale)
@@ -699,12 +701,12 @@ void Curve_Plot_1D::plot_All_Data()
 		double range = max(max_Value_Left - min_Value_Left,max_Value_Left*1E-2);
 		if(range<DBL_EPSILON) range = 1;
 		double min_Value_For_Plot = min_Value_Left, max_Value_For_Plot = max_Value_Left;
-		if(plot_Options_First.y_Scale == lin_Scale)
+		if(plot_Options_Second.y_Scale == lin_Scale)
 		{
 			min_Value_For_Plot = min_Value_Left - range * 0.06;
 			max_Value_For_Plot = max_Value_Left + range * 0.06;
 		}
-		if(plot_Options_First.y_Scale == log_Scale)
+		if(plot_Options_Second.y_Scale == log_Scale)
 		{
 			min_Value_For_Plot = min_Value_Left * 0.9;
 			max_Value_For_Plot = max_Value_Left * 1.1;
@@ -914,15 +916,15 @@ void Curve_Plot_1D::change_Scatter_Size()
 	}
 }
 
-void Curve_Plot_1D::get_Min_Max_For_Graph(Plot_Options plot_Options, const vector<double>& values, double& minimum, double& maximum)
+void Curve_Plot_1D::get_Min_Max_For_Graph(QString y_Scale, const vector<double>& values, double& minimum, double& maximum)
 {
 	double local_Min = DBL_MAX;
 	double local_Max = -DBL_MAX;
 
 	for (size_t i=0; i<values.size(); ++i)
 	{
-		if(local_Max<values[i] && (plot_Options.y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Max=values[i];}
-		if(local_Min>values[i] && (plot_Options.y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Min=values[i];}
+		if(local_Max<values[i] && (y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Max=values[i];}
+		if(local_Min>values[i] && (y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Min=values[i];}
 	}
 
 	minimum = min(minimum, local_Min);

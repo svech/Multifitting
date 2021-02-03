@@ -33,7 +33,7 @@ public:
 	void show_Scatter_Size();
 	void change_Thickness();
 	void change_Scatter_Size();
-	void get_Min_Max_For_Graph(Plot_Options plot_Options, const vector<double>& values, double& minimum, double& maximum);
+	void get_Min_Max_For_Graph(QString y_Scale, const vector<double>& values, double& minimum, double& maximum);
 
 	vector<double> argument;
 	vector<double> values;

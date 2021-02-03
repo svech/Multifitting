@@ -121,13 +121,15 @@ void Fits_Selector::clear_Fits()
 void Fits_Selector::save_Trees()
 {
 	QVector<QTreeWidget*> current_Trees(global_Multilayer_Approach->multilayer_Tabs->count());
+	QVector<Imperfections_Model> current_Imperfections_Models(global_Multilayer_Approach->multilayer_Tabs->count());
 
 	for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
 		current_Trees[tab_Index] = multilayer->structure_Tree->tree;
+		current_Imperfections_Models[tab_Index] = multilayer->imperfections_Model;
 	}
-	global_Multilayer_Approach->add_Fitted_Structure(current_Trees, current_State);
+	global_Multilayer_Approach->add_Fitted_Structure(current_Trees, current_Imperfections_Models, current_State);
 }
 
 void Fits_Selector::delete_Items()
@@ -179,10 +181,11 @@ void Fits_Selector::open_Fit()
 		id_Type struct_Tree_Id = qvariant_cast<id_Type>(struct_Tree->property(id_Property));
 
 		// look for appropriate tree
-		for(QTreeWidget* loaded_Tree : fitted_Structures[index].fitted_Trees)
+		for(int fitted_Trees_Index = 0; fitted_Trees_Index<fitted_Structures[index].fitted_Trees.size(); fitted_Trees_Index++)
 		{
-			id_Type loaded_Tree_Id = qvariant_cast<id_Type>(loaded_Tree->property(id_Property));
+			QTreeWidget* loaded_Tree = fitted_Structures[index].fitted_Trees[fitted_Trees_Index];
 
+			id_Type loaded_Tree_Id = qvariant_cast<id_Type>(loaded_Tree->property(id_Property));
 			if(loaded_Tree_Id == struct_Tree_Id)
 			{
 				struct_Tree->clear();
@@ -192,6 +195,9 @@ void Fits_Selector::open_Fit()
 				}
 				struct_Tree->expandAll();
 				opened = true;
+
+				if(Global_Variables::check_Loaded_Version(1,11,6))
+				{multilayer->imperfections_Model = fitted_Structures[index].imperfections_Models[fitted_Trees_Index];}
 			}
 		}
 

@@ -3084,9 +3084,11 @@ void Main_Calculation_Module::add_Fit(QString name_Modificator, int run)
 {
 	// save new trees
 	QVector<QTreeWidget*> fitted_Trees(multilayers.size());
+	QVector<Imperfections_Model> fitted_Imperfections_Models(multilayers.size());
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		fitted_Trees[tab_Index] = calculation_Trees[tab_Index]->real_Struct_Tree;
+		fitted_Imperfections_Models[tab_Index] = multilayers[tab_Index]->imperfections_Model;
 	}
-	global_Multilayer_Approach->add_Fitted_Structure(fitted_Trees, name_Modificator, run);
+	global_Multilayer_Approach->add_Fitted_Structure(fitted_Trees, fitted_Imperfections_Models, name_Modificator, run);
 }

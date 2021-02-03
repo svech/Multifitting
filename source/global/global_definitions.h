@@ -14,7 +14,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 5
+#define VERSION_BUILD 6
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -968,6 +968,7 @@ struct Fitables					{	vector<QString> struct_Names;		// names of structures
 
 struct Fitted_Structure			{	QString name;
 									QVector<QTreeWidget*> fitted_Trees;
+									QVector<Imperfections_Model> imperfections_Models;
 								};
 
 struct Aperiodic_Settings

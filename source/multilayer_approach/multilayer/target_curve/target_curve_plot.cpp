@@ -182,7 +182,7 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_1D()
 			if(lin_Radio_Button->isChecked())
 			{
 				target_Curve->plot_Options_Experimental.y_Scale = lin_Scale;
-				target_Curve->plot_Options_Calculated.y_Scale = lin_Scale;
+//				target_Curve->plot_Options_Calculated.y_Scale = lin_Scale;
 			}
 			create_Plot_Frame_And_Scale_1D();
 			plot_Data_1D();
@@ -199,7 +199,7 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_1D()
 			if(log_Radio_Button->isChecked())
 			{
 				target_Curve->plot_Options_Experimental.y_Scale = log_Scale;
-				target_Curve->plot_Options_Calculated.y_Scale = log_Scale;
+//				target_Curve->plot_Options_Calculated.y_Scale = log_Scale;
 			}
 			create_Plot_Frame_And_Scale_1D();
 			plot_Data_1D();

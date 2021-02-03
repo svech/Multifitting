@@ -258,16 +258,18 @@ void Multilayer_Approach::rename_Multilayer(int tab_Index)
 	}
 }
 
-void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying, QString name_Modificator, int run)
+void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying, QVector<Imperfections_Model>& imperfections_Models_for_Copying, QString name_Modificator, int run)
 {
 	// new instance for storing
 	Fitted_Structure new_Fitted_Structure;
 
 	// copy trees
 	new_Fitted_Structure.fitted_Trees.resize(fitted_Trees_for_Copying.size());
+	new_Fitted_Structure.imperfections_Models.resize(imperfections_Models_for_Copying.size());
 
 	for(int tab_Index=0; tab_Index<fitted_Trees_for_Copying.size(); ++tab_Index)
 	{
+		/// trees
 		new_Fitted_Structure.fitted_Trees[tab_Index] = new QTreeWidget(this);
 		QTreeWidget* copy = new_Fitted_Structure.fitted_Trees[tab_Index];
 		QTreeWidget* old  = fitted_Trees_for_Copying[tab_Index];
@@ -281,6 +283,9 @@ void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Tre
 		{
 			copy->addTopLevelItem(old->topLevelItem(child_Index)->clone());
 		}
+
+		/// imperfections
+		new_Fitted_Structure.imperfections_Models[tab_Index] = imperfections_Models_for_Copying[tab_Index];
 	}
 
 	// generate name
@@ -1016,19 +1021,19 @@ void Multilayer_Approach::open(QString filename)
 
 		/// graph options
 		if(Global_Variables::check_Loaded_Version(1,9,3))
-		{in >> multilayer->graph_Options_1D;}	              // since 1.9.3
+		{in >> multilayer->graph_Options_1D;}	            // since 1.9.3
 
 		/// profile plot
 		if(Global_Variables::check_Loaded_Version(1,10,2))
-		{in >> multilayer->profile_Plot_Options;}	  // since 1.10.2
+		{in >> multilayer->profile_Plot_Options;}			// since 1.10.2
 
 		/// discretization
 		if(Global_Variables::check_Loaded_Version(1,10,2))
-		{in >> multilayer->discretization_Parameters;}	  // since 1.10.2
+		{in >> multilayer->discretization_Parameters;}		// since 1.10.2
 
 		/// roughness and other
 		if(Global_Variables::check_Loaded_Version(1,11,0))
-		{in >> multilayer->imperfections_Model;}	  // since 1.11.0
+		{in >> multilayer->imperfections_Model;}			// since 1.11.0
 		else
 		{
 			for(int ii=0; ii<multilayer->imperfections_Model.use_Func.size(); ii++)
@@ -1079,13 +1084,21 @@ void Multilayer_Approach::open(QString filename)
 
 			// clear existing trees and create empty trees
 			fitted_Structure.fitted_Trees.clear();
+			fitted_Structure.imperfections_Models.clear();
+
 			fitted_Structure.fitted_Trees.resize(num_Trees);
+			fitted_Structure.imperfections_Models.resize(num_Trees);
 
 			// load structure trees
 			for(int tree_Index=0;  tree_Index<num_Trees; ++tree_Index)
 			{
+				// trees
 				fitted_Structure.fitted_Trees[tree_Index] = new QTreeWidget(this);
 				Global_Variables::deserialize_Tree(in, fitted_Structure.fitted_Trees[tree_Index]);
+
+				// imperfections
+				if(Global_Variables::check_Loaded_Version(1,11,6))
+				{in >> fitted_Structure.imperfections_Models[tree_Index];}	// since 1.11.6
 			}
 		}
 	}
@@ -1328,9 +1341,13 @@ void Multilayer_Approach::save(QString filename)
 			out << fitted_Structure.fitted_Trees.size();
 
 			// save structure trees
-			for(QTreeWidget* treee : fitted_Structure.fitted_Trees)
+			for(int tree_Index =0; tree_Index<fitted_Structure.fitted_Trees.size(); tree_Index++)
 			{
-				Global_Variables::serialize_Tree(out, treee);
+				// trees
+				Global_Variables::serialize_Tree(out, fitted_Structure.fitted_Trees[tree_Index]);
+
+				// imperfections
+				out << fitted_Structure.imperfections_Models[tree_Index];
 			}
 		}
 	}
