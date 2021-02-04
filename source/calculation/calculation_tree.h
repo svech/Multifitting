@@ -66,7 +66,7 @@ public:
 	void calculate_1_Curve(Data_Element<Type>& data_Element);
 
 	void calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree, const Data& measurement, QString mode);
-	void clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, QString mode);
+	void clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, const Data& measurement, QString mode);
 
 	void calculate_Unwrapped_Structure   (const Calc_Functions& calc_Functions, const vector<Node*>& media_Node_Map_Vector, const vector<Data*>& media_Data_Map_Vector, const vector<int>& media_Period_Index_Map_Vector, const Data& measurement, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);
 	void calculate_Unwrapped_Reflectivity(const vector<Node*>& short_Flat_Calc_Tree, Calculated_Values& calculated_Values, Unwrapped_Structure*  unwrapped_Structure, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element, QString mode);

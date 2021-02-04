@@ -1036,7 +1036,7 @@ QString Data::get_Composed_Material()
 
 double Data::average_Layer_density() const
 {
-	if(fluctuations_Model.is_Used)
+	if(fluctuations_Model.is_Enabled && fluctuations_Model.is_Used && thickness.value>DBL_EPSILON)
 	{
 		// particle shape
 		double particle_Volume = 0;

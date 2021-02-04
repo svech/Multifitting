@@ -2894,6 +2894,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 					measurement.measurement_Type == measurement_Types[Offset_Scan] )
 				{
+//					if(point_Index==0) qInfo() << "Unwrapped_Reflection::calc_Specular_1_Point_1_Thread  :  is not done" << endl;
 					// TODO
 				}
 				if( measurement.measurement_Type == measurement_Types[GISAS_Map] )

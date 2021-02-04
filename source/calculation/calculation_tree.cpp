@@ -602,7 +602,7 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QStrin
 //	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 //	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-	clear_Spline_1_Tree(data_Element.short_Flat_Calc_Tree, mode);
+	clear_Spline_1_Tree(data_Element.short_Flat_Calc_Tree, data_Element.the_Class->measurement, mode);
 }
 template void Calculation_Tree::calculate_1_Kind<Independent_Curve>(Data_Element<Independent_Curve>&, QString);
 template void Calculation_Tree::calculate_1_Kind<Target_Curve>	   (Data_Element<Target_Curve>&, QString);
@@ -643,7 +643,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 		}
 	}
 }
-void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, QString mode)
+void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, const Data& measurement, QString mode)
 {
 	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
 	{
@@ -656,7 +656,7 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 			if(multilayer->imperfections_Model.use_Fluctuations)
 			{
 				// TODO when 2D, when 1D
-				short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D(multilayer->imperfections_Model);
+				short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D(measurement, multilayer->imperfections_Model);
 			}
 		}
 	}

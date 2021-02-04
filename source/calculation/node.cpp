@@ -1010,6 +1010,8 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	if(!struct_Data.fluctuations_Model.is_Used) return;
 	if(struct_Data.fluctuations_Model.particle_Interference_Function != radial_Paracrystal) return;
 	if(struct_Data.item_Type != item_Type_Layer ) return;
+	if(measurement.measurement_Type != measurement_Types[GISAS]) return;
+
 
 	// in other cases ( layer with radial paracrystal ) go further
 
@@ -1401,12 +1403,13 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	gsl_spline_init(spline_G2, q_Vec.data(), G2_Vec.data(), q_Vec.size());
 }
 
-void Node::clear_Spline_G2_2D(const Imperfections_Model& imperfections_Model)
+void Node::clear_Spline_G2_2D(const Data& measurement, const Imperfections_Model& imperfections_Model)
 {
 	if(!imperfections_Model.use_Fluctuations) return;
 	if(!struct_Data.fluctuations_Model.is_Used) return;
 	if(struct_Data.fluctuations_Model.particle_Interference_Function != radial_Paracrystal) return;
 	if(struct_Data.item_Type != item_Type_Layer ) return;
+	if(measurement.measurement_Type != measurement_Types[GISAS]) return;
 
 	gsl_spline_free(spline_G2);
 	gsl_interp_accel_free(acc_G2);
