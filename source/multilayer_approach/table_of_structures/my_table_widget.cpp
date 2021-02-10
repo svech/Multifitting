@@ -7,10 +7,12 @@ My_Table_Widget::My_Table_Widget(int rows,
 	table_Of_Structures(table_Of_Structures),
 	QTableWidget(parent)
 {
+	horizontalHeader()->setMinimumSectionSize(structure_table_width_of_empty_columns);
+
 	verticalHeader()->setVisible(false);
 	horizontalHeader()->setVisible(false);
-	horizontalHeader()->setDisabled(true);
 	verticalHeader()->setDisabled(true);
+	horizontalHeader()->setDisabled(true);
 	setSelectionMode(QAbstractItemView::NoSelection);
 	setAttribute(Qt::WA_DeleteOnClose);
 

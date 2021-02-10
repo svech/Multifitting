@@ -34,6 +34,7 @@ extern int structure_table_x_corner;
 extern int structure_table_y_corner;
 extern int structure_table_width;
 extern int structure_table_height;
+extern int structure_table_width_of_empty_columns;
 
 // regular aperiodic table window geometry
 extern int regular_aperiodic_table_x_corner;

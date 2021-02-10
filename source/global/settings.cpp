@@ -28,6 +28,7 @@ int structure_table_x_corner;
 int structure_table_y_corner;
 int structure_table_width;
 int structure_table_height;
+int structure_table_width_of_empty_columns;
 
 // regular aperiodic table window geometry
 int regular_aperiodic_table_x_corner;
@@ -493,10 +494,11 @@ void Settings::read_Windows_Geometry_Settings(bool reset_to_default)
 	windows_Geometry_Settings.endGroup();
 
 	windows_Geometry_Settings.beginGroup( Structure_Table_Window_Geometry );
-		structure_table_x_corner	= windows_Geometry_Settings.value( "structure_table_x_corner",	500 ).toInt();
-		structure_table_y_corner	= windows_Geometry_Settings.value( "structure_table_y_corner",	200 ).toInt();
-		structure_table_width		= windows_Geometry_Settings.value( "structure_table_width",		1050).toInt();
-		structure_table_height		= windows_Geometry_Settings.value( "structure_table_height",	700 ).toInt();
+		structure_table_x_corner				= windows_Geometry_Settings.value( "structure_table_x_corner",				500 ).toInt();
+		structure_table_y_corner				= windows_Geometry_Settings.value( "structure_table_y_corner",				200 ).toInt();
+		structure_table_width					= windows_Geometry_Settings.value( "structure_table_width",					1050).toInt();
+		structure_table_height					= windows_Geometry_Settings.value( "structure_table_height",				700 ).toInt();
+		structure_table_width_of_empty_columns	= windows_Geometry_Settings.value( "structure_table_width_of_empty_columns",24  ).toInt();
 	windows_Geometry_Settings.endGroup();
 
 	windows_Geometry_Settings.beginGroup( Regular_Aperiodic_Table_Window_Geometry );
@@ -577,10 +579,11 @@ void Settings::save_Windows_Geometry_Settings()
 	windows_Geometry_Settings.endGroup();
 
 	windows_Geometry_Settings.beginGroup( Structure_Table_Window_Geometry );
-		windows_Geometry_Settings.setValue( "structure_table_x_corner",		structure_table_x_corner);
-		windows_Geometry_Settings.setValue( "structure_table_y_corner",		structure_table_y_corner);
-		windows_Geometry_Settings.setValue( "structure_table_width",		structure_table_width	);
-		windows_Geometry_Settings.setValue( "structure_table_height",		structure_table_height	);
+		windows_Geometry_Settings.setValue( "structure_table_x_corner",					structure_table_x_corner				);
+		windows_Geometry_Settings.setValue( "structure_table_y_corner",					structure_table_y_corner				);
+		windows_Geometry_Settings.setValue( "structure_table_width",					structure_table_width					);
+		windows_Geometry_Settings.setValue( "structure_table_height",					structure_table_height					);
+		windows_Geometry_Settings.setValue( "structure_table_width_of_empty_columns",	structure_table_width_of_empty_columns	);
 	windows_Geometry_Settings.endGroup();
 
 	windows_Geometry_Settings.beginGroup( Regular_Aperiodic_Table_Window_Geometry );

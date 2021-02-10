@@ -1983,17 +1983,19 @@ void Table_Of_Structures::disable_enable_Multilayers(My_Table_Widget* table, QTr
 
 void Table_Of_Structures::fit_Column(QTableWidget* table, int start_Width, int current_Column)
 {
-	// fit column
 	int max_Width = start_Width;
 	for(int row = 0; row<table->rowCount(); ++row)
 	{
 		QLineEdit* current_Line_Edit = qobject_cast<QLineEdit*>(table->cellWidget(row, current_Column));
 		MyDoubleSpinBox* current_Spin_Box = qobject_cast<MyDoubleSpinBox*>(table->cellWidget(row, current_Column));
 		QCheckBox* current_CheckBox = qobject_cast<QCheckBox*>(table->cellWidget(row, current_Column));
-
 		QLabel* current_Label = qobject_cast<QLabel*>(table->cellWidget(row, current_Column));
+
 		bool fit_Labels = false;
-		if(current_Label) fit_Labels = current_Label->property(fit_Column_Property).toBool();
+		if(current_Label)
+		{
+			fit_Labels = current_Label->property(fit_Column_Property).toBool();
+		}
 
 		bool not_Fit_Spinbox = false;
 		if(current_Spin_Box) not_Fit_Spinbox = current_Spin_Box->property(fit_Column_Property).toBool();
