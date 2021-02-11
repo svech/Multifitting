@@ -662,7 +662,7 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	exp_sinh<double> sigma_Integrator;
 	double termination = sqrt(std::numeric_limits<double>::epsilon()), error, L1;
 
-	if(imperfections_Model.common_Model == ABC_model)
+	if(imperfections_Model.PSD_Model == ABC_model)
 	{
 		auto f_2 = [&](double p){return 2./sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(p+p_Bound)*(p+p_Bound)*xi*xi, alpha+0.5);};
 		for(size_t i = 0; i<num_Points; ++i)
@@ -685,7 +685,7 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 		}
 	}
 
-	if(imperfections_Model.common_Model == fractal_Gauss_Model)
+	if(imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
 		vector<double> sorted_p0 = p0;
 		std::sort(sorted_p0.begin(), sorted_p0.end());
@@ -768,7 +768,7 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imperfections_Model& imperfections_Model)
 {
 	if(imperfections_Model.approximation != PT_approximation) return;
-	if(imperfections_Model.common_Model != fractal_Gauss_Model) return;
+	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
 	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
 
@@ -963,7 +963,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 void Node::clear_Spline_PSD_Fractal_Gauss(const Imperfections_Model& imperfections_Model)
 {
 	if(imperfections_Model.approximation != PT_approximation) return;
-	if(imperfections_Model.common_Model != fractal_Gauss_Model) return;
+	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
 	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
 

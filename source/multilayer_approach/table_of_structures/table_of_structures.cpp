@@ -1052,8 +1052,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if(struct_Data.item_Type == item_Type_Substrate) {show_Sigma = true;}
 				if( struct_Data.item_Type == item_Type_Layer)
 				{
-					if((multilayer->imperfections_Model.common_Model == ABC_model ||
-						multilayer->imperfections_Model.common_Model == fractal_Gauss_Model) &&
+					if((multilayer->imperfections_Model.PSD_Model == ABC_model ||
+						multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model) &&
 						multilayer->imperfections_Model.use_Common_Roughness_Function == false)
 					{
 						show_Sigma = true;
@@ -1073,7 +1073,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 				// sigma roughness step
 				if(!steps_Are_Done_Sigma)
-				if(multilayer->imperfections_Model.common_Model != linear_Growth_and_ABC_Model)
+				if(multilayer->imperfections_Model.PSD_Model != linear_Growth_and_ABC_Model)
 				{
 					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Sigma_Sym+" ["+length_units+"]");
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
@@ -1091,8 +1091,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if(struct_Data.item_Type == item_Type_Substrate) {show_Cor_Radius = true;}
 				if( struct_Data.item_Type == item_Type_Layer)
 				{
-					if((multilayer->imperfections_Model.common_Model == ABC_model ||
-						multilayer->imperfections_Model.common_Model == fractal_Gauss_Model) &&
+					if((multilayer->imperfections_Model.PSD_Model == ABC_model ||
+						multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model) &&
 						multilayer->imperfections_Model.use_Common_Roughness_Function == false)
 					{
 						show_Cor_Radius = true;
@@ -1129,7 +1129,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				if( struct_Data.item_Type == item_Type_Layer)
 				{
-					if(multilayer->imperfections_Model.common_Model == linear_Growth_and_ABC_Model)
+					if(multilayer->imperfections_Model.PSD_Model == linear_Growth_and_ABC_Model)
 					{
 						show_Omega = true;
 					}
@@ -1172,7 +1172,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 			if(show_Mu)
 			{
-				if(multilayer->imperfections_Model.common_Model != linear_Growth_and_ABC_Model) current_Column+=2;
+				if(multilayer->imperfections_Model.PSD_Model != linear_Growth_and_ABC_Model) current_Column+=2;
 				QString whats_This = whats_This_Linear_PSD_Exponenta_Mu;
 				add_Columns			(new_Table, current_Column+1);
 				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Mu_Sym+" ["+length_units+"]");
@@ -1201,7 +1201,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if( struct_Data.item_Type == item_Type_Substrate) {show_Alpha = true;}
 				if( struct_Data.item_Type == item_Type_Layer)
 				{
-					if(	multilayer->imperfections_Model.common_Model == linear_Growth_and_ABC_Model ||
+					if(	multilayer->imperfections_Model.PSD_Model == linear_Growth_and_ABC_Model ||
 						multilayer->imperfections_Model.use_Common_Roughness_Function == false)
 					{
 						show_Alpha = true;
@@ -1242,7 +1242,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 						current_Column+=6;
 					}
 					if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation &&
-						multilayer->imperfections_Model.common_Model != linear_Growth_and_ABC_Model )
+						multilayer->imperfections_Model.PSD_Model != linear_Growth_and_ABC_Model )
 					{
 						add_Columns	(new_Table, current_Column+1);
 						current_Column+=2;
@@ -1594,7 +1594,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			new_Table->setCellWidget(1, first_Roughness_Column, approximation_Label);
 
 			// row 2
-			QLabel* model_Label = new QLabel(multilayer->imperfections_Model.common_Model);
+			QLabel* model_Label = new QLabel(multilayer->imperfections_Model.PSD_Model);
 				model_Label->setAlignment(Qt::AlignCenter);
 				model_Label->setFont(QFont(model_Label->font().family(), 10, QFont::Bold));
 			new_Table->setSpan(2,first_Roughness_Column,1,last_Roughness_Column-first_Roughness_Column+1);
@@ -1752,31 +1752,35 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	// PARAMETER
 
 	// optical properties
-	if(whats_This == whats_This_Absolute_Density)			{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.absolute_Density;			}
-	if(whats_This == whats_This_Relative_Density)			{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.relative_Density;			}
+	if(whats_This == whats_This_Absolute_Density)						{precision = line_edit_density_precision;				coeff = 1;						return struct_Data.absolute_Density;			}
+	if(whats_This == whats_This_Relative_Density)						{precision = line_edit_density_precision;				coeff = 1;						return struct_Data.relative_Density;			}
 
 	// thickness
-	if(whats_This == whats_This_Thickness)						{precision = line_edit_thickness_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.thickness;	}
-	if(whats_This == whats_This_Thickness_Drift_Line_Value)		{precision = line_edit_drift_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Line_Value;			}
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{precision = line_edit_drift_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Rand_Rms;				}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{precision = line_edit_drift_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Amplitude;		}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{precision = line_edit_drift_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Frequency;		}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{precision = line_edit_drift_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Phase;			}
+	if(whats_This == whats_This_Thickness)								{precision = line_edit_thickness_precision;				coeff = length_Coefficients_Map.value(length_units);	return struct_Data.thickness;	}
+	if(whats_This == whats_This_Thickness_Drift_Line_Value)				{precision = line_edit_drift_precision;					coeff = 1;					return struct_Data.thickness_Drift.drift_Line_Value;			}
+	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)				{precision = line_edit_drift_precision;					coeff = 1;					return struct_Data.thickness_Drift.drift_Rand_Rms;				}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)			{precision = line_edit_drift_precision;					coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Amplitude;		}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)			{precision = line_edit_drift_precision;					coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Frequency;		}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)				{precision = line_edit_drift_precision;					coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Phase;			}
 
 	// interface
-	if(whats_This == whats_This_Sigma_Diffuse)				{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.sigma_Diffuse;		 }
-	if(whats_This == whats_This_Sigma_Drift_Line_Value)		{precision = line_edit_drift_precision;		coeff = 1;						return struct_Data.sigma_Diffuse_Drift.drift_Line_Value;		 }
-	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)		{precision = line_edit_drift_precision;		coeff = 1;						return struct_Data.sigma_Diffuse_Drift.drift_Rand_Rms;			 }
-	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)	{precision = line_edit_drift_precision;		coeff = 1;						return struct_Data.sigma_Diffuse_Drift.drift_Sine_Amplitude;	 }
-	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)	{precision = line_edit_drift_precision;		coeff = 1;						return struct_Data.sigma_Diffuse_Drift.drift_Sine_Frequency;	 }
-	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)		{precision = line_edit_drift_precision;		coeff = 1;						return struct_Data.sigma_Diffuse_Drift.drift_Sine_Phase;		 }
+	if(whats_This == whats_This_Sigma_Diffuse)							{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.sigma_Diffuse;		 }
+	if(whats_This == whats_This_Sigma_Drift_Line_Value)					{precision = line_edit_drift_precision;					coeff = 1;						return struct_Data.sigma_Diffuse_Drift.drift_Line_Value;		 }
+	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)					{precision = line_edit_drift_precision;					coeff = 1;						return struct_Data.sigma_Diffuse_Drift.drift_Rand_Rms;			 }
+	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)				{precision = line_edit_drift_precision;					coeff = 1;						return struct_Data.sigma_Diffuse_Drift.drift_Sine_Amplitude;	 }
+	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)				{precision = line_edit_drift_precision;					coeff = 1;						return struct_Data.sigma_Diffuse_Drift.drift_Sine_Frequency;	 }
+	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)					{precision = line_edit_drift_precision;					coeff = 1;						return struct_Data.sigma_Diffuse_Drift.drift_Sine_Phase;		 }
 
 	// roughness
-	if(whats_This == whats_This_Sigma_Roughness)			{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.sigma;				}
-	if(whats_This == whats_This_Correlation_Radius)			{precision = line_edit_cor_radius_precision;			coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.cor_radius;			}
-	if(whats_This == whats_This_Fractal_Alpha)				{precision = line_edit_fractal_alpha_precision;			coeff = 1;												return struct_Data.roughness_Model.fractal_alpha;		}
-	if(whats_This == whats_This_Linear_PSD_Omega)			{precision = line_edit_omega_precision;					coeff = pow(length_Coefficients_Map.value(length_units),3);	return struct_Data.roughness_Model.omega;			}
-	if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	{precision = line_edit_mu_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.mu;					}
+	if(whats_This == whats_This_Sigma_Roughness)						{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.sigma;				}
+	if(whats_This == whats_This_Correlation_Radius)						{precision = line_edit_cor_radius_precision;			coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.cor_radius;			}
+	if(whats_This == whats_This_Fractal_Alpha)							{precision = line_edit_fractal_alpha_precision;			coeff = 1;												return struct_Data.roughness_Model.fractal_alpha;		}
+	if(whats_This == whats_This_Linear_PSD_Omega)						{precision = line_edit_omega_precision;					coeff = pow(length_Coefficients_Map.value(length_units),3);	return struct_Data.roughness_Model.omega;			}
+	if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)				{precision = line_edit_mu_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.mu;					}
+	if(whats_This == whats_This_Fractal_Beta)							{precision = line_edit_fractal_alpha_precision;			coeff = 1;												return struct_Data.roughness_Model.fractal_beta;		}
+	if(whats_This == whats_This_Roughness_Peak_Sigma)					{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.peak_Sigma;					}
+	if(whats_This == whats_This_Roughness_Peak_Lateral_Size)			{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.peak_Lateral_Size;			}
+	if(whats_This == whats_This_Roughness_Peak_Lateral_Size_Deviation)	{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.peak_Lateral_Size_Deviation;	}
 
 	// density fluctuations
 	if(whats_This == whats_This_Particle_Absolute_Density)		{precision = line_edit_density_precision;	coeff = 1;												return struct_Data.fluctuations_Model.particle_Absolute_Density;			}

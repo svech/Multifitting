@@ -237,7 +237,7 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 
 	// common alpha and sigma for partial correlation ( we dont need to recalculate omega_pow23 )
 	if(multilayer->imperfections_Model.use_Common_Roughness_Function)
-	if(multilayer->imperfections_Model.common_Model == ABC_model || multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+	if(multilayer->imperfections_Model.PSD_Model == ABC_model || multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
 		for(int boundary_Index=0; boundary_Index<num_Boundaries; boundary_Index++)
 		{

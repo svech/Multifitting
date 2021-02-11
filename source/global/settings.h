@@ -213,6 +213,22 @@ extern double	default_roughness_mu;
 extern double	default_roughness_mu_min;
 extern double	default_roughness_mu_max;
 
+extern double	default_roughness_fractal_beta;
+extern double	default_roughness_fractal_beta_min;
+extern double	default_roughness_fractal_beta_max;
+
+extern double	default_roughness_peak_sigma;
+extern double	default_roughness_peak_sigma_min;
+extern double	default_roughness_peak_sigma_max;
+
+extern double	default_roughness_peak_lateral_size;
+extern double	default_roughness_peak_lateral_size_min;
+extern double	default_roughness_peak_lateral_size_max;
+
+extern double	default_roughness_peak_lateral_size_deviation;
+extern double	default_roughness_peak_lateral_size_deviation_min;
+extern double	default_roughness_peak_lateral_size_deviation_max;
+
 // Fluctuation_Values
 extern bool		default_fluctuation_enabled;
 extern bool		default_fluctuation_used;
@@ -304,7 +320,7 @@ extern char line_edit_double_format			;
 extern char line_edit_short_double_format	;
 extern int line_edit_angle_precision		;
 extern int line_edit_wavelength_precision	;
-extern int line_edit_spectral_resolution_precision	;
+extern int line_edit_spectral_resolution_precision;
 extern int line_edit_polarization_precision	;
 extern int line_edit_density_precision		;
 extern int line_edit_composition_precision	;
@@ -334,11 +350,11 @@ extern int thumbnail_density_precision		;
 extern int thumbnail_composition_precision	;
 extern int thumbnail_thickness_precision	;
 
-extern int thumbnail_sigma_precision				;
-extern int thumbnail_cor_radius_precision			;
-extern int thumbnail_fractal_alpha_precision		;
-extern int thumbnail_omega_precision				;
-extern int thumbnail_mu_precision					;
+extern int thumbnail_sigma_precision		;
+extern int thumbnail_cor_radius_precision	;
+extern int thumbnail_fractal_alpha_precision;
+extern int thumbnail_omega_precision		;
+extern int thumbnail_mu_precision			;
 
 extern int thumbnail_interlayer_precision	;
 extern int thumbnail_drift_precision		;

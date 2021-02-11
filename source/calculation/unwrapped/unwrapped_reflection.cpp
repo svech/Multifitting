@@ -1694,11 +1694,11 @@ double Unwrapped_Reflection::calc_K_Factor_Term_Sum_DWBA_SA_CSA(int thread_Index
 
 void Unwrapped_Reflection::choose_Cor_Function(int thread_Index)
 {
-	if(multilayer->imperfections_Model.common_Model == ABC_model)
+	if(multilayer->imperfections_Model.PSD_Model == ABC_model)
 	{
 		Cor_Func_Vec[thread_Index] = Global_Variables::Cor_ABC;
 	} else
-	if(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+	if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
 		Cor_Func_Vec[thread_Index] = Global_Variables::Cor_Fractal_Gauss;
 	}
@@ -2273,7 +2273,7 @@ double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point
 				half_Sum_Field_Term[i][j] = 2*real(field_Term_Boundary[i]*conj(field_Term_Boundary[j]));
 			}
 		}
-		if(multilayer->imperfections_Model.common_Model == ABC_model)			 return incoherent_Diagonal_Sum;
+		if(multilayer->imperfections_Model.PSD_Model == ABC_model)			 return incoherent_Diagonal_Sum;
 	}
 	return -2020;
 }
@@ -2292,11 +2292,11 @@ void Unwrapped_Reflection::calc_Environmental_Factor(int thread_Index, int point
 
 void Unwrapped_Reflection::choose_PSD_1D_Function(const Data& struct_Data, int thread_Index)
 {
-	if(multilayer->imperfections_Model.common_Model == ABC_model)
+	if(multilayer->imperfections_Model.PSD_Model == ABC_model)
 	{
 		PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_1D;
 	} else
-	if(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+	if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
 		if(struct_Data.roughness_Model.fractal_alpha.value<1)
 		{
@@ -2316,11 +2316,11 @@ void Unwrapped_Reflection::choose_PSD_1D_Function(const Data& struct_Data, int t
 
 void Unwrapped_Reflection::choose_PSD_2D_Function(int point_Index, int thread_Index)
 {
-	if(multilayer->imperfections_Model.common_Model == ABC_model)
+	if(multilayer->imperfections_Model.PSD_Model == ABC_model)
 	{
 		PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_2D;
 	} else
-	if(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+	if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
 		if(point_Index == 0) cout << "Unwrapped_Reflection::choose_PSD_2D_Function  :  fractal_Gauss_Model can't be used in 2D" << endl;
 	}
@@ -2536,7 +2536,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						}
 						if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation )
 						{
-							if(multilayer->imperfections_Model.common_Model == ABC_model)
+							if( multilayer->imperfections_Model.PSD_Model == ABC_model &&
+								multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model)
 							{
 								// pure s-polarization
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
@@ -2568,7 +2569,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
 								}
 							} else
-							if(multilayer->imperfections_Model.common_Model == linear_Growth_and_ABC_Model)
+							if( multilayer->imperfections_Model.PSD_Model == ABC_model &&
+								multilayer->imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model)
 							{
 								// pure s-polarization
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
@@ -2599,6 +2601,16 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
 									calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
 								}
+							} else
+							if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model &&
+								multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model)
+							{
+								// TODO
+							} else
+							if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model &&
+								multilayer->imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model)
+							{
+								// TODO
 							}
 						}
 					}
@@ -2730,7 +2742,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						}
 						if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation )
 						{
-							if(multilayer->imperfections_Model.common_Model == ABC_model)
+							if( multilayer->imperfections_Model.PSD_Model == ABC_model &&
+								multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model )
 							{
 								// pure s-polarization
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
@@ -2763,7 +2776,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									}
 								}
 							} else
-							if(multilayer->imperfections_Model.common_Model == linear_Growth_and_ABC_Model)
+							if( multilayer->imperfections_Model.PSD_Model == ABC_model &&
+								multilayer->imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model )
 							{
 								// pure s-polarization
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
@@ -2795,6 +2809,16 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}
 								}
+							} else
+							if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model &&
+								multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model )
+							{
+								// TODO
+							} else
+							if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model &&
+								multilayer->imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model )
+							{
+								// TODO
 							}
 						}
 					}

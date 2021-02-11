@@ -542,13 +542,13 @@ void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* t
 				Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(type_Curve);
 				if(independent_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
 				{
-					if( imperfections_Model.common_Model == fractal_Gauss_Model ||
+					if( imperfections_Model.PSD_Model == fractal_Gauss_Model ||
 						imperfections_Model.approximation == DWBA_approximation ||
 						imperfections_Model.approximation == SA_approximation ||
 						imperfections_Model.approximation == CSA_approximation )
 					{
 						QString text;
-						if( imperfections_Model.common_Model == fractal_Gauss_Model ) text = "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.";
+						if( imperfections_Model.PSD_Model == fractal_Gauss_Model ) text = "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.";
 						if( imperfections_Model.approximation == DWBA_approximation ) text = "2D scattering can't be simulated in DWBA approximation.\nChange the approximation in Structure Table.";
 						if( imperfections_Model.approximation == SA_approximation   ) text = "2D scattering can't be simulated in SA approximation.\nChange the approximation in Structure Table.";
 						if( imperfections_Model.approximation == CSA_approximation  ) text = "2D scattering can't be simulated in CSA approximation.\nChange the approximation in Structure Table.";
@@ -568,13 +568,13 @@ void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* t
 				Target_Curve* target_Curve = qobject_cast<Target_Curve*>(type_Curve);			
 				if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
 				{
-					if( imperfections_Model.common_Model == fractal_Gauss_Model ||
+					if( imperfections_Model.PSD_Model == fractal_Gauss_Model ||
 						imperfections_Model.approximation == DWBA_approximation ||
 						imperfections_Model.approximation == SA_approximation ||
 						imperfections_Model.approximation == CSA_approximation )
 					{
 						QString text;
-						if( imperfections_Model.common_Model == fractal_Gauss_Model ) text = "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.";
+						if( imperfections_Model.PSD_Model == fractal_Gauss_Model ) text = "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.";
 						if( imperfections_Model.approximation == DWBA_approximation ) text = "2D scattering can't be simulated in DWBA approximation.\nChange the approximation in Structure Table.";
 						if( imperfections_Model.approximation == SA_approximation   ) text = "2D scattering can't be simulated in SA approximation.\nChange the approximation in Structure Table.";
 						if( imperfections_Model.approximation == CSA_approximation  ) text = "2D scattering can't be simulated in CSA approximation.\nChange the approximation in Structure Table.";

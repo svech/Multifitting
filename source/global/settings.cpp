@@ -205,6 +205,22 @@ double	default_roughness_mu;
 double	default_roughness_mu_min;
 double	default_roughness_mu_max;
 
+double	default_roughness_fractal_beta;
+double	default_roughness_fractal_beta_min;
+double	default_roughness_fractal_beta_max;
+
+double	default_roughness_peak_sigma;
+double	default_roughness_peak_sigma_min;
+double	default_roughness_peak_sigma_max;
+
+double	default_roughness_peak_lateral_size;
+double	default_roughness_peak_lateral_size_min;
+double	default_roughness_peak_lateral_size_max;
+
+double	default_roughness_peak_lateral_size_deviation;
+double	default_roughness_peak_lateral_size_deviation_min;
+double	default_roughness_peak_lateral_size_deviation_max;
+
 // Fluctuation_Values
 bool	default_fluctuation_enabled;
 bool	default_fluctuation_used;		// true
@@ -742,27 +758,43 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 	structure_Default_Values.endGroup();
 
 	structure_Default_Values.beginGroup( Roughness_Values );
-		default_roughness_enabled					= structure_Default_Values.value( "default_roughness_enabled",					 false	).toBool();
+		default_roughness_enabled							= structure_Default_Values.value( "default_roughness_enabled",					 false	).toBool();
 
-		default_roughness_sigma						= structure_Default_Values.value( "default_roughness_sigma",						 0	).toDouble();
-		default_roughness_sigma_min					= structure_Default_Values.value( "default_roughness_sigma_min",					 1	).toDouble();
-		default_roughness_sigma_max					= structure_Default_Values.value( "default_roughness_sigma_max",					20	).toDouble();
+		default_roughness_sigma								= structure_Default_Values.value( "default_roughness_sigma",							 0	).toDouble();
+		default_roughness_sigma_min							= structure_Default_Values.value( "default_roughness_sigma_min",						 1	).toDouble();
+		default_roughness_sigma_max							= structure_Default_Values.value( "default_roughness_sigma_max",						20	).toDouble();
 
-		default_roughness_correlation_radius		= structure_Default_Values.value( "default_roughness_correlation_radius",		 10000	).toDouble();
-		default_roughness_correlation_radius_min	= structure_Default_Values.value( "default_roughness_correlation_radius_min",	  1000	).toDouble();
-		default_roughness_correlation_radius_max	= structure_Default_Values.value( "default_roughness_correlation_radius_max",	500000	).toDouble();
+		default_roughness_correlation_radius				= structure_Default_Values.value( "default_roughness_correlation_radius",			 10000	).toDouble();
+		default_roughness_correlation_radius_min			= structure_Default_Values.value( "default_roughness_correlation_radius_min",		  1000	).toDouble();
+		default_roughness_correlation_radius_max			= structure_Default_Values.value( "default_roughness_correlation_radius_max",		500000	).toDouble();
 
-		default_roughness_fractal_alpha				= structure_Default_Values.value( "default_roughness_fractal_alpha",			   0.5	).toDouble();
-		default_roughness_fractal_alpha_min			= structure_Default_Values.value( "default_roughness_fractal_alpha_min",		   0.1	).toDouble();
-		default_roughness_fractal_alpha_max			= structure_Default_Values.value( "default_roughness_fractal_alpha_max",		   1.0	).toDouble();
+		default_roughness_fractal_alpha						= structure_Default_Values.value( "default_roughness_fractal_alpha",				   0.5	).toDouble();
+		default_roughness_fractal_alpha_min					= structure_Default_Values.value( "default_roughness_fractal_alpha_min",			   0.1	).toDouble();
+		default_roughness_fractal_alpha_max					= structure_Default_Values.value( "default_roughness_fractal_alpha_max",			   1.0	).toDouble();
 
-		default_roughness_omega						= structure_Default_Values.value( "default_roughness_omega",					   100	).toDouble();
-		default_roughness_omega_min					= structure_Default_Values.value( "default_roughness_omega_min",					20	).toDouble();
-		default_roughness_omega_max					= structure_Default_Values.value( "default_roughness_omega_max",				  2000	).toDouble();
+		default_roughness_omega								= structure_Default_Values.value( "default_roughness_omega",						   100	).toDouble();
+		default_roughness_omega_min							= structure_Default_Values.value( "default_roughness_omega_min",						20	).toDouble();
+		default_roughness_omega_max							= structure_Default_Values.value( "default_roughness_omega_max",					  2000	).toDouble();
 
-		default_roughness_mu						= structure_Default_Values.value( "default_roughness_mu",						   200	).toDouble();
-		default_roughness_mu_min					= structure_Default_Values.value( "default_roughness_mu_min",						10	).toDouble();
-		default_roughness_mu_max					= structure_Default_Values.value( "default_roughness_mu_max",					  1000	).toDouble();
+		default_roughness_mu								= structure_Default_Values.value( "default_roughness_mu",							   200	).toDouble();
+		default_roughness_mu_min							= structure_Default_Values.value( "default_roughness_mu_min",							10	).toDouble();
+		default_roughness_mu_max							= structure_Default_Values.value( "default_roughness_mu_max",						  1000	).toDouble();
+
+		default_roughness_fractal_beta						= structure_Default_Values.value( "default_roughness_fractal_beta",					   3.0	).toDouble();
+		default_roughness_fractal_beta_min					= structure_Default_Values.value( "default_roughness_fractal_beta_min",				   1.0	).toDouble();
+		default_roughness_fractal_beta_max					= structure_Default_Values.value( "default_roughness_fractal_beta_max",				   6.0	).toDouble();
+
+		default_roughness_peak_sigma						= structure_Default_Values.value( "default_roughness_peak_sigma",						 0	).toDouble();
+		default_roughness_peak_sigma_min					= structure_Default_Values.value( "default_roughness_peak_sigma_min",					 0	).toDouble();
+		default_roughness_peak_sigma_max					= structure_Default_Values.value( "default_roughness_peak_sigma_max",					 2	).toDouble();
+
+		default_roughness_peak_lateral_size					= structure_Default_Values.value( "default_roughness_peak_lateral_size",			   100	).toDouble();
+		default_roughness_peak_lateral_size_min				= structure_Default_Values.value( "default_roughness_peak_lateral_size_min",		    10	).toDouble();
+		default_roughness_peak_lateral_size_max				= structure_Default_Values.value( "default_roughness_peak_lateral_size_max",		   200	).toDouble();
+
+		default_roughness_peak_lateral_size_deviation		= structure_Default_Values.value( "default_roughness_peak_lateral_size_deviation",	     1	).toDouble();
+		default_roughness_peak_lateral_size_deviation_min	= structure_Default_Values.value( "default_roughness_peak_lateral_size_deviation_min", 0.5	).toDouble();
+		default_roughness_peak_lateral_size_deviation_max	= structure_Default_Values.value( "default_roughness_peak_lateral_size_deviation_max",  90	).toDouble();
 	structure_Default_Values.endGroup();
 
 	structure_Default_Values.beginGroup( Fluctuation_Values );
@@ -791,7 +823,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 
 		default_fluctuation_particle_distance_deviation		= structure_Default_Values.value( "default_fluctuation_particle_distance_deviation",	1	  ).toDouble();
 		default_fluctuation_particle_distance_deviation_min	= structure_Default_Values.value( "default_fluctuation_particle_distance_deviation_min",0.5	  ).toDouble();
-		default_fluctuation_particle_distance_deviation_max	= structure_Default_Values.value( "default_fluctuation_particle_distance_deviation_max",100   ).toDouble();
+		default_fluctuation_particle_distance_deviation_max	= structure_Default_Values.value( "default_fluctuation_particle_distance_deviation_max",90    ).toDouble();
 
 		default_fluctuation_domain_size						= structure_Default_Values.value( "default_fluctuation_domain_size",				1e4		).toDouble();
 		default_fluctuation_domain_size_min					= structure_Default_Values.value( "default_fluctuation_domain_size_min",			1E2		).toDouble();
@@ -944,37 +976,53 @@ void Settings::save_Structure_Default_Values()
 		structure_Default_Values.setValue( "default_substrate_stoichiometry_element",		default_substrate_stoichiometry_element		);
 	structure_Default_Values.endGroup();
 	structure_Default_Values.beginGroup( Common_Values );
-		structure_Default_Values.setValue( "default_diffuse_sigma",							default_diffuse_sigma				);
-		structure_Default_Values.setValue( "default_diffuse_sigma_min",						default_diffuse_sigma_min			);
-		structure_Default_Values.setValue( "default_diffuse_sigma_max",						default_diffuse_sigma_max			);
+		structure_Default_Values.setValue( "default_diffuse_sigma",							default_diffuse_sigma						);
+		structure_Default_Values.setValue( "default_diffuse_sigma_min",						default_diffuse_sigma_min					);
+		structure_Default_Values.setValue( "default_diffuse_sigma_max",						default_diffuse_sigma_max					);
 
-		structure_Default_Values.setValue( "default_stoichiometry_composition",				default_stoichiometry_composition		);
-		structure_Default_Values.setValue( "default_stoichiometry_composition_min",			default_stoichiometry_composition_min	);
-		structure_Default_Values.setValue( "default_stoichiometry_composition_max",			default_stoichiometry_composition_max	);
+		structure_Default_Values.setValue( "default_stoichiometry_composition",				default_stoichiometry_composition			);
+		structure_Default_Values.setValue( "default_stoichiometry_composition_min",			default_stoichiometry_composition_min		);
+		structure_Default_Values.setValue( "default_stoichiometry_composition_max",			default_stoichiometry_composition_max		);
 	structure_Default_Values.endGroup();
 
 	structure_Default_Values.beginGroup( Roughness_Values );
-		structure_Default_Values.setValue( "default_roughness_enabled",					default_roughness_enabled				);
+		structure_Default_Values.setValue( "default_roughness_enabled",							default_roughness_enabled						 );
 
-		structure_Default_Values.setValue( "default_roughness_sigma",					default_roughness_sigma					);
-		structure_Default_Values.setValue( "default_roughness_sigma_min",				default_roughness_sigma_min				);
-		structure_Default_Values.setValue( "default_roughness_sigma_max",				default_roughness_sigma_max				);
+		structure_Default_Values.setValue( "default_roughness_sigma",							default_roughness_sigma							 );
+		structure_Default_Values.setValue( "default_roughness_sigma_min",						default_roughness_sigma_min						 );
+		structure_Default_Values.setValue( "default_roughness_sigma_max",						default_roughness_sigma_max						 );
 
-		structure_Default_Values.setValue( "default_roughness_correlation_radius",		default_roughness_correlation_radius	);
-		structure_Default_Values.setValue( "default_roughness_correlation_radius_min",	default_roughness_correlation_radius_min);
-		structure_Default_Values.setValue( "default_roughness_correlation_radius_max",	default_roughness_correlation_radius_max);
+		structure_Default_Values.setValue( "default_roughness_correlation_radius",				default_roughness_correlation_radius			 );
+		structure_Default_Values.setValue( "default_roughness_correlation_radius_min",			default_roughness_correlation_radius_min		 );
+		structure_Default_Values.setValue( "default_roughness_correlation_radius_max",			default_roughness_correlation_radius_max		 );
 
-		structure_Default_Values.setValue( "default_roughness_fractal_alpha",			default_roughness_fractal_alpha			);
-		structure_Default_Values.setValue( "default_roughness_fractal_alpha_min",		default_roughness_fractal_alpha_min		);
-		structure_Default_Values.setValue( "default_roughness_fractal_alpha_max",		default_roughness_fractal_alpha_max		);
+		structure_Default_Values.setValue( "default_roughness_fractal_alpha",					default_roughness_fractal_alpha					 );
+		structure_Default_Values.setValue( "default_roughness_fractal_alpha_min",				default_roughness_fractal_alpha_min				 );
+		structure_Default_Values.setValue( "default_roughness_fractal_alpha_max",				default_roughness_fractal_alpha_max				 );
 
-		structure_Default_Values.setValue( "default_roughness_omega",					default_roughness_omega					);
-		structure_Default_Values.setValue( "default_roughness_omega_min",				default_roughness_omega_min				);
-		structure_Default_Values.setValue( "default_roughness_omega_max",				default_roughness_omega_max				);
+		structure_Default_Values.setValue( "default_roughness_omega",							default_roughness_omega							 );
+		structure_Default_Values.setValue( "default_roughness_omega_min",						default_roughness_omega_min						 );
+		structure_Default_Values.setValue( "default_roughness_omega_max",						default_roughness_omega_max						 );
 
-		structure_Default_Values.setValue( "default_roughness_mu",						default_roughness_mu					);
-		structure_Default_Values.setValue( "default_roughness_mu_min",					default_roughness_mu_min				);
-		structure_Default_Values.setValue( "default_roughness_mu_max",					default_roughness_mu_max				);
+		structure_Default_Values.setValue( "default_roughness_mu",								default_roughness_mu							 );
+		structure_Default_Values.setValue( "default_roughness_mu_min",							default_roughness_mu_min						 );
+		structure_Default_Values.setValue( "default_roughness_mu_max",							default_roughness_mu_max						 );
+
+		structure_Default_Values.setValue( "default_roughness_fractal_beta",					default_roughness_fractal_beta					 );
+		structure_Default_Values.setValue( "default_roughness_fractal_beta_min",				default_roughness_fractal_beta_min				 );
+		structure_Default_Values.setValue( "default_roughness_fractal_beta_max",				default_roughness_fractal_beta_max				 );
+
+		structure_Default_Values.setValue( "default_roughness_peak_sigma",						default_roughness_peak_sigma					 );
+		structure_Default_Values.setValue( "default_roughness_peak_sigma_min",					default_roughness_peak_sigma_min				 );
+		structure_Default_Values.setValue( "default_roughness_peak_sigma_max",					default_roughness_peak_sigma_max				 );
+
+		structure_Default_Values.setValue( "default_roughness_peak_lateral_size",				default_roughness_peak_lateral_size				 );
+		structure_Default_Values.setValue( "default_roughness_peak_lateral_size_min",			default_roughness_peak_lateral_size_min			 );
+		structure_Default_Values.setValue( "default_roughness_peak_lateral_size_max",			default_roughness_peak_lateral_size_max			 );
+
+		structure_Default_Values.setValue( "default_roughness_peak_lateral_size_deviation",		default_roughness_peak_lateral_size_deviation	 );
+		structure_Default_Values.setValue( "default_roughness_peak_lateral_size_deviation_min",	default_roughness_peak_lateral_size_deviation_min);
+		structure_Default_Values.setValue( "default_roughness_peak_lateral_size_deviation_max",	default_roughness_peak_lateral_size_deviation_max);
 	structure_Default_Values.endGroup();
 
 	structure_Default_Values.beginGroup( Fluctuation_Values );
@@ -1077,22 +1125,22 @@ void Settings::read_Precisions(bool reset_to_default)
 	precision_Values.beginGroup( Line_Edit );
 		line_edit_double_format		  = qvariant_cast<char>(precision_Values.value( "line_edit_double_format",      'f'));
 		line_edit_short_double_format = qvariant_cast<char>(precision_Values.value( "line_edit_short_double_format",'g'));
-		line_edit_angle_precision				= precision_Values.value( "line_edit_angle_precision",				5 ).toInt();
-		line_edit_wavelength_precision			= precision_Values.value( "line_edit_wavelength_precision",			6 ).toInt();
-		line_edit_spectral_resolution_precision	= precision_Values.value( "line_edit_spectral_resolution_precision",8 ).toInt();
-		line_edit_polarization_precision		= precision_Values.value( "line_edit_polarization_precision",		3 ).toInt();
-		line_edit_background_precision			= precision_Values.value( "line_edit_background_precision",			3 ).toInt();
-		line_edit_beam_size_precision			= precision_Values.value( "line_edit_beam_size_precision",			4 ).toInt();
-		line_edit_sample_size_precision			= precision_Values.value( "line_edit_sample_size_precision",		2 ).toInt();
-		line_edit_density_precision				= precision_Values.value( "line_edit_density_precision",			4 ).toInt();
-		line_edit_composition_precision			= precision_Values.value( "line_edit_composition_precision",		4 ).toInt();
-		line_edit_thickness_precision			= precision_Values.value( "line_edit_thickness_precision",			4 ).toInt();
+		line_edit_angle_precision						= precision_Values.value( "line_edit_angle_precision",						5 ).toInt();
+		line_edit_wavelength_precision					= precision_Values.value( "line_edit_wavelength_precision",					6 ).toInt();
+		line_edit_spectral_resolution_precision			= precision_Values.value( "line_edit_spectral_resolution_precision",		8 ).toInt();
+		line_edit_polarization_precision				= precision_Values.value( "line_edit_polarization_precision",				3 ).toInt();
+		line_edit_background_precision					= precision_Values.value( "line_edit_background_precision",					3 ).toInt();
+		line_edit_beam_size_precision					= precision_Values.value( "line_edit_beam_size_precision",					4 ).toInt();
+		line_edit_sample_size_precision					= precision_Values.value( "line_edit_sample_size_precision",				2 ).toInt();
+		line_edit_density_precision						= precision_Values.value( "line_edit_density_precision",					4 ).toInt();
+		line_edit_composition_precision					= precision_Values.value( "line_edit_composition_precision",				4 ).toInt();
+		line_edit_thickness_precision					= precision_Values.value( "line_edit_thickness_precision",					4 ).toInt();
 
-		line_edit_sigma_precision				= precision_Values.value( "line_edit_sigma_precision",				4 ).toInt();	// = thickness precision
-		line_edit_cor_radius_precision			= precision_Values.value( "line_edit_cor_radius_precision",			0 ).toInt();
-		line_edit_fractal_alpha_precision		= precision_Values.value( "line_edit_fractal_alpha_precision",		2 ).toInt();
-		line_edit_omega_precision				= precision_Values.value( "line_edit_omega_precision",				2 ).toInt();
-		line_edit_mu_precision					= precision_Values.value( "line_edit_mu_precision",					3 ).toInt();
+		line_edit_sigma_precision						= precision_Values.value( "line_edit_sigma_precision",						4 ).toInt();	// = thickness precision
+		line_edit_cor_radius_precision					= precision_Values.value( "line_edit_cor_radius_precision",					0 ).toInt();
+		line_edit_fractal_alpha_precision				= precision_Values.value( "line_edit_fractal_alpha_precision",				2 ).toInt();
+		line_edit_omega_precision						= precision_Values.value( "line_edit_omega_precision",						2 ).toInt();
+		line_edit_mu_precision							= precision_Values.value( "line_edit_mu_precision",							3 ).toInt();
 
 		line_edit_interlayer_precision			= precision_Values.value( "line_edit_interlayer_precision",			3 ).toInt();
 		line_edit_drift_precision				= precision_Values.value( "line_edit_drift_precision",				4 ).toInt();

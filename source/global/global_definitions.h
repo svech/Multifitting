@@ -14,7 +14,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 6
+#define VERSION_BUILD 7
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -190,9 +190,9 @@ class Node;
 #define MAX_PRECISION_USED 10				// tthumbnail and lineedit precisions
 #define RAND_SHIFT	100000					// rand * RAND_SHIFT + rand
 #define TABLE_FIX_WIDTH_LINE_EDIT_SHORT		50  // qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
-#define TABLE_FIX_WIDTH_LINE_EDIT_SIGMA		62
-#define TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS 60
-#define TABLE_FIX_WIDTH_LINE_EDIT_DENSITY	57
+#define TABLE_FIX_WIDTH_LINE_EDIT_SIGMA		55
+#define TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS 57
+#define TABLE_FIX_WIDTH_LINE_EDIT_DENSITY	50
 #define TABLE_FIX_WIDTH_LINE_EDIT_LONG		64
 #define TABLE_COLUMN_ELEMENTS_SHIFT 1		// current_Column += TABLE_COLUMN_ELEMENTS_SHIFT
 #define TABLE_COLUMN_INTERLAYERS_SHIFT 1	// current_Column += TABLE_COLUMN_INTERLAYERS_SHIFT
@@ -264,10 +264,13 @@ class Node;
 #define partial_Correlation		"partial vertical correlation"
 #define zero_Correlation		"zero vertical correlation"
 
-// PSD models
+// base PSD models
 #define ABC_model				"ABC model"
-#define linear_Growth_and_ABC_Model		"Linear growth model"
 #define fractal_Gauss_Model		"Fractal Gauss model"
+
+// PSD inheritance models
+#define linear_Growth_Inheritance_Model			"Linear growth"
+#define replication_Factor_Inheritance_Model	"Replication factor"
 
 // whatsThis : delimiters
 #define whats_This_Delimiter ";"
@@ -297,6 +300,10 @@ class Node;
 #define whats_This_Fractal_Alpha				"Fractal Alpha"
 #define whats_This_Linear_PSD_Omega				"Linear PSD Omega"
 #define whats_This_Linear_PSD_Exponenta_Mu		"Linear PSD Exponenta Mu"
+#define whats_This_Fractal_Beta					"Fractal Beta"
+#define whats_This_Roughness_Peak_Sigma						"Roughness Peak Sigma"
+#define whats_This_Roughness_Peak_Lateral_Size				"Roughness Peak Lateral Size"
+#define whats_This_Roughness_Peak_Lateral_Size_Deviation	"Roughness Peak Lateral Size Deviation"
 #define whats_This_Interlayer_Composition		"Interlayer Composition"
 #define whats_This_Interlayer_My_Sigma_Diffuse	"Interlayer My Sigma"
 #define whats_This_Num_Repetitions				"Num Repetitions"
@@ -843,6 +850,11 @@ struct Roughness_Model			{
 								Parameter fractal_alpha;
 								Parameter omega;
 								Parameter mu;
+								Parameter fractal_beta;
+
+								Parameter peak_Sigma;
+								Parameter peak_Lateral_Size;
+								Parameter peak_Lateral_Size_Deviation;
 								};
 struct Fluctuations_Model		{
 								bool is_Enabled = false;
@@ -904,9 +916,11 @@ struct Imperfections_Model		{
 								bool use_Roughness = false;
 
 								QString approximation = PT_approximation;
-								QString common_Model = ABC_model;
+								QString PSD_Model = ABC_model;
 								QString vertical_Correlation = full_Correlation;
+								bool add_Gauss_Peak = false;
 								bool use_Common_Roughness_Function = true;
+								QString inheritance_Model = replication_Factor_Inheritance_Model;
 
 								// density fluctuations
 								bool use_Fluctuations = false;
