@@ -533,7 +533,7 @@ QDataStream& operator <<( QDataStream& stream, const Roughness_Model& roughness_
 				  << roughness_Model.sigma << roughness_Model.cor_radius << roughness_Model.fractal_alpha
 				  << roughness_Model.omega << roughness_Model.mu << roughness_Model.fractal_beta
 
-				  << roughness_Model.peak_Sigma << roughness_Model.peak_Lateral_Size << roughness_Model.peak_Lateral_Size_Deviation;
+				  << roughness_Model.peak_Sigma << roughness_Model.peak_Frequency << roughness_Model.peak_Frequency_Width;
 }
 QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Model )
 {
@@ -544,7 +544,7 @@ QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Mode
 	if(Global_Variables::check_Loaded_Version(1,11,7))
 	{
 	stream >> roughness_Model.fractal_beta
-		   >> roughness_Model.peak_Sigma >> roughness_Model.peak_Lateral_Size >> roughness_Model.peak_Lateral_Size_Deviation;
+		   >> roughness_Model.peak_Sigma >> roughness_Model.peak_Frequency >> roughness_Model.peak_Frequency_Width;
 	}
 	return stream;
 }

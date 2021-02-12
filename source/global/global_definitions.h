@@ -171,6 +171,7 @@ class Node;
 #define Infinity_Sym			QString(QChar(0x221E))
 #define Subscript_a_Sym			QString(QChar(0x2090))
 #define Subscript_p_Sym			QString(QChar(0x209A))
+#define Subscript_v_Sym			QString(QChar(0x1d65))
 
 // -----------------------------------------------------------------------------------------
 
@@ -299,11 +300,11 @@ class Node;
 #define whats_This_Correlation_Radius			"Correlation Radius"
 #define whats_This_Fractal_Alpha				"Fractal Alpha"
 #define whats_This_Linear_PSD_Omega				"Linear PSD Omega"
-#define whats_This_Linear_PSD_Exponenta_Mu		"Linear PSD Exponenta Mu"
+#define whats_This_PSD_Exponenta_Mu				"PSD Exponenta Mu"
 #define whats_This_Fractal_Beta					"Fractal Beta"
-#define whats_This_Roughness_Peak_Sigma						"Roughness Peak Sigma"
-#define whats_This_Roughness_Peak_Lateral_Size				"Roughness Peak Lateral Size"
-#define whats_This_Roughness_Peak_Lateral_Size_Deviation	"Roughness Peak Lateral Size Deviation"
+#define whats_This_Roughness_Peak_Sigma			"Roughness Peak Sigma"
+#define whats_This_Roughness_Peak_Frequency		"Roughness Peak Frequency"
+#define whats_This_Roughness_Peak_Frequency_Width"Roughness Peak Frequency Width"
 #define whats_This_Interlayer_Composition		"Interlayer Composition"
 #define whats_This_Interlayer_My_Sigma_Diffuse	"Interlayer My Sigma"
 #define whats_This_Num_Repetitions				"Num Repetitions"
@@ -853,8 +854,8 @@ struct Roughness_Model			{
 								Parameter fractal_beta;
 
 								Parameter peak_Sigma;
-								Parameter peak_Lateral_Size;
-								Parameter peak_Lateral_Size_Deviation;
+								Parameter peak_Frequency;
+								Parameter peak_Frequency_Width;
 								};
 struct Fluctuations_Model		{
 								bool is_Enabled = false;

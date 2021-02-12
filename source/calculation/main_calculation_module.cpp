@@ -2427,7 +2427,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 
 				/// for rejection
 
-				// sigma value is close to zero
+				// sigma value is close to zero. Roughness_Peak_Sigma is not checked
 				Parameter sigma_Parameter;
 				if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma_Diffuse) sigma_Parameter = struct_Data.sigma_Diffuse;
 				if(parameter->indicator.whats_This == whats_This_Sigma_Diffuse)				  sigma_Parameter = *parameter;

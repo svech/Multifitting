@@ -344,7 +344,7 @@ Data::Data(QString item_Type_Passed)
 			roughness_Model.mu.fit.is_Fitable = false;
 			roughness_Model.mu.fit.min = default_roughness_mu_min;
 			roughness_Model.mu.fit.max = default_roughness_mu_max;
-			roughness_Model.mu.indicator.whats_This = whats_This_Linear_PSD_Exponenta_Mu;
+			roughness_Model.mu.indicator.whats_This = whats_This_PSD_Exponenta_Mu;
 			roughness_Model.mu.indicator.item_Id = id;
 
 			roughness_Model.mu.confidence.calc_Conf_Interval = false;
@@ -382,31 +382,31 @@ Data::Data(QString item_Type_Passed)
 		}
 		// PSD peak lateral size
 		{
-			roughness_Model.peak_Lateral_Size.value   = default_roughness_peak_lateral_size;
-			roughness_Model.peak_Lateral_Size.fit.is_Fitable = false;
-			roughness_Model.peak_Lateral_Size.fit.min = default_roughness_peak_lateral_size_min;
-			roughness_Model.peak_Lateral_Size.fit.max = default_roughness_peak_lateral_size_max;
-			roughness_Model.peak_Lateral_Size.indicator.whats_This = whats_This_Roughness_Peak_Lateral_Size;
-			roughness_Model.peak_Lateral_Size.indicator.item_Id = id;
+			roughness_Model.peak_Frequency.value   = default_roughness_peak_frequency;
+			roughness_Model.peak_Frequency.fit.is_Fitable = false;
+			roughness_Model.peak_Frequency.fit.min = default_roughness_peak_frequency_min;
+			roughness_Model.peak_Frequency.fit.max = default_roughness_peak_frequency_max;
+			roughness_Model.peak_Frequency.indicator.whats_This = whats_This_Roughness_Peak_Frequency;
+			roughness_Model.peak_Frequency.indicator.item_Id = id;
 
-			roughness_Model.peak_Lateral_Size.confidence.calc_Conf_Interval = false;
-			roughness_Model.peak_Lateral_Size.confidence.min = roughness_Model.peak_Lateral_Size.fit.min;
-			roughness_Model.peak_Lateral_Size.confidence.max = roughness_Model.peak_Lateral_Size.fit.max;
-			roughness_Model.peak_Lateral_Size.confidence.num_Points = default_num_confidence_points;
+			roughness_Model.peak_Frequency.confidence.calc_Conf_Interval = false;
+			roughness_Model.peak_Frequency.confidence.min = roughness_Model.peak_Frequency.fit.min;
+			roughness_Model.peak_Frequency.confidence.max = roughness_Model.peak_Frequency.fit.max;
+			roughness_Model.peak_Frequency.confidence.num_Points = default_num_confidence_points;
 		}
 		// PSD peak lateral size deviation
 		{
-			roughness_Model.peak_Lateral_Size_Deviation.value   = default_roughness_peak_lateral_size_deviation;
-			roughness_Model.peak_Lateral_Size_Deviation.fit.is_Fitable = false;
-			roughness_Model.peak_Lateral_Size_Deviation.fit.min = default_roughness_peak_lateral_size_deviation_min;
-			roughness_Model.peak_Lateral_Size_Deviation.fit.max = default_roughness_peak_lateral_size_deviation_max;
-			roughness_Model.peak_Lateral_Size_Deviation.indicator.whats_This = whats_This_Roughness_Peak_Lateral_Size_Deviation;
-			roughness_Model.peak_Lateral_Size_Deviation.indicator.item_Id = id;
+			roughness_Model.peak_Frequency_Width.value   = default_roughness_peak_frequency_width;
+			roughness_Model.peak_Frequency_Width.fit.is_Fitable = false;
+			roughness_Model.peak_Frequency_Width.fit.min = default_roughness_peak_frequency_width_min;
+			roughness_Model.peak_Frequency_Width.fit.max = default_roughness_peak_frequency_width_max;
+			roughness_Model.peak_Frequency_Width.indicator.whats_This = whats_This_Roughness_Peak_Frequency_Width;
+			roughness_Model.peak_Frequency_Width.indicator.item_Id = id;
 
-			roughness_Model.peak_Lateral_Size_Deviation.confidence.calc_Conf_Interval = false;
-			roughness_Model.peak_Lateral_Size_Deviation.confidence.min = roughness_Model.peak_Lateral_Size_Deviation.fit.min;
-			roughness_Model.peak_Lateral_Size_Deviation.confidence.max = roughness_Model.peak_Lateral_Size_Deviation.fit.max;
-			roughness_Model.peak_Lateral_Size_Deviation.confidence.num_Points = default_num_confidence_points;
+			roughness_Model.peak_Frequency_Width.confidence.calc_Conf_Interval = false;
+			roughness_Model.peak_Frequency_Width.confidence.min = roughness_Model.peak_Frequency_Width.fit.min;
+			roughness_Model.peak_Frequency_Width.confidence.max = roughness_Model.peak_Frequency_Width.fit.max;
+			roughness_Model.peak_Frequency_Width.confidence.num_Points = default_num_confidence_points;
 		}
 	}
 
@@ -809,8 +809,8 @@ void Data::reset_All_IDs()
 		roughness_Model.fractal_beta				.indicator.id = Global_Definitions::generate_Id(); roughness_Model.fractal_beta.				indicator.item_Id = id;	roughness_Model.fractal_beta.				coupled.clear_Coupled();
 
 		roughness_Model.peak_Sigma					.indicator.id = Global_Definitions::generate_Id(); roughness_Model.peak_Sigma.					indicator.item_Id = id;	roughness_Model.peak_Sigma.					coupled.clear_Coupled();
-		roughness_Model.peak_Lateral_Size			.indicator.id = Global_Definitions::generate_Id(); roughness_Model.peak_Lateral_Size.			indicator.item_Id = id;	roughness_Model.peak_Lateral_Size.			coupled.clear_Coupled();
-		roughness_Model.peak_Lateral_Size_Deviation	.indicator.id = Global_Definitions::generate_Id(); roughness_Model.peak_Lateral_Size_Deviation. indicator.item_Id = id;	roughness_Model.peak_Lateral_Size_Deviation.coupled.clear_Coupled();
+		roughness_Model.peak_Frequency			.indicator.id = Global_Definitions::generate_Id(); roughness_Model.peak_Frequency.			indicator.item_Id = id;	roughness_Model.peak_Frequency.			coupled.clear_Coupled();
+		roughness_Model.peak_Frequency_Width	.indicator.id = Global_Definitions::generate_Id(); roughness_Model.peak_Frequency_Width. indicator.item_Id = id;	roughness_Model.peak_Frequency_Width.coupled.clear_Coupled();
 		///---------------------------------------------
 	///---------------------------------------------
 	// Layer
@@ -1243,8 +1243,8 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 				if(imperfections_Model.add_Gauss_Peak)
 				{
 					potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Sigma);
-					potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Lateral_Size);
-					potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Lateral_Size_Deviation);
+					potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Frequency);
+					potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Frequency_Width);
 				}
 			}
 
@@ -1426,8 +1426,8 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 				if(imperfections_Model.add_Gauss_Peak)
 				{
 					table_Showed_Parameters.push_back(&roughness_Model.peak_Sigma);
-					table_Showed_Parameters.push_back(&roughness_Model.peak_Lateral_Size);
-					table_Showed_Parameters.push_back(&roughness_Model.peak_Lateral_Size_Deviation);
+					table_Showed_Parameters.push_back(&roughness_Model.peak_Frequency);
+					table_Showed_Parameters.push_back(&roughness_Model.peak_Frequency_Width);
 				}
 			}
 
@@ -1552,8 +1552,8 @@ void Data::prepare_Layer_For_Regular_Component()
 	make_Free(roughness_Model.mu);
 	make_Free(roughness_Model.fractal_beta);
 	make_Free(roughness_Model.peak_Sigma);
-	make_Free(roughness_Model.peak_Lateral_Size);
-	make_Free(roughness_Model.peak_Lateral_Size_Deviation);
+	make_Free(roughness_Model.peak_Frequency);
+	make_Free(roughness_Model.peak_Frequency_Width);
 ///---------------------------------------------
 ///---------------------------------------------
 // Layer

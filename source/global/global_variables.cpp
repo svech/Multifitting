@@ -841,20 +841,20 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		struct_Data.item_Type == item_Type_Layer	||
 		struct_Data.item_Type == item_Type_Substrate )
 	{
-		if(whats_This == whats_This_Absolute_Density)				text = struct_Data.material + " " + brackets + " Density, " + Rho_Sym;
-		if(whats_This == whats_This_Relative_Density)				text = struct_Data.material + " " + brackets + " Relative density, " + Rho_Sym;
-		if(whats_This == whats_This_Composition && index>=0)		text = struct_Data.material + " " + brackets + " " + struct_Data.composition[index].type + " composition, " + Zeta_Sym + "_" + struct_Data.composition[index].type;
+		if(whats_This == whats_This_Absolute_Density)						text = struct_Data.material + " " + brackets + " Density, " + Rho_Sym;
+		if(whats_This == whats_This_Relative_Density)						text = struct_Data.material + " " + brackets + " Relative density, " + Rho_Sym;
+		if(whats_This == whats_This_Composition && index>=0)				text = struct_Data.material + " " + brackets + " " + struct_Data.composition[index].type + " composition, " + Zeta_Sym + "_" + struct_Data.composition[index].type;
 	}
 
 	/// thickness parameters
 	if(	struct_Data.item_Type == item_Type_Layer )
 	{
-		if(whats_This == whats_This_Thickness)						text = struct_Data.material + " " + brackets + " Thickness, z";
-		if(whats_This == whats_This_Thickness_Drift_Line_Value)		text = struct_Data.material + " " + brackets + " Thickness linear drift, dz";
-		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		text = struct_Data.material + " " + brackets + " Thickness random drift, dz";
-		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	text = struct_Data.material + " " + brackets + " Thickness sine drift : amplitude, dz";
-		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	text = struct_Data.material + " " + brackets + " Thickness sine drift : frequency, " + Nu_Sym;
-		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		text = struct_Data.material + " " + brackets + " Thickness sine drift : phase, " + Phi_Sym;
+		if(whats_This == whats_This_Thickness)								text = struct_Data.material + " " + brackets + " Thickness, z";
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)				text = struct_Data.material + " " + brackets + " Thickness linear drift, dz";
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)				text = struct_Data.material + " " + brackets + " Thickness random drift, dz";
+		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)			text = struct_Data.material + " " + brackets + " Thickness sine drift : amplitude, dz";
+		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)			text = struct_Data.material + " " + brackets + " Thickness sine drift : frequency, " + Nu_Sym;
+		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)				text = struct_Data.material + " " + brackets + " Thickness sine drift : phase, " + Phi_Sym;
 	}
 
 	/// interface parameters
@@ -862,23 +862,27 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		struct_Data.item_Type == item_Type_Substrate  )
 	{
 		// interlayer
-		if(whats_This == whats_This_Sigma_Diffuse)					text = struct_Data.material + " " + brackets + " Diffuseness, s";
-		if(whats_This == whats_This_Sigma_Drift_Line_Value)			text = struct_Data.material + " " + brackets + " Diffuseness linear drift, ds";
-		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			text = struct_Data.material + " " + brackets + " Diffuseness random drift, ds";
-		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		text = struct_Data.material + " " + brackets + " Diffuseness sine drift : amplitude, ds";
-		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		text = struct_Data.material + " " + brackets + " Diffuseness sine drift : frequency, " + Nu_Sym;
-		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			text = struct_Data.material + " " + brackets + " Diffuseness sine srift : phase, " + Phi_Sym;
+		if(whats_This == whats_This_Sigma_Diffuse)							text = struct_Data.material + " " + brackets + " Diffuseness, s";
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)					text = struct_Data.material + " " + brackets + " Diffuseness linear drift, ds";
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)					text = struct_Data.material + " " + brackets + " Diffuseness random drift, ds";
+		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)				text = struct_Data.material + " " + brackets + " Diffuseness sine drift : amplitude, ds";
+		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)				text = struct_Data.material + " " + brackets + " Diffuseness sine drift : frequency, " + Nu_Sym;
+		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)					text = struct_Data.material + " " + brackets + " Diffuseness sine srift : phase, " + Phi_Sym;
 
 		// composition
-		if(whats_This == whats_This_Interlayer_Composition)			text = struct_Data.material + " " + brackets + " Interlayer composition, " + transition_Layer_Functions[index];
-		if(whats_This == whats_This_Interlayer_My_Sigma_Diffuse)	text = struct_Data.material + " " + brackets + " Individual diffuseness, s_" + transition_Layer_Functions[index];
+		if(whats_This == whats_This_Interlayer_Composition)					text = struct_Data.material + " " + brackets + " Interlayer composition, " + transition_Layer_Functions[index];
+		if(whats_This == whats_This_Interlayer_My_Sigma_Diffuse)			text = struct_Data.material + " " + brackets + " Individual diffuseness, s_" + transition_Layer_Functions[index];
 
 		// roughness
-		if(whats_This == whats_This_Sigma_Roughness)				text = struct_Data.material + " " + brackets + " Roughness, " + Sigma_Sym;
-		if(whats_This == whats_This_Correlation_Radius)				text = struct_Data.material + " " + brackets + " Correlation radius, " + Xi_Sym;
-		if(whats_This == whats_This_Fractal_Alpha)					text = struct_Data.material + " " + brackets + " Fractal parameter, " + Alpha_Sym;
-		if(whats_This == whats_This_Linear_PSD_Omega)				text = struct_Data.material + " " + brackets + " Particle volume, " + Omega_Big_Sym;
-		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)		text = struct_Data.material + " " + brackets + " Exponenta inheritance factor, " + Mu_Sym;
+		if(whats_This == whats_This_Sigma_Roughness)						text = struct_Data.material + " " + brackets + " Roughness, " + Sigma_Sym;
+		if(whats_This == whats_This_Correlation_Radius)						text = struct_Data.material + " " + brackets + " Correlation radius, " + Xi_Sym;
+		if(whats_This == whats_This_Fractal_Alpha)							text = struct_Data.material + " " + brackets + " Fractal parameter, " + Alpha_Sym;
+		if(whats_This == whats_This_Linear_PSD_Omega)						text = struct_Data.material + " " + brackets + " Particle volume, " + Omega_Big_Sym;
+		if(whats_This == whats_This_PSD_Exponenta_Mu)						text = struct_Data.material + " " + brackets + " Exponenta inheritance factor, " + Mu_Sym;
+		if(whats_This == whats_This_Fractal_Beta)							text = struct_Data.material + " " + brackets + " Frequency exponent, " + Beta_Sym;
+		if(whats_This == whats_This_Roughness_Peak_Sigma)					text = struct_Data.material + " " + brackets + " Peak roughness, " + Sigma_Sym + Subscript_v_Sym;
+		if(whats_This == whats_This_Roughness_Peak_Frequency)				text = struct_Data.material + " " + brackets + " Peak frequency, " + Nu_Sym;
+		if(whats_This == whats_This_Roughness_Peak_Frequency_Width)			text = struct_Data.material + " " + brackets + " Peak width, " + Delta_Small_Sym + Nu_Sym;
 	}
 
 	/// density fluctuations parameters
@@ -977,8 +981,8 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	if(id == struct_Data.roughness_Model.fractal_beta.indicator.id)			return &struct_Data.roughness_Model.fractal_beta;
 
 	if(id == struct_Data.roughness_Model.peak_Sigma.indicator.id)					return &struct_Data.roughness_Model.peak_Sigma;
-	if(id == struct_Data.roughness_Model.peak_Lateral_Size.indicator.id)			return &struct_Data.roughness_Model.peak_Lateral_Size;
-	if(id == struct_Data.roughness_Model.peak_Lateral_Size_Deviation.indicator.id)	return &struct_Data.roughness_Model.peak_Lateral_Size_Deviation;
+	if(id == struct_Data.roughness_Model.peak_Frequency.indicator.id)			return &struct_Data.roughness_Model.peak_Frequency;
+	if(id == struct_Data.roughness_Model.peak_Frequency_Width.indicator.id)	return &struct_Data.roughness_Model.peak_Frequency_Width;
 
 	// density fluctuations
 	if(id == struct_Data.fluctuations_Model.particle_Absolute_Density.indicator.id)			return &struct_Data.fluctuations_Model.particle_Absolute_Density;
@@ -1041,11 +1045,11 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	if(whats_This == whats_This_Correlation_Radius)						{*line_edit_precision = line_edit_cor_radius_precision;		*thumbnail_precision = thumbnail_cor_radius_precision;		*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.cor_radius;			}
 	if(whats_This == whats_This_Fractal_Alpha)							{*line_edit_precision = line_edit_fractal_alpha_precision;	*thumbnail_precision = thumbnail_fractal_alpha_precision;	*units = "";							*coeff = 1;													return &struct_Data.roughness_Model.fractal_alpha;		}
 	if(whats_This == whats_This_Linear_PSD_Omega)						{*line_edit_precision = line_edit_omega_precision;			*thumbnail_precision = thumbnail_omega_precision;			*units = " " + length_units+Cube_Sym;   *coeff = pow(length_Coefficients_Map.value(length_units),3);return &struct_Data.roughness_Model.omega;				}
-	if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)				{*line_edit_precision = line_edit_mu_precision;				*thumbnail_precision = thumbnail_mu_precision;				*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.mu;					}
+	if(whats_This == whats_This_PSD_Exponenta_Mu)						{*line_edit_precision = line_edit_mu_precision;				*thumbnail_precision = thumbnail_mu_precision;				*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.mu;					}
 	if(whats_This == whats_This_Fractal_Beta)							{*line_edit_precision = line_edit_fractal_alpha_precision;	*thumbnail_precision = thumbnail_fractal_alpha_precision;	*units = "";							*coeff = 1;													return &struct_Data.roughness_Model.fractal_beta;		}
 	if(whats_This == whats_This_Roughness_Peak_Sigma)					{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;			*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.peak_Sigma;					}
-	if(whats_This == whats_This_Roughness_Peak_Lateral_Size)			{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;			*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.peak_Lateral_Size;			}
-	if(whats_This == whats_This_Roughness_Peak_Lateral_Size_Deviation)	{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;			*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.peak_Lateral_Size_Deviation;}
+	if(whats_This == whats_This_Roughness_Peak_Frequency)				{*line_edit_precision = line_edit_frequency_precision;		*thumbnail_precision = thumbnail_frequency_precision;		*units = " " + Mu_Sym+"m"+Minus_One_Sym;*coeff = 1;													return &struct_Data.roughness_Model.peak_Frequency;			}
+	if(whats_This == whats_This_Roughness_Peak_Frequency_Width)			{*line_edit_precision = line_edit_frequency_precision;		*thumbnail_precision = thumbnail_frequency_precision;		*units = " " + Mu_Sym+"m"+Minus_One_Sym;*coeff = 1;													return &struct_Data.roughness_Model.peak_Frequency_Width;}
 
 	// density fluctuations
 	if(whats_This == whats_This_Particle_Absolute_Density)				{*line_edit_precision = line_edit_density_precision;	*thumbnail_precision = thumbnail_density_precision;	*units = " " + density_units;	*coeff = 1;												return &struct_Data.fluctuations_Model.particle_Absolute_Density;			}

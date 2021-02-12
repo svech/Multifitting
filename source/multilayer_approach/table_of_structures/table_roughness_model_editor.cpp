@@ -583,8 +583,8 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		{
 			multilayer->imperfections_Model.vertical_Correlation = zero_Correlation;
 
-			replication_Factor_Radiobutton->setDisabled(false);
-			linear_Growth_Radiobutton->setDisabled(false);
+			replication_Factor_Radiobutton->setDisabled(true);
+			linear_Growth_Radiobutton->setDisabled(true);
 
 			common_Checkbox->setDisabled(false);
 
