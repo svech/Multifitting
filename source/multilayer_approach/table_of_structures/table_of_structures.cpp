@@ -1791,7 +1791,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		}
 
 		// big label about fluctuations model
-		if(multilayer->imperfections_Model.use_Fluctuations)
+		if(multilayer->imperfections_Model.use_Fluctuations && has_Layers)
 		{
 			// row 1
 			QLabel* approximation_Label = new QLabel("DWBA approximation");

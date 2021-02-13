@@ -2539,6 +2539,18 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 							if( multilayer->imperfections_Model.PSD_Model == ABC_model &&
 								multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model)
 							{
+//								if(point_Index==0)
+//								{
+//									double alpha = substrate.roughness_Model.fractal_alpha.value;
+//									double w = max(substrate.roughness_Model.sigma.value,1e-8);
+//									auto f = [&](double r) {return exp(-pow(r,2*alpha))*sqrt(r);};
+
+//									ooura_fourier_cos<double> integrator;
+//									std::pair<double, double> result_Boost = integrator.integrate(f, w);
+//									qInfo()<< "w = " << w << " ; alpha = " << alpha << " ; integral = " << result_Boost.first << endl;
+//								}
+
+
 								// pure s-polarization
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
 								{
