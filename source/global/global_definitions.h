@@ -304,7 +304,7 @@ class Node;
 #define whats_This_Fractal_Beta					"Fractal Beta"
 #define whats_This_Roughness_Peak_Sigma			"Roughness Peak Sigma"
 #define whats_This_Roughness_Peak_Frequency		"Roughness Peak Frequency"
-#define whats_This_Roughness_Peak_Frequency_Width"Roughness Peak Frequency Width"
+#define whats_This_Roughness_Peak_Frequency_Width "Roughness Peak Frequency Width"
 #define whats_This_Interlayer_Composition		"Interlayer Composition"
 #define whats_This_Interlayer_My_Sigma_Diffuse	"Interlayer My Sigma"
 #define whats_This_Num_Repetitions				"Num Repetitions"

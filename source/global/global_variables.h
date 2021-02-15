@@ -24,6 +24,9 @@ extern Multilayer_Approach* global_Multilayer_Approach;
 
 // calculations
 extern std::vector<std::thread> global_Workers;
+extern vector<double> cos_a_Coeff_For_BesselJ0;
+extern vector<double> sin_a_Coeff_For_BesselJ0;
+extern int coeff_For_BesselJ0_Size;
 
 // locale
 extern QLocale Locale;
@@ -342,6 +345,8 @@ public:
 
 	static double nu_Alpha_2D			 (                          double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
 	static double PSD_Linear_Growth_2D	 (double exponent, double nu2_mu_Alpha_2, double omega, double nu2_omega_23, double alpha, double thickness);
+
+	static void val_Cos_Sin_Expansion	 (double arg, double& cos_Val, double& sin_Val);
 
 	// density fluctuations
 	static double G1_Square			(double a);

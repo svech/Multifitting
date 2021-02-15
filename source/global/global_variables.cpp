@@ -18,6 +18,20 @@ Multilayer_Approach* global_Multilayer_Approach;
 
 // calculations
 std::vector<std::thread> global_Workers; // still empty
+vector<double> cos_a_Coeff_For_BesselJ0 = {+1.,					// +a(0)
+										   -0.0703125,			// -a(2)
+										   +0.112152099609375,	// +a(4)
+										   -0.572501420974731,	// -a(6)
+										   +6.074042001273483	// +a(8)
+										  };
+
+vector<double> sin_a_Coeff_For_BesselJ0 = {+0.125,				// +a(1)
+										   -0.0732421875,		// -a(3)
+										   +0.227108001708984,	// +a(5)
+										   -1.727727502584457,	// -a(7)
+										   +24.38052969955606	// +a(9)
+										  };
+int coeff_For_BesselJ0_Size = cos_a_Coeff_For_BesselJ0.size();
 
 // locale
 QLocale Locale;
@@ -1219,6 +1233,23 @@ double Global_Variables::PSD_Linear_Growth_2D(double exponent, double nu2_mu_Alp
 	{
 		return omega * alpha * thickness / factor;
 	}
+}
+
+void Global_Variables::val_Cos_Sin_Expansion(double arg, double& cos_Val, double& sin_Val)
+{
+	// arg > 0
+	cos_Val = 0;
+	sin_Val = 0;
+	double arg_Power = 1;
+	for(int i=0; i<coeff_For_BesselJ0_Size; i++)
+	{
+		cos_Val += cos_a_Coeff_For_BesselJ0[i]*arg_Power;
+		arg_Power /= arg;
+		sin_Val += sin_a_Coeff_For_BesselJ0[i]*arg_Power;
+	}
+	double factor = sqrt(M_2_PI/arg);
+	cos_Val*=factor;
+	sin_Val*=factor;
 }
 
 double Global_Variables::G1_Square(double a)
