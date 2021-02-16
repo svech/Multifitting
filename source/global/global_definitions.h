@@ -903,7 +903,7 @@ struct Imperfections_Model		{
 								}
 
 								// drift
-								bool show_Drift = true;
+								bool show_Drift = false;
 
 								bool show_Thickness_Drift_Line = true;
 								bool show_Thickness_Drift_Rand = false;

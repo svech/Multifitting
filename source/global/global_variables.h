@@ -346,7 +346,8 @@ public:
 	static double nu_Alpha_2D			 (                          double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
 	static double PSD_Linear_Growth_2D	 (double exponent, double nu2_mu_Alpha_2, double omega, double nu2_omega_23, double alpha, double thickness);
 
-	static void val_Cos_Sin_Expansion	 (double arg, double& cos_Val, double& sin_Val);
+	static double val_Cos_Expansion	 (double arg);
+	static double val_Sin_Expansion	 (double arg);
 
 	// density fluctuations
 	static double G1_Square			(double a);

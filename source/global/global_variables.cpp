@@ -1235,21 +1235,32 @@ double Global_Variables::PSD_Linear_Growth_2D(double exponent, double nu2_mu_Alp
 	}
 }
 
-void Global_Variables::val_Cos_Sin_Expansion(double arg, double& cos_Val, double& sin_Val)
+double Global_Variables::val_Cos_Expansion(double arg)
 {
 	// arg > 0
-	cos_Val = 0;
-	sin_Val = 0;
+	double cos_Val = 0;
+	double arg2 = arg*arg;
 	double arg_Power = 1;
 	for(int i=0; i<coeff_For_BesselJ0_Size; i++)
 	{
 		cos_Val += cos_a_Coeff_For_BesselJ0[i]*arg_Power;
-		arg_Power /= arg;
-		sin_Val += sin_a_Coeff_For_BesselJ0[i]*arg_Power;
+		arg_Power /= arg2;
 	}
-	double factor = sqrt(M_2_PI/arg);
-	cos_Val*=factor;
-	sin_Val*=factor;
+	return cos_Val;
+}
+
+double Global_Variables::val_Sin_Expansion(double arg)
+{
+	// arg > 0
+	double sin_Val = 0;
+	double arg2 = arg*arg;
+	double arg_Power = 1/arg;
+	for(int i=0; i<coeff_For_BesselJ0_Size; i++)
+	{
+		sin_Val += sin_a_Coeff_For_BesselJ0[i]*arg_Power;
+		arg_Power /= arg2;
+	}
+	return sin_Val;
 }
 
 double Global_Variables::G1_Square(double a)
