@@ -921,11 +921,13 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 	double shift = M_PI*(2*n+0.25);
 	double nu = 0, error;
 	int counter = 1;
-	for(int sec=0; sec<num_Sections; sec++)
-	{
-		for(int i=0; i<interpoints[sec]; i++)
-		{
-			nu += dnu[sec];
+//	for(int sec=0; sec<num_Sections; sec++)
+//	{
+//		for(int i=0; i<interpoints[sec]; i++)
+//		{
+//			nu += dnu[sec];
+
+			nu = 10.1;
 
 			double integral = 0;
 			double division_Point = 2*M_PI*(10+0.125)/nu;
@@ -956,17 +958,20 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 			integral += cos_Integral.first;
 			integral += sin_Integral.first;
 
-			interpoints_Sum_Argum_Vec[counter] = nu;
-			interpoints_Sum_Value_Vec[counter] = sqrt(8*M_PI)*sigma*sigma*integral;
-			counter++;
-		}
-	}
+			qInfo() << "integral = " << sqrt(8*M_PI)*sigma*sigma*integral << endl;
 
-	acc_PSD = gsl_interp_accel_alloc();
-	if(nu_Max<10*addition) 	spline_PSD = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
-	else					spline_PSD = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
 
-	gsl_spline_init(spline_PSD, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
+//			interpoints_Sum_Argum_Vec[counter] = nu;
+//			interpoints_Sum_Value_Vec[counter] = sqrt(8*M_PI)*sigma*sigma*integral;
+//			counter++;
+//		}
+//	}
+
+//	acc_PSD = gsl_interp_accel_alloc();
+//	if(nu_Max<10*addition) 	spline_PSD = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
+//	else					spline_PSD = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
+
+//	gsl_spline_init(spline_PSD, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 }
 void Node::clear_Spline_PSD_Fractal_Gauss(const Imperfections_Model& imperfections_Model)
 {

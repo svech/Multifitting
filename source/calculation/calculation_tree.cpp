@@ -625,7 +625,16 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 		{
 			if(multilayer->imperfections_Model.use_Roughness)
 			{
-				short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(measurement, multilayer->imperfections_Model);
+				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+					measurement.measurement_Type == measurement_Types[Offset_Scan])
+				{
+					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(measurement, multilayer->imperfections_Model);
+				}
+				if(measurement.measurement_Type == measurement_Types[GISAS_Map])
+				{
+					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_2D(measurement, multilayer->imperfections_Model);
+				}
 			}
 			if(multilayer->imperfections_Model.use_Fluctuations)
 			{
@@ -651,7 +660,13 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 		{
 			if(multilayer->imperfections_Model.use_Roughness)
 			{
-				short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Fractal_Gauss(multilayer->imperfections_Model);
+				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+					measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
+					measurement.measurement_Type == measurement_Types[GISAS_Map])
+				{
+					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Fractal_Gauss(multilayer->imperfections_Model);
+				}
 			}
 			if(multilayer->imperfections_Model.use_Fluctuations)
 			{
