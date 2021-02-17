@@ -516,16 +516,16 @@ void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* t
 
 			// buttons
 			QPushButton* specular_Button = new QPushButton(measurement_Types[Specular_Scan]);
-			connect(specular_Button,  &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Specular_Scan]; type_Curve->measurement.detector_1D.slit_Width = 0.8; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
+			connect(specular_Button,  &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Specular_Scan]; type_Curve->measurement.detector_1D.slit_Width = default_detector_1D_slit_width_specular;  type_Curve->measurement.detector_1D.slit_Width = 0.8; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(specular_Button);
 			QPushButton* detector_Button = new QPushButton(measurement_Types[Detector_Scan]);
-			connect(detector_Button,  &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Detector_Scan]; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
+			connect(detector_Button,  &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Detector_Scan]; type_Curve->measurement.detector_1D.slit_Width = default_detector_1D_slit_width_scattering; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(detector_Button);
 			QPushButton* rocking_Button  = new QPushButton(measurement_Types[Rocking_Curve]);
-			connect(rocking_Button,   &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Rocking_Curve]; type_Curve->measurement.spectral_Distribution.use_Sampling = true; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
+			connect(rocking_Button,   &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Rocking_Curve]; type_Curve->measurement.detector_1D.slit_Width = default_detector_1D_slit_width_scattering; type_Curve->measurement.spectral_Distribution.use_Sampling = true; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(rocking_Button);
 			QPushButton* offset_Button   = new QPushButton(measurement_Types[Offset_Scan]);
-			connect(offset_Button,    &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Offset_Scan];   type_Curve->measurement.spectral_Distribution.use_Sampling = true; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
+			connect(offset_Button,    &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Offset_Scan];   type_Curve->measurement.detector_1D.slit_Width = default_detector_1D_slit_width_scattering; type_Curve->measurement.spectral_Distribution.use_Sampling = true; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(offset_Button);
 			QPushButton* gisas_Button    = new QPushButton(measurement_Types[GISAS_Map]);
 			connect(gisas_Button,     &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[GISAS_Map];		type_Curve->calc_Functions.instrumental_Smoothing = false; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});

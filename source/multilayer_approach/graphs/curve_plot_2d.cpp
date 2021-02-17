@@ -255,10 +255,12 @@ void Curve_Plot_2D::create_Main_Layout()
 
 void Curve_Plot_2D::restore_Marks()
 {
+	is_restored = true;
 	main_2D_Custom_Plot->itemClick(hor_Line_Current,new QMouseEvent(QEvent::MouseButtonDblClick,
 																	QPointF(main_2D_Custom_Plot->xAxis->coordToPixel(graph_2D_Positions.x_Mark),
 																			main_2D_Custom_Plot->yAxis->coordToPixel(graph_2D_Positions.y_Mark)),
-																	Qt::LeftButton, Qt::RightButton, Qt::NoModifier));
+																	Qt::LeftButton, Qt::RightButton, Qt::MetaModifier));
+	is_restored = false;
 }
 
 void Curve_Plot_2D::create_Position_Lines()
@@ -719,7 +721,7 @@ void Curve_Plot_2D::plot_Data(bool rescale_Axes)
 	refresh_Axes_Range(rescale_Axes);
 	// z range
 	//color_Map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
-	if(plot_Options.z_Scale == log_Scale) { min_Val = max(min_Val,max_Val/pow(10,plot_Options.orders_To_Show)); max_Val*=1.4;} // no more than "orders_To_Show" orders
+	if(plot_Options.z_Scale == log_Scale) { min_Val = max(min_Val,max_Val/pow(10,plot_Options.orders_To_Show)); max_Val*=1.3;} // no more than "orders_To_Show" orders
 	if(plot_Options.rescale) { color_Map->setDataRange(QCPRange(min_Val,max_Val)); }
 
 	color_Map->setInterpolate(plot_Options.use_Interpolation);
@@ -1152,7 +1154,7 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 		QLabel* orders_Label = new QLabel("Range to show, orders: ");
 		z_Range_Layout->addWidget(orders_Label);
 
-		MyDoubleSpinBox* orders_Spinbox = new MyDoubleSpinBox;
+		MyDoubleSpinBox* orders_Spinbox = new MyDoubleSpinBox(nullptr, false);
 			orders_Spinbox->setRange(1,99);
 			orders_Spinbox->setDecimals(1);
 			orders_Spinbox->setSingleStep(0.1);
@@ -1174,6 +1176,12 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 
 			double x = main_2D_Custom_Plot->xAxis->pixelToCoord(event->pos().x());
 			double y = main_2D_Custom_Plot->yAxis->pixelToCoord(event->pos().y());
+
+			if(is_restored)
+			{
+				x = graph_2D_Positions.x_Mark;
+				y = graph_2D_Positions.y_Mark;
+			}
 
 			color_Map->data()->coordToCell(x,y,&x_Cell_Fix,&y_Cell_Fix);
 

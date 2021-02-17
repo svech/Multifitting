@@ -12,7 +12,7 @@ struct Params
 	bool phi_As_Angle;
 };
 
-double function_Scattering_ABC_2D_s (double phi, void* p)
+double function_Scattering_Replication_Factor_2D_s (double phi, void* p)
 {
 	Params* params = reinterpret_cast<Params*>(p);
 	int thread_Index = params->thread_Index;
@@ -25,15 +25,15 @@ double function_Scattering_ABC_2D_s (double phi, void* p)
 	else
 		cos_Phi = phi;
 
-	double common_PSD_2D_Factor = Global_Variables::PSD_ABC_2D(u->substrate.PSD_ABC_2D_Factor,
-	                                                           u->substrate.roughness_Model.cor_radius.value,
-	                                                           u->substrate.roughness_Model.fractal_alpha.value,
-	                                                           u->measurement.k_Value,
-	                                                           params->cos_Theta,
-	                                                           params->cos_Theta_0,
-															   cos_Phi,
-															   u->substrate_Node->spline_PSD,
-															   u->substrate_Node->acc_PSD);
+	double common_PSD_2D_Factor = u->PSD_2D_Func_Vec[thread_Index](	u->substrate.PSD_ABC_2D_Factor,
+																	u->substrate.roughness_Model.cor_radius.value,
+																	u->substrate.roughness_Model.fractal_alpha.value,
+																	u->measurement.k_Value,
+																	params->cos_Theta,
+																	params->cos_Theta_0,
+																	cos_Phi,
+																	u->substrate_Node->spline_PSD,
+																	u->substrate_Node->acc_PSD);
 	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha_Threaded[thread_Index].back(), // substrate
 	                                                  u->measurement.k_Value,
 	                                                  params->cos_Theta,
@@ -53,7 +53,7 @@ double function_Scattering_ABC_2D_s (double phi, void* p)
 	}
 	return (partially_Coherent_Sum + params->incoherent_Sum_s) * common_PSD_2D_Factor;
 }
-double function_Scattering_ABC_2D_p (double phi, void* p)
+double function_Scattering_Replication_Factor_2D_p (double phi, void* p)
 {
 	Params* params = reinterpret_cast<Params*>(p);
 	int thread_Index = params->thread_Index;
@@ -66,15 +66,15 @@ double function_Scattering_ABC_2D_p (double phi, void* p)
 	else
 		cos_Phi = phi;
 
-	double common_PSD_2D_Factor = Global_Variables::PSD_ABC_2D(u->substrate.PSD_ABC_2D_Factor,
-	                                                           u->substrate.roughness_Model.cor_radius.value,
-	                                                           u->substrate.roughness_Model.fractal_alpha.value,
-	                                                           u->measurement.k_Value,
-	                                                           params->cos_Theta,
-	                                                           params->cos_Theta_0,
-															   cos_Phi,
-															   u->substrate_Node->spline_PSD,
-															   u->substrate_Node->acc_PSD);
+	double common_PSD_2D_Factor = u->PSD_2D_Func_Vec[thread_Index](	u->substrate.PSD_ABC_2D_Factor,
+																	u->substrate.roughness_Model.cor_radius.value,
+																	u->substrate.roughness_Model.fractal_alpha.value,
+																	u->measurement.k_Value,
+																	params->cos_Theta,
+																	params->cos_Theta_0,
+																	cos_Phi,
+																	u->substrate_Node->spline_PSD,
+																	u->substrate_Node->acc_PSD);
 	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha_Threaded[thread_Index].back(), // substrate
 	                                                  u->measurement.k_Value,
 	                                                  params->cos_Theta,
@@ -94,7 +94,7 @@ double function_Scattering_ABC_2D_p (double phi, void* p)
 	}
 	return (partially_Coherent_Sum + params->incoherent_Sum_p) * common_PSD_2D_Factor;
 }
-double function_Scattering_ABC_2D_sp(double phi, void* p)
+double function_Scattering_Replication_Factor_2D_sp(double phi, void* p)
 {
 	Params* params = reinterpret_cast<Params*>(p);
 	int thread_Index = params->thread_Index;
@@ -107,15 +107,15 @@ double function_Scattering_ABC_2D_sp(double phi, void* p)
 	else
 		cos_Phi = phi;
 
-	double common_PSD_2D_Factor = Global_Variables::PSD_ABC_2D(u->substrate.PSD_ABC_2D_Factor,
-	                                                           u->substrate.roughness_Model.cor_radius.value,
-	                                                           u->substrate.roughness_Model.fractal_alpha.value,
-	                                                           u->measurement.k_Value,
-	                                                           params->cos_Theta,
-	                                                           params->cos_Theta_0,
-															   cos_Phi,
-															   u->substrate_Node->spline_PSD,
-															   u->substrate_Node->acc_PSD);
+	double common_PSD_2D_Factor = u->PSD_2D_Func_Vec[thread_Index](	u->substrate.PSD_ABC_2D_Factor,
+																	u->substrate.roughness_Model.cor_radius.value,
+																	u->substrate.roughness_Model.fractal_alpha.value,
+																	u->measurement.k_Value,
+																	params->cos_Theta,
+																	params->cos_Theta_0,
+																	cos_Phi,
+																	u->substrate_Node->spline_PSD,
+																	u->substrate_Node->acc_PSD);
 	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha_Threaded[thread_Index].back(), // substrate
 	                                                  u->measurement.k_Value,
 	                                                  params->cos_Theta,
@@ -140,7 +140,7 @@ double function_Scattering_ABC_2D_sp(double phi, void* p)
 	        u->p_Weight*(params->incoherent_Sum_p + partially_Coherent_Sum_p) ) * common_PSD_2D_Factor;
 }
 
-double function_Scattering_Linear_2D_s (double phi, void* p)
+double function_Scattering_Linear_Growth_2D_s (double phi, void* p)
 {
 	Params* params = reinterpret_cast<Params*>(p);
 	int thread_Index = params->thread_Index;
@@ -154,15 +154,16 @@ double function_Scattering_Linear_2D_s (double phi, void* p)
 		cos_Phi = phi;
 
 	// incoherent part and PSD
-	u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1] = Global_Variables::PSD_ABC_2D(u->substrate.PSD_ABC_2D_Factor,
-	                                                                                         u->substrate.roughness_Model.cor_radius.value,
-	                                                                                         u->substrate.roughness_Model.fractal_alpha.value,
-	                                                                                         u->measurement.k_Value,
-	                                                                                         params->cos_Theta,
-	                                                                                         params->cos_Theta_0,
-																							 cos_Phi,
-																							 u->substrate_Node->spline_PSD,
-																							 u->substrate_Node->acc_PSD);
+	u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1] = u->PSD_2D_Func_Vec[thread_Index](
+																							u->substrate.PSD_ABC_2D_Factor,
+																							u->substrate.roughness_Model.cor_radius.value,
+																							u->substrate.roughness_Model.fractal_alpha.value,
+																							u->measurement.k_Value,
+																							params->cos_Theta,
+																							params->cos_Theta_0,
+																							cos_Phi,
+																							u->substrate_Node->spline_PSD,
+																							u->substrate_Node->acc_PSD);
 
 	double incoherent_Sum = u->intensity_Term_Boundary_s[thread_Index][u->num_Boundaries_Sharp-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1];
 	for (int i = u->num_Boundaries_Sharp-2; i>=0; i--)
@@ -200,7 +201,7 @@ double function_Scattering_Linear_2D_s (double phi, void* p)
 	}
 	return (partially_Coherent_Sum + incoherent_Sum);
 }
-double function_Scattering_Linear_2D_p (double phi, void* p)
+double function_Scattering_Linear_Growth_2D_p (double phi, void* p)
 {
 	Params* params = reinterpret_cast<Params*>(p);
 	int thread_Index = params->thread_Index;
@@ -214,15 +215,16 @@ double function_Scattering_Linear_2D_p (double phi, void* p)
 		cos_Phi = phi;
 
 	// incoherent part and PSD
-	u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1] = Global_Variables::PSD_ABC_2D(u->substrate.PSD_ABC_2D_Factor,
-	                                                                                         u->substrate.roughness_Model.cor_radius.value,
-	                                                                                         u->substrate.roughness_Model.fractal_alpha.value,
-	                                                                                         u->measurement.k_Value,
-	                                                                                         params->cos_Theta,
-	                                                                                         params->cos_Theta_0,
-																							 cos_Phi,
-																							 u->substrate_Node->spline_PSD,
-																							 u->substrate_Node->acc_PSD);
+	u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1] = u->PSD_2D_Func_Vec[thread_Index](
+																							u->substrate.PSD_ABC_2D_Factor,
+																							u->substrate.roughness_Model.cor_radius.value,
+																							u->substrate.roughness_Model.fractal_alpha.value,
+																							u->measurement.k_Value,
+																							params->cos_Theta,
+																							params->cos_Theta_0,
+																							cos_Phi,
+																							u->substrate_Node->spline_PSD,
+																							u->substrate_Node->acc_PSD);
 
 	double incoherent_Sum = u->intensity_Term_Boundary_p[thread_Index][u->num_Boundaries_Sharp-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1];
 	for (int i = u->num_Boundaries_Sharp-2; i>=0; i--)
@@ -260,7 +262,7 @@ double function_Scattering_Linear_2D_p (double phi, void* p)
 	}
 	return (partially_Coherent_Sum + incoherent_Sum);
 }
-double function_Scattering_Linear_2D_sp(double phi, void* p)
+double function_Scattering_Linear_Growth_2D_sp(double phi, void* p)
 {
 	Params* params = reinterpret_cast<Params*>(p);
 	int thread_Index = params->thread_Index;
@@ -274,15 +276,16 @@ double function_Scattering_Linear_2D_sp(double phi, void* p)
 		cos_Phi = phi;
 
 	// incoherent part and PSD
-	u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1] = Global_Variables::PSD_ABC_2D(u->substrate.PSD_ABC_2D_Factor,
-	                                                                                         u->substrate.roughness_Model.cor_radius.value,
-	                                                                                         u->substrate.roughness_Model.fractal_alpha.value,
-	                                                                                         u->measurement.k_Value,
-	                                                                                         params->cos_Theta,
-	                                                                                         params->cos_Theta_0,
-																							 cos_Phi,
-																							 u->substrate_Node->spline_PSD,
-																							 u->substrate_Node->acc_PSD);
+	u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1] = u->PSD_2D_Func_Vec[thread_Index](
+																							u->substrate.PSD_ABC_2D_Factor,
+																							u->substrate.roughness_Model.cor_radius.value,
+																							u->substrate.roughness_Model.fractal_alpha.value,
+																							u->measurement.k_Value,
+																							params->cos_Theta,
+																							params->cos_Theta_0,
+																							cos_Phi,
+																							u->substrate_Node->spline_PSD,
+																							u->substrate_Node->acc_PSD);
 
 	double incoherent_Sum_s = u->intensity_Term_Boundary_s[thread_Index][u->num_Boundaries_Sharp-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1];
 	double incoherent_Sum_p = u->intensity_Term_Boundary_p[thread_Index][u->num_Boundaries_Sharp-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1];
@@ -2563,27 +2566,16 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						}
 						if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation )
 						{
-							if( multilayer->imperfections_Model.PSD_Model == ABC_model &&
-								multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model)
+							// here we need 2D PSD
+							choose_PSD_2D_Function(substrate, thread_Index);
+							if( multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model)
 							{
-//								if(point_Index==0)
-//								{
-//									double alpha = substrate.roughness_Model.fractal_alpha.value;
-//									double w = max(substrate.roughness_Model.sigma.value,1e-8);
-//									auto f = [&](double r) {return exp(-pow(r,2*alpha))*sqrt(r);};
-
-//									ooura_fourier_cos<double> integrator;
-//									std::pair<double, double> result_Boost = integrator.integrate(f, w);
-//									qInfo()<< "w = " << w << " ; alpha = " << alpha << " ; integral = " << result_Boost.first << endl;
-//								}
-
-
 								// pure s-polarization
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
 								{
 									double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, incoherent_Sum_s, 0, true };
-									gsl_function F = { &function_Scattering_ABC_2D_s, &params };
+									gsl_function F = { &function_Scattering_Replication_Factor_2D_s, &params };
 
 									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
 								} else
@@ -2592,7 +2584,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, incoherent_Sum_p, true };
-									gsl_function F = { &function_Scattering_ABC_2D_p, &params };
+									gsl_function F = { &function_Scattering_Replication_Factor_2D_p, &params };
 
 									calculated_Values.S_p[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
 								} else
@@ -2601,22 +2593,21 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
 									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, incoherent_Sum_s, incoherent_Sum_p, true };
-									gsl_function F = { &function_Scattering_ABC_2D_sp, &params };
+									gsl_function F = { &function_Scattering_Replication_Factor_2D_sp, &params };
 
 									// crutch: s and p only on mixed state. no different s and p calculations
 									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
 									calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
 								}
 							} else
-							if( multilayer->imperfections_Model.PSD_Model == ABC_model &&
-								multilayer->imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model)
+							if( multilayer->imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model)
 							{
 								// pure s-polarization
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
 								{
 									calc_Field_Term_Sum("s", point_Index, thread_Index);
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, 0, true };
-									gsl_function F = { &function_Scattering_Linear_2D_s, &params };
+									gsl_function F = { &function_Scattering_Linear_Growth_2D_s, &params };
 
 									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
 								} else
@@ -2625,7 +2616,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, 0, true };
-									gsl_function F = { &function_Scattering_Linear_2D_p, &params };
+									gsl_function F = { &function_Scattering_Linear_Growth_2D_p, &params };
 
 									calculated_Values.S_p[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
 								} else
@@ -2634,22 +2625,12 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									calc_Field_Term_Sum("s", point_Index, thread_Index);
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, 0, true };
-									gsl_function F = { &function_Scattering_Linear_2D_sp, &params };
+									gsl_function F = { &function_Scattering_Linear_Growth_2D_sp, &params };
 
 									// crutch: s and p only on mixed state. no different s and p calculations
 									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
 									calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
 								}
-							} else
-							if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model &&
-								multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model)
-							{
-								// TODO
-							} else
-							if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model &&
-								multilayer->imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model)
-							{
-								// TODO
 							}
 						}
 					}
@@ -2787,8 +2768,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						}
 						if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation )
 						{
-							if( multilayer->imperfections_Model.PSD_Model == ABC_model &&
-								multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model )
+							if( multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model )
 							{
 								// pure s-polarization
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
@@ -2797,7 +2777,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, 0, false };
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Replication_Factor_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}
 								} else
 								// pure p-polarization
@@ -2807,7 +2787,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, incoherent_Sum_p, false };
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Replication_Factor_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}
 								} else
 								// mixed sp-polarization
@@ -2817,12 +2797,11 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, incoherent_Sum_p, false };
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Replication_Factor_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}
 								}
 							} else
-							if( multilayer->imperfections_Model.PSD_Model == ABC_model &&
-								multilayer->imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model )
+							if( multilayer->imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model )
 							{
 								// pure s-polarization
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
@@ -2831,7 +2810,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_Growth_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}
 								} else
 								// pure p-polarization
@@ -2841,7 +2820,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_Growth_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}
 								} else
 								// mixed sp-polarization
@@ -2851,19 +2830,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_Growth_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}
 								}
-							} else
-							if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model &&
-								multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model )
-							{
-								// TODO
-							} else
-							if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model &&
-								multilayer->imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model )
-							{
-								// TODO
 							}
 						}
 					}

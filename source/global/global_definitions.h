@@ -556,7 +556,7 @@ struct Distribution             { double FWHM_distribution = 0;
 struct Detector_1D				{ QString detector_Type;
 
 								  // slit
-								  double slit_Width = 0.5;
+								  double slit_Width = 0.1;
 								  double distance_To_Sample = 300;
 
 								  // crystal
@@ -591,7 +591,7 @@ struct Beam_Geometry			{ double size = 0.055;			// mm
 								  bool asymmetric_Wing_Width = false; // UNUSED
 								  double wings_Intensity = 0;   // share of main beam intensity
 
-								  double lateral_Width = 5.0;	// mm
+								  double lateral_Width = 0.5;	// mm
 
 								  bool log_Profile_Plot = false;
 								};

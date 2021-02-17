@@ -103,7 +103,10 @@ Data::Data(QString item_Type_Passed)
 
 		// detector
 		detector_1D.detector_Type = detectors[Slit];
-		detector_1D.slit_Width			= default_detector_1D_slit_width;
+		if( measurement_Type == measurement_Types[Specular_Scan])	detector_1D.slit_Width = default_detector_1D_slit_width_specular;
+		if( measurement_Type == measurement_Types[Detector_Scan] ||
+			measurement_Type == measurement_Types[Rocking_Curve] ||
+			measurement_Type == measurement_Types[Offset_Scan])		detector_1D.slit_Width = default_detector_1D_slit_width_scattering;
 		detector_1D.distance_To_Sample	= default_detector_1D_distance_to_sample;
 
 		detector_1D.detector_Theta_Resolution.FWHM_distribution = default_detector_1D_theta_resolution_FWHM;

@@ -412,7 +412,8 @@ double default_beam_phi_0_distribution_coverage;
 bool   default_beam_phi_0_distribution_use_sampling;
 int    default_beam_phi_0_distribution_number_of_Samples;
 
-double default_detector_1D_slit_width;
+double default_detector_1D_slit_width_specular;
+double default_detector_1D_slit_width_scattering;
 double default_detector_1D_distance_to_sample;
 double default_detector_1D_theta_resolution_FWHM;
 
@@ -1296,7 +1297,8 @@ void Settings::read_Measurement_Default_Values(bool reset_to_default)
 		default_beam_phi_0_distribution_use_sampling		= measurement_Default_Values.value( "default_beam_phi_0_distribution_use_sampling",		false	).toBool();
 		default_beam_phi_0_distribution_number_of_Samples	= measurement_Default_Values.value( "default_beam_phi_0_distribution_number_of_Samples",	5	).toInt();
 
-		default_detector_1D_slit_width						= measurement_Default_Values.value( "default_detector_1D_slit_width",					0.8		).toDouble();
+		default_detector_1D_slit_width_specular				= measurement_Default_Values.value( "default_detector_1D_slit_width_specular",			0.8		).toDouble();
+		default_detector_1D_slit_width_scattering			= measurement_Default_Values.value( "default_detector_1D_slit_width_scattering",		0.1		).toDouble();
 		default_detector_1D_distance_to_sample				= measurement_Default_Values.value( "default_detector_1D_distance_to_sample",			300		).toDouble();
 		default_detector_1D_theta_resolution_FWHM			= measurement_Default_Values.value( "default_detector_1D_theta_resolution_FWHM",		0		).toDouble();
 
@@ -1374,7 +1376,8 @@ void Settings::save_Measurement_Default_Values()
 		measurement_Default_Values.setValue( "default_beam_phi_0_distribution_use_sampling",		default_beam_phi_0_distribution_use_sampling		);
 		measurement_Default_Values.setValue( "default_beam_phi_0_distribution_number_of_Samples",	default_beam_phi_0_distribution_number_of_Samples	);
 
-		measurement_Default_Values.setValue( "default_detector_1D_slit_width",						default_detector_1D_slit_width						);
+		measurement_Default_Values.setValue( "default_detector_1D_slit_width_specular",				default_detector_1D_slit_width_specular				);
+		measurement_Default_Values.setValue( "default_detector_1D_slit_width_scattering",			default_detector_1D_slit_width_scattering			);
 		measurement_Default_Values.setValue( "default_detector_1D_distance_to_sample",				default_detector_1D_distance_to_sample				);
 		measurement_Default_Values.setValue( "default_detector_1D_theta_resolution_FWHM",			default_detector_1D_theta_resolution_FWHM			);
 

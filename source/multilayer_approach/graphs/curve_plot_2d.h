@@ -101,6 +101,7 @@ public:
 	int y_Cell_Cur;
 	int x_Cell_Fix;
 	int y_Cell_Fix;
+	bool is_restored = false;
 	double thickness_Fixed = 2;
 	double thickness_Current = 0.7;
 	QColor color_Meas = Qt::red;

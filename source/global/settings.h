@@ -420,7 +420,8 @@ extern double default_beam_phi_0_distribution_coverage;
 extern bool   default_beam_phi_0_distribution_use_sampling;
 extern int    default_beam_phi_0_distribution_number_of_Samples;
 
-extern double default_detector_1D_slit_width;
+extern double default_detector_1D_slit_width_specular;
+extern double default_detector_1D_slit_width_scattering;
 extern double default_detector_1D_distance_to_sample;
 extern double default_detector_1D_theta_resolution_FWHM;
 

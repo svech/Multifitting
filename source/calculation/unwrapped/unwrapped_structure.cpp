@@ -235,14 +235,13 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 	sigma_Roughness [num_Layers] = media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma.value;
 	alpha           [num_Layers] = media_Data_Map_Vector[num_Layers+1]->roughness_Model.fractal_alpha.value;
 
-	// common alpha and sigma for partial correlation ( we dont need to recalculate omega_pow23 )
+	// common sigma for partial correlation with replication factor
 	if(multilayer->imperfections_Model.use_Common_Roughness_Function)
-	if(multilayer->imperfections_Model.PSD_Model == ABC_model || multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
+	if(multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model)
 	{
 		for(int boundary_Index=0; boundary_Index<num_Boundaries; boundary_Index++)
 		{
 			sigma_Roughness[boundary_Index] = sigma_Roughness.back();
-			alpha		   [boundary_Index] = alpha.back();
 		}
 	}
 
