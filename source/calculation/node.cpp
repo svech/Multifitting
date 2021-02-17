@@ -799,7 +799,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 	int common_Size = 0;
 	for(int i=0; i<num_Sections; i++)
 	{
-		interpoints[i] = 20-2*i;
+		interpoints[i] = 40-3*i;
 		common_Size+=interpoints[i];
 	}
 	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
@@ -831,18 +831,22 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 	// boost integrator
 	auto f = [&](double r) {return sigma*sigma * exp(-pow(r/xi,2*alpha));};
 
-	ooura_fourier_cos<double> integrator;
+	const double tol = 1E-7;
+	int depth = 4;
+	ooura_fourier_cos<double> integrator(tol,depth);
 	for(int sec=0; sec<num_Sections; sec++)
 	{
 		for(int i=0; i<interpoints[sec]; i++)
 		{
 			p += dp[sec];
 
-			// second part
-			std::pair<double, double> result_Boost = integrator.integrate(f, p);
-			result = result_Boost.first;
-
 			interpoints_Sum_Argum_Vec[counter] = p;
+			if(abs(1-alpha)>DBL_EPSILON && abs(0.5-alpha)>DBL_EPSILON)
+			{
+				std::pair<double, double> result_Boost = integrator.integrate(f, p);
+				result = result_Boost.first;
+			}
+
 			interpoints_Sum_Value_Vec[counter] = 4*result;
 			counter++;
 		}
@@ -881,13 +885,12 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 	double addition = 1E-8;
 	double nu_Max = sqrt(temp_Nu2.back())*(1+addition);
 
-
 	int num_Sections = 6; // plus zero point
 	vector<int> interpoints(num_Sections);
 	int common_Size = 0;
 	for(int i=0; i<num_Sections; i++)
 	{
-		interpoints[i] = 20-2*i;
+		interpoints[i] = 50-5*i;
 		common_Size+=interpoints[i];
 	}
 	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
@@ -895,8 +898,8 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 
 	vector<double> starts(num_Sections); // open start
 	starts[0] = 0;
-	starts[1] = nu_Max/300;
-	starts[2] = nu_Max/40;
+	starts[1] = nu_Max/5000;
+	starts[2] = nu_Max/100;
 	starts[3] = nu_Max/10;
 	starts[4] = nu_Max/5;
 	starts[5] = nu_Max/2;
@@ -914,64 +917,65 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 		interpoints_Sum_Value_Vec[0] = M_PI*sigma*sigma*xi*xi*tgamma(1.+1/alpha);
 	}
 
-	ooura_fourier_cos<double> integrator_Cos;
-	ooura_fourier_sin<double> integrator_Sin;
+	const double tol = 1E-7;
+	int depth = 4;
+	ooura_fourier_cos<double> integrator_Cos(tol, depth);
+	ooura_fourier_sin<double> integrator_Sin(tol, depth);
 
 	double n = 2;
 	double shift = M_PI*(2*n+0.25);
 	double nu = 0, error;
 	int counter = 1;
-//	for(int sec=0; sec<num_Sections; sec++)
-//	{
-//		for(int i=0; i<interpoints[sec]; i++)
-//		{
-//			nu += dnu[sec];
+	for(int sec=0; sec<num_Sections; sec++)
+	{
+		for(int i=0; i<interpoints[sec]; i++)
+		{
+			nu += dnu[sec];
 
-			nu = 10.1;
+			interpoints_Sum_Argum_Vec[counter] = nu;
 
-			double integral = 0;
-			double division_Point = 2*M_PI*(10+0.125)/nu;
-			// first part
-			auto f_1 = [&](double r)
+			if(abs(1-alpha)>DBL_EPSILON && abs(0.5-alpha)>DBL_EPSILON)
 			{
-				return exp(-pow(r/xi,2*alpha)) * cyl_bessel_j(0, nu*r) * r;
-			};
-			integral = gauss_kronrod<double, 31>::integrate(f_1, 0, division_Point, 2, 1e-7, &error);
+				double integral = 0;
+				double division_Point = shift/nu;
+				// first part
+				auto f_1 = [&](double r)
+				{
+					return exp(-pow(r/xi,2*alpha)) * cyl_bessel_j(0, nu*r) * r;
+				};
+				integral = 2*M_PI*gauss_kronrod<double, 31>::integrate(f_1, 0, division_Point, 2, 1e-7, &error);
 
-			// second part
-			auto f_2_cos = [&](double r)
-			{
-				double r_Sh = r + shift/nu;
-				double r_Sh_W = nu*r + shift;
-				double cos_Val = Global_Variables::val_Cos_Expansion(r_Sh_W);
-				return exp(-pow(r_Sh/xi,2*alpha)) * cos_Val * sqrt(r_Sh/nu);
-			};
-			auto f_2_sin = [&](double r)
-			{
-				double r_Sh = r + shift/nu;
-				double r_Sh_W = nu*r + shift;
-				double sin_Val = Global_Variables::val_Sin_Expansion(r_Sh_W);
-				return exp(-pow(r_Sh/xi,2*alpha)) * sin_Val * sqrt(r_Sh/nu);
-			};
-			std::pair<double, double> cos_Integral = integrator_Cos.integrate(f_2_cos, nu);
-			std::pair<double, double> sin_Integral = integrator_Sin.integrate(f_2_sin, nu);
-			integral += cos_Integral.first;
-			integral += sin_Integral.first;
+				// second part
+				auto f_2_cos = [&](double r)
+				{
+					double r_Sh = r + shift/nu;
+					double r_Sh_W = nu*r + shift;
+					double cos_Val = Global_Variables::val_Cos_Expansion(r_Sh_W);
+					return exp(-pow(r_Sh/xi,2*alpha)) * cos_Val * sqrt(r_Sh/nu);
+				};
+				auto f_2_sin = [&](double r)
+				{
+					double r_Sh = r + shift/nu;
+					double r_Sh_W = nu*r + shift;
+					double sin_Val = Global_Variables::val_Sin_Expansion(r_Sh_W);
+					return exp(-pow(r_Sh/xi,2*alpha)) * sin_Val * sqrt(r_Sh/nu);
+				};
+				std::pair<double, double> cos_Integral = integrator_Cos.integrate(f_2_cos, nu);
+				integral += sqrt(8*M_PI)*cos_Integral.first;
+				std::pair<double, double> sin_Integral = integrator_Sin.integrate(f_2_sin, nu);
+				integral += sqrt(8*M_PI)*sin_Integral.first;
 
-			qInfo() << "integral = " << sqrt(8*M_PI)*sigma*sigma*integral << endl;
+				interpoints_Sum_Value_Vec[counter] = sigma*sigma*integral;
+			}
+			counter++;
+		}
+	}
 
+	acc_PSD = gsl_interp_accel_alloc();
+	if(nu_Max<10*addition) 	spline_PSD = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
+	else					spline_PSD = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
 
-//			interpoints_Sum_Argum_Vec[counter] = nu;
-//			interpoints_Sum_Value_Vec[counter] = sqrt(8*M_PI)*sigma*sigma*integral;
-//			counter++;
-//		}
-//	}
-
-//	acc_PSD = gsl_interp_accel_alloc();
-//	if(nu_Max<10*addition) 	spline_PSD = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
-//	else					spline_PSD = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
-
-//	gsl_spline_init(spline_PSD, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
+	gsl_spline_init(spline_PSD, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 }
 void Node::clear_Spline_PSD_Fractal_Gauss(const Imperfections_Model& imperfections_Model)
 {

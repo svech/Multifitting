@@ -82,7 +82,7 @@ public:
 	// PT
 	///---------------------------------------------------------------------
 	vector<double(*)(double, double, double, double, double, double, gsl_spline*, gsl_interp_accel*)> PSD_1D_Func_Vec;
-	vector<double(*)(double, double, double, double, double, double, double)> PSD_2D_Func_Vec;
+	vector<double(*)(double, double, double, double, double, double, double, gsl_spline*, gsl_interp_accel*)> PSD_2D_Func_Vec;
 	vector<double(*)(double, double, double)> Cor_Func_Vec;
 
 	QMap<id_Type, int> id_Item_Map;
@@ -243,7 +243,7 @@ public:
 
 	double calc_Field_Term_Sum			(QString polarization, int point_Index, int thread_Index);
 	void choose_PSD_1D_Function			(const Data& struct_Data, int thread_Index);
-	void choose_PSD_2D_Function			(int point_Index, int thread_Index);
+	void choose_PSD_2D_Function			(const Data& struct_Data, int thread_Index);
 	double azimuthal_Integration		(gsl_function* function, double delta);
 
 	// DWBA SA CSA

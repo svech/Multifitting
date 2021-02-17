@@ -79,7 +79,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 		bool discretization_DWBA_SA_CSA = false;
 
 		if( have_GISAS &&
-		   (multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model ||
+		   (//multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model ||
 			multilayer->imperfections_Model.approximation == DWBA_approximation ||
 			multilayer->imperfections_Model.approximation == SA_approximation   ||
 			multilayer->imperfections_Model.approximation == CSA_approximation  ))
@@ -99,7 +99,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 			if(GISAS_DWBA_SA_CSA)
 			{
 				QString text;
-				if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model ) text = "Fractal Gauss model";
+//				if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model ) text = "Fractal Gauss model";
 				if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "DWBA approximation";
 				if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "SA approximation";
 				if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "CSA approximation";

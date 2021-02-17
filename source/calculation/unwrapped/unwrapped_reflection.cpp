@@ -31,7 +31,9 @@ double function_Scattering_ABC_2D_s (double phi, void* p)
 	                                                           u->measurement.k_Value,
 	                                                           params->cos_Theta,
 	                                                           params->cos_Theta_0,
-	                                                           cos_Phi);
+															   cos_Phi,
+															   u->substrate_Node->spline_PSD,
+															   u->substrate_Node->acc_PSD);
 	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha_Threaded[thread_Index].back(), // substrate
 	                                                  u->measurement.k_Value,
 	                                                  params->cos_Theta,
@@ -70,7 +72,9 @@ double function_Scattering_ABC_2D_p (double phi, void* p)
 	                                                           u->measurement.k_Value,
 	                                                           params->cos_Theta,
 	                                                           params->cos_Theta_0,
-	                                                           cos_Phi);
+															   cos_Phi,
+															   u->substrate_Node->spline_PSD,
+															   u->substrate_Node->acc_PSD);
 	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha_Threaded[thread_Index].back(), // substrate
 	                                                  u->measurement.k_Value,
 	                                                  params->cos_Theta,
@@ -109,7 +113,9 @@ double function_Scattering_ABC_2D_sp(double phi, void* p)
 	                                                           u->measurement.k_Value,
 	                                                           params->cos_Theta,
 	                                                           params->cos_Theta_0,
-	                                                           cos_Phi);
+															   cos_Phi,
+															   u->substrate_Node->spline_PSD,
+															   u->substrate_Node->acc_PSD);
 	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha_Threaded[thread_Index].back(), // substrate
 	                                                  u->measurement.k_Value,
 	                                                  params->cos_Theta,
@@ -154,7 +160,9 @@ double function_Scattering_Linear_2D_s (double phi, void* p)
 	                                                                                         u->measurement.k_Value,
 	                                                                                         params->cos_Theta,
 	                                                                                         params->cos_Theta_0,
-	                                                                                         cos_Phi);
+																							 cos_Phi,
+																							 u->substrate_Node->spline_PSD,
+																							 u->substrate_Node->acc_PSD);
 
 	double incoherent_Sum = u->intensity_Term_Boundary_s[thread_Index][u->num_Boundaries_Sharp-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1];
 	for (int i = u->num_Boundaries_Sharp-2; i>=0; i--)
@@ -212,7 +220,9 @@ double function_Scattering_Linear_2D_p (double phi, void* p)
 	                                                                                         u->measurement.k_Value,
 	                                                                                         params->cos_Theta,
 	                                                                                         params->cos_Theta_0,
-	                                                                                         cos_Phi);
+																							 cos_Phi,
+																							 u->substrate_Node->spline_PSD,
+																							 u->substrate_Node->acc_PSD);
 
 	double incoherent_Sum = u->intensity_Term_Boundary_p[thread_Index][u->num_Boundaries_Sharp-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1];
 	for (int i = u->num_Boundaries_Sharp-2; i>=0; i--)
@@ -270,7 +280,9 @@ double function_Scattering_Linear_2D_sp(double phi, void* p)
 	                                                                                         u->measurement.k_Value,
 	                                                                                         params->cos_Theta,
 	                                                                                         params->cos_Theta_0,
-	                                                                                         cos_Phi);
+																							 cos_Phi,
+																							 u->substrate_Node->spline_PSD,
+																							 u->substrate_Node->acc_PSD);
 
 	double incoherent_Sum_s = u->intensity_Term_Boundary_s[thread_Index][u->num_Boundaries_Sharp-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1];
 	double incoherent_Sum_p = u->intensity_Term_Boundary_p[thread_Index][u->num_Boundaries_Sharp-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries_Sharp-1];
@@ -1002,6 +1014,7 @@ inline void Unwrapped_Reflection::fill_Item_PSD_2D(int thread_Index, int point_I
 {
 	for(size_t item_Index = 0; item_Index<appropriate_Item_Vec.size(); item_Index++)
 	{
+		Node* node = short_Flat_Calc_Tree[item_Index];
 		Data& item = appropriate_Item_Vec[item_Index];
 		double value = PSD_2D_Func_Vec[thread_Index](item.PSD_ABC_2D_Factor,
 		                                             item.roughness_Model.cor_radius.value,
@@ -1009,7 +1022,9 @@ inline void Unwrapped_Reflection::fill_Item_PSD_2D(int thread_Index, int point_I
 		                                             measurement.k_Value,
 		                                             measurement.detector_Theta_Cos_Vec[point_Index],
 		                                             measurement.beam_Theta_0_Cos_Value,
-		                                             measurement.detector_Phi_Cos_Vec[phi_Index]);
+													 measurement.detector_Phi_Cos_Vec[phi_Index],
+													 node->spline_PSD,
+													 node->acc_PSD);
 		PSD_Factor_Item[thread_Index][item_Index] = value;
 	}
 }
@@ -2298,7 +2313,7 @@ void Unwrapped_Reflection::choose_PSD_1D_Function(const Data& struct_Data, int t
 	} else
 	if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
-		if(struct_Data.roughness_Model.fractal_alpha.value<1)
+		if(abs(struct_Data.roughness_Model.fractal_alpha.value-1)>DBL_EPSILON)
 		{
 			if(abs(struct_Data.roughness_Model.fractal_alpha.value - 0.5) < DBL_EPSILON)
 			{
@@ -2314,7 +2329,7 @@ void Unwrapped_Reflection::choose_PSD_1D_Function(const Data& struct_Data, int t
 	}
 }
 
-void Unwrapped_Reflection::choose_PSD_2D_Function(int point_Index, int thread_Index)
+void Unwrapped_Reflection::choose_PSD_2D_Function(const Data& struct_Data, int thread_Index)
 {
 	if(multilayer->imperfections_Model.PSD_Model == ABC_model)
 	{
@@ -2322,7 +2337,19 @@ void Unwrapped_Reflection::choose_PSD_2D_Function(int point_Index, int thread_In
 	} else
 	if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
-		if(point_Index == 0) cout << "Unwrapped_Reflection::choose_PSD_2D_Function  :  fractal_Gauss_Model can't be used in 2D" << endl;
+		if(abs(struct_Data.roughness_Model.fractal_alpha.value-1)>DBL_EPSILON)
+		{
+			if(abs(struct_Data.roughness_Model.fractal_alpha.value - 0.5) < DBL_EPSILON)
+			{
+				PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_2D;
+			} else
+			{
+				PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Fractal_Gauss_2D;
+			}
+		} else
+		{
+			PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Real_Gauss_2D;
+		}
 	}
 }
 
@@ -2628,7 +2655,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					}
 					if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 					{
-						choose_PSD_2D_Function(point_Index, thread_Index);
+						choose_PSD_2D_Function(substrate, thread_Index);
 						if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
 							multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
 						{
@@ -2648,7 +2675,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																					  measurement.k_Value,
 																					  measurement.detector_Theta_Cos_Vec[point_Index],
 																					  measurement.beam_Theta_0_Cos_Value,
-																					  measurement.detector_Phi_Cos_Vec[phi_Index]);
+																					  measurement.detector_Phi_Cos_Vec[phi_Index],
+																					  substrate_Node->spline_PSD,
+																					  substrate_Node->acc_PSD);
 
 										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_s * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}
@@ -2666,7 +2695,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																					  measurement.k_Value,
 																					  measurement.detector_Theta_Cos_Vec[point_Index],
 																					  measurement.beam_Theta_0_Cos_Value,
-																					  measurement.detector_Phi_Cos_Vec[phi_Index]);
+																					  measurement.detector_Phi_Cos_Vec[phi_Index],
+																					  substrate_Node->spline_PSD,
+																					  substrate_Node->acc_PSD);
 
 										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_p * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}
@@ -2683,7 +2714,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																					  measurement.k_Value,
 																					  measurement.detector_Theta_Cos_Vec[point_Index],
 																					  measurement.beam_Theta_0_Cos_Value,
-																					  measurement.detector_Phi_Cos_Vec[phi_Index]);
+																					  measurement.detector_Phi_Cos_Vec[phi_Index],
+																					  substrate_Node->spline_PSD,
+																					  substrate_Node->acc_PSD);
 
 										calculated_Values.GISAS_Map[phi_Index][point_Index] = (s_Weight*field_Term_Sum_s + p_Weight*field_Term_Sum_p)*e_Factor_PT_2D*PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}

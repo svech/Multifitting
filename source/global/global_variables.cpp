@@ -1163,7 +1163,7 @@ double Global_Variables::PSD_ABC_1D(double factor, double xi, double alpha, doub
 	return /*4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi*/ factor / pow(1+p*p*xi*xi, alpha+0.5);
 }
 
-double Global_Variables::PSD_ABC_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
+double Global_Variables::PSD_ABC_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
 	return /*4*M_PI * sigma*sigma * xi*xi * alpha*/ factor / pow(1+nu2*xi*xi, alpha+1);
@@ -1178,7 +1178,7 @@ double Global_Variables::PSD_Real_Gauss_1D(double factor, double xi, double alph
 	return /*2*sqrt(M_PI) * sigma*sigma*xi*/ factor * exp(-p*p*xi*xi);
 }
 
-double Global_Variables::PSD_Real_Gauss_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
+double Global_Variables::PSD_Real_Gauss_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(alpha)
 	double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / 4.;
@@ -1192,6 +1192,15 @@ double Global_Variables::PSD_Fractal_Gauss_1D(double sigma, double xi, double al
 	Q_UNUSED(alpha)
 	double p = k*abs(cos_Theta - cos_Theta_0);
 	return gsl_spline_eval(spline, p, acc);
+}
+
+double Global_Variables::PSD_Fractal_Gauss_2D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)
+{
+	Q_UNUSED(sigma)
+	Q_UNUSED(xi)
+	Q_UNUSED(alpha)
+	double nu = k*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
+	return gsl_spline_eval(spline, nu, acc);
 }
 
 double Global_Variables::Cor_Fractal_Gauss(double xi, double alpha, double r)

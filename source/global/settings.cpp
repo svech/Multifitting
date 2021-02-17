@@ -1421,6 +1421,9 @@ void Settings::read_General_Settings(bool reset_to_default)
 		last_directory					= general_Settings.value( "last_directory",			QDir::currentPath() ).toString();
 		last_data_directory				= general_Settings.value( "last_data_directory",	QDir::currentPath() ).toString();
 		last_file						= general_Settings.value( "last_file",				default_File		).toString();
+		if(last_directory      == "") last_directory      = QDir::currentPath();
+		if(last_data_directory == "") last_data_directory = QDir::currentPath();
+		if(working_directory   == "") working_directory   = QDir::currentPath();
 	general_Settings.endGroup();
 
 	general_Settings.beginGroup( Calculation_Tab );

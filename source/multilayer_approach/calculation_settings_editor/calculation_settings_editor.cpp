@@ -373,13 +373,13 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 			}
 			if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
 			{
-				if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model ||
+				if( //multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model ||
 					multilayer->imperfections_Model.approximation == DWBA_approximation ||
 					multilayer->imperfections_Model.approximation == SA_approximation ||
 					multilayer->imperfections_Model.approximation == CSA_approximation )
 				{
 					QString text;
-					if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model ) text = "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.";
+//					if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model ) text = "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.";
 					if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "2D scattering can't be simulated in DWBA approximation.\nChange the approximation in Structure Table.";
 					if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "2D scattering can't be simulated in SA approximation.\nChange the approximation in Structure Table.";
 					if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "2D scattering can't be simulated in CSA approximation.\nChange the approximation in Structure Table.";
