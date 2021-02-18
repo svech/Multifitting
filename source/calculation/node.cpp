@@ -794,12 +794,12 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 	double p_Max = temp_Cos.back()+addition;
 
 
-	int num_Sections = 6; // plus zero point
+	int num_Sections = 8; // plus zero point
 	vector<int> interpoints(num_Sections);
 	int common_Size = 0;
 	for(int i=0; i<num_Sections; i++)
 	{
-		interpoints[i] = 40-3*i;
+		interpoints[i] = 50-3*i;
 		common_Size+=interpoints[i];
 	}
 	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
@@ -807,11 +807,13 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 
 	vector<double> starts(num_Sections); // open start
 	starts[0] = 0;
-	starts[1] = p_Max/300;
-	starts[2] = p_Max/40;
-	starts[3] = p_Max/10;
-	starts[4] = p_Max/5;
-	starts[5] = p_Max/2;
+	starts[1] = p_Max/1000;
+	starts[2] = p_Max/300;
+	starts[3] = p_Max/100;
+	starts[4] = p_Max/40;
+	starts[5] = p_Max/10;
+	starts[6] = p_Max/5;
+	starts[7] = p_Max/2;
 
 	vector<double> dp(num_Sections);
 	for(int i=0; i<num_Sections-1; i++)
@@ -872,25 +874,56 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 	double xi =    struct_Data.roughness_Model.cor_radius.value;
 	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
 
-	vector<double> temp_Nu2(measurement.detector_Theta_Cos_Vec.size());
-
-	double min_Cos_Phi = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
-	for(size_t i=0; i<temp_Nu2.size(); i++)
-	{
-		temp_Nu2[i] = measurement.k_Value*measurement.k_Value*( measurement.detector_Theta_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i] +
-																measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
-															  2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[i]*min_Cos_Phi);
-	}
-	std::sort(temp_Nu2.begin(), temp_Nu2.end());
+	double nu_Max = 0;
 	double addition = 1E-8;
-	double nu_Max = sqrt(temp_Nu2.back())*(1+addition);
+	if(measurement.measurement_Type == measurement_Types[GISAS_Map])
+	{
+		vector<double> temp_Nu2(measurement.detector_Theta_Cos_Vec.size());
+		double min_Cos_Phi = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
+		for(size_t i=0; i<temp_Nu2.size(); i++)
+		{
+			temp_Nu2[i] = measurement.k_Value*measurement.k_Value*( measurement.detector_Theta_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i] +
+																	measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
+																  2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[i]*min_Cos_Phi);
+		}
+		std::sort(temp_Nu2.begin(), temp_Nu2.end());
+		nu_Max = sqrt(temp_Nu2.back())*(1+addition);
+	} else
+	{
+		if(imperfections_Model.vertical_Correlation == partial_Correlation)
+		{
+			double min_Cos_Phi = cos(qDegreesToRadians(max_Phi_Azimuthal_Integration));
+			vector<double> temp_Nu2 = measurement.detector_Theta_Cos_Vec;
+			if( measurement.measurement_Type == measurement_Types[Detector_Scan] )
+			{
+				for(size_t i=0; i<temp_Nu2.size(); i++)
+				{
+					temp_Nu2[i] = measurement.k_Value*measurement.k_Value*(measurement.detector_Theta_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i] +
+																		   measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
+																		   2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[i]*min_Cos_Phi);
+				}
+			}
+			if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+				measurement.measurement_Type == measurement_Types[Offset_Scan] )
+			{
+				for(size_t i=0; i<temp_Nu2.size(); i++)
+				{
+					temp_Nu2[i] = measurement.k_Value*measurement.k_Value*(measurement.detector_Theta_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i] +
+																		   measurement.beam_Theta_0_Cos_Vec[i]*measurement.beam_Theta_0_Cos_Vec[i] -
+																		   2*measurement.beam_Theta_0_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i]*min_Cos_Phi);
+				}
+			}
+			std::sort(temp_Nu2.begin(), temp_Nu2.end());
+			nu_Max = sqrt(temp_Nu2.back())*(1+addition);
+		}
+	}
 
-	int num_Sections = 6; // plus zero point
+	int num_Sections = 8; // plus zero point
 	vector<int> interpoints(num_Sections);
 	int common_Size = 0;
 	for(int i=0; i<num_Sections; i++)
 	{
-		interpoints[i] = 50-5*i;
+		interpoints[i] = 50-3*i;
 		common_Size+=interpoints[i];
 	}
 	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
@@ -898,11 +931,13 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 
 	vector<double> starts(num_Sections); // open start
 	starts[0] = 0;
-	starts[1] = nu_Max/5000;
-	starts[2] = nu_Max/100;
-	starts[3] = nu_Max/10;
-	starts[4] = nu_Max/5;
-	starts[5] = nu_Max/2;
+	starts[1] = nu_Max/20000;
+	starts[2] = nu_Max/5000;
+	starts[3] = nu_Max/1000;
+	starts[4] = nu_Max/100;
+	starts[5] = nu_Max/10;
+	starts[6] = nu_Max/5;
+	starts[7] = nu_Max/2;
 
 	vector<double> dnu(num_Sections);
 	for(int i=0; i<num_Sections-1; i++)

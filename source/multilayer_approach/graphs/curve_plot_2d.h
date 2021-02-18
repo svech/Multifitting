@@ -78,6 +78,7 @@ public:
 	QCPItemStraightLine* ver_Line_Current;
 	QCPItemStraightLine* hor_Line_Fixed;
 	QCPItemStraightLine* ver_Line_Fixed;
+	QCPItemStraightLine* surface_Line;
 	QCPTextElement* plot_Title;
 
 	// sections

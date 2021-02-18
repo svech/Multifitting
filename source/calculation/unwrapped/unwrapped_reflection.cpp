@@ -3346,7 +3346,7 @@ double Unwrapped_Reflection::calc_G2_Field_Sum(QString polarization, int thread_
 
 double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, double delta)
 {
-	double phi_Min = 0, phi_Max = 90;
+	double phi_Min = 0, phi_Max = max_Phi_Azimuthal_Integration;
 
 	/// ----------------------------------------------------------------------------------------------------------------------
 
@@ -3390,7 +3390,7 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 //	size_t neval;
 //	if(delta<1e-4)
 //	{
-//		double phi_Inter_1 = 0.01, phi_Inter_2 = 0.05, phi_Inter_3 = 0.2, phi_Inter_4 = 20;
+//		double phi_Inter_1 = 0.01, phi_Inter_2 = 0.05, phi_Inter_3 = 0.2, phi_Inter_4 = max_Phi_Azimuthal_Integration;
 //		gsl_integration_qng(function, phi_Min,     phi_Inter_1, epsabs, epsrel, &result, &abserr, &neval); temp=result;
 //		gsl_integration_qng(function, phi_Inter_1, phi_Inter_2, epsabs, epsrel, &result, &abserr, &neval); temp+=result;
 //		gsl_integration_qng(function, phi_Inter_2, phi_Inter_3, epsabs, epsrel, &result, &abserr, &neval); temp+=result;
@@ -3400,14 +3400,14 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 //	} else
 //	if(delta<5e-4)
 //	{
-//		double phi_Inter_1 = 0.5, phi_Inter_2 = 20;
+//		double phi_Inter_1 = 0.5, phi_Inter_2 = max_Phi_Azimuthal_Integration;
 //		gsl_integration_qng(function, phi_Min,     phi_Inter_1, epsabs, epsrel, &result, &abserr, &neval); temp=result;
 //		gsl_integration_qng(function, phi_Inter_1, phi_Inter_2, epsabs, epsrel, &result, &abserr, &neval); temp+=result;
 
 //		result = temp + gsl_integration_glfixed(function, phi_Inter_2, phi_Max, t);
 //	} else
 //	{
-//		double phi_Inter_1 = 4, phi_Inter_2 = 20;
+//		double phi_Inter_1 = 4, phi_Inter_2 = max_Phi_Azimuthal_Integration;
 //		gsl_integration_qng(function, phi_Min, phi_Inter_1, epsabs, epsrel, &result, &abserr, &neval); temp=result;
 
 //		temp   = temp + gsl_integration_glfixed(function, phi_Inter_1, phi_Inter_2, t);

@@ -194,6 +194,11 @@ void Curve_Plot_2D::create_Main_Layout()
 		ver_Line_Current = new QCPItemStraightLine(main_2D_Custom_Plot);
 		hor_Line_Fixed = new QCPItemStraightLine(main_2D_Custom_Plot);
 		ver_Line_Fixed = new QCPItemStraightLine(main_2D_Custom_Plot);
+
+		if(curve_Class == INDEPENDENT)
+		if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
+		{surface_Line = new QCPItemStraightLine(main_2D_Custom_Plot);}
+
 		main_2D_Custom_Plot->setCurrentLayer("main");
 		create_Position_Lines();
 	}
@@ -287,6 +292,34 @@ void Curve_Plot_2D::create_Position_Lines()
 		QPen pen(Qt::darkRed, 2, Qt::DashDotLine);
 		hor_Line_Fixed->setPen(pen);
 		ver_Line_Fixed->setPen(pen);
+	}
+
+	// surface level for field distribution
+	if(curve_Class == INDEPENDENT)
+	if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
+	{
+		if(independent_Curve->calc_Functions.show_Surface)
+		{
+			if(plot_Options.orientation == vertical)
+			{
+				surface_Line->point1->setCoords(-1, 0);
+				surface_Line->point2->setCoords(1, 0);
+			} else
+			{
+				surface_Line->point1->setCoords(0, -1);
+				surface_Line->point2->setCoords(0, 1);
+			}
+
+			QPen pen(Qt::black, 1, Qt::SolidLine);
+			surface_Line->setPen(pen);
+		} else
+		{
+			surface_Line->point1->setCoords(-MAX_DOUBLE, 0);
+			surface_Line->point2->setCoords(-MAX_DOUBLE, 1);
+
+			QPen pen(Qt::transparent, 0, Qt::SolidLine);
+			surface_Line->setPen(pen);
+		}
 	}
 }
 
@@ -689,6 +722,7 @@ void Curve_Plot_2D::plot_All_Data(bool rescale_Axes)
 			values_Hor_Calc.resize(values_2D->size());
 			values_Ver_Calc.resize(values_2D->front().size());
 		}
+
 	}
 	plot_Data(rescale_Axes);
 
@@ -1123,6 +1157,7 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 			if(horizontal_Radio_Button->isChecked())	plot_Options.orientation = horizontal;
 			clear_Section_Plots();
 			reverse_Field_Left_Plot_Axes(false);
+			create_Position_Lines();
 			plot_All_Data(true);
 		});
 //		connect(horizontal_Radio_Button, &QRadioButton::toggled, horizontal_Radio_Button, &QRadioButton::clicked);
@@ -1136,6 +1171,7 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 			if(vertical_Radio_Button->isChecked())	plot_Options.orientation = vertical;
 			clear_Section_Plots();
 			reverse_Field_Left_Plot_Axes(true);
+			create_Position_Lines();
 			plot_All_Data(true);
 		});
 //		connect(vertical_Radio_Button, &QRadioButton::toggled, vertical_Radio_Button, &QRadioButton::clicked);

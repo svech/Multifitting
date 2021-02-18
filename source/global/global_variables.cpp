@@ -32,6 +32,7 @@ vector<double> sin_a_Coeff_For_BesselJ0 = {+0.125,				// +a(1)
 										   +24.38052969955606	// +a(9)
 										  };
 int coeff_For_BesselJ0_Size = cos_a_Coeff_For_BesselJ0.size();
+double max_Phi_Azimuthal_Integration = 90;
 
 // locale
 QLocale Locale;
@@ -1271,6 +1272,7 @@ double Global_Variables::val_Sin_Expansion(double arg)
 	}
 	return sin_Val;
 }
+
 
 double Global_Variables::G1_Square(double a)
 {

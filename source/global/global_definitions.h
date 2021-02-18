@@ -14,7 +14,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 7
+#define VERSION_BUILD 8
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -950,6 +950,7 @@ struct Calc_Functions			{bool check_Enabled = true;
 								 double field_Step = 2;
 								 double field_Ambient_Distance = 0;
 								 double field_Substrate_Distance = 0;
+								 bool show_Surface = false;
 								 bool add_Specular_Peak = true;
 								 bool instrumental_Smoothing = true;
 

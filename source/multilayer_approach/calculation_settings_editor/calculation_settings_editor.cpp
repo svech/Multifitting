@@ -889,8 +889,9 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 				// in-depth step
 				QList<QWidget*> step_Widgets_List;
 
+				// ---------------------------------------------------------------------------------
 				QHBoxLayout* field_Step_Layout = new QHBoxLayout;
-					field_Step_Layout->setAlignment(Qt::AlignLeft);
+//					field_Step_Layout->setAlignment(Qt::AlignLeft);
 				field_Functions_Layout->addLayout(field_Step_Layout);
 
 				QLabel* field_Step_Label = new QLabel("Z-spacing");
@@ -903,7 +904,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 					field_Step_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 					field_Step_SpinBox->setValue(independent_Curve->calc_Functions.field_Step);
 					field_Step_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-				field_Step_Layout->addWidget(field_Step_SpinBox);
+				field_Step_Layout->addWidget(field_Step_SpinBox,Qt::AlignLeft);
 				step_Widgets_List.append(field_Step_SpinBox);
 				Global_Variables::resize_Line_Edit(field_Step_SpinBox, false);
 				connect(field_Step_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -912,9 +913,27 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 					global_Multilayer_Approach->global_Recalculate();
 				});
 				QLabel* field_Step_Units_Label = new QLabel(Angstrom_Sym);
-					field_Step_Layout->addWidget(field_Step_Units_Label);
+					field_Step_Layout->addWidget(field_Step_Units_Label,Qt::AlignLeft);
 					step_Widgets_List.append(field_Step_Units_Label);
 
+				QCheckBox* show_Surface_Checkbox = new QCheckBox("Show surface");
+					show_Surface_Checkbox->setChecked(independent_Curve->calc_Functions.show_Surface);
+				field_Step_Layout->addWidget(show_Surface_Checkbox,Qt::AlignRight);
+				connect(show_Surface_Checkbox,  &QCheckBox::toggled, this, [=]
+				{
+					independent_Curve->calc_Functions.show_Surface = show_Surface_Checkbox->isChecked();
+					// refresh graph
+					if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+					{
+						if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
+						{
+							Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(independent_Curve->measurement.id);
+							curve_Plot_2D->create_Position_Lines();
+							curve_Plot_2D->replot_All();
+						}
+					}
+				});
+				// ---------------------------------------------------------------------------------
 
 				QGridLayout* field_Ambient_Substrate_Layout = new QGridLayout;
 				field_Functions_Layout->addLayout(field_Ambient_Substrate_Layout);
@@ -947,7 +966,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 					step_Widgets_List.append(field_Substrate_Label);
 				MyDoubleSpinBox* field_Substrate_SpinBox = new MyDoubleSpinBox;
 					field_Substrate_SpinBox->setAccelerated(true);
-					field_Substrate_SpinBox->setRange(0, MAX_DOUBLE);
+					field_Substrate_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
 					field_Substrate_SpinBox->setDecimals(2);
 					field_Substrate_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 					field_Substrate_SpinBox->setValue(independent_Curve->calc_Functions.field_Substrate_Distance);
@@ -963,6 +982,8 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 				QLabel* field_Substrate_Units_Label = new QLabel(Angstrom_Sym);
 					field_Ambient_Substrate_Layout->addWidget(field_Substrate_Units_Label,1,2);
 					step_Widgets_List.append(field_Substrate_Units_Label);
+
+				// ---------------------------------------------------------------------------------
 
 				connect(field_Intensity,  &QCheckBox::toggled, this, [=]
 				{

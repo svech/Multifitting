@@ -27,6 +27,7 @@ extern std::vector<std::thread> global_Workers;
 extern vector<double> cos_a_Coeff_For_BesselJ0;
 extern vector<double> sin_a_Coeff_For_BesselJ0;
 extern int coeff_For_BesselJ0_Size;
+extern double max_Phi_Azimuthal_Integration;
 
 // locale
 extern QLocale Locale;
