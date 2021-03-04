@@ -345,7 +345,8 @@ public:
 	static double Cor_ABC				 (				 double xi, double alpha, double r);
 	static double splined_Value_1D		 (                                        double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
 
-	static double nu_Alpha_2D			 (                          double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
+	static double nu_Alpha_2D			 (              double nu0, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
+	static double nu_Beta_2D			 (				double nu0, double beta,  double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
 	static double PSD_Linear_Growth_2D	 (double exponent, double nu2_mu_Alpha_2, double omega, double nu2_omega_23, double alpha, double thickness);
 
 	static double val_Cos_Expansion	 (double arg);
@@ -372,7 +373,6 @@ public:
 
 	static complex<double> omega_Factor (complex<double> k,                      double sigma);
 	static complex<double> gamma_Factor (complex<double> kl, complex<double> kr, double sigma);
-
-};
+	};
 
 #endif // GLOBAL_VARIABLES_H

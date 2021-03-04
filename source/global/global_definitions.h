@@ -14,7 +14,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 8
+#define VERSION_BUILD 9
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -172,6 +172,7 @@ class Node;
 #define Subscript_a_Sym			QString(QChar(0x2090))
 #define Subscript_p_Sym			QString(QChar(0x209A))
 #define Subscript_v_Sym			QString(QChar(0x1d65))
+#define Subscript_0_Sym			QString(QChar(0x2080))
 
 // -----------------------------------------------------------------------------------------
 
@@ -919,6 +920,7 @@ struct Imperfections_Model		{
 								QString approximation = PT_approximation;
 								QString PSD_Model = ABC_model;
 								QString vertical_Correlation = full_Correlation;
+								double vertical_Inheritance_Frequency = 10./10000.; // A^-1
 								bool add_Gauss_Peak = false;
 								bool use_Common_Roughness_Function = true;
 								QString inheritance_Model = replication_Factor_Inheritance_Model;

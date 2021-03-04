@@ -1223,10 +1223,16 @@ double Global_Variables::splined_Value_1D(double k, double cos_Theta, double cos
 	return gsl_spline_eval(spline, p, acc);
 }
 
-double Global_Variables::nu_Alpha_2D(double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
+double Global_Variables::nu_Alpha_2D(double nu0, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
 {
-	double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / (4*M_PI*M_PI);
-	return 2*pow(nu2,alpha+1);
+	double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / (4*M_PI*M_PI) / (nu0*nu0);
+	return pow(nu2,alpha+1);
+}
+
+double Global_Variables::nu_Beta_2D(double nu0, double beta, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
+{
+	double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / (4*M_PI*M_PI) / (nu0*nu0);
+	return pow(nu2,beta/2);
 }
 
 double Global_Variables::PSD_Linear_Growth_2D(double exponent, double nu2_mu_Alpha_2, double omega, double nu2_omega_23, double alpha, double thickness)

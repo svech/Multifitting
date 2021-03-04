@@ -85,11 +85,11 @@ public:
 	vector<double> alpha;											//	[boundary]
 	vector<vector<double>> alpha_Threaded;							//	[thread][boundary]
 
-	vector<double> PSD_mu_alpha;									//	[layer]
-	vector<vector<double>> PSD_mu_alpha_Threaded;					//	[thread][layer]
+	vector<double> beta;											//	[boundary]
+	vector<vector<double>> beta_Threaded;							//	[thread][boundary]
 
-	vector<double> PSD_mu_alpha_h;									//	[layer]
-	vector<vector<double>> PSD_mu_alpha_h_Threaded;					//	[thread][layer]
+	vector<double> PSD_h_mu;										//	[layer]
+	vector<vector<double>> PSD_h_mu_Threaded;						//	[thread][layer]
 
 	//--------------------------------------------------------------
 

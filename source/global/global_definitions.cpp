@@ -582,7 +582,8 @@ QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperf
 				  << imperfections_Model.show_Sigma_Drift_Line << imperfections_Model.show_Sigma_Drift_Rand << imperfections_Model.show_Sigma_Drift_Sine
 
 				  << imperfections_Model.use_Roughness << imperfections_Model.approximation << imperfections_Model.PSD_Model
-				  << imperfections_Model.vertical_Correlation << imperfections_Model.add_Gauss_Peak << imperfections_Model.use_Common_Roughness_Function
+				  << imperfections_Model.vertical_Correlation << imperfections_Model.vertical_Inheritance_Frequency
+				  << imperfections_Model.add_Gauss_Peak << imperfections_Model.use_Common_Roughness_Function
 				  << imperfections_Model.inheritance_Model
 
 				  << imperfections_Model.use_Fluctuations << imperfections_Model.cross_Layer_Interference << imperfections_Model.initial_Particle_Shape
@@ -598,6 +599,9 @@ QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfecti
 
 		   >> imperfections_Model.use_Roughness >> imperfections_Model.approximation >> imperfections_Model.PSD_Model
 		   >> imperfections_Model.vertical_Correlation;
+
+	if(Global_Variables::check_Loaded_Version(1,11,9))
+	{stream >> imperfections_Model.vertical_Inheritance_Frequency;}
 
 	if(Global_Variables::check_Loaded_Version(1,11,7))
 	{stream >> imperfections_Model.add_Gauss_Peak;}

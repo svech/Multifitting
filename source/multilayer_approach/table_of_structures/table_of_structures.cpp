@@ -3180,7 +3180,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		}
 		if(whats_This == whats_This_Fractal_Beta )
 		{
-			spin_Box->setRange(1, 9);
+			spin_Box->setRange(0, 99);
 		}
 		if(whats_This == whats_This_Correlation_Radius)
 		{
@@ -3188,8 +3188,8 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		}
 		if(whats_This == whats_This_PSD_Exponenta_Mu)
 		{
-			spin_Box->setMinimum(1e0/coeff);
-			spin_Box->setMaximum(1e6/coeff);
+			spin_Box->setMinimum(1e-1/coeff);
+			spin_Box->setMaximum(1e10/coeff);
 		}
 		if(whats_This == whats_This_Roughness_Peak_Frequency_Width)
 		{
@@ -5364,9 +5364,9 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			}
 			if(whats_This == whats_This_PSD_Exponenta_Mu)
 			{
-				spin_Box->setMinimum(1e0/coeff);
-				spin_Box->setMaximum(1e6/coeff);
-			}			
+				spin_Box->setMinimum(1e-1/coeff);
+				spin_Box->setMaximum(1e10/coeff);
+			}
 			// fluctuations
 			if( whats_This == whats_This_Particle_Average_Distance ||
 				whats_This == whats_This_Particle_Radial_Distance)

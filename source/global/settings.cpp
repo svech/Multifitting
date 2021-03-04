@@ -454,7 +454,7 @@ bool refill_dependent_structure_table;
 bool replot_graphs_during_fitting_1D;
 //bool replot_graphs_during_fitting_2D;
 
-int  n_max_series;
+int    n_max_series;
 //bool use_beam_spot_in_specular_peak;
 
 bool print_1D_Data_On_Recalculation;
@@ -788,7 +788,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 
 		default_roughness_fractal_beta						= structure_Default_Values.value( "default_roughness_fractal_beta",					   3.0	).toDouble();
 		default_roughness_fractal_beta_min					= structure_Default_Values.value( "default_roughness_fractal_beta_min",				   1.0	).toDouble();
-		default_roughness_fractal_beta_max					= structure_Default_Values.value( "default_roughness_fractal_beta_max",				   6.0	).toDouble();
+		default_roughness_fractal_beta_max					= structure_Default_Values.value( "default_roughness_fractal_beta_max",				   5.0	).toDouble();
 
 		default_roughness_peak_sigma						= structure_Default_Values.value( "default_roughness_peak_sigma",						 0	).toDouble();
 		default_roughness_peak_sigma_min					= structure_Default_Values.value( "default_roughness_peak_sigma_min",					 0	).toDouble();
@@ -1439,7 +1439,7 @@ void Settings::read_General_Settings(bool reset_to_default)
 		mouse_wheel_spinbox_structure_table	= general_Settings.value( "mouse_wheel_spinbox_structure_table",	true	).toBool();
 		refill_dependent_structure_table	= general_Settings.value( "refill_dependent_structure_table",		true	).toBool();
 
-		n_max_series						= general_Settings.value( "n_max_series",							5		).toInt();
+		n_max_series							= general_Settings.value( "n_max_series",							 5  ).toInt();
 //		use_beam_spot_in_specular_peak		= general_Settings.value( "use_beam_spot_in_specular_peak",			true	).toInt();
 	general_Settings.endGroup();
 
@@ -1489,7 +1489,7 @@ void Settings::save_General_Settings()
 		general_Settings.setValue("mouse_wheel_spinbox_structure_table",mouse_wheel_spinbox_structure_table	);
 		general_Settings.setValue("refill_dependent_structure_table",	refill_dependent_structure_table	);
 
-		general_Settings.setValue("n_max_series",						n_max_series						);
+		general_Settings.setValue("n_max_series",							 n_max_series							 );
 //		general_Settings.setValue("use_beam_spot_in_specular_peak",		use_beam_spot_in_specular_peak		);
 	general_Settings.endGroup();
 

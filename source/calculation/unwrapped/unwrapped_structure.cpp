@@ -221,6 +221,7 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 	mu.resize(num_Layers);
 	omega_pow23.resize(num_Layers);
 	alpha.resize(num_Boundaries);
+	beta.resize(num_Layers);
 
 	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
 	{
@@ -229,7 +230,8 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 		mu				[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.mu.value;
 		omega			[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.omega.value;
 		alpha			[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.fractal_alpha.value;
-		omega_pow23		[layer_Index] = pow(omega[layer_Index], (2*alpha[layer_Index]+2)/3);
+		beta			[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.fractal_beta.value;
+		omega_pow23		[layer_Index] = pow(omega[layer_Index], (2*alpha[layer_Index]+2)/3); // for linear growth
 	}
 	// substrate
 	sigma_Roughness [num_Layers] = media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma.value;
@@ -251,6 +253,7 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 	mu_Threaded.			 resize(reflectivity_calc_threads);
 	omega_pow23_Threaded.	 resize(reflectivity_calc_threads);
 	alpha_Threaded.			 resize(reflectivity_calc_threads);
+	beta_Threaded.			 resize(reflectivity_calc_threads);
 	for(int thread_Index=0; thread_Index<reflectivity_calc_threads; thread_Index++)
 	{
 		sigma_Roughness_Threaded[thread_Index] = sigma_Roughness;
@@ -258,27 +261,23 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 		mu_Threaded				[thread_Index] = mu;
 		omega_pow23_Threaded	[thread_Index] = omega_pow23;
 		alpha_Threaded			[thread_Index] = alpha;
+		beta_Threaded			[thread_Index] = beta;
 	}
 }
 
 void Unwrapped_Structure::fill_PSD_Inheritance_Powers()
 {
-	PSD_mu_alpha.resize(num_Layers);
-	PSD_mu_alpha_h.resize(num_Layers);
-
+	PSD_h_mu.resize(num_Layers);
 	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
 	{
-		PSD_mu_alpha  [layer_Index] = pow(mu[layer_Index], 2*alpha[layer_Index]+1);
-		PSD_mu_alpha_h[layer_Index] = PSD_mu_alpha[layer_Index] * thickness[layer_Index];
+		PSD_h_mu[layer_Index] = thickness[layer_Index]/mu[layer_Index];
 	}
 
 	// threaded copy
-	PSD_mu_alpha_Threaded.	resize(reflectivity_calc_threads);
-	PSD_mu_alpha_h_Threaded.resize(reflectivity_calc_threads);
+	PSD_h_mu_Threaded.resize(reflectivity_calc_threads);
 	for(int thread_Index=0; thread_Index<reflectivity_calc_threads; thread_Index++)
 	{
-		PSD_mu_alpha_Threaded  [thread_Index] = PSD_mu_alpha;
-		PSD_mu_alpha_h_Threaded[thread_Index] = PSD_mu_alpha_h;
+		PSD_h_mu_Threaded[thread_Index] = PSD_h_mu;
 	}
 }
 

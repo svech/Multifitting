@@ -462,7 +462,7 @@ extern bool refill_dependent_structure_table;
 extern bool replot_graphs_during_fitting_1D;
 //extern bool replot_graphs_during_fitting_2D;
 
-extern int  n_max_series;
+extern int    n_max_series;
 //extern bool use_beam_spot_in_specular_peak;
 
 extern bool print_1D_Data_On_Recalculation;
