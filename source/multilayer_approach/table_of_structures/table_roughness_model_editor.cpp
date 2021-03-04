@@ -492,6 +492,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		inheritance_Layout->addLayout(nu0_Layout);
 
 		QLabel* vertical_Inheritance_Roughness_Frequency_Label = new QLabel(Nu_Sym+Subscript_0_Sym+" for length "+Mu_Sym);
+			vertical_Inheritance_Roughness_Frequency_Label->setDisabled(multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
 		nu0_Layout->addWidget(vertical_Inheritance_Roughness_Frequency_Label);
 
 		MyDoubleSpinBox* vertical_Inheritance_Roughness_Frequency_Spinbox = new MyDoubleSpinBox;
@@ -501,9 +502,11 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			vertical_Inheritance_Roughness_Frequency_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			vertical_Inheritance_Roughness_Frequency_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			vertical_Inheritance_Roughness_Frequency_Spinbox->setProperty(min_Size_Property, 30);
+			vertical_Inheritance_Roughness_Frequency_Spinbox->setDisabled(multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
 		nu0_Layout->addWidget(vertical_Inheritance_Roughness_Frequency_Spinbox);
 
 		QLabel* vertical_Inheritance_Roughness_Frequency_Units_Label = new QLabel(Mu_Sym+"m"+Minus_One_Sym);
+			vertical_Inheritance_Roughness_Frequency_Units_Label->setDisabled(multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
 		nu0_Layout->addWidget(vertical_Inheritance_Roughness_Frequency_Units_Label);
 
 	// connections

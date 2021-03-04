@@ -1175,14 +1175,14 @@ double Global_Variables::PSD_Real_Gauss_1D(double factor, double xi, double alph
 	Q_UNUSED(alpha)
 	Q_UNUSED(spline)
 	Q_UNUSED(acc)
-	double p = k*(cos_Theta-cos_Theta_0) / 2.;
+	double p = k*(cos_Theta-cos_Theta_0) / 2.;  // (2 pi nu) / 2
 	return /*2*sqrt(M_PI) * sigma*sigma*xi*/ factor * exp(-p*p*xi*xi);
 }
 
 double Global_Variables::PSD_Real_Gauss_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(alpha)
-	double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / 4.;
+	double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / 4.; // (2 pi nu)^2 / 4
 	return /*M_PI * sigma*sigma*xi*xi*/ factor * exp(-nu2*xi*xi);
 }
 
