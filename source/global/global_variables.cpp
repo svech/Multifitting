@@ -898,8 +898,8 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		if(whats_This == whats_This_Roughness_Peak_Sigma)					text = struct_Data.material + " " + brackets + " Peak roughness, " + Sigma_Sym + Subscript_v_Sym;
 		if(whats_This == whats_This_Roughness_Peak_Frequency)				text = struct_Data.material + " " + brackets + " Peak frequency, " + Nu_Sym;
 		if(whats_This == whats_This_Roughness_Peak_Frequency_Width)			text = struct_Data.material + " " + brackets + " Peak width, " + Delta_Small_Sym + Nu_Sym;
-		if(whats_This == whats_This_Sigma_Factor_PSD_1D)					text = struct_Data.material + " " + brackets + " PSD 1D Roughness factor, rf 1D";
-		if(whats_This == whats_This_Sigma_Factor_PSD_2D)					text = struct_Data.material + " " + brackets + " PSD 2D Roughness factor, rf 2D";
+		if(whats_This == whats_This_Sigma_Factor_PSD_1D)					text = struct_Data.material + " " + brackets + " PSD 1D roughness factor, rf 1D";
+		if(whats_This == whats_This_Sigma_Factor_PSD_2D)					text = struct_Data.material + " " + brackets + " PSD 2D roughness factor, rf 2D";
 	}
 
 	/// density fluctuations parameters

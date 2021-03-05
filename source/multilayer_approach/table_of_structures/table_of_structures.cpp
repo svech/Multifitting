@@ -1432,13 +1432,14 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(show_Sigma_Factor_PSD_1D)
 			{
 				QString whats_This = whats_This_Sigma_Factor_PSD_1D;
-				add_Columns			(new_Table, current_Column+1);
-				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "rf 1D");
-				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
-//				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
-//				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				add_Columns				(new_Table, current_Column+1);
+				create_PSD_Load_Button	(new_Table,			   current_Row,   current_Column, structure_Item, PSD_Type_1D);
+				create_Label			(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 1D");
+				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL);
+//				create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+//				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 				// last
-//				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 0, 0, 0, 0);
 
 				// PSD sigma factor step
 				if(!steps_Are_Done_Sigma_Factor_PSD)
@@ -1464,13 +1465,14 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(show_Sigma_Factor_PSD_2D)
 			{
 				QString whats_This = whats_This_Sigma_Factor_PSD_2D;
-				add_Columns			(new_Table, current_Column+1);
-				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "rf 2D");
-				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
-//				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
-//				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				add_Columns				(new_Table, current_Column+1);
+				create_PSD_Load_Button	(new_Table,			   current_Row,   current_Column, structure_Item, PSD_Type_2D);
+				create_Label			(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 2D");
+				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL);
+//				create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+//				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 				// last
-//				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 0, 0, 0, 0);
 
 				/// already done for 1D PSD
 				// PSD sigma factor step
@@ -1861,25 +1863,33 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		// big label about roughness model
 		if(multilayer->imperfections_Model.use_Roughness)
 		{
+			int broadening = 0;
+			if(multilayer->imperfections_Model.PSD_Model == measured_PSD) broadening = 1;
+
 			// row 1
 			QLabel* approximation_Label = new QLabel(multilayer->imperfections_Model.approximation);
 				approximation_Label->setAlignment(Qt::AlignCenter);
 				approximation_Label->setFont(QFont(approximation_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(1,first_Roughness_Column-1,1,last_Roughness_Column-first_Roughness_Column+1+2);
+			new_Table->setSpan(1,first_Roughness_Column-broadening,1,last_Roughness_Column-first_Roughness_Column+1+2*broadening);
 			new_Table->setCellWidget(1, first_Roughness_Column, approximation_Label);
 
 			// row 2
 			QLabel* model_Label = new QLabel(multilayer->imperfections_Model.PSD_Model);
 				model_Label->setAlignment(Qt::AlignCenter);
 				model_Label->setFont(QFont(model_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(2,first_Roughness_Column-1,1,last_Roughness_Column-first_Roughness_Column+1+2);
+			new_Table->setSpan(2,first_Roughness_Column-broadening,1,last_Roughness_Column-first_Roughness_Column+1+2*broadening);
 			new_Table->setCellWidget(2, first_Roughness_Column, model_Label);
+
+			if(multilayer->imperfections_Model.add_Gauss_Peak)
+			{
+				model_Label->setText(model_Label->text() + " + Gauss peak");
+			}
 
 			// row 3
 			QLabel* ver_Cor_Label = new QLabel(multilayer->imperfections_Model.vertical_Correlation);
 				ver_Cor_Label->setAlignment(Qt::AlignCenter);
 				ver_Cor_Label->setFont(QFont(ver_Cor_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(3,first_Roughness_Column-1,1,last_Roughness_Column-first_Roughness_Column+1+2);
+			new_Table->setSpan(3,first_Roughness_Column-broadening,1,last_Roughness_Column-first_Roughness_Column+1+2*broadening);
 			new_Table->setCellWidget(3, first_Roughness_Column, ver_Cor_Label);
 		}
 
@@ -3115,6 +3125,17 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 	{
 		global_Multilayer_Approach->reopen_Table_Of_Structures(true);
 	});
+}
+
+void Table_Of_Structures::create_PSD_Load_Button(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString PSD_Type)
+{
+	Data substrate_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+	QPushButton* PSD_Button = new QPushButton(PSD_Type);
+		PSD_Button->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+	table->setCellWidget(current_Row, current_Column, PSD_Button);
+
+	connect(PSD_Button, &QPushButton::clicked, this, [=]{qInfo() << PSD_Type << endl;/*open_Shape_Pattern_Model_Dialog(structure_Item, "pattern")*/;});
 }
 
 void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, int current_Row, int current_Column, QTreeWidgetItem *structure_Item)

@@ -269,11 +269,11 @@ class Node;
 // base PSD models
 #define ABC_Model				"ABC model"
 #define fractal_Gauss_Model		"Fractal Gauss model"
-#define measured_PSD			"measured PSD"
+#define measured_PSD			"Measured PSD"
 
 // measured PSD types
-#define PSD_Type_1D				"1D PSD"
-#define PSD_Type_2D				"2D PSD"
+#define PSD_Type_1D				"PSD 1D"
+#define PSD_Type_2D				"PSD 2D"
 
 // PSD inheritance models
 #define linear_Growth_Inheritance_Model			"Linear growth"

@@ -58,6 +58,9 @@ public:
 	void create_Model_Button		(My_Table_Widget* table,                int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
 	void open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* structure_Item, QString shape_Pattern_Model);
 
+	// for measured PSD
+	void create_PSD_Load_Button		(My_Table_Widget* table,                int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString PSD_Type);
+
 	// for regular aperiodic
 	void create_Thickness_Restriction(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
 
