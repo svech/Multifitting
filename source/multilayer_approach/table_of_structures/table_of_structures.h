@@ -233,6 +233,7 @@ public:
 	QList<MyDoubleSpinBox*> sigma_Roughness_Peak_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> peak_Frequency_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> peak_Frequency_Width_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> PSD_Sigma_Factor_Spin_Boxes_List;
 
 	QList<MyDoubleSpinBox*> particle_Density_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> particle_Radius_Spin_Boxes_List;

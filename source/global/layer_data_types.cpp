@@ -411,6 +411,34 @@ Data::Data(QString item_Type_Passed)
 			roughness_Model.peak_Frequency_Width.confidence.max = roughness_Model.peak_Frequency_Width.fit.max;
 			roughness_Model.peak_Frequency_Width.confidence.num_Points = default_num_confidence_points;
 		}
+		// sigma-scaling for loaded 1D PSD
+		{
+			roughness_Model.sigma_Factor_PSD_1D.value   = 1;
+			roughness_Model.sigma_Factor_PSD_1D.fit.is_Fitable = false;
+			roughness_Model.sigma_Factor_PSD_1D.fit.min = 0.1*roughness_Model.sigma_Factor_PSD_1D.value;	// auto refreshed whe value is changed in table
+			roughness_Model.sigma_Factor_PSD_1D.fit.max = 10*roughness_Model.sigma_Factor_PSD_1D.value;		// auto refreshed whe value is changed in table
+			roughness_Model.sigma_Factor_PSD_1D.indicator.whats_This = whats_This_Sigma_Factor_PSD_1D;
+			roughness_Model.sigma_Factor_PSD_1D.indicator.item_Id = id;
+
+			roughness_Model.sigma_Factor_PSD_1D.confidence.calc_Conf_Interval = false;
+			roughness_Model.sigma_Factor_PSD_1D.confidence.min = roughness_Model.sigma_Factor_PSD_1D.fit.min;
+			roughness_Model.sigma_Factor_PSD_1D.confidence.max = roughness_Model.sigma_Factor_PSD_1D.fit.max;
+			roughness_Model.sigma_Factor_PSD_1D.confidence.num_Points = default_num_confidence_points;
+		}
+		// sigma-scaling for loaded 2D PSD
+		{
+			roughness_Model.sigma_Factor_PSD_2D.value   = 1;
+			roughness_Model.sigma_Factor_PSD_2D.fit.is_Fitable = false;
+			roughness_Model.sigma_Factor_PSD_2D.fit.min = 0.1*roughness_Model.sigma_Factor_PSD_2D.value;	// auto refreshed whe value is changed in table
+			roughness_Model.sigma_Factor_PSD_2D.fit.max = 10*roughness_Model.sigma_Factor_PSD_2D.value;		// auto refreshed whe value is changed in table
+			roughness_Model.sigma_Factor_PSD_2D.indicator.whats_This = whats_This_Sigma_Factor_PSD_2D;
+			roughness_Model.sigma_Factor_PSD_2D.indicator.item_Id = id;
+
+			roughness_Model.sigma_Factor_PSD_2D.confidence.calc_Conf_Interval = false;
+			roughness_Model.sigma_Factor_PSD_2D.confidence.min = roughness_Model.sigma_Factor_PSD_2D.fit.min;
+			roughness_Model.sigma_Factor_PSD_2D.confidence.max = roughness_Model.sigma_Factor_PSD_2D.fit.max;
+			roughness_Model.sigma_Factor_PSD_2D.confidence.num_Points = default_num_confidence_points;
+		}
 	}
 
 	// Layer
@@ -804,17 +832,21 @@ void Data::reset_All_IDs()
 			inter.my_Sigma_Diffuse.indicator.id = Global_Definitions::generate_Id(); inter.my_Sigma_Diffuse.indicator.item_Id = id;	inter.my_Sigma_Diffuse.coupled.clear_Coupled();
 		}
 
-		roughness_Model.sigma						.indicator.id = Global_Definitions::generate_Id(); roughness_Model.sigma.						indicator.item_Id = id;	roughness_Model.sigma.						coupled.clear_Coupled();
-		roughness_Model.cor_radius					.indicator.id = Global_Definitions::generate_Id(); roughness_Model.cor_radius.					indicator.item_Id = id;	roughness_Model.cor_radius.					coupled.clear_Coupled();
-		roughness_Model.fractal_alpha				.indicator.id = Global_Definitions::generate_Id(); roughness_Model.fractal_alpha.				indicator.item_Id = id;	roughness_Model.fractal_alpha.				coupled.clear_Coupled();
-		roughness_Model.omega						.indicator.id = Global_Definitions::generate_Id(); roughness_Model.omega.						indicator.item_Id = id;	roughness_Model.omega.						coupled.clear_Coupled();
-		roughness_Model.mu							.indicator.id = Global_Definitions::generate_Id(); roughness_Model.mu.							indicator.item_Id = id;	roughness_Model.mu.							coupled.clear_Coupled();
-		roughness_Model.fractal_beta				.indicator.id = Global_Definitions::generate_Id(); roughness_Model.fractal_beta.				indicator.item_Id = id;	roughness_Model.fractal_beta.				coupled.clear_Coupled();
+		roughness_Model.sigma					.indicator.id = Global_Definitions::generate_Id(); roughness_Model.sigma.				indicator.item_Id = id;	roughness_Model.sigma.					coupled.clear_Coupled();
+		roughness_Model.cor_radius				.indicator.id = Global_Definitions::generate_Id(); roughness_Model.cor_radius.			indicator.item_Id = id;	roughness_Model.cor_radius.				coupled.clear_Coupled();
+		roughness_Model.fractal_alpha			.indicator.id = Global_Definitions::generate_Id(); roughness_Model.fractal_alpha.		indicator.item_Id = id;	roughness_Model.fractal_alpha.			coupled.clear_Coupled();
+		roughness_Model.omega					.indicator.id = Global_Definitions::generate_Id(); roughness_Model.omega.				indicator.item_Id = id;	roughness_Model.omega.					coupled.clear_Coupled();
+		roughness_Model.mu						.indicator.id = Global_Definitions::generate_Id(); roughness_Model.mu.					indicator.item_Id = id;	roughness_Model.mu.						coupled.clear_Coupled();
+		roughness_Model.fractal_beta			.indicator.id = Global_Definitions::generate_Id(); roughness_Model.fractal_beta.		indicator.item_Id = id;	roughness_Model.fractal_beta.			coupled.clear_Coupled();
 
-		roughness_Model.peak_Sigma					.indicator.id = Global_Definitions::generate_Id(); roughness_Model.peak_Sigma.					indicator.item_Id = id;	roughness_Model.peak_Sigma.					coupled.clear_Coupled();
-		roughness_Model.peak_Frequency			.indicator.id = Global_Definitions::generate_Id(); roughness_Model.peak_Frequency.			indicator.item_Id = id;	roughness_Model.peak_Frequency.			coupled.clear_Coupled();
-		roughness_Model.peak_Frequency_Width	.indicator.id = Global_Definitions::generate_Id(); roughness_Model.peak_Frequency_Width. indicator.item_Id = id;	roughness_Model.peak_Frequency_Width.coupled.clear_Coupled();
-		///---------------------------------------------
+		roughness_Model.peak_Sigma				.indicator.id = Global_Definitions::generate_Id(); roughness_Model.peak_Sigma.			indicator.item_Id = id;	roughness_Model.peak_Sigma.				coupled.clear_Coupled();
+		roughness_Model.peak_Frequency			.indicator.id = Global_Definitions::generate_Id(); roughness_Model.peak_Frequency.		indicator.item_Id = id;	roughness_Model.peak_Frequency.			coupled.clear_Coupled();
+		roughness_Model.peak_Frequency_Width	.indicator.id = Global_Definitions::generate_Id(); roughness_Model.peak_Frequency_Width.indicator.item_Id = id;	roughness_Model.peak_Frequency_Width.	coupled.clear_Coupled();
+
+		roughness_Model.sigma_Factor_PSD_1D		.indicator.id = Global_Definitions::generate_Id(); roughness_Model.sigma_Factor_PSD_1D.	indicator.item_Id = id;	roughness_Model.sigma_Factor_PSD_1D.	coupled.clear_Coupled();
+		roughness_Model.sigma_Factor_PSD_2D		.indicator.id = Global_Definitions::generate_Id(); roughness_Model.sigma_Factor_PSD_2D.	indicator.item_Id = id;	roughness_Model.sigma_Factor_PSD_2D.	coupled.clear_Coupled();
+
+	///---------------------------------------------
 	///---------------------------------------------
 	// Layer
 	//---------------------------------------------
@@ -1236,15 +1268,24 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 				}
 			}
 
+			// for substrate only
+			if(item_Type == item_Type_Substrate)
+			{
+				if(imperfections_Model.PSD_Model == measured_PSD)				{
+					potentially_Fitable_Parameters.push_back(&roughness_Model.sigma_Factor_PSD_1D);
+					potentially_Fitable_Parameters.push_back(&roughness_Model.sigma_Factor_PSD_2D);
+				}
+			}
+
 			// for substrate and layers with zero correlation
 			if( item_Type == item_Type_Substrate ||
 				imperfections_Model.use_Common_Roughness_Function == false	) // implies that imperfections_Model.vertical_Correlation == zero_Correlation
 			{
-				potentially_Fitable_Parameters.push_back(&roughness_Model.cor_radius);
-				potentially_Fitable_Parameters.push_back(&roughness_Model.sigma);
-
-				if(imperfections_Model.add_Gauss_Peak)
-				{
+				if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)		{
+					potentially_Fitable_Parameters.push_back(&roughness_Model.cor_radius);
+					potentially_Fitable_Parameters.push_back(&roughness_Model.sigma);
+				}
+				if(imperfections_Model.add_Gauss_Peak)			{
 					potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Sigma);
 					potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Frequency);
 					potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Frequency_Width);
@@ -1256,7 +1297,9 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 				imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model || // implies that imperfections_Model.vertical_Correlation == partial_Correlation
 				imperfections_Model.use_Common_Roughness_Function == false	)				// implies that imperfections_Model.vertical_Correlation == zero_Correlation
 			{
-				potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
+				if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)		{
+					potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
+				}
 			}
 		}
 	}
@@ -1419,15 +1462,25 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 				}
 			}
 
-			// for substrate or (layers with zero correlation)
+			// for substrate only
+			if(item_Type == item_Type_Substrate)
+			{
+				if(imperfections_Model.PSD_Model == measured_PSD)				{
+					table_Showed_Parameters.push_back(&roughness_Model.sigma_Factor_PSD_1D);
+					table_Showed_Parameters.push_back(&roughness_Model.sigma_Factor_PSD_2D);
+				}
+			}
+
+			// for substrate or layers with zero correlation
 			if( item_Type == item_Type_Substrate ||
 				imperfections_Model.use_Common_Roughness_Function == false	) // implies that imperfections_Model.vertical_Correlation == zero_Correlation
 			{
-				table_Showed_Parameters.push_back(&roughness_Model.cor_radius);
-				table_Showed_Parameters.push_back(&roughness_Model.sigma);
+				if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)				{
+					table_Showed_Parameters.push_back(&roughness_Model.cor_radius);
+					table_Showed_Parameters.push_back(&roughness_Model.sigma);
+				}
 
-				if(imperfections_Model.add_Gauss_Peak)
-				{
+				if(imperfections_Model.add_Gauss_Peak)				{
 					table_Showed_Parameters.push_back(&roughness_Model.peak_Sigma);
 					table_Showed_Parameters.push_back(&roughness_Model.peak_Frequency);
 					table_Showed_Parameters.push_back(&roughness_Model.peak_Frequency_Width);
@@ -1439,7 +1492,9 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 				imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model || // implies that imperfections_Model.vertical_Correlation == partial_Correlation
 				imperfections_Model.use_Common_Roughness_Function == false	)				// implies that imperfections_Model.vertical_Correlation == zero_Correlation
 			{
-				table_Showed_Parameters.push_back(&roughness_Model.fractal_alpha);
+				if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)				{
+					table_Showed_Parameters.push_back(&roughness_Model.fractal_alpha);
+				}
 			}
 		}
 	}
@@ -1557,6 +1612,8 @@ void Data::prepare_Layer_For_Regular_Component()
 	make_Free(roughness_Model.peak_Sigma);
 	make_Free(roughness_Model.peak_Frequency);
 	make_Free(roughness_Model.peak_Frequency_Width);
+	make_Free(roughness_Model.sigma_Factor_PSD_1D);
+	make_Free(roughness_Model.sigma_Factor_PSD_2D);
 ///---------------------------------------------
 ///---------------------------------------------
 // Layer

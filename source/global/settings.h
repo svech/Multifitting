@@ -298,6 +298,7 @@ extern double	step_sigma_mu;
 extern double	step_sigma_roughness_peak;
 extern double	step_peak_frequency;
 extern double	step_peak_frequency_width;
+extern double	step_psd_sigma_factor;
 
 extern double	step_particle_density;
 extern double	step_particle_radius;
@@ -335,6 +336,7 @@ extern int line_edit_fractal_alpha_precision;
 extern int line_edit_omega_precision		;
 extern int line_edit_mu_precision			;
 extern int line_edit_frequency_precision	;
+extern int line_edit_psd_factor_precision	;
 
 extern int line_edit_interlayer_precision	;
 extern int line_edit_drift_precision		;
@@ -360,6 +362,7 @@ extern int thumbnail_fractal_alpha_precision;
 extern int thumbnail_omega_precision		;
 extern int thumbnail_mu_precision			;
 extern int thumbnail_frequency_precision	;
+extern int thumbnail_psd_factor_precision	;
 
 extern int thumbnail_interlayer_precision	;
 extern int thumbnail_drift_precision		;

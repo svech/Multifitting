@@ -290,6 +290,7 @@ double	step_sigma_mu;
 double	step_sigma_roughness_peak;
 double	step_peak_frequency;
 double	step_peak_frequency_width;
+double	step_psd_sigma_factor;
 
 double	step_particle_density;
 double	step_particle_radius;
@@ -326,7 +327,8 @@ int line_edit_cor_radius_precision		;
 int line_edit_fractal_alpha_precision	;
 int line_edit_omega_precision			;
 int line_edit_mu_precision				;
-int line_edit_frequency_precision	;
+int line_edit_frequency_precision		;
+int line_edit_psd_factor_precision		;
 
 int line_edit_interlayer_precision	;
 int line_edit_drift_precision		;
@@ -352,6 +354,7 @@ int thumbnail_fractal_alpha_precision	;
 int thumbnail_omega_precision			;
 int thumbnail_mu_precision				;
 int thumbnail_frequency_precision		;
+int thumbnail_psd_factor_precision		;
 
 int thumbnail_interlayer_precision	;
 int thumbnail_drift_precision		;
@@ -874,6 +877,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		step_sigma_roughness_peak		= structure_Default_Values.value( "step_sigma_roughness_peak",		0.1  ).toDouble();
 		step_peak_frequency				= structure_Default_Values.value( "step_peak_frequency",			0.1  ).toDouble();
 		step_peak_frequency_width		= structure_Default_Values.value( "step_peak_frequency_width",		0.1  ).toDouble();
+		step_psd_sigma_factor			= structure_Default_Values.value( "step_psd_sigma_factor",			0.1  ).toDouble();
 
 		step_particle_density			   = structure_Default_Values.value( "step_particle_density",			   0.1  ).toDouble();
 		step_particle_radius			   = structure_Default_Values.value( "step_particle_radius",			   0.1  ).toDouble();
@@ -1105,6 +1109,7 @@ void Settings::save_Structure_Default_Values()
 		structure_Default_Values.setValue( "step_sigma_roughness_peak",		step_sigma_roughness_peak		);
 		structure_Default_Values.setValue( "step_peak_frequency",			step_peak_frequency				);
 		structure_Default_Values.setValue( "step_peak_frequency_width",		step_peak_frequency_width		);
+		structure_Default_Values.setValue( "step_psd_sigma_factor",			step_psd_sigma_factor			);
 
 		structure_Default_Values.setValue( "step_particle_density",				step_particle_density				);
 		structure_Default_Values.setValue( "step_particle_radius",				step_particle_radius				);
@@ -1154,6 +1159,7 @@ void Settings::read_Precisions(bool reset_to_default)
 		line_edit_omega_precision						= precision_Values.value( "line_edit_omega_precision",						2 ).toInt();
 		line_edit_mu_precision							= precision_Values.value( "line_edit_mu_precision",							3 ).toInt();
 		line_edit_frequency_precision					= precision_Values.value( "line_edit_frequency_precision",					4 ).toInt();
+		line_edit_psd_factor_precision					= precision_Values.value( "line_edit_psd_factor_precision",					3 ).toInt();
 
 		line_edit_interlayer_precision			= precision_Values.value( "line_edit_interlayer_precision",			3 ).toInt();
 		line_edit_drift_precision				= precision_Values.value( "line_edit_drift_precision",				4 ).toInt();
@@ -1179,6 +1185,7 @@ void Settings::read_Precisions(bool reset_to_default)
 		thumbnail_omega_precision				= precision_Values.value( "thumbnail_omega_precision",				1 ).toInt();
 		thumbnail_mu_precision					= precision_Values.value( "thumbnail_mu_precision",					1 ).toInt();
 		thumbnail_frequency_precision			= precision_Values.value( "thumbnail_frequency_precision",			3 ).toInt();
+		thumbnail_psd_factor_precision			= precision_Values.value( "thumbnail_psd_factor_precision",			3 ).toInt();
 
 		thumbnail_interlayer_precision			= precision_Values.value( "thumbnail_interlayer_precision",			3 ).toInt();
 		thumbnail_drift_precision				= precision_Values.value( "thumbnail_drift_precision",				4 ).toInt();
@@ -1210,6 +1217,7 @@ void Settings::save_Precisions()
 		precision_Values.setValue( "line_edit_omega_precision",			line_edit_omega_precision			);
 		precision_Values.setValue( "line_edit_mu_precision",			line_edit_mu_precision				);
 		precision_Values.setValue( "line_edit_frequency_precision",		line_edit_frequency_precision		);
+		precision_Values.setValue( "line_edit_psd_factor_precision",	line_edit_psd_factor_precision		);
 
 		precision_Values.setValue( "line_edit_interlayer_precision",	line_edit_interlayer_precision		);
 		precision_Values.setValue( "line_edit_drift_precision",			line_edit_drift_precision			);
@@ -1231,6 +1239,7 @@ void Settings::save_Precisions()
 		precision_Values.setValue( "thumbnail_omega_precision",			thumbnail_omega_precision			);
 		precision_Values.setValue( "thumbnail_mu_precision",			thumbnail_mu_precision				);
 		precision_Values.setValue( "thumbnail_frequency_precision",		thumbnail_frequency_precision		);
+		precision_Values.setValue( "thumbnail_psd_factor_precision",	thumbnail_psd_factor_precision		);
 
 		precision_Values.setValue( "thumbnail_interlayer_precision",	thumbnail_interlayer_precision		);
 		precision_Values.setValue( "thumbnail_drift_precision",			thumbnail_drift_precision			);

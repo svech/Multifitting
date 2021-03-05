@@ -14,7 +14,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 9
+#define VERSION_BUILD 10
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -267,8 +267,13 @@ class Node;
 #define zero_Correlation		"zero vertical correlation"
 
 // base PSD models
-#define ABC_model				"ABC model"
+#define ABC_Model				"ABC model"
 #define fractal_Gauss_Model		"Fractal Gauss model"
+#define measured_PSD			"measured PSD"
+
+// measured PSD types
+#define PSD_Type_1D				"1D PSD"
+#define PSD_Type_2D				"2D PSD"
 
 // PSD inheritance models
 #define linear_Growth_Inheritance_Model			"Linear growth"
@@ -306,6 +311,8 @@ class Node;
 #define whats_This_Roughness_Peak_Sigma			"Roughness Peak Sigma"
 #define whats_This_Roughness_Peak_Frequency		"Roughness Peak Frequency"
 #define whats_This_Roughness_Peak_Frequency_Width "Roughness Peak Frequency Width"
+#define whats_This_Sigma_Factor_PSD_1D			"Sigma Factor PSD 1D"
+#define whats_This_Sigma_Factor_PSD_2D			"Sigma Factor PSD 2D"
 #define whats_This_Interlayer_Composition		"Interlayer Composition"
 #define whats_This_Interlayer_My_Sigma_Diffuse	"Interlayer My Sigma"
 #define whats_This_Num_Repetitions				"Num Repetitions"
@@ -857,6 +864,9 @@ struct Roughness_Model			{
 								Parameter peak_Sigma;
 								Parameter peak_Frequency;
 								Parameter peak_Frequency_Width;
+
+								Parameter sigma_Factor_PSD_1D;
+								Parameter sigma_Factor_PSD_2D;
 								};
 struct Fluctuations_Model		{
 								bool is_Enabled = false;
@@ -886,6 +896,12 @@ struct Fluctuations_Model		{
 								// common
 								Parameter particle_Z_Position;
 								Parameter particle_Z_Position_Deviation;
+								};
+struct PSD_Data					{QVector<double> argument;
+								 QVector<double> value;
+								 QString PSD_Type;				// dimension
+								 QString argument_Units;
+								 QString value_Units;
 								};
 struct Imperfections_Model		{
 								// interlayer
@@ -918,12 +934,15 @@ struct Imperfections_Model		{
 								bool use_Roughness = false;
 
 								QString approximation = PT_approximation;
-								QString PSD_Model = ABC_model;
+								QString PSD_Model = ABC_Model;
 								QString vertical_Correlation = full_Correlation;
 								double vertical_Inheritance_Frequency = 10./10000.; // A^-1
 								bool add_Gauss_Peak = false;
 								bool use_Common_Roughness_Function = true;
 								QString inheritance_Model = replication_Factor_Inheritance_Model;
+
+								PSD_Data PSD_1D;	// only for substrate
+								PSD_Data PSD_2D;	// only for substrate
 
 								// density fluctuations
 								bool use_Fluctuations = false;
@@ -1070,6 +1089,9 @@ QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Mode
 
 QDataStream& operator <<( QDataStream& stream, const Fluctuations_Model& fluctuations_Model );
 QDataStream& operator >>( QDataStream& stream,		 Fluctuations_Model& fluctuations_Model );
+
+QDataStream& operator <<( QDataStream& stream, const PSD_Data& psd_Data );
+QDataStream& operator >>( QDataStream& stream,		 PSD_Data& psd_Data );
 
 QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperfections_Model );
 QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfections_Model );

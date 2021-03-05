@@ -1724,7 +1724,7 @@ double Unwrapped_Reflection::calc_K_Factor_Term_Sum_DWBA_SA_CSA(int thread_Index
 
 void Unwrapped_Reflection::choose_Cor_Function(int thread_Index)
 {
-	if(multilayer->imperfections_Model.PSD_Model == ABC_model)
+	if(multilayer->imperfections_Model.PSD_Model == ABC_Model)
 	{
 		Cor_Func_Vec[thread_Index] = Global_Variables::Cor_ABC;
 	} else
@@ -2303,7 +2303,7 @@ double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point
 				half_Sum_Field_Term[i][j] = 2*real(field_Term_Boundary[i]*conj(field_Term_Boundary[j]));
 			}
 		}
-		if(multilayer->imperfections_Model.PSD_Model == ABC_model)			 return incoherent_Diagonal_Sum;
+		if(multilayer->imperfections_Model.PSD_Model == ABC_Model)			 return incoherent_Diagonal_Sum;
 	}
 	return -2020;
 }
@@ -2322,7 +2322,7 @@ void Unwrapped_Reflection::calc_Environmental_Factor(int thread_Index, int point
 
 void Unwrapped_Reflection::choose_PSD_1D_Function(const Data& struct_Data, int thread_Index)
 {
-	if(multilayer->imperfections_Model.PSD_Model == ABC_model)
+	if(multilayer->imperfections_Model.PSD_Model == ABC_Model)
 	{
 		PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_1D;
 	} else
@@ -2346,7 +2346,7 @@ void Unwrapped_Reflection::choose_PSD_1D_Function(const Data& struct_Data, int t
 
 void Unwrapped_Reflection::choose_PSD_2D_Function(const Data& struct_Data, int thread_Index)
 {
-	if(multilayer->imperfections_Model.PSD_Model == ABC_model)
+	if(multilayer->imperfections_Model.PSD_Model == ABC_Model)
 	{
 		PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_2D;
 	} else

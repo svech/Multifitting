@@ -530,6 +530,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		bool steps_Are_Done_Peak_Sigma = false;
 		bool steps_Are_Done_Peak_Frequency = false;			Q_UNUSED(steps_Are_Done_Peak_Frequency)// adaptive step
 		bool steps_Are_Done_Peak_Frequency_Width = false;	Q_UNUSED(steps_Are_Done_Peak_Frequency_Width)// adaptive step
+		bool steps_Are_Done_Sigma_Factor_PSD = false;
 
 		bool steps_Are_Done_Particle_Density = false;
 		bool steps_Are_Done_Particle_Radius = false;
@@ -1047,6 +1048,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					if(	struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic ) current_Column += column_Difference;
 				}
 			}
+			first_Roughness_Column = current_Column;
 
 			// sigma roughness
 			bool show_Sigma = false;
@@ -1054,7 +1056,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				if(struct_Data.item_Type == item_Type_Substrate)
 				{
-					if( multilayer->imperfections_Model.PSD_Model == ABC_model ||
+					if( multilayer->imperfections_Model.PSD_Model == ABC_Model ||
 						multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model )
 					{
 						show_Sigma = true;
@@ -1062,7 +1064,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 				if(struct_Data.item_Type == item_Type_Layer)
 				{
-					if((multilayer->imperfections_Model.PSD_Model == ABC_model ||
+					if((multilayer->imperfections_Model.PSD_Model == ABC_Model ||
 						multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model) &&
 						multilayer->imperfections_Model.use_Common_Roughness_Function == false)
 					{
@@ -1089,7 +1091,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 					steps_Are_Done_Sigma = true;
 				}
-				first_Roughness_Column = current_Column;
+				last_Roughness_Column = max(current_Column,last_Roughness_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1100,7 +1102,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				if(struct_Data.item_Type == item_Type_Substrate)
 				{
-					if( multilayer->imperfections_Model.PSD_Model == ABC_model ||
+					if( multilayer->imperfections_Model.PSD_Model == ABC_Model ||
 						multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model )
 					{
 						show_Cor_Radius = true;
@@ -1108,7 +1110,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 				if(struct_Data.item_Type == item_Type_Layer)
 				{
-					if((multilayer->imperfections_Model.PSD_Model == ABC_model ||
+					if((multilayer->imperfections_Model.PSD_Model == ABC_Model ||
 						multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model) &&
 						multilayer->imperfections_Model.use_Common_Roughness_Function == false)
 					{
@@ -1136,6 +1138,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 //					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 //					steps_Are_Done_Xi = true;
 //				}
+				last_Roughness_Column = max(current_Column,last_Roughness_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1172,6 +1175,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 //					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 //					steps_Are_Done_Omega = true;
 //				}
+				last_Roughness_Column = max(current_Column,last_Roughness_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1208,6 +1212,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 //					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 //					steps_Are_Done_Mu = true;
 //				}
+				last_Roughness_Column = max(current_Column,last_Roughness_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1218,7 +1223,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				if( struct_Data.item_Type == item_Type_Substrate)
 				{
-					if( multilayer->imperfections_Model.PSD_Model == ABC_model ||
+					if( multilayer->imperfections_Model.PSD_Model == ABC_Model ||
 						multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model )
 					{
 						show_Alpha = true;
@@ -1226,7 +1231,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 				if( struct_Data.item_Type == item_Type_Layer)
 				{
-					if( (multilayer->imperfections_Model.PSD_Model == ABC_model ||
+					if( (multilayer->imperfections_Model.PSD_Model == ABC_Model ||
 						 multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model) &&
 						 multilayer->imperfections_Model.use_Common_Roughness_Function == false)
 					{
@@ -1330,6 +1335,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 					steps_Are_Done_Peak_Sigma = true;
 				}
+				last_Roughness_Column = max(current_Column,last_Roughness_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1369,6 +1375,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 //					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 //					steps_Are_Done_Peak_Frequency = true;
 //				}
+				last_Roughness_Column = max(current_Column,last_Roughness_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1408,6 +1415,72 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 //					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 //					steps_Are_Done_Peak_Frequency = true;
 //				}
+				last_Roughness_Column = max(current_Column,last_Roughness_Column);
+				current_Column+=2;
+			}
+			///--------------------------------------------------------------------------------------------
+
+			// sigma-scaling for loaded 1D PSD
+			bool show_Sigma_Factor_PSD_1D = false;
+			if(	struct_Data.roughness_Model.is_Enabled && multilayer->imperfections_Model.PSD_Model == measured_PSD)
+			{
+				if( struct_Data.item_Type == item_Type_Substrate)
+				{
+					show_Sigma_Factor_PSD_1D = true;
+				}
+			}
+			if(show_Sigma_Factor_PSD_1D)
+			{
+				QString whats_This = whats_This_Sigma_Factor_PSD_1D;
+				add_Columns			(new_Table, current_Column+1);
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "rf 1D");
+				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+//				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+//				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+//				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+				// PSD sigma factor step
+				if(!steps_Are_Done_Sigma_Factor_PSD)
+				{
+					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "rf");
+					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+					steps_Are_Done_Sigma_Factor_PSD = true;
+				}
+				last_Roughness_Column = max(current_Column,last_Roughness_Column);
+				current_Column+=2;
+			}
+			///--------------------------------------------------------------------------------------------
+
+			// sigma-scaling for loaded 2D PSD
+			bool show_Sigma_Factor_PSD_2D = false;
+			if(	struct_Data.roughness_Model.is_Enabled && multilayer->imperfections_Model.PSD_Model == measured_PSD)
+			{
+				if( struct_Data.item_Type == item_Type_Substrate)
+				{
+					show_Sigma_Factor_PSD_2D = true;
+				}
+			}
+			if(show_Sigma_Factor_PSD_2D)
+			{
+				QString whats_This = whats_This_Sigma_Factor_PSD_2D;
+				add_Columns			(new_Table, current_Column+1);
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "rf 2D");
+				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+//				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+//				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+//				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+				/// already done for 1D PSD
+				// PSD sigma factor step
+//				if(!steps_Are_Done_Sigma_Factor_PSD)
+//				{
+//					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "rf");
+//					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+//					steps_Are_Done_Sigma_Factor_PSD = true;
+//				}
+				last_Roughness_Column = max(current_Column,last_Roughness_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1417,11 +1490,19 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				if( struct_Data.item_Type == item_Type_Layer)
 				{
-					if( multilayer->imperfections_Model.vertical_Correlation != partial_Correlation &&
-						multilayer->imperfections_Model.use_Common_Roughness_Function == true)
+					if( multilayer->imperfections_Model.PSD_Model == ABC_Model || multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
 					{
-						add_Columns	(new_Table, current_Column+5);
-						current_Column+=6;
+						if( multilayer->imperfections_Model.vertical_Correlation != partial_Correlation &&
+							multilayer->imperfections_Model.use_Common_Roughness_Function == true)
+						{
+							add_Columns	(new_Table, current_Column+5);
+							current_Column+=6;
+						}
+					}
+					if( multilayer->imperfections_Model.PSD_Model == measured_PSD )
+					{
+						add_Columns	(new_Table, current_Column+3);
+						current_Column+=4;
 					}
 					if( multilayer->imperfections_Model.add_Gauss_Peak &&
 						multilayer->imperfections_Model.use_Common_Roughness_Function == true)
@@ -1435,6 +1516,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 			/// DENSITY FLUCTUATIONS
 			///--------------------------------------------------------------------------------------------
+
+			first_Fluctuations_Column = current_Column;
 
 			// usage, shape and interference function
 			bool show_Usage_Buttons = false;
@@ -1452,7 +1535,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				// last
 				create_Check_Box_Usage (new_Table, tab_Index, current_Row,   current_Column, structure_Item, "on/off", 0, 4, 0, 2020); // more than table size, it is like inf
 
-				first_Fluctuations_Column = current_Column;
+				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
 				current_Column+=2;
 			}
 
@@ -1494,6 +1577,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This_Particle_Density);
 					steps_Are_Done_Particle_Density = true;
 				}
+				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1527,6 +1611,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 					steps_Are_Done_Particle_Radius = true;
 				}
+				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1559,11 +1644,13 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 					steps_Are_Done_Particle_Height = true;
 				}
+				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
 				current_Column+=2;
 			}
 			if(has_Particle_Height && !show_Particle_Height && struct_Data.fluctuations_Model.is_Enabled) // keep empty place
 			{
 				add_Columns	(new_Table, current_Column+1);
+				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1595,6 +1682,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This_Particle_Distance);
 					steps_Are_Done_Particle_Distance = true;
 				}
+				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
 				if(has_Particle_Distance_Deviation)	{current_Column+=2;}
 				else								{current_Column+=2;}
 			}
@@ -1627,6 +1715,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This_Particle_Distance);
 					steps_Are_Done_Particle_Distance = true;
 				}
+				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
 				current_Column+=1;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1658,6 +1747,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 					steps_Are_Done_Particle_Distance_Deviation = true;
 				}
+				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
 				current_Column+=1;
 			}
 //			if(has_Particle_Distance_Deviation && !show_Particle_Radial_Distance_Deviation && struct_Data.fluctuations_Model.is_Enabled) // keep empty place
@@ -1695,11 +1785,13 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 //					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 //					steps_Are_Done_Particle_Distance_Deviation = true;
 //				}
+				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
 				current_Column+=2;
 			}
 			if(has_Particle_Distance_Deviation && !show_Particle_Radial_Distance_Deviation && struct_Data.fluctuations_Model.is_Enabled) // keep empty place
 			{
 				add_Columns	(new_Table, current_Column+1);
+				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1728,6 +1820,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 					steps_Are_Done_Particle_Z_Position = true;
 				}
+				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
 				current_Column+=1;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1772,21 +1865,21 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			QLabel* approximation_Label = new QLabel(multilayer->imperfections_Model.approximation);
 				approximation_Label->setAlignment(Qt::AlignCenter);
 				approximation_Label->setFont(QFont(approximation_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(1,first_Roughness_Column,1,last_Roughness_Column-first_Roughness_Column+1);
+			new_Table->setSpan(1,first_Roughness_Column-1,1,last_Roughness_Column-first_Roughness_Column+1+2);
 			new_Table->setCellWidget(1, first_Roughness_Column, approximation_Label);
 
 			// row 2
 			QLabel* model_Label = new QLabel(multilayer->imperfections_Model.PSD_Model);
 				model_Label->setAlignment(Qt::AlignCenter);
 				model_Label->setFont(QFont(model_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(2,first_Roughness_Column,1,last_Roughness_Column-first_Roughness_Column+1);
+			new_Table->setSpan(2,first_Roughness_Column-1,1,last_Roughness_Column-first_Roughness_Column+1+2);
 			new_Table->setCellWidget(2, first_Roughness_Column, model_Label);
 
 			// row 3
 			QLabel* ver_Cor_Label = new QLabel(multilayer->imperfections_Model.vertical_Correlation);
 				ver_Cor_Label->setAlignment(Qt::AlignCenter);
 				ver_Cor_Label->setFont(QFont(ver_Cor_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(3,first_Roughness_Column,1,last_Roughness_Column-first_Roughness_Column+1);
+			new_Table->setSpan(3,first_Roughness_Column-1,1,last_Roughness_Column-first_Roughness_Column+1+2);
 			new_Table->setCellWidget(3, first_Roughness_Column, ver_Cor_Label);
 		}
 
@@ -1963,6 +2056,8 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Roughness_Peak_Sigma)					{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.peak_Sigma;			}
 	if(whats_This == whats_This_Roughness_Peak_Frequency)				{precision = line_edit_frequency_precision;				coeff = 1;												return struct_Data.roughness_Model.peak_Frequency;		}
 	if(whats_This == whats_This_Roughness_Peak_Frequency_Width)			{precision = line_edit_frequency_precision;				coeff = 1;												return struct_Data.roughness_Model.peak_Frequency_Width;}
+	if(whats_This == whats_This_Sigma_Factor_PSD_1D)					{precision = line_edit_psd_factor_precision;			coeff = 1;												return struct_Data.roughness_Model.sigma_Factor_PSD_1D; }
+	if(whats_This == whats_This_Sigma_Factor_PSD_2D)					{precision = line_edit_psd_factor_precision;			coeff = 1;												return struct_Data.roughness_Model.sigma_Factor_PSD_2D; }
 
 	// density fluctuations
 	if(whats_This == whats_This_Particle_Absolute_Density)		{precision = line_edit_density_precision;	coeff = 1;												return struct_Data.fluctuations_Model.particle_Absolute_Density;			}
@@ -3279,7 +3374,9 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		whats_This == whats_This_Roughness_Peak_Sigma ||
 		whats_This == whats_This_Linear_PSD_Omega ||
 		whats_This == whats_This_PSD_Exponenta_Mu ||
-		whats_This == whats_This_Roughness_Peak_Frequency_Width)       spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
+		whats_This == whats_This_Roughness_Peak_Frequency_Width ||
+		whats_This == whats_This_Sigma_Factor_PSD_1D ||
+		whats_This == whats_This_Sigma_Factor_PSD_2D )       spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	if( whats_This == whats_This_Thickness || whats_This == whats_This_Period) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS);
 
 	if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
@@ -3369,6 +3466,8 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	if(whats_This == whats_This_Roughness_Peak_Sigma)			{ spin_Box->setSingleStep(step_sigma_roughness_peak);		sigma_Roughness_Peak_Spin_Boxes_List.append(spin_Box); }
 	if(whats_This == whats_This_Roughness_Peak_Frequency)		{ spin_Box->setSingleStep(step_peak_frequency);				peak_Frequency_Spin_Boxes_List.append(spin_Box); }
 	if(whats_This == whats_This_Roughness_Peak_Frequency_Width)	{ spin_Box->setSingleStep(step_peak_frequency_width);		peak_Frequency_Width_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Sigma_Factor_PSD_1D ||
+	   whats_This == whats_This_Sigma_Factor_PSD_2D )			{ spin_Box->setSingleStep(step_psd_sigma_factor);			PSD_Sigma_Factor_Spin_Boxes_List.append(spin_Box); }
 
 	if(whats_This == whats_This_Particle_Absolute_Density ||
 	   whats_This == whats_This_Particle_Relative_Density)			{ spin_Box->setSingleStep(step_particle_density);			  particle_Density_Spin_Boxes_List.append(spin_Box); }
@@ -4053,9 +4152,9 @@ void Table_Of_Structures::create_Min_Max_Spin_Box(My_Table_Widget* table, int ta
 	table->setCellWidget(current_Row, current_Column, spin_Box);
 	connect(spin_Box, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		if(whats_This == whats_This_Density)	{ multilayer->min_Max_Density = spin_Box->value();	 }
-		if(whats_This == whats_This_Thickness)	{ multilayer->min_Max_Thickness = spin_Box->value(); }
-		if(whats_This == whats_This_Sigma_Diffuse)		{ multilayer->min_Max_Sigma = spin_Box->value();	 }
+		if(whats_This == whats_This_Density)		{ multilayer->min_Max_Density	= spin_Box->value(); }
+		if(whats_This == whats_This_Thickness)		{ multilayer->min_Max_Thickness = spin_Box->value(); }
+		if(whats_This == whats_This_Sigma_Diffuse)	{ multilayer->min_Max_Sigma		= spin_Box->value(); }
 	});
 }
 
@@ -4094,6 +4193,8 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Roughness_Peak_Sigma)			{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
 		if(whats_This == whats_This_Roughness_Peak_Frequency)		{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;	}
 		if(whats_This == whats_This_Roughness_Peak_Frequency_Width)	{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;	}
+		if(whats_This == whats_This_Sigma_Factor_PSD_1D ||
+		   whats_This == whats_This_Sigma_Factor_PSD_2D)			{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;	}
 
 		if(whats_This == whats_This_Particle_Density)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_DENSITY;}
 		if(whats_This == whats_This_Particle_Radius)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
@@ -4128,6 +4229,8 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Roughness_Peak_Sigma)			{ step_sigma_roughness_peak = step_SpinBox->value()*length_Coeff;		for(MyDoubleSpinBox* spb : sigma_Roughness_Peak_Spin_Boxes_List)		spb->setSingleStep(step_sigma_roughness_peak/length_Coeff);}
 		if(whats_This == whats_This_Roughness_Peak_Frequency)		{ step_peak_frequency = step_SpinBox->value();							for(MyDoubleSpinBox* spb : peak_Frequency_Spin_Boxes_List)				spb->setSingleStep(step_peak_frequency);}
 		if(whats_This == whats_This_Roughness_Peak_Frequency_Width)	{ step_peak_frequency_width = step_SpinBox->value();					for(MyDoubleSpinBox* spb : peak_Frequency_Width_Spin_Boxes_List)		spb->setSingleStep(step_peak_frequency_width);}
+		if(whats_This == whats_This_Sigma_Factor_PSD_1D ||
+		   whats_This == whats_This_Sigma_Factor_PSD_2D )			{ step_psd_sigma_factor = step_SpinBox->value();						for(MyDoubleSpinBox* spb : PSD_Sigma_Factor_Spin_Boxes_List)			spb->setSingleStep(step_psd_sigma_factor);}
 
 		if(whats_This == whats_This_Particle_Density)					{ step_particle_density  = step_SpinBox->value();						  for(MyDoubleSpinBox* spb : particle_Density_Spin_Boxes_List)				spb->setSingleStep(step_particle_density);	}
 		if(whats_This == whats_This_Particle_Radius)					{ step_particle_radius   = step_SpinBox->value()*length_Coeff;			  for(MyDoubleSpinBox* spb : particle_Radius_Spin_Boxes_List)				spb->setSingleStep(step_particle_radius/length_Coeff);	}
@@ -4166,6 +4269,8 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Roughness_Peak_Sigma)			{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_sigma_roughness_peak/length_Coeff);	step_SpinBox->setDecimals(line_edit_sigma_precision);			}
 		if(whats_This == whats_This_Roughness_Peak_Frequency)		{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_peak_frequency);					step_SpinBox->setDecimals(line_edit_frequency_precision);		}
 		if(whats_This == whats_This_Roughness_Peak_Frequency_Width)	{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_peak_frequency_width);				step_SpinBox->setDecimals(line_edit_frequency_precision);		}
+		if(whats_This == whats_This_Sigma_Factor_PSD_1D ||
+		   whats_This == whats_This_Sigma_Factor_PSD_2D )			{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_psd_sigma_factor);					step_SpinBox->setDecimals(line_edit_psd_factor_precision);		}
 
 		if(whats_This == whats_This_Particle_Density)					{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_density);								step_SpinBox->setDecimals(line_edit_density_precision);	}
 		if(whats_This == whats_This_Particle_Radius)					{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_radius/length_Coeff);					step_SpinBox->setDecimals(line_edit_sigma_precision);	}
@@ -5496,6 +5601,15 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 						struct_Data.gamma.fit.max = spin_Box->value();
 //						struct_Data.gamma.confidence.max = struct_Data.gamma.fit.max;
 					}
+				}
+			} else
+			if(whats_This == whats_This_Sigma_Factor_PSD_1D ||
+			   whats_This == whats_This_Sigma_Factor_PSD_2D)
+			{
+				if(value_Type == VAL)
+				{
+					parameter.fit.min = parameter.value*0.1;
+					parameter.fit.max = parameter.value*10;
 				}
 			} else
 			{

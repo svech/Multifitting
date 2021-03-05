@@ -533,7 +533,8 @@ QDataStream& operator <<( QDataStream& stream, const Roughness_Model& roughness_
 				  << roughness_Model.sigma << roughness_Model.cor_radius << roughness_Model.fractal_alpha
 				  << roughness_Model.omega << roughness_Model.mu << roughness_Model.fractal_beta
 
-				  << roughness_Model.peak_Sigma << roughness_Model.peak_Frequency << roughness_Model.peak_Frequency_Width;
+				  << roughness_Model.peak_Sigma << roughness_Model.peak_Frequency << roughness_Model.peak_Frequency_Width
+				  << roughness_Model.sigma_Factor_PSD_1D << roughness_Model.sigma_Factor_PSD_2D;
 }
 QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Model )
 {
@@ -546,6 +547,9 @@ QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Mode
 	stream >> roughness_Model.fractal_beta
 		   >> roughness_Model.peak_Sigma >> roughness_Model.peak_Frequency >> roughness_Model.peak_Frequency_Width;
 	}
+	if(Global_Variables::check_Loaded_Version(1,11,10))
+	{stream >> roughness_Model.sigma_Factor_PSD_1D >> roughness_Model.sigma_Factor_PSD_2D;}
+
 	return stream;
 }
 
@@ -573,6 +577,17 @@ QDataStream& operator >>( QDataStream& stream,		 Fluctuations_Model& fluctuation
 				  >> fluctuations_Model.particle_Z_Position >> fluctuations_Model.particle_Z_Position_Deviation;
 }
 
+QDataStream& operator <<( QDataStream& stream, const PSD_Data& psd_Data )
+{
+	return stream << psd_Data.argument << psd_Data.value
+				  << psd_Data.PSD_Type << psd_Data.argument_Units << psd_Data.value_Units;
+}
+QDataStream& operator >>( QDataStream& stream,		 PSD_Data& psd_Data )
+{
+	return stream >> psd_Data.argument >> psd_Data.value
+				  >> psd_Data.PSD_Type >> psd_Data.argument_Units >> psd_Data.value_Units;
+}
+
 QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperfections_Model )
 {
 	return stream << imperfections_Model.use_Interlayer << imperfections_Model.use_Func
@@ -585,6 +600,8 @@ QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperf
 				  << imperfections_Model.vertical_Correlation << imperfections_Model.vertical_Inheritance_Frequency
 				  << imperfections_Model.add_Gauss_Peak << imperfections_Model.use_Common_Roughness_Function
 				  << imperfections_Model.inheritance_Model
+
+				  << imperfections_Model.PSD_1D << imperfections_Model.PSD_2D
 
 				  << imperfections_Model.use_Fluctuations << imperfections_Model.cross_Layer_Interference << imperfections_Model.initial_Particle_Shape
 				  << imperfections_Model.initial_Interference_Function << imperfections_Model.initial_Geometric_Model;
@@ -610,6 +627,9 @@ QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfecti
 
 	if(Global_Variables::check_Loaded_Version(1,11,7))
 	{stream >> imperfections_Model.inheritance_Model;}
+
+	if(Global_Variables::check_Loaded_Version(1,11,10))
+	{stream >> imperfections_Model.PSD_1D >> imperfections_Model.PSD_2D;}
 
 	stream >> imperfections_Model.use_Fluctuations >> imperfections_Model.cross_Layer_Interference >> imperfections_Model.initial_Particle_Shape
 		   >> imperfections_Model.initial_Interference_Function >> imperfections_Model.initial_Geometric_Model;

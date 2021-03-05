@@ -440,20 +440,30 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		PSD_Model_Layout->addWidget(PSD_Model_Label);
 
 		QRadioButton* ABC_Radiobutton = new QRadioButton("ABC");
-			ABC_Radiobutton->setChecked(multilayer->imperfections_Model.PSD_Model == ABC_model);
+			ABC_Radiobutton->setChecked(multilayer->imperfections_Model.PSD_Model == ABC_Model);
 		PSD_Model_Layout->addWidget(ABC_Radiobutton);
 
 		QRadioButton* fractal_Gauss_Radiobutton = new QRadioButton("Fractal Gauss");
 			fractal_Gauss_Radiobutton->setChecked(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model);
 		PSD_Model_Layout->addWidget(fractal_Gauss_Radiobutton);
 
+		QRadioButton* measured_PSD_Radiobutton = new QRadioButton("Measured PSD");
+			measured_PSD_Radiobutton->setChecked(multilayer->imperfections_Model.PSD_Model == measured_PSD);
+			measured_PSD_Radiobutton->setDisabled(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation ||
+												  multilayer->imperfections_Model.approximation == DWBA_approximation ||
+												  multilayer->imperfections_Model.approximation == SA_approximation ||
+												  multilayer->imperfections_Model.approximation == CSA_approximation);
+		PSD_Model_Layout->addWidget(measured_PSD_Radiobutton);
+
 		QButtonGroup* use_Model_Group = new QButtonGroup;
 			use_Model_Group->addButton(ABC_Radiobutton);
 			use_Model_Group->addButton(fractal_Gauss_Radiobutton);
+			use_Model_Group->addButton(measured_PSD_Radiobutton);
 
 		// gauss peak
 		QCheckBox* gauss_Peak_Checkbox = new QCheckBox("Add Gauss peak");
 			gauss_Peak_Checkbox->setChecked(multilayer->imperfections_Model.add_Gauss_Peak);
+			gauss_Peak_Checkbox->setDisabled(multilayer->imperfections_Model.PSD_Model == measured_PSD);
 		PSD_Model_Layout->addWidget(gauss_Peak_Checkbox);
 
 		// common PSD
@@ -515,6 +525,12 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(PT_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = PT_approximation;
+
+			// unlock Gauss peak
+			gauss_Peak_Checkbox->setEnabled(true);
+			// unlock measured PSD
+			measured_PSD_Radiobutton->setEnabled(true);
+			// unlock partial correlation
 			partial_Radiobutton->setEnabled(true);
 			if(partial_Radiobutton->isChecked())
 			{
@@ -531,6 +547,8 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(DWBA_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = DWBA_approximation;
+
+			// lock partial correlation
 			if(partial_Radiobutton->isChecked())
 			{
 				partial_Radiobutton->setChecked(false);
@@ -538,6 +556,20 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 				full_Radiobutton->toggled(true);
 			}
 			partial_Radiobutton->setEnabled(false);
+
+			// lock measured PSD
+			if(measured_PSD_Radiobutton->isChecked())
+			{
+				measured_PSD_Radiobutton->setChecked(false);
+				ABC_Radiobutton->setChecked(true);
+				ABC_Radiobutton->toggled(true);
+			}
+			measured_PSD_Radiobutton->setEnabled(false);
+
+			// lock Gauss peak
+			gauss_Peak_Checkbox->setChecked(false);
+			gauss_Peak_Checkbox->toggled(false);
+			gauss_Peak_Checkbox->setEnabled(false);
 		}
 	});
 	connect(SA_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -545,6 +577,8 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(SA_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = SA_approximation;
+
+			// lock partial correlation
 			if(partial_Radiobutton->isChecked())
 			{
 				partial_Radiobutton->setChecked(false);
@@ -552,6 +586,20 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 				full_Radiobutton->toggled(true);
 			}
 			partial_Radiobutton->setEnabled(false);
+
+			// lock measured PSD
+			if(measured_PSD_Radiobutton->isChecked())
+			{
+				measured_PSD_Radiobutton->setChecked(false);
+				ABC_Radiobutton->setChecked(true);
+				ABC_Radiobutton->toggled(true);
+			}
+			measured_PSD_Radiobutton->setEnabled(false);
+
+			// lock Gauss peak
+			gauss_Peak_Checkbox->setChecked(false);
+			gauss_Peak_Checkbox->toggled(false);
+			gauss_Peak_Checkbox->setEnabled(false);
 		}
 	});
 	connect(CSA_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -559,6 +607,8 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(CSA_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = CSA_approximation;
+
+			// lock partial correlation
 			if(partial_Radiobutton->isChecked())
 			{
 				partial_Radiobutton->setChecked(false);
@@ -566,6 +616,20 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 				full_Radiobutton->toggled(true);
 			}
 			partial_Radiobutton->setEnabled(false);
+
+			// lock measured PSD
+			if(measured_PSD_Radiobutton->isChecked())
+			{
+				measured_PSD_Radiobutton->setChecked(false);
+				ABC_Radiobutton->setChecked(true);
+				ABC_Radiobutton->toggled(true);
+			}
+			measured_PSD_Radiobutton->setEnabled(false);
+
+			// lock Gauss peak
+			gauss_Peak_Checkbox->setChecked(false);
+			gauss_Peak_Checkbox->toggled(false);
+			gauss_Peak_Checkbox->setEnabled(false);
 		}
 	});
 
@@ -586,6 +650,9 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			common_Checkbox->toggled(true);
 			common_Checkbox->setDisabled(true);
 
+			// unlock measured PSD
+			measured_PSD_Radiobutton->setEnabled(true);
+
 			refresh_Tree_Roughness();
 		}
 	});
@@ -605,6 +672,15 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			common_Checkbox->toggled(true);
 			common_Checkbox->setDisabled(true);
 
+			// lock measured PSD
+			if(measured_PSD_Radiobutton->isChecked())
+			{
+				measured_PSD_Radiobutton->setChecked(false);
+				ABC_Radiobutton->setChecked(true);
+				ABC_Radiobutton->toggled(true);
+			}
+			measured_PSD_Radiobutton->setEnabled(false);
+
 			refresh_Tree_Roughness();
 		}
 	});
@@ -620,7 +696,10 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			vertical_Inheritance_Roughness_Frequency_Spinbox->setDisabled(true);
 			vertical_Inheritance_Roughness_Frequency_Units_Label->setDisabled(true);
 
-			common_Checkbox->setDisabled(false);
+			if(multilayer->imperfections_Model.PSD_Model != measured_PSD) common_Checkbox->setDisabled(false);
+
+			// unlock measured PSD
+			measured_PSD_Radiobutton->setEnabled(true);
 
 			refresh_Tree_Roughness();
 		}
@@ -631,7 +710,9 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 	{
 		if(ABC_Radiobutton->isChecked())
 		{
-			multilayer->imperfections_Model.PSD_Model = ABC_model;
+			multilayer->imperfections_Model.PSD_Model = ABC_Model;
+			if(multilayer->imperfections_Model.approximation == PT_approximation) gauss_Peak_Checkbox->setDisabled(false);
+			if(multilayer->imperfections_Model.vertical_Correlation == zero_Correlation) common_Checkbox->setDisabled(false);
 			refresh_Tree_Roughness();
 		}
 	});
@@ -640,6 +721,25 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(fractal_Gauss_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.PSD_Model = fractal_Gauss_Model;
+			if(multilayer->imperfections_Model.approximation == PT_approximation) gauss_Peak_Checkbox->setDisabled(false);
+			if(multilayer->imperfections_Model.vertical_Correlation == zero_Correlation) common_Checkbox->setDisabled(false);
+			refresh_Tree_Roughness();
+		}
+	});
+	connect(measured_PSD_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(measured_PSD_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.PSD_Model = measured_PSD;
+
+			gauss_Peak_Checkbox->setChecked(false);
+			gauss_Peak_Checkbox->toggled(false);
+			gauss_Peak_Checkbox->setDisabled(true);
+
+			common_Checkbox->setChecked(true);
+			common_Checkbox->toggled(true);
+			common_Checkbox->setDisabled(true);
+
 			refresh_Tree_Roughness();
 		}
 	});
