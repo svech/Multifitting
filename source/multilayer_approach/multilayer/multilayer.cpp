@@ -7,6 +7,15 @@ Multilayer::Multilayer(QWidget *parent) :
 	QWidget(parent)
 {
 	graph_Options_2D.show_Current_Coordinate = false;
+
+	imperfections_Model.PSD_1D.PSD_Type = PSD_Type_1D;
+	imperfections_Model.PSD_1D.argument_Units = PSD_Argument_Units_List[inv_mcm];
+	imperfections_Model.PSD_1D.value_Units = PSD_1D_Value_Units_List[mcm_3];
+
+	imperfections_Model.PSD_2D.PSD_Type = PSD_Type_2D;
+	imperfections_Model.PSD_2D.argument_Units = PSD_Argument_Units_List[inv_mcm];
+	imperfections_Model.PSD_2D.value_Units = PSD_2D_Value_Units_List[mcm_4];
+
 	create_Main_Layout();
 }
 

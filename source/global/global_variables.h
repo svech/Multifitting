@@ -200,6 +200,15 @@ extern QStringList length_Units_List;		extern QMap<QString, double> length_Coeff
 extern QStringList angle_Units_List;		extern QMap<QString, double> angle_Coefficients_Map;		extern QMap<QString, QString> angle_Units_Legend_Map;
 enum angle_Units_List_Enum {degree, minute, second, mrad}; // radian
 
+extern QStringList PSD_Argument_Units_List;		extern QMap<QString, double> PSD_Argument_Coefficients_Map;		extern QMap<QString, QString> PSD_Argument_Units_Legend_Map;
+enum PSD_Argument_Units_List_Enum {inv_mcm, inv_nm, inv_angstrom};
+
+extern QStringList PSD_1D_Value_Units_List;		extern QMap<QString, double> PSD_1D_Value_Coefficients_Map;		extern QMap<QString, QString> PSD_1D_Value_Units_Legend_Map;
+enum PSD_1D_Value_Units_List_Enum {mcm_3, nm_3, angstrom_3};
+
+extern QStringList PSD_2D_Value_Units_List;		extern QMap<QString, double> PSD_2D_Value_Coefficients_Map;		extern QMap<QString, QString> PSD_2D_Value_Units_Legend_Map;
+enum PSD_2D_Value_Units_List_Enum {mcm_4, nm_4, angstrom_4};
+
 // units
 extern QString length_units;
 extern QString density_units;

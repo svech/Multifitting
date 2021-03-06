@@ -125,6 +125,7 @@ SOURCES += \
     multilayer_approach/profile_plots/profile_plots_window.cpp \
     multilayer_approach/table_of_structures/coupling_editor.cpp \
     multilayer_approach/table_of_structures/confidence_interval_editor.cpp \
+    multilayer_approach/table_of_structures/measured_psd_editor.cpp \
     multilayer_approach/table_of_structures/my_table_widget.cpp \
     multilayer_approach/table_of_structures/table_of_structures.cpp \
     multilayer_approach/multilayer_approach.cpp \
@@ -188,6 +189,7 @@ HEADERS += \
     multilayer_approach/profile_plots/profile_plots_window.h \
     multilayer_approach/table_of_structures/coupling_editor.h \
     multilayer_approach/table_of_structures/confidence_interval_editor.h \
+    multilayer_approach/table_of_structures/measured_psd_editor.h \
     multilayer_approach/table_of_structures/my_table_widget.h \
     multilayer_approach/table_of_structures/table_of_structures.h \
     multilayer_approach/multilayer_approach.h \

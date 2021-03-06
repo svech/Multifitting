@@ -129,6 +129,7 @@ class Node;
 #define space_Sym				" "
 #define Angstrom_Sym			QString(QChar(0x212B))
 #define Rho_Sym					QString(QChar(0x03C1))
+#define Tetra_Sym				QString(QChar(0x2074))
 #define Cube_Sym				QString(QChar(0x00B3))
 #define Quadro_Sym				QString(QChar(0x00B2))
 #define Zero_Subscript_Sym		QString(QChar(0x2080))
@@ -902,6 +903,7 @@ struct PSD_Data					{QVector<double> argument;
 								 QString PSD_Type;				// dimension
 								 QString argument_Units;
 								 QString value_Units;
+								 QString filepath;
 								};
 struct Imperfections_Model		{
 								// interlayer
@@ -941,8 +943,8 @@ struct Imperfections_Model		{
 								bool use_Common_Roughness_Function = true;
 								QString inheritance_Model = replication_Factor_Inheritance_Model;
 
-								PSD_Data PSD_1D;	// only for substrate
-								PSD_Data PSD_2D;	// only for substrate
+								PSD_Data PSD_1D;
+								PSD_Data PSD_2D;
 
 								// density fluctuations
 								bool use_Fluctuations = false;

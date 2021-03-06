@@ -362,6 +362,24 @@ QList<double> angle_Coefficients_List		{1.		   ,1./60    ,1./3600         ,0.18/
 QMap<QString, double>  angle_Coefficients_Map;
 QMap<QString, QString> angle_Units_Legend_Map;
 
+QStringList PSD_Argument_Units_List						{Mu_Sym+"m"+Minus_One_Sym,"nm"+Minus_One_Sym,Angstrom_Sym+Minus_One_Sym}; // change enum!
+QStringList PSD_Argument_Units_Legend_List				{"mcm^-1"				 ,"nm^-1"			,"A^-1"};
+QList<double> PSD_Argument_Coefficients_List			{1E-4					 ,1E-1				,1.};
+QMap<QString, double> PSD_Argument_Coefficients_Map;
+QMap<QString, QString> PSD_Argument_Units_Legend_Map;
+
+QStringList PSD_1D_Value_Units_List						{Mu_Sym+"m"+Cube_Sym,"nm"+Cube_Sym,Angstrom_Sym+Cube_Sym}; // change enum!
+QStringList PSD_1D_Value_Units_Legend_List				{"mcm^3"			,"nm^3"		  ,"A^3"};
+QList<double> PSD_1D_Value_Coefficients_List			{1E12				,1E3		  ,1.};
+QMap<QString, double> PSD_1D_Value_Coefficients_Map;
+QMap<QString, QString> PSD_1D_Value_Units_Legend_Map;
+
+QStringList PSD_2D_Value_Units_List						{Mu_Sym+"m"+Tetra_Sym,"nm"+Tetra_Sym,Angstrom_Sym+Tetra_Sym}; // change enum!
+QStringList PSD_2D_Value_Units_Legend_List				{"mcm^4"			 ,"nm^4"		,"A^4"};
+QList<double> PSD_2D_Value_Coefficients_List			{1E16				 ,1E4		    ,1.};
+QMap<QString, double> PSD_2D_Value_Coefficients_Map;
+QMap<QString, QString> PSD_2D_Value_Units_Legend_Map;
+
 // units
 QString length_units;
 QString density_units = "g/cm" + Cube_Sym;
@@ -758,6 +776,24 @@ void Global_Variables::fill_Units_Maps()
 	{
 		angle_Coefficients_Map.insert(angle_Units_List[i], angle_Coefficients_List[i]);
 		angle_Units_Legend_Map.insert(angle_Units_List[i], angle_Units_Legend_List[i]);
+	}
+	// PSD argument
+	for(int i=0; i<PSD_Argument_Units_List.size(); i++)
+	{
+		PSD_Argument_Coefficients_Map.insert(PSD_Argument_Units_List[i], PSD_Argument_Coefficients_List[i]);
+		PSD_Argument_Units_Legend_Map.insert(PSD_Argument_Units_List[i], PSD_Argument_Units_Legend_List[i]);
+	}
+	// PSD 1D value
+	for(int i=0; i<PSD_1D_Value_Units_List.size(); i++)
+	{
+		PSD_1D_Value_Coefficients_Map.insert(PSD_1D_Value_Units_List[i], PSD_1D_Value_Coefficients_List[i]);
+		PSD_1D_Value_Units_Legend_Map.insert(PSD_1D_Value_Units_List[i], PSD_1D_Value_Units_Legend_List[i]);
+	}
+	// PSD 2D value
+	for(int i=0; i<PSD_2D_Value_Units_List.size(); i++)
+	{
+		PSD_2D_Value_Coefficients_Map.insert(PSD_2D_Value_Units_List[i], PSD_2D_Value_Coefficients_List[i]);
+		PSD_2D_Value_Units_Legend_Map.insert(PSD_2D_Value_Units_List[i], PSD_2D_Value_Units_Legend_List[i]);
 	}
 }
 

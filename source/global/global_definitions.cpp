@@ -580,12 +580,12 @@ QDataStream& operator >>( QDataStream& stream,		 Fluctuations_Model& fluctuation
 QDataStream& operator <<( QDataStream& stream, const PSD_Data& psd_Data )
 {
 	return stream << psd_Data.argument << psd_Data.value
-				  << psd_Data.PSD_Type << psd_Data.argument_Units << psd_Data.value_Units;
+				  << psd_Data.PSD_Type << psd_Data.argument_Units << psd_Data.value_Units << psd_Data.filepath;
 }
 QDataStream& operator >>( QDataStream& stream,		 PSD_Data& psd_Data )
 {
 	return stream >> psd_Data.argument >> psd_Data.value
-				  >> psd_Data.PSD_Type >> psd_Data.argument_Units >> psd_Data.value_Units;
+				  >> psd_Data.PSD_Type >> psd_Data.argument_Units >> psd_Data.value_Units >> psd_Data.filepath;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperfections_Model )

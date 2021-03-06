@@ -1433,7 +1433,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				QString whats_This = whats_This_Sigma_Factor_PSD_1D;
 				add_Columns				(new_Table, current_Column+1);
-				create_PSD_Load_Button	(new_Table,			   current_Row,   current_Column, structure_Item, PSD_Type_1D);
+				create_PSD_Load_Button	(new_Table,			   current_Row,   current_Column, multilayer, PSD_Type_1D);
 				create_Label			(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 1D");
 				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL);
 //				create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
@@ -1466,7 +1466,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				QString whats_This = whats_This_Sigma_Factor_PSD_2D;
 				add_Columns				(new_Table, current_Column+1);
-				create_PSD_Load_Button	(new_Table,			   current_Row,   current_Column, structure_Item, PSD_Type_2D);
+				create_PSD_Load_Button	(new_Table,			   current_Row,   current_Column, multilayer, PSD_Type_2D);
 				create_Label			(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 2D");
 				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL);
 //				create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
@@ -3127,15 +3127,16 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 	});
 }
 
-void Table_Of_Structures::create_PSD_Load_Button(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString PSD_Type)
+void Table_Of_Structures::create_PSD_Load_Button(My_Table_Widget* table, int current_Row, int current_Column, Multilayer* multilayer, QString PSD_Type)
 {
-	Data substrate_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-
 	QPushButton* PSD_Button = new QPushButton(PSD_Type);
-		PSD_Button->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	table->setCellWidget(current_Row, current_Column, PSD_Button);
 
-	connect(PSD_Button, &QPushButton::clicked, this, [=]{qInfo() << PSD_Type << endl;/*open_Shape_Pattern_Model_Dialog(structure_Item, "pattern")*/;});
+	connect(PSD_Button, &QPushButton::clicked, this, [=]
+	{
+		Measured_PSD_Editor* measured_PSD_Editor = new Measured_PSD_Editor(this, multilayer, PSD_Type, this);
+			measured_PSD_Editor->show();
+	});
 }
 
 void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, int current_Row, int current_Column, QTreeWidgetItem *structure_Item)
@@ -5629,6 +5630,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			{
 				if(value_Type == VAL)
 				{
+					parameter.value   = spin_Box->value();
 					parameter.fit.min = parameter.value*0.1;
 					parameter.fit.max = parameter.value*10;
 				}
