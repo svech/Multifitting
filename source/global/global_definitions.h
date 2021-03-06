@@ -400,6 +400,7 @@ class Node;
 #define previous_Expression_Property "previous_Expression"
 #define abort_Property			"abort"
 #define height_Property			"height_Property"
+#define is_Opened_Property		"is_Opened_Property"
 
 #define num_Chemic_Element_Property		"num_Chemic_Element"
 #define interlayer_Index_Property		"interlayer_Index"

@@ -10,7 +10,8 @@ class Measured_PSD_Editor : public QDialog
 {
 	Q_OBJECT
 public:
-	explicit Measured_PSD_Editor(Table_Of_Structures* table_Of_Structures, Multilayer* multilayer, QString PSD_Type, QWidget* parent = 0);
+	explicit Measured_PSD_Editor(Table_Of_Structures* table_Of_Structures, Multilayer* multilayer, QString PSD_Type, QPushButton* PSD_Button, QWidget* parent = 0);
+	~Measured_PSD_Editor();
 
 	void dragEnterEvent(QDragEnterEvent* event);
 	void dropEvent(QDropEvent* event);
@@ -27,6 +28,7 @@ public:
 	Multilayer* multilayer;
 	Table_Of_Structures* table_Of_Structures;
 	QString PSD_Type;
+	QPushButton* PSD_Button;
 
 	PSD_Data& psd_Data;
 

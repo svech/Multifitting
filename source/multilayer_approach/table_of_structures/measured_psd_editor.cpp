@@ -3,11 +3,13 @@
 Measured_PSD_Editor::Measured_PSD_Editor(Table_Of_Structures* table_Of_Structures,
 										 Multilayer* multilayer,
 										 QString PSD_Type,
+										 QPushButton* PSD_Button,
 										 QWidget* parent):
 	table_Of_Structures(table_Of_Structures),
 	multilayer(multilayer),
 	PSD_Type(PSD_Type),
 	psd_Data(PSD_Type == PSD_Type_1D ? multilayer->imperfections_Model.PSD_1D : multilayer->imperfections_Model.PSD_2D),
+	PSD_Button(PSD_Button),
 	QDialog(parent)
 {
 	psd_Data.PSD_Type = PSD_Type;
@@ -17,6 +19,11 @@ Measured_PSD_Editor::Measured_PSD_Editor(Table_Of_Structures* table_Of_Structure
 	setAttribute(Qt::WA_DeleteOnClose);
 	setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
 	setAcceptDrops(true);
+}
+
+Measured_PSD_Editor::~Measured_PSD_Editor()
+{
+	PSD_Button->setProperty(is_Opened_Property,false);
 }
 
 void Measured_PSD_Editor::dragEnterEvent(QDragEnterEvent* event)
@@ -266,6 +273,8 @@ void Measured_PSD_Editor::create_Buttons()
 				custom_Plot->replot();
 				psd_Data.filepath.clear();
 				path_Line_Edit->clear();
+
+				PSD_Button->setStyleSheet("background-color: white");
 			}
 		});
 	}
@@ -340,4 +349,9 @@ void Measured_PSD_Editor::read_PSD_File()
 			skip_line_label: ok_To_Double = false;
 		}
 	}
+
+	if(psd_Data.argument.size()>2)
+		PSD_Button->setStyleSheet("QWidget { background: rgb(100, 255, 220); }");
+	else
+		PSD_Button->setStyleSheet("background-color: white");
 }

@@ -1301,6 +1301,73 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 			///--------------------------------------------------------------------------------------------
 
+			// sigma-scaling for loaded 1D PSD
+			bool show_Sigma_Factor_PSD_1D = false;
+			if(	struct_Data.roughness_Model.is_Enabled && multilayer->imperfections_Model.PSD_Model == measured_PSD)
+			{
+				if( struct_Data.item_Type == item_Type_Substrate)
+				{
+					show_Sigma_Factor_PSD_1D = true;
+				}
+			}
+			if(show_Sigma_Factor_PSD_1D)
+			{
+				QString whats_This = whats_This_Sigma_Factor_PSD_1D;
+				add_Columns				(new_Table, current_Column+1);
+				create_PSD_Load_Button	(new_Table,			   current_Row,   current_Column, multilayer, PSD_Type_1D);
+				create_Label			(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 1D");
+				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL);
+//				create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+//				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 0, 0, 0, 0);
+
+				// PSD sigma factor step
+				if(!steps_Are_Done_Sigma_Factor_PSD)
+				{
+					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "rf");
+					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+					steps_Are_Done_Sigma_Factor_PSD = true;
+				}
+				last_Roughness_Column = max(current_Column,last_Roughness_Column);
+				current_Column+=2;
+			}
+			///--------------------------------------------------------------------------------------------
+
+			// sigma-scaling for loaded 2D PSD
+			bool show_Sigma_Factor_PSD_2D = false;
+			if(	struct_Data.roughness_Model.is_Enabled && multilayer->imperfections_Model.PSD_Model == measured_PSD)
+			{
+				if( struct_Data.item_Type == item_Type_Substrate)
+				{
+					show_Sigma_Factor_PSD_2D = true;
+				}
+			}
+			if(show_Sigma_Factor_PSD_2D)
+			{
+				QString whats_This = whats_This_Sigma_Factor_PSD_2D;
+				add_Columns				(new_Table, current_Column+1);
+				create_PSD_Load_Button	(new_Table,			   current_Row,   current_Column, multilayer, PSD_Type_2D);
+				create_Label			(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 2D");
+				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL);
+//				create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+//				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 0, 0, 0, 0);
+
+				/// already done for 1D PSD
+				// PSD sigma factor step
+//				if(!steps_Are_Done_Sigma_Factor_PSD)
+//				{
+//					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "rf");
+//					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+//					steps_Are_Done_Sigma_Factor_PSD = true;
+//				}
+				last_Roughness_Column = max(current_Column,last_Roughness_Column);
+				current_Column+=2;
+			}
+			///--------------------------------------------------------------------------------------------
+
 			// peak sigma
 			bool show_Peak_Sigma = false;
 			if(	struct_Data.roughness_Model.is_Enabled && multilayer->imperfections_Model.add_Gauss_Peak)
@@ -1414,73 +1481,6 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 //					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Nu_Sym+" ["+Mu_Sym+"m"+Minus_One_Sym+"]");
 //					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 //					steps_Are_Done_Peak_Frequency = true;
-//				}
-				last_Roughness_Column = max(current_Column,last_Roughness_Column);
-				current_Column+=2;
-			}
-			///--------------------------------------------------------------------------------------------
-
-			// sigma-scaling for loaded 1D PSD
-			bool show_Sigma_Factor_PSD_1D = false;
-			if(	struct_Data.roughness_Model.is_Enabled && multilayer->imperfections_Model.PSD_Model == measured_PSD)
-			{
-				if( struct_Data.item_Type == item_Type_Substrate)
-				{
-					show_Sigma_Factor_PSD_1D = true;
-				}
-			}
-			if(show_Sigma_Factor_PSD_1D)
-			{
-				QString whats_This = whats_This_Sigma_Factor_PSD_1D;
-				add_Columns				(new_Table, current_Column+1);
-				create_PSD_Load_Button	(new_Table,			   current_Row,   current_Column, multilayer, PSD_Type_1D);
-				create_Label			(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 1D");
-				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL);
-//				create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
-//				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
-				// last
-				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 0, 0, 0, 0);
-
-				// PSD sigma factor step
-				if(!steps_Are_Done_Sigma_Factor_PSD)
-				{
-					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "rf");
-					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
-					steps_Are_Done_Sigma_Factor_PSD = true;
-				}
-				last_Roughness_Column = max(current_Column,last_Roughness_Column);
-				current_Column+=2;
-			}
-			///--------------------------------------------------------------------------------------------
-
-			// sigma-scaling for loaded 2D PSD
-			bool show_Sigma_Factor_PSD_2D = false;
-			if(	struct_Data.roughness_Model.is_Enabled && multilayer->imperfections_Model.PSD_Model == measured_PSD)
-			{
-				if( struct_Data.item_Type == item_Type_Substrate)
-				{
-					show_Sigma_Factor_PSD_2D = true;
-				}
-			}
-			if(show_Sigma_Factor_PSD_2D)
-			{
-				QString whats_This = whats_This_Sigma_Factor_PSD_2D;
-				add_Columns				(new_Table, current_Column+1);
-				create_PSD_Load_Button	(new_Table,			   current_Row,   current_Column, multilayer, PSD_Type_2D);
-				create_Label			(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 2D");
-				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL);
-//				create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
-//				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
-				// last
-				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 0, 0, 0, 0);
-
-				/// already done for 1D PSD
-				// PSD sigma factor step
-//				if(!steps_Are_Done_Sigma_Factor_PSD)
-//				{
-//					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "rf");
-//					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
-//					steps_Are_Done_Sigma_Factor_PSD = true;
 //				}
 				last_Roughness_Column = max(current_Column,last_Roughness_Column);
 				current_Column+=2;
@@ -3131,11 +3131,21 @@ void Table_Of_Structures::create_PSD_Load_Button(My_Table_Widget* table, int cur
 {
 	QPushButton* PSD_Button = new QPushButton(PSD_Type);
 	table->setCellWidget(current_Row, current_Column, PSD_Button);
+	PSD_Button->setProperty(is_Opened_Property,false);
+	if( (PSD_Type == PSD_Type_1D && multilayer->imperfections_Model.PSD_1D.argument.size()>2) ||
+		(PSD_Type == PSD_Type_2D && multilayer->imperfections_Model.PSD_2D.argument.size()>2) )
+		PSD_Button->setStyleSheet("QWidget { background: rgb(100, 255, 220); }");
+	else
+		PSD_Button->setStyleSheet("background-color: white");
 
 	connect(PSD_Button, &QPushButton::clicked, this, [=]
 	{
-		Measured_PSD_Editor* measured_PSD_Editor = new Measured_PSD_Editor(this, multilayer, PSD_Type, this);
-			measured_PSD_Editor->show();
+		if(!(PSD_Button->property(is_Opened_Property).toBool()))
+		{
+			PSD_Button->setProperty(is_Opened_Property,true);
+			Measured_PSD_Editor* measured_PSD_Editor = new Measured_PSD_Editor(this, multilayer, PSD_Type, PSD_Button, this);
+				measured_PSD_Editor->show();
+		}
 	});
 }
 
