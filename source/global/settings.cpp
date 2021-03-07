@@ -462,6 +462,7 @@ int    n_max_series;
 
 bool print_1D_Data_On_Recalculation;
 bool print_2D_Data_On_Recalculation;
+bool print_1D_PSD_From_Scattering_On_Recalculation;
 
 bool use_multifitting_directory;
 bool use_working_directory;
@@ -1423,8 +1424,9 @@ void Settings::read_General_Settings(bool reset_to_default)
 	general_Settings_Tab_Index = general_Settings.value( "general_Settings_Tab_Index",	0 ).toInt();
 
 	general_Settings.beginGroup( Output_Tab );
-		print_1D_Data_On_Recalculation	= general_Settings.value( "print_1D_Data_On_Recalculation",		true	).toBool();
-		print_2D_Data_On_Recalculation	= general_Settings.value( "print_2D_Data_On_Recalculation",		false	).toBool();
+		print_1D_Data_On_Recalculation					= general_Settings.value( "print_1D_Data_On_Recalculation",					true	).toBool();
+		print_2D_Data_On_Recalculation					= general_Settings.value( "print_2D_Data_On_Recalculation",					false	).toBool();
+		print_1D_PSD_From_Scattering_On_Recalculation	= general_Settings.value( "print_1D_PSD_From_Scattering_On_Recalculation",	false	).toBool();
 
 		use_multifitting_directory		= general_Settings.value( "use_multifitting_directory",			true	).toBool();
 		use_working_directory			= general_Settings.value( "use_working_directory",				false	).toBool();
@@ -1474,8 +1476,9 @@ void Settings::save_General_Settings()
 	general_Settings.setValue( "general_Settings_Tab_Index", general_Settings_Tab_Index );
 
 	general_Settings.beginGroup( Output_Tab );
-		general_Settings.setValue("print_1D_Data_On_Recalculation",		print_1D_Data_On_Recalculation		);
-		general_Settings.setValue("print_2D_Data_On_Recalculation",		print_2D_Data_On_Recalculation		);
+		general_Settings.setValue("print_1D_Data_On_Recalculation",					print_1D_Data_On_Recalculation					);
+		general_Settings.setValue("print_2D_Data_On_Recalculation",					print_2D_Data_On_Recalculation					);
+		general_Settings.setValue("print_1D_PSD_From_Scattering_On_Recalculation",	print_1D_PSD_From_Scattering_On_Recalculation	);
 
 		general_Settings.setValue("use_multifitting_directory",			use_multifitting_directory			);
 		general_Settings.setValue("use_working_directory",				use_working_directory				);

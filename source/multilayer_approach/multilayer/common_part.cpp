@@ -107,9 +107,10 @@ void Common_Part::create_Detector_GroupBox()
 		slit_Width_SpinBox = new MyDoubleSpinBox;
 			slit_Width_SpinBox->setAccelerated(true);
 			slit_Width_SpinBox->setRange(0, MAX_DOUBLE);
-			slit_Width_SpinBox->setDecimals(2);
+			slit_Width_SpinBox->setDecimals(3);
 			slit_Width_SpinBox->setValue(measurement.detector_1D.slit_Width);
-			slit_Width_SpinBox->setSingleStep(0.01);
+//			slit_Width_SpinBox->setSingleStep(0.01);
+			slit_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			slit_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			slit_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		slit_Layout->addWidget(slit_Width_SpinBox,0,Qt::AlignLeft);

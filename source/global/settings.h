@@ -470,6 +470,7 @@ extern int    n_max_series;
 
 extern bool print_1D_Data_On_Recalculation;
 extern bool print_2D_Data_On_Recalculation;
+extern bool print_1D_PSD_From_Scattering_On_Recalculation;
 
 extern bool use_multifitting_directory;
 extern bool use_working_directory;

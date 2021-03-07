@@ -242,22 +242,29 @@ void General_Settings_Editor::create_Output_Tab()
 	QVBoxLayout* layout = new QVBoxLayout(widget);
 		layout->setAlignment(Qt::AlignTop);
 
-	QGroupBox* print_Groupbox = new QGroupBox("Print data");
+	QGroupBox* print_Groupbox = new QGroupBox("Print data to file");
 	layout->addWidget(print_Groupbox);
 	{
 		QVBoxLayout* groupbox_Layout = new QVBoxLayout(print_Groupbox);
 
-		QCheckBox* print_1D_Data = new QCheckBox("Print to file 1D data on recalculation");
+		QCheckBox* print_1D_Data = new QCheckBox("Print 1D data on recalculation");
 			print_1D_Data->setChecked(print_1D_Data_On_Recalculation);
 		groupbox_Layout->addWidget(print_1D_Data);
 		connect(print_1D_Data, &QCheckBox::toggled,	[=]{print_1D_Data_On_Recalculation = print_1D_Data->isChecked();});
 
 		//----------------------------------------------------------------------------
 
-		QCheckBox* print_2D_Data = new QCheckBox("Print to file 2D data on recalculation");
+		QCheckBox* print_2D_Data = new QCheckBox("Print 2D data on recalculation");
 			print_2D_Data->setChecked(print_2D_Data_On_Recalculation);
 		groupbox_Layout->addWidget(print_2D_Data);
 		connect(print_2D_Data, &QCheckBox::toggled,	[=]{print_2D_Data_On_Recalculation = print_2D_Data->isChecked();});
+
+		//----------------------------------------------------------------------------
+
+		QCheckBox* print_1D_PSD = new QCheckBox("Print 1D PSD from scattering on recalculation");
+			print_1D_PSD->setChecked(print_1D_PSD_From_Scattering_On_Recalculation);
+		groupbox_Layout->addWidget(print_1D_PSD);
+		connect(print_1D_PSD, &QCheckBox::toggled,	[=]{print_1D_PSD_From_Scattering_On_Recalculation = print_1D_PSD->isChecked();});
 	}
 
 	QGroupBox* path_Groupbox = new QGroupBox("Paths");
