@@ -289,10 +289,13 @@ void Measured_PSD_Editor::create_Buttons()
 				psd_Data.raw_Value.clear();
 				psd_Data.argument.clear();
 				psd_Data.value.clear();
-				custom_Plot->clearGraphs();
-				custom_Plot->replot();
+
 				psd_Data.filepath.clear();
 				path_Line_Edit->clear();
+
+				custom_Plot->graph()->data()->clear();
+				custom_Plot->replot();
+
 				PSD_Button->setStyleSheet("background-color: white");
 				PSD_Sigma_Lineedit->valueChanged(PSD_Sigma_Lineedit->value());
 			}
@@ -373,6 +376,15 @@ void Measured_PSD_Editor::read_PSD_File()
 			// this line may be skipped
 			skip_line_label: ok_To_Double = false;
 		}
+	}
+
+	// make argument increasing
+	if(psd_Data.argument.back()<psd_Data.argument.front())
+	{
+		std::reverse(psd_Data.raw_Argument.begin(), psd_Data.raw_Argument.end());
+		std::reverse(psd_Data.raw_Value.begin(), psd_Data.raw_Value.end());
+		std::reverse(psd_Data.argument.begin(), psd_Data.argument.end());
+		std::reverse(psd_Data.value.begin(), psd_Data.value.end());
 	}
 
 	if(psd_Data.raw_Argument.size()>2)

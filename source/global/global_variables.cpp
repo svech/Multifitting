@@ -1247,6 +1247,24 @@ double Global_Variables::PSD_Fractal_Gauss_2D(double sigma, double xi, double al
 	return gsl_spline_eval(spline, nu, acc);
 }
 
+double Global_Variables::PSD_Measured_1D(double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc)
+{
+	Q_UNUSED(sigma)
+	Q_UNUSED(xi)
+	Q_UNUSED(alpha)
+	double p = k*abs(cos_Theta - cos_Theta_0)/(2*M_PI); // here we need real frequency
+	return gsl_spline_eval(spline, p, acc);
+}
+
+double Global_Variables::PSD_Measured_2D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)
+{
+	Q_UNUSED(sigma)
+	Q_UNUSED(xi)
+	Q_UNUSED(alpha)
+	double nu = k*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi)/(2*M_PI); // here we need real frequency
+	return gsl_spline_eval(spline, nu, acc);
+}
+
 double Global_Variables::Cor_Fractal_Gauss(double xi, double alpha, double r)
 {
 	return exp(-pow(r/xi, 2*alpha));

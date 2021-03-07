@@ -2341,6 +2341,10 @@ void Unwrapped_Reflection::choose_PSD_1D_Function(const Data& struct_Data, int t
 		{
 			PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_Real_Gauss_1D;
 		}
+	} else
+	if(multilayer->imperfections_Model.PSD_Model == measured_PSD)
+	{
+		PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_Measured_1D;
 	}
 }
 
@@ -2365,6 +2369,10 @@ void Unwrapped_Reflection::choose_PSD_2D_Function(const Data& struct_Data, int t
 		{
 			PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Real_Gauss_2D;
 		}
+	} else
+	if(multilayer->imperfections_Model.PSD_Model == measured_PSD)
+	{
+		PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Measured_2D;
 	}
 }
 

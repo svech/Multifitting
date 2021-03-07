@@ -350,6 +350,9 @@ public:
 	static double PSD_Real_Gauss_2D		 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Fractal_Gauss_1D	 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Fractal_Gauss_2D	 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
+	static double PSD_Measured_1D		 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
+	static double PSD_Measured_2D		 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
+
 	static double Cor_Fractal_Gauss		 (				 double xi, double alpha, double r);
 	static double Cor_ABC				 (				 double xi, double alpha, double r);
 	static double splined_Value_1D		 (                                        double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);

@@ -632,13 +632,17 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 				   (multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
 					multilayer->imperfections_Model.vertical_Correlation == zero_Correlation))
 				{
+					// case check inside
 					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(measurement, multilayer->imperfections_Model);
+					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Measured(multilayer->imperfections_Model, PSD_Type_1D);
 				}
 				// 2D spline for 2D scans of for 1D scans with partial correlation
 				if(measurement.measurement_Type == measurement_Types[GISAS_Map] ||
 				   multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
 				{
+					// case check inside
 					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_2D(measurement, multilayer->imperfections_Model);
+					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Measured(multilayer->imperfections_Model, PSD_Type_2D);
 				}
 			}
 			if(multilayer->imperfections_Model.use_Fluctuations)
@@ -671,6 +675,7 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 					measurement.measurement_Type == measurement_Types[GISAS_Map])
 				{
 					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Fractal_Gauss(multilayer->imperfections_Model);
+					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Measured(multilayer->imperfections_Model);
 				}
 			}
 			if(multilayer->imperfections_Model.use_Fluctuations)

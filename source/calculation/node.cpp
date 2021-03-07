@@ -638,19 +638,23 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 			angle_Theta_0[point_Index] = measurement.beam_Theta_0_Angle_Value;
 		}
 	}
-
-	double sigma = struct_Data.roughness_Model.sigma.value;
-	double xi =    struct_Data.roughness_Model.cor_radius.value;
-	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
-	double p_Bound = 0;
-
 	specular_Debye_Waller_Weak_Factor_R.resize(num_Points,1);
-	if(struct_Data.item_Type == item_Type_Ambient ) return;
-	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return; // if use_Common_Roughness_Function we calculate DW factor only for substrate
-	if(sigma<DBL_EPSILON) return;
-	if(!imperfections_Model.use_Roughness) return;
 
-	// max frequency to detector
+	// case check
+	if(!imperfections_Model.use_Roughness) return;
+	if(struct_Data.item_Type == item_Type_Ambient ) return;
+	if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
+	{
+		if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return; // if use_Common_Roughness_Function we calculate DW factor only for substrate
+		if(struct_Data.roughness_Model.sigma.value<DBL_EPSILON) return;
+	}
+	if(imperfections_Model.PSD_Model == measured_PSD)
+	{
+		if(struct_Data.item_Type != item_Type_Substrate) return;
+		if(imperfections_Model.PSD_1D.argument.size()<2) return; // if PSD_1D not loaded
+	}
+
+	// max circular frequency inside detector
 	vector<double> p0(num_Points);
 	for(size_t i = 0; i<num_Points; ++i)
 	{
@@ -664,6 +668,11 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 
 	if(imperfections_Model.PSD_Model == ABC_Model)
 	{
+		double sigma = struct_Data.roughness_Model.sigma.value;
+		double xi =    struct_Data.roughness_Model.cor_radius.value;
+		double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+		double p_Bound = 0;
 		auto f_2 = [&](double p){return 2./sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(p+p_Bound)*(p+p_Bound)*xi*xi, alpha+0.5);};
 		for(size_t i = 0; i<num_Points; ++i)
 		{
@@ -684,9 +693,12 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 			}
 		}
 	}
-
 	if(imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
+		double sigma = struct_Data.roughness_Model.sigma.value;
+		double xi =    struct_Data.roughness_Model.cor_radius.value;
+		double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
 		vector<double> sorted_p0 = p0;
 		std::sort(sorted_p0.begin(), sorted_p0.end());
 		double addition = 1E-10;
@@ -746,7 +758,7 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 		// "integration"
 		for(size_t i = 0; i<num_Points; ++i)
 		{
-			if(p0[i]>DBL_MIN)
+			if(p0[i]>0)
 			{
 				sigma_2[i] = sigma*sigma - gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2);
 			} else
@@ -756,6 +768,59 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 		}
 		gsl_spline_free(spline_Delta_Sigma_2);
 		gsl_interp_accel_free(acc_Delta_Sigma_2);
+	}
+	if(imperfections_Model.PSD_Model == measured_PSD)
+	{
+		// PSD_1D should be loaded
+		PSD_Data psd_Data   = imperfections_Model.PSD_1D;
+
+		double min_Meas_p = psd_Data.argument.front();
+		double max_Meas_p = psd_Data.argument.back();
+		double full_Sigma2 = pow(psd_Data.calc_Sigma_Effective(),2);
+
+		for(size_t i = 0; i<num_Points; ++i)
+		{
+			// real frequency
+			p0[i] = p0[i]/(2*M_PI);
+
+			if(p0[i]<=min_Meas_p)
+			{
+				sigma_2[i] = full_Sigma2;
+			} else
+			if(p0[i]>min_Meas_p && p0[i]<max_Meas_p)
+			{
+				// get psd_Index
+				int psd_Index = 1;
+				for(psd_Index = 1; psd_Index<psd_Data.argument.size(); psd_Index++)
+				{
+					if(p0[i]> psd_Data.argument[psd_Index-1] &&
+					   p0[i]<=psd_Data.argument[psd_Index]) break;
+				}
+
+				// first point
+				double dnu = psd_Data.argument[psd_Index] - p0[i] + (psd_Data.argument[psd_Index+1] - psd_Data.argument[psd_Index-1])/4;
+				sigma_2[i] += psd_Data.value[psd_Index]*dnu;
+
+				// intermediate points
+				for(int integration_index = psd_Index+1; integration_index<psd_Data.argument.size()-1; integration_index++)
+				{
+					dnu = (psd_Data.argument[integration_index+1] - psd_Data.argument[integration_index-1])/2;
+					sigma_2[i] += psd_Data.value[integration_index]*dnu;
+				}
+
+				// last point
+				dnu = psd_Data.argument[psd_Data.argument.size()-1] - psd_Data.argument[psd_Data.argument.size()-2];
+				sigma_2[i] += psd_Data.value[psd_Data.argument.size()-1]*dnu;
+			} else
+			// p0[i]>max_Meas_p
+			{
+				sigma_2[i] = 0;
+			}
+
+			// multiply by factor
+			double sigma_Factor = struct_Data.roughness_Model.sigma_Factor_PSD_1D.value;
+			sigma_2[i] *= sigma_Factor*sigma_Factor;
+		}
 	}
 
 	for(size_t i = 0; i<num_Points; ++i)
@@ -1018,6 +1083,73 @@ void Node::clear_Spline_PSD_Fractal_Gauss(const Imperfections_Model& imperfectio
 	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
 	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+
+	gsl_spline_free(spline_PSD);
+	gsl_interp_accel_free(acc_PSD);
+}
+
+void Node::create_Spline_PSD_Measured(const Imperfections_Model& imperfections_Model, QString PSD_Type)
+{
+	if(imperfections_Model.approximation != PT_approximation) return;
+	if(imperfections_Model.PSD_Model != measured_PSD) return;
+	if(struct_Data.item_Type != item_Type_Substrate ) return;
+
+	// in other cases ( substrate ) go further
+
+	PSD_Data psd_Data   = PSD_Type == PSD_Type_1D ? imperfections_Model.PSD_1D : imperfections_Model.PSD_2D;
+	double sigma_Factor = PSD_Type == PSD_Type_1D ? struct_Data.roughness_Model.sigma_Factor_PSD_1D.value : struct_Data.roughness_Model.sigma_Factor_PSD_2D.value;
+
+	QVector<double> argument_Vec = psd_Data.argument;
+	QVector<double> value_Vec = psd_Data.value;
+
+
+	// if has data to spline
+	if(psd_Data.argument.size()>=2)
+	{
+		// sigma-scaling is here
+		for(int i=0; i<argument_Vec.size(); i++)
+		{
+			value_Vec[i] = psd_Data.value[i] * sigma_Factor*sigma_Factor;
+		}
+
+		// additional zeros at low frequencies
+		if(psd_Data.argument.front()>0)
+		{
+			argument_Vec.prepend(psd_Data.argument.front()*(1.-DBL_EPSILON));
+			argument_Vec.prepend(0);
+
+			value_Vec.prepend(0);
+			value_Vec.prepend(0);
+		}
+		// additional zeros at high frequencies
+		if(psd_Data.argument.front()<DBL_MAX)
+		{
+			argument_Vec.append(psd_Data.argument.back()*(1.+DBL_EPSILON));
+			argument_Vec.append(DBL_MAX);
+
+			value_Vec.append(0);
+			value_Vec.append(0);
+		}
+	} else
+	// zero spline
+	{
+		argument_Vec.clear();
+		argument_Vec = {0,DBL_MAX};
+		value_Vec.clear();
+		value_Vec = {0,0};
+	}
+
+	// linear interpolation
+	acc_PSD = gsl_interp_accel_alloc();
+	spline_PSD = gsl_spline_alloc(gsl_interp_linear, argument_Vec.size());
+	gsl_spline_init(spline_PSD, argument_Vec.data(), value_Vec.data(), argument_Vec.size());
+}
+
+void Node::clear_Spline_PSD_Measured(const Imperfections_Model& imperfections_Model)
+{
+	if(imperfections_Model.approximation != PT_approximation) return;
+	if(imperfections_Model.PSD_Model != measured_PSD) return;
+	if(struct_Data.item_Type != item_Type_Substrate ) return;
 
 	gsl_spline_free(spline_PSD);
 	gsl_interp_accel_free(acc_PSD);
