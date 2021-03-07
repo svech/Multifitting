@@ -1,15 +1,15 @@
 #include "measured_psd_editor.h"
 
-Measured_PSD_Editor::Measured_PSD_Editor(Table_Of_Structures* table_Of_Structures,
-										 Multilayer* multilayer,
+Measured_PSD_Editor::Measured_PSD_Editor(Multilayer* multilayer,
 										 QString PSD_Type,
 										 QPushButton* PSD_Button,
+										 MyDoubleSpinBox* PSD_Sigma_Lineedit,
 										 QWidget* parent):
-	table_Of_Structures(table_Of_Structures),
 	multilayer(multilayer),
 	PSD_Type(PSD_Type),
 	psd_Data(PSD_Type == PSD_Type_1D ? multilayer->imperfections_Model.PSD_1D : multilayer->imperfections_Model.PSD_2D),
 	PSD_Button(PSD_Button),
+	PSD_Sigma_Lineedit(PSD_Sigma_Lineedit),
 	QDialog(parent)
 {
 	psd_Data.PSD_Type = PSD_Type;
@@ -19,11 +19,18 @@ Measured_PSD_Editor::Measured_PSD_Editor(Table_Of_Structures* table_Of_Structure
 	setAttribute(Qt::WA_DeleteOnClose);
 	setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
 	setAcceptDrops(true);
+
+	PSD_Sigma_Lineedit->valueChanged(PSD_Sigma_Lineedit->value());
 }
 
 Measured_PSD_Editor::~Measured_PSD_Editor()
 {
+}
+
+void Measured_PSD_Editor::closeEvent(QCloseEvent *event)
+{
 	PSD_Button->setProperty(is_Opened_Property,false);
+	event->accept();
 }
 
 void Measured_PSD_Editor::dragEnterEvent(QDragEnterEvent* event)
@@ -134,25 +141,22 @@ void Measured_PSD_Editor::create_Plot()
 
 void Measured_PSD_Editor::plot_Data()
 {
-	double arg_Coeff = PSD_Argument_Coefficients_Map.value(psd_Data.argument_Units);
-	double val_Coeff = PSD_Type == PSD_Type_1D ? PSD_1D_Value_Coefficients_Map.value(psd_Data.value_Units) : PSD_2D_Value_Coefficients_Map.value(psd_Data.value_Units);
-
 	int data_Count = psd_Data.argument.size();
 	QVector<QCPGraphData> data_To_Plot(data_Count);
 	double min_Y = DBL_MAX;
 	double max_Y = -DBL_MAX;
 	for (int i=0; i<data_Count; ++i)
 	{
-		data_To_Plot[i].key   = psd_Data.argument[i]/arg_Coeff;
-		data_To_Plot[i].value = psd_Data.value[i]/val_Coeff;
+		data_To_Plot[i].key   = psd_Data.raw_Argument[i];
+		data_To_Plot[i].value = psd_Data.raw_Value[i];
 
 		if((max_Y<data_To_Plot[i].value) && (data_To_Plot[i].value > DBL_MIN)) {max_Y=data_To_Plot[i].value;}
 		if((min_Y>data_To_Plot[i].value) && (data_To_Plot[i].value > DBL_MIN)) {min_Y=data_To_Plot[i].value;}
 	}
 	custom_Plot->graph()->data()->set(data_To_Plot);
 	double range_Factor = 2;
-	double min_X = min(psd_Data.argument.front()/arg_Coeff,psd_Data.argument.back()/arg_Coeff);
-	double max_X = max(psd_Data.argument.front()/arg_Coeff,psd_Data.argument.back()/arg_Coeff);
+	double min_X = min(psd_Data.raw_Argument.front(),psd_Data.raw_Argument.back());
+	double max_X = max(psd_Data.raw_Argument.front(),psd_Data.raw_Argument.back());
 	custom_Plot->xAxis->setRange(min_X/range_Factor, max_X*range_Factor);
 	custom_Plot->yAxis->setRange(min_Y/range_Factor, max_Y*range_Factor);
 	custom_Plot->replot();
@@ -189,6 +193,13 @@ void Measured_PSD_Editor::create_PSD_Options_Box()
 	connect(argument_Units_Combobox,	&QComboBox::currentTextChanged, this, [=]
 	{
 		psd_Data.argument_Units = argument_Units_Combobox->currentText();
+
+		double arg_Coeff = PSD_Argument_Coefficients_Map.value(psd_Data.argument_Units);
+		for(int i=0; i<psd_Data.argument.size(); i++)
+		{
+			psd_Data.argument[i] = psd_Data.raw_Argument[i]*arg_Coeff;
+		}
+		PSD_Sigma_Lineedit->valueChanged(PSD_Sigma_Lineedit->value());
 		refresh_Labels();
 	});
 
@@ -204,6 +215,13 @@ void Measured_PSD_Editor::create_PSD_Options_Box()
 	connect(value_Units_Combobox,	&QComboBox::currentTextChanged, this, [=]
 	{
 		psd_Data.value_Units = value_Units_Combobox->currentText();
+
+		double val_Coeff = PSD_Type == PSD_Type_1D ? PSD_1D_Value_Coefficients_Map.value(psd_Data.value_Units) : PSD_2D_Value_Coefficients_Map.value(psd_Data.value_Units);
+		for(int i=0; i<psd_Data.argument.size(); i++)
+		{
+			psd_Data.value[i] = psd_Data.raw_Value[i]*val_Coeff;
+		}
+		PSD_Sigma_Lineedit->valueChanged(PSD_Sigma_Lineedit->value());
 		refresh_Labels();
 	});
 }
@@ -267,14 +285,16 @@ void Measured_PSD_Editor::create_Buttons()
 			QMessageBox::StandardButton reply = QMessageBox::question(this, "Clear", "Delete this PSD?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 			if (reply == QMessageBox::Yes)
 			{
+				psd_Data.raw_Argument.clear();
+				psd_Data.raw_Value.clear();
 				psd_Data.argument.clear();
 				psd_Data.value.clear();
 				custom_Plot->clearGraphs();
 				custom_Plot->replot();
 				psd_Data.filepath.clear();
 				path_Line_Edit->clear();
-
 				PSD_Button->setStyleSheet("background-color: white");
+				PSD_Sigma_Lineedit->valueChanged(PSD_Sigma_Lineedit->value());
 			}
 		});
 	}
@@ -302,8 +322,10 @@ void Measured_PSD_Editor::read_PSD_File()
 	}
 
 	// parsing lines
+	psd_Data.raw_Argument.clear();
+	psd_Data.raw_Value.clear();
 	psd_Data.argument.clear();
-	psd_Data.value.clear();
+	psd_Data.value.clear();	
 
 	double arg_Coeff = PSD_Argument_Coefficients_Map.value(psd_Data.argument_Units);
 	double val_Coeff = PSD_Type == PSD_Type_1D ? PSD_1D_Value_Coefficients_Map.value(psd_Data.value_Units) : PSD_2D_Value_Coefficients_Map.value(psd_Data.value_Units);
@@ -330,17 +352,20 @@ void Measured_PSD_Editor::read_PSD_File()
 			if(!ok_To_Double) goto skip_line_label;
 
 			// argument should be monotonic
-			if(psd_Data.argument.size()>=2)
+			if(psd_Data.raw_Argument.size()>=2)
 			{
-				if(psd_Data.argument[psd_Data.argument.size()-1]>psd_Data.argument[psd_Data.argument.size()-2]) // increasing argument is allowed
+				if(psd_Data.raw_Argument[psd_Data.raw_Argument.size()-1]>psd_Data.raw_Argument[psd_Data.raw_Argument.size()-2]) // increasing argument is allowed
 				{
-					if(temp_Argument <= psd_Data.argument.back()) goto skip_line_label; // read only monotonical arguments
+					if(temp_Argument <= psd_Data.raw_Argument.back()) goto skip_line_label; // read only monotonical arguments
 				}
-				if(psd_Data.argument[psd_Data.argument.size()-1]<psd_Data.argument[psd_Data.argument.size()-2]) // decreasing argument is allowed
+				if(psd_Data.raw_Argument[psd_Data.raw_Argument.size()-1]<psd_Data.raw_Argument[psd_Data.raw_Argument.size()-2]) // decreasing argument is allowed
 				{
-					if(temp_Argument >= psd_Data.argument.back()) goto skip_line_label; // read only monotonical arguments
+					if(temp_Argument >= psd_Data.raw_Argument.back()) goto skip_line_label; // read only monotonical arguments
 				}
 			}
+
+			psd_Data.raw_Argument.push_back(temp_Argument);
+			psd_Data.raw_Value.push_back(temp_Value);
 
 			psd_Data.argument.push_back(temp_Argument*arg_Coeff);
 			psd_Data.value.push_back(temp_Value*val_Coeff);
@@ -350,8 +375,10 @@ void Measured_PSD_Editor::read_PSD_File()
 		}
 	}
 
-	if(psd_Data.argument.size()>2)
+	if(psd_Data.raw_Argument.size()>2)
 		PSD_Button->setStyleSheet("QWidget { background: rgb(100, 255, 220); }");
 	else
 		PSD_Button->setStyleSheet("background-color: white");
+
+	PSD_Sigma_Lineedit->valueChanged(PSD_Sigma_Lineedit->value());
 }

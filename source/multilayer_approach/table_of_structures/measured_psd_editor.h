@@ -4,15 +4,14 @@
 #include "global/settings.h"
 #include "multilayer_approach/table_of_structures/table_of_structures.h"
 
-class Table_Of_Structures;
-
 class Measured_PSD_Editor : public QDialog
 {
 	Q_OBJECT
 public:
-	explicit Measured_PSD_Editor(Table_Of_Structures* table_Of_Structures, Multilayer* multilayer, QString PSD_Type, QPushButton* PSD_Button, QWidget* parent = 0);
+	explicit Measured_PSD_Editor(Multilayer* multilayer, QString PSD_Type, QPushButton* PSD_Button, MyDoubleSpinBox* PSD_Sigma_Lineedit, QWidget* parent = 0);
 	~Measured_PSD_Editor();
 
+	void closeEvent(QCloseEvent* event);
 	void dragEnterEvent(QDragEnterEvent* event);
 	void dropEvent(QDropEvent* event);
 	void create_Main_Layout();
@@ -26,9 +25,9 @@ public:
 	void read_PSD_File();
 
 	Multilayer* multilayer;
-	Table_Of_Structures* table_Of_Structures;
 	QString PSD_Type;
 	QPushButton* PSD_Button;
+	MyDoubleSpinBox* PSD_Sigma_Lineedit;
 
 	PSD_Data& psd_Data;
 

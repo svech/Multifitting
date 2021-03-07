@@ -174,6 +174,7 @@ class Node;
 #define Subscript_p_Sym			QString(QChar(0x209A))
 #define Subscript_v_Sym			QString(QChar(0x1d65))
 #define Subscript_0_Sym			QString(QChar(0x2080))
+#define Subscript_e_Sym			QString(QChar(0x2091))
 
 // -----------------------------------------------------------------------------------------
 
@@ -269,8 +270,8 @@ class Node;
 
 // base PSD models
 #define ABC_Model				"ABC model"
-#define fractal_Gauss_Model		"Fractal Gauss model"
-#define measured_PSD			"Measured PSD"
+#define fractal_Gauss_Model		"fractal Gauss model"
+#define measured_PSD			"measured PSD"
 
 // measured PSD types
 #define PSD_Type_1D				"PSD 1D"
@@ -314,6 +315,7 @@ class Node;
 #define whats_This_Roughness_Peak_Frequency_Width "Roughness Peak Frequency Width"
 #define whats_This_Sigma_Factor_PSD_1D			"Sigma Factor PSD 1D"
 #define whats_This_Sigma_Factor_PSD_2D			"Sigma Factor PSD 2D"
+#define whats_This_Sigma_Eff_PSD				"Sigma Eff PSD"
 #define whats_This_Interlayer_Composition		"Interlayer Composition"
 #define whats_This_Interlayer_My_Sigma_Diffuse	"Interlayer My Sigma"
 #define whats_This_Num_Repetitions				"Num Repetitions"
@@ -899,12 +901,16 @@ struct Fluctuations_Model		{
 								Parameter particle_Z_Position;
 								Parameter particle_Z_Position_Deviation;
 								};
-struct PSD_Data					{QVector<double> argument;
+struct PSD_Data					{QVector<double> raw_Argument;
+								 QVector<double> raw_Value;
+								 QVector<double> argument;
 								 QVector<double> value;
 								 QString PSD_Type;				// dimension
 								 QString argument_Units;
 								 QString value_Units;
 								 QString filepath;
+
+								 double calc_Sigma_Effective() const;
 								};
 struct Imperfections_Model		{
 								// interlayer

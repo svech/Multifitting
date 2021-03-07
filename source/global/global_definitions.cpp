@@ -579,12 +579,12 @@ QDataStream& operator >>( QDataStream& stream,		 Fluctuations_Model& fluctuation
 
 QDataStream& operator <<( QDataStream& stream, const PSD_Data& psd_Data )
 {
-	return stream << psd_Data.argument << psd_Data.value
+	return stream << psd_Data.raw_Argument << psd_Data.raw_Value << psd_Data.argument << psd_Data.value
 				  << psd_Data.PSD_Type << psd_Data.argument_Units << psd_Data.value_Units << psd_Data.filepath;
 }
 QDataStream& operator >>( QDataStream& stream,		 PSD_Data& psd_Data )
 {
-	return stream >> psd_Data.argument >> psd_Data.value
+	return stream >> psd_Data.raw_Argument >> psd_Data.raw_Value >> psd_Data.argument >> psd_Data.value
 				  >> psd_Data.PSD_Type >> psd_Data.argument_Units >> psd_Data.value_Units >> psd_Data.filepath;
 }
 
@@ -842,4 +842,51 @@ void Element_Data::read_Element(QString& filename)
 		}
 	}
 	file.close();
+}
+
+double PSD_Data::calc_Sigma_Effective() const
+{
+	if(argument.size()>2)
+	{
+		double sigma2 = 0;
+		double dnu;
+		if(PSD_Type == PSD_Type_1D)
+		{
+			// first point
+			dnu = argument[1] - argument[0];
+			sigma2 += value[0]*dnu;
+
+			// intermediate points
+			for(int i=1; i<argument.size()-1; i++)
+			{
+				dnu = (argument[i+1] - argument[i-1])/2;
+				sigma2 += value[i]*dnu;
+			}
+
+			// last point
+			dnu = argument[argument.size()-1] - argument[argument.size()-2];
+			sigma2 += value[argument.size()-1]*dnu;
+		}
+		if(PSD_Type == PSD_Type_2D)
+		{
+			// first point
+			dnu = argument[1] - argument[0];
+			sigma2 += value[0]*dnu * 2*M_PI*argument[0];
+
+			// intermediate points
+			for(int i=1; i<argument.size()-1; i++)
+			{
+				dnu = (argument[i+1] - argument[i-1])/2;
+				sigma2 += value[i]*dnu * 2*M_PI*argument[i];
+			}
+
+			// last point
+			dnu = argument[argument.size()-1] - argument[argument.size()-2];
+			sigma2 += value[argument.size()-1]*dnu * 2*M_PI*argument[argument.size()-1];
+		}
+		return sqrt(sigma2);
+	} else
+	{
+		return 0;
+	}
 }

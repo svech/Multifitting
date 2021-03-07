@@ -61,13 +61,14 @@ public:
 	void open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* structure_Item, QString shape_Pattern_Model);
 
 	// for measured PSD
-	void create_PSD_Load_Button		(My_Table_Widget* table,                int current_Row, int current_Column, Multilayer* multilayer, QString PSD_Type);
+	void create_PSD_Load_Button					(My_Table_Widget* table,                int current_Row, int current_Column,								  Multilayer* multilayer, QString PSD_Type, MyDoubleSpinBox* PSD_Sigma_Lineedit);
+	MyDoubleSpinBox* create_PSD_Sigma_Lineedit	(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, Multilayer* multilayer, QString PSD_Type);
 
 	// for regular aperiodic
 	void create_Thickness_Restriction(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
 
 	// for all parameters
-	void create_Line_Edit			(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, QString val_Type);
+	void create_Line_Edit			(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, QString val_Type, MyDoubleSpinBox* PSD_Sigma_Lineedit = nullptr);
 	void create_Check_Box_Fit		(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, int r_S, int r_F, int c_S, int c_F);
 
 	// for interlayers
@@ -209,7 +210,6 @@ public:
 	QMap<QWidget*,id_Type>			back_Widgets_Fit_Map;
 	QMap<MyDoubleSpinBox*,id_Type>	spin_Boxes_ID_Map;
 	QList<QCheckBox*>				check_Boxes_Fluctuations_Usage_List;
-
 
 	// refresh/reload regular aperiodic
 	QList<QList<QWidget*>>			regular_Aperiodic_Widgets_To_Reload;

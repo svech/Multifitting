@@ -1313,14 +1313,17 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(show_Sigma_Factor_PSD_1D)
 			{
 				QString whats_This = whats_This_Sigma_Factor_PSD_1D;
-				add_Columns				(new_Table, current_Column+1);
-				create_PSD_Load_Button	(new_Table,			   current_Row,   current_Column, multilayer, PSD_Type_1D);
-				create_Label			(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 1D");
-				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL);
-//				create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
-//				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				add_Columns				 (new_Table, current_Column+1);
+				// first
+				MyDoubleSpinBox* PSD_Sigma_Lineedit = create_PSD_Sigma_Lineedit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, multilayer, PSD_Type_1D);
+				create_PSD_Load_Button	 (new_Table,			current_Row,   current_Column, multilayer, PSD_Type_1D, PSD_Sigma_Lineedit);
+				create_Simple_Label		 (new_Table, tab_Index, current_Row+1, current_Column, whats_This_Sigma_Eff_PSD, Sigma_Sym+Subscript_e_Sym+" ["+length_units+"]");
+				create_Label			 (new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 1D");
+				create_Line_Edit		 (new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL, PSD_Sigma_Lineedit);
+//				create_Line_Edit		 (new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+//				create_Line_Edit		 (new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 				// last
-				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 0, 0, 0, 0);
+//				create_Check_Box_Fit	 (new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 0, 0, 0, 0);
 
 				// PSD sigma factor step
 				if(!steps_Are_Done_Sigma_Factor_PSD)
@@ -1346,14 +1349,17 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(show_Sigma_Factor_PSD_2D)
 			{
 				QString whats_This = whats_This_Sigma_Factor_PSD_2D;
-				add_Columns				(new_Table, current_Column+1);
-				create_PSD_Load_Button	(new_Table,			   current_Row,   current_Column, multilayer, PSD_Type_2D);
-				create_Label			(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 2D");
-				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL);
-//				create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
-//				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				add_Columns				 (new_Table, current_Column+1);
+				// first
+				MyDoubleSpinBox* PSD_Sigma_Lineedit = create_PSD_Sigma_Lineedit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, multilayer, PSD_Type_2D);
+				create_PSD_Load_Button	 (new_Table,			   current_Row,   current_Column, multilayer, PSD_Type_2D, PSD_Sigma_Lineedit);
+				create_Simple_Label		 (new_Table,	tab_Index, current_Row+1, current_Column, whats_This_Sigma_Eff_PSD, Sigma_Sym+Subscript_e_Sym+" ["+length_units+"]");
+				create_Label			 (new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 2D");
+				create_Line_Edit		 (new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL, PSD_Sigma_Lineedit);
+//				create_Line_Edit		 (new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+//				create_Line_Edit		 (new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 				// last
-				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 0, 0, 0, 0);
+//				create_Check_Box_Fit	 (new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 0, 0, 0, 0);
 
 				/// already done for 1D PSD
 				// PSD sigma factor step
@@ -3127,7 +3133,7 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 	});
 }
 
-void Table_Of_Structures::create_PSD_Load_Button(My_Table_Widget* table, int current_Row, int current_Column, Multilayer* multilayer, QString PSD_Type)
+void Table_Of_Structures::create_PSD_Load_Button(My_Table_Widget* table, int current_Row, int current_Column, Multilayer* multilayer, QString PSD_Type, MyDoubleSpinBox* PSD_Sigma_Lineedit)
 {
 	QPushButton* PSD_Button = new QPushButton(PSD_Type);
 	table->setCellWidget(current_Row, current_Column, PSD_Button);
@@ -3143,10 +3149,67 @@ void Table_Of_Structures::create_PSD_Load_Button(My_Table_Widget* table, int cur
 		if(!(PSD_Button->property(is_Opened_Property).toBool()))
 		{
 			PSD_Button->setProperty(is_Opened_Property,true);
-			Measured_PSD_Editor* measured_PSD_Editor = new Measured_PSD_Editor(this, multilayer, PSD_Type, PSD_Button, this);
+			Measured_PSD_Editor* measured_PSD_Editor = new Measured_PSD_Editor(multilayer, PSD_Type, PSD_Button, PSD_Sigma_Lineedit, this);
 				measured_PSD_Editor->show();
 		}
 	});
+}
+
+MyDoubleSpinBox* Table_Of_Structures::create_PSD_Sigma_Lineedit(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, Multilayer* multilayer, QString PSD_Type)
+{
+	Data substrate_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+	MyDoubleSpinBox* spin_Box = new MyDoubleSpinBox;
+		spin_Box->setReadOnly(true);
+		spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		spin_Box->setRange(-MAX_DOUBLE, MAX_DOUBLE);
+		spin_Box->setDecimals(line_edit_sigma_precision);
+		spin_Box->installEventFilter(this);
+		spin_Box->setStyleSheet("background-color: white");
+
+#ifdef _WIN32
+	QFont font(spin_Box->font());
+	font.setPointSize(8.25);
+	font.setFamily("MS Shell Dlg 2");
+	spin_Box->setFont(font);
+#endif
+#ifdef __linux__
+#endif
+
+	PSD_Data psd_Data	  (PSD_Type == PSD_Type_1D ? multilayer->imperfections_Model.PSD_1D : multilayer->imperfections_Model.PSD_2D);
+	Parameter sigma_Factor(PSD_Type == PSD_Type_1D ? substrate_Data.roughness_Model.sigma_Factor_PSD_1D : substrate_Data.roughness_Model.sigma_Factor_PSD_2D);
+
+	double coeff(length_Coefficients_Map.value(length_units));
+
+	spin_Box->setValue(psd_Data.calc_Sigma_Effective()*sigma_Factor.value/coeff);
+	spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+
+	spin_Box->setProperty(min_Size_Property, spin_Box->width());
+	spin_Box->setProperty(column_Property, current_Column);
+	spin_Box->setProperty(whats_This_Property, whats_This_Sigma_Eff_PSD);
+	spin_Box->setProperty(value_Type_Property, VAL);
+
+	// for reloading
+	spin_Box->setProperty(reload_Property, false);
+	spin_Box->setProperty(tab_Index_Property, tab_Index);
+
+	// storage
+	all_Widgets_To_Reload[tab_Index].append(spin_Box);
+	connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged),   this, [=]
+	{
+		double coeff(length_Coefficients_Map.value(length_units));
+		Data substrate_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		PSD_Data psd_Data	  (PSD_Type == PSD_Type_1D ? multilayer->imperfections_Model.PSD_1D : multilayer->imperfections_Model.PSD_2D);
+		Parameter sigma_Factor(PSD_Type == PSD_Type_1D ? substrate_Data.roughness_Model.sigma_Factor_PSD_1D : substrate_Data.roughness_Model.sigma_Factor_PSD_2D);
+
+		spin_Box->setValue(psd_Data.calc_Sigma_Effective()*sigma_Factor.value/coeff);
+		resize_Line_Edit (table,spin_Box);
+	});
+
+	// create item (set LineEdits_Map)
+	table->setCellWidget(current_Row, current_Column, spin_Box);
+
+	return spin_Box;
 }
 
 void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, int current_Row, int current_Column, QTreeWidgetItem *structure_Item)
@@ -3244,7 +3307,7 @@ void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, i
 }
 
 //// for all parameters
-void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, QString val_Type)
+void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, QString val_Type, MyDoubleSpinBox* PSD_Sigma_Lineedit)
 {
 	// PARAMETER
 
@@ -3479,6 +3542,13 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	{
 		refresh_Parameter(table);
 		resize_Line_Edit (table,spin_Box);
+
+		// special case for reloading non-parameter
+		if( whats_This == whats_This_Sigma_Factor_PSD_1D ||
+			whats_This == whats_This_Sigma_Factor_PSD_2D )
+		{
+			PSD_Sigma_Lineedit->valueChanged(spin_Box->value());
+		}
 	});
 //	connect(spin_Box, &MyDoubleSpinBox::editingFinished, this, [=]{refresh_Parameter(table); });
 
@@ -4049,6 +4119,7 @@ void Table_Of_Structures::create_Simple_Label(My_Table_Widget* table, int tab_In
 		if(whats_This == whats_This_Linear_PSD_Omega)					label->setText(Omega_Big_Sym+" ["+length_units+Cube_Sym+"]");
 		if(whats_This == whats_This_PSD_Exponenta_Mu)					label->setText(Mu_Sym+" ["+length_units+"]");
 		if(whats_This == whats_This_Roughness_Peak_Sigma)				label->setText(Sigma_Sym+Subscript_v_Sym+" ["+length_units+"]");
+		if(whats_This == whats_This_Sigma_Eff_PSD 	)					label->setText(Sigma_Sym+Subscript_e_Sym+" ["+length_units+"]");
 
 		if(whats_This == whats_This_Particle_Radius)					label->setText("R ["+length_units+"]");
 		if(whats_This == whats_This_Particle_Height)					label->setText("H ["+length_units+"]");
