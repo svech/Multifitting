@@ -278,9 +278,6 @@ public:
 	void calc_Specular_1_Point_1_Thread  (int thread_Index, int point_Index);
 	void calc_Specular_nMin_nMax_1_Thread(int n_Min, int n_Max, int thread_Index);
 	void calc_Specular();
-
-	void wrap_Curve(const vector<double>& sparse_Argument, const vector<double>* sparse_Input_Curve, const vector<double>& resolution_FWHM, vector<double>* output_Sparse_Curve, QString distribution_Function);
-	void wrap_2D_Curve(const vector<double>& resolution_FWHM, QString distribution_Function, QString theta_Phi);
 };
 
 #endif // UNWRAPPED_REFLECTION_H
