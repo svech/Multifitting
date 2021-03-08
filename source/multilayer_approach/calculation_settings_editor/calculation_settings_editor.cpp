@@ -415,7 +415,10 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				connect(fit,  &QCheckBox::toggled, this, [=]
 				{
 					target_Curve->fit_Params.fit = fit->isChecked();
-					fit->setStyleSheet("QCheckBox:enabled{ color: green; }QCheckBox:disabled{}");
+					if(fit->isChecked())
+						fit->setStyleSheet("QCheckBox:enabled{ color: green; }QCheckBox:disabled{}");
+					else
+						fit->setStyleSheet("");
 				});
 				fit->toggled(fit->isChecked());
 			}
@@ -769,7 +772,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 	int independent_Index = 0;
 	for(Independent_Curve* independent_Curve : independents)
 	{
-		QGroupBox* box = new QGroupBox(independent_Curve->tab_Name);
+		QGroupBox* box = new QGroupBox(independent_Curve->name);
 			box->setCheckable(true);
 			box->setObjectName("box");
 			box->setStyleSheet("QGroupBox#box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
@@ -1148,7 +1151,7 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 		if(recalc) global_Multilayer_Approach->global_Recalculate();
 		activateWindow();
 	}
-	multilayer->independent_Curve_Tabs->setTabText(independent_Index, independent_Curve->tab_Name + independent_Curve->enlarge_Tab_Name());
+	multilayer->independent_Curve_Tabs->setTabText(independent_Index, independent_Curve->name + independent_Curve->enlarge_Tab_Name());
 	box->setTitle(multilayer->independent_Curve_Tabs->tabText(independent_Index));
 }
 

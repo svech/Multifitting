@@ -2091,13 +2091,13 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 	/// BACKGROUND
 	if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
-		// footprint for R
+		// background for R
 		if( data_Element.calc_Functions.check_Reflectance)	{
 			for(size_t point_Index=0; point_Index<calculated_Values.R_Instrumental.size(); ++point_Index)	{
 				calculated_Values.R_Instrumental[point_Index] += measurement.background;
 			}
 		}
-		// footprint for T
+		// background for T
 		if( data_Element.calc_Functions.check_Transmittance)	{
 			for(size_t point_Index=0; point_Index<calculated_Values.T_Instrumental.size(); ++point_Index)	{
 				calculated_Values.T_Instrumental[point_Index] += measurement.background;
@@ -2753,7 +2753,7 @@ double Main_Calculation_Module::unparametrize(double parametrized_Shifted_Value,
 
 void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& data_Element, QString struct_Name, int index)
 {
-	QString first_Name = struct_Name + "+PSD_1D";
+	QString first_Name = struct_Name + "_PSD_1D_" + data_Element.the_Class->index/*Locale.toString(index+1)*/ + "_" + data_Element.the_Class->name;
 
 	QString path = "";
 	if(use_working_directory) path = working_directory + "/";
@@ -2810,7 +2810,7 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 	// left wing
 	if(argument_Left.size()>0)
 	{
-		QString name_Left = path + first_Name+"_"+Locale.toString(index)+"_left.txt";
+		QString name_Left = path + first_Name + "_left.txt";
 		QFile file_Left(name_Left);
 		file_Left.open(QIODevice::WriteOnly);
 		QTextStream out_Left(&file_Left);
@@ -2832,7 +2832,7 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 	// right wing
 	if(argument_Right.size()>0)
 	{
-		QString name_Right = path + first_Name+"_"+Locale.toString(index)+"_right.txt";
+		QString name_Right = path + first_Name + "_right.txt";
 		QFile file_Right(name_Right);
 		file_Right.open(QIODevice::WriteOnly);
 		QTextStream out_Right(&file_Right);
@@ -2949,8 +2949,12 @@ template <typename Type>
 void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Element, QString struct_Name, int index)
 {
 	QString first_Name;
-	if(data_Element.curve_Class == INDEPENDENT)	first_Name = struct_Name + "_independent";
-	if(data_Element.curve_Class == TARGET)		first_Name = struct_Name + "_target";
+	if(data_Element.curve_Class == INDEPENDENT)	first_Name = struct_Name + "_independent_" + /*Locale.toString(index+1) + "_" +*/ data_Element.the_Class->name;
+	if(data_Element.curve_Class == TARGET)
+	{
+		Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
+		first_Name = struct_Name + "_target_" + target_Curve->index/*Locale.toString(index+1)*/ + "_" + data_Element.the_Class->name;
+	}
 
 	QString path = "";
 	if(use_working_directory) path = working_directory + "/";
@@ -3027,7 +3031,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 				for(double& arg : argument)	arg = arg/angular_Coeff;
 			}
 
-			QString name = path + first_Name+"_"+Locale.toString(index)+".txt";
+			QString name = path + first_Name + ".txt";
 			QFile file(name);
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);
@@ -3057,7 +3061,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		if(data_Element.calc_Functions.check_Field)
 		if(data_Element.the_Class->calculated_Values.field_Intensity.size()>0)
 		{
-			QString name = path + first_Name+"_"+Locale.toString(index)+"_intensity.txt";
+			QString name = path + first_Name + "_intensity.txt";
 			QFile file(name);
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);
@@ -3070,7 +3074,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		if(data_Element.calc_Functions.check_Joule)
 		if(data_Element.the_Class->calculated_Values.absorption_Map.size()>0)
 		{
-			QString name = path + first_Name+"_"+Locale.toString(index)+"_absorption.txt";
+			QString name = path + first_Name + "_absorption.txt";
 			QFile file(name);
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);
@@ -3083,7 +3087,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		if(data_Element.calc_Functions.check_GISAS)
 		if(data_Element.the_Class->calculated_Values.GISAS_Instrumental.size()>0)
 		{
-			QString name = path + first_Name+"_"+Locale.toString(index)+"_GISAS.txt";
+			QString name = path + first_Name + "_GISAS.txt";
 			QFile file(name);
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);

@@ -153,8 +153,8 @@ Independent_Curve* Multilayer::add_Independent_Variables_Tab(int index)
 	if(index < 0)
 	{
 		independent_Curve_Tabs->addTab(new_Independent_Curve, default_independent_curve_tab_name);
-		new_Independent_Curve->tab_Name = default_independent_curve_tab_name+Locale.toString(independent_Curve_Tabs->count());
-		independent_Curve_Tabs->setTabText(independent_Curve_Tabs->count()-1, new_Independent_Curve->tab_Name + new_Independent_Curve->enlarge_Tab_Name());
+		new_Independent_Curve->name = default_independent_curve_tab_name+Locale.toString(independent_Curve_Tabs->count());
+		independent_Curve_Tabs->setTabText(independent_Curve_Tabs->count()-1, new_Independent_Curve->name + new_Independent_Curve->enlarge_Tab_Name());
 	} else
 	{
 		independent_Curve_Tabs->insertTab(index+1, new_Independent_Curve, independent_Curve_Tabs->tabText(index) + " (copy)");
@@ -248,11 +248,11 @@ void Multilayer::rename_Independent_Variables_Tab(int tab_Index)
 	bool ok;
 	Independent_Curve* independent = qobject_cast<Independent_Curve*>(independent_Curve_Tabs->widget(tab_Index));
 
-	QString text = QInputDialog::getText(this, "Rename plot", "New name", QLineEdit::Normal, independent->tab_Name, &ok);
+	QString text = QInputDialog::getText(this, "Rename plot", "New name", QLineEdit::Normal, independent->name, &ok);
 	if (ok && !text.isEmpty())
 	{
-		independent->tab_Name = text;
-		independent_Curve_Tabs->setTabText(tab_Index, independent->tab_Name + independent->enlarge_Tab_Name());
+		independent->name = text;
+		independent_Curve_Tabs->setTabText(tab_Index, independent->name + independent->enlarge_Tab_Name());
 	}
 }
 
@@ -271,7 +271,7 @@ void Multilayer::duplicate_Independent_Curve(const QPoint& pos)
 	Independent_Curve* new_Independent_Curve = add_Independent_Variables_Tab(old_Tab_Index);
 	Independent_Curve* old_Independent_Curve = qobject_cast<Independent_Curve*>(independent_Curve_Tabs->widget(old_Tab_Index));
 	*new_Independent_Curve = *old_Independent_Curve;
-	new_Independent_Curve->tab_Name += " (copy)";
+	new_Independent_Curve->name += " (copy)";
 	new_Independent_Curve->refresh_Description_Label();
 
 	// reopening windows

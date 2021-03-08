@@ -429,7 +429,7 @@ void Independent_Curve::calc_cos2_k(double angle_Shift, double lambda_Shift)
 
 Independent_Curve& Independent_Curve::operator =(const Independent_Curve& referent_Independent_Curve)
 {
-	tab_Name = referent_Independent_Curve.tab_Name;
+	name = referent_Independent_Curve.name;
 	measurement = referent_Independent_Curve.measurement;	measurement.reset_All_IDs();
 	calc_Functions = referent_Independent_Curve.calc_Functions;
 	plot_Options = referent_Independent_Curve.plot_Options;
@@ -443,7 +443,7 @@ Independent_Curve& Independent_Curve::operator =(const Independent_Curve& refere
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Independent_Curve* independent_Curve )
 {	
-	return stream	<< independent_Curve->tab_Name << independent_Curve->measurement
+	return stream	<< independent_Curve->name << independent_Curve->measurement
 					<< independent_Curve->calc_Functions << independent_Curve->plot_Options
 					<< independent_Curve->angular_Units	<< independent_Curve->spectral_Units
 					<< independent_Curve->label_Text << independent_Curve->graph_2D_Positions;
@@ -452,7 +452,7 @@ QDataStream& operator >>(QDataStream& stream,		 Independent_Curve* independent_C
 {
 	if(Global_Variables::check_Loaded_Version(1,11,0))
 	{
-		stream	>> independent_Curve->tab_Name >> independent_Curve->measurement
+		stream	>> independent_Curve->name >> independent_Curve->measurement
 				>> independent_Curve->calc_Functions >> independent_Curve->plot_Options
 				>> independent_Curve->angular_Units	>> independent_Curve->spectral_Units
 				>> independent_Curve->label_Text >> independent_Curve->graph_2D_Positions;
@@ -465,7 +465,7 @@ QDataStream& operator >>(QDataStream& stream,		 Independent_Curve* independent_C
 			stream >> old_Calculated_Values;
 		}
 
-		stream >> independent_Curve->tab_Name >> independent_Curve->plot_Options;
+		stream >> independent_Curve->name >> independent_Curve->plot_Options;
 
 		if(Global_Variables::check_Loaded_Version(1,7,5))
 		{

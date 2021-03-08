@@ -12,7 +12,7 @@ Curve_Plot_1D::Curve_Plot_1D(Multilayer* multilayer, Target_Curve* target_Curve,
 	plot_Options_Second (curve_Class == INDEPENDENT ? independent_Curve->plot_Options	   : target_Curve->plot_Options_Calculated	),
 	spectral_Units		(curve_Class == INDEPENDENT ? independent_Curve->spectral_Units	   : target_Curve->spectral_Units			),
 	angular_Units		(curve_Class == INDEPENDENT ? independent_Curve->angular_Units	   : target_Curve->angular_Units			),
-	plot_Indicator		(curve_Class == INDEPENDENT ? independent_Curve->tab_Name		   : target_Curve->index_Name				),
+	plot_Indicator		(curve_Class == INDEPENDENT ? independent_Curve->name		   : target_Curve->index_Name				),
 	additional_Curves	(curve_Class == INDEPENDENT ? independent_Curve->additional_Curves : target_Curve->additional_Curves		),
 
 	QWidget(parent)

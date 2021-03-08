@@ -19,7 +19,7 @@ public:
 	QPushButton* setup_Button;
 	QLabel* description_Label;
 
-	QString tab_Name;
+	QString name;
 
 	Data measurement;
 	Calculated_Values calculated_Values;
