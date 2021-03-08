@@ -146,13 +146,17 @@ void Menu::create_File_Menu()
 			{
 				bool state_Print_1D = print_1D_Data_On_Recalculation;
 				bool state_Print_2D = print_2D_Data_On_Recalculation;
+				bool state_Print_1D_PSD = print_1D_PSD_From_Scattering_On_Recalculation;
+
 				print_1D_Data_On_Recalculation = true;
 				print_2D_Data_On_Recalculation = true;
+				print_1D_PSD_From_Scattering_On_Recalculation = true;
 
 				global_Multilayer_Approach->calculate();
 
 				print_1D_Data_On_Recalculation = state_Print_1D;
 				print_2D_Data_On_Recalculation = state_Print_2D;
+				print_1D_PSD_From_Scattering_On_Recalculation = state_Print_1D_PSD;
 			});
 		}
 		if(window_Type == window_Type_Table_Of_Structures)

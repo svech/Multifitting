@@ -818,6 +818,10 @@ struct Calculated_Values	  { // reflectance
 								vector<double> S_p;
 								vector<double> S;
 								vector<double> S_Instrumental;
+								vector<double> PSD_Left_Wing_Value;
+								vector<double> PSD_Left_Wing_Argument;
+								vector<double> PSD_Right_Wing_Value;
+								vector<double> PSD_Right_Wing_Argument;
 
 								// GISAS
 //								vector<vector<double>> GISAS_Map_s;				// to expensive to handle

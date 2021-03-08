@@ -212,6 +212,9 @@ enum PSD_2D_Value_Units_List_Enum {mcm_4, nm_4, angstrom_4};
 // units
 extern QString length_units;
 extern QString density_units;
+extern QString PSD_argument_units;
+extern QString PSD_1D_value_units;
+extern QString PSD_2D_value_units;
 
 // -----------------------------------------------------------------------------------------
 
@@ -252,7 +255,7 @@ extern int height_add;
 // -----------------------------------------------------------------------------------------
 
 extern QString multilayer_Approach_Default_Title;
-
+extern bool set_PSD_to_1;
 // -----------------------------------------------------------------------------------------
 
 extern Optical_Constants* optical_Constants;
@@ -352,6 +355,8 @@ public:
 	static double PSD_Fractal_Gauss_2D	 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Measured_1D		 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Measured_2D		 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
+	static double no_PSD_at_all_1D		 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
+	static double no_PSD_at_all_2D		 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 
 	static double Cor_Fractal_Gauss		 (				 double xi, double alpha, double r);
 	static double Cor_ABC				 (				 double xi, double alpha, double r);

@@ -267,6 +267,73 @@ void General_Settings_Editor::create_Output_Tab()
 		connect(print_1D_PSD, &QCheckBox::toggled,	[=]{print_1D_PSD_From_Scattering_On_Recalculation = print_1D_PSD->isChecked();});
 	}
 
+	QGroupBox* PSD_Units_Groupbox = new QGroupBox("PSD units");
+	layout->addWidget(PSD_Units_Groupbox);
+	{
+		QHBoxLayout* groupbox_Layout = new QHBoxLayout(PSD_Units_Groupbox);
+			groupbox_Layout->setAlignment(Qt::AlignLeft);
+			groupbox_Layout->setSpacing(30);
+
+		QVBoxLayout* groupbox_1_Layout = new QVBoxLayout;
+			groupbox_1_Layout->setSpacing(4);
+			groupbox_1_Layout->setAlignment(Qt::AlignLeft);
+		groupbox_Layout->addLayout(groupbox_1_Layout);
+
+		QLabel* PSD_Argument_Units_Label = new QLabel("Argument");
+		groupbox_1_Layout->addWidget(PSD_Argument_Units_Label);
+
+		QComboBox* PSD_Argument_Units_Combobox = new QComboBox;
+			PSD_Argument_Units_Combobox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+			PSD_Argument_Units_Combobox->addItems(PSD_Argument_Units_List);
+			PSD_Argument_Units_Combobox->setCurrentText(PSD_argument_units);
+		groupbox_1_Layout->addWidget(PSD_Argument_Units_Combobox);
+		connect(PSD_Argument_Units_Combobox, &QComboBox::currentTextChanged, this, [=]
+		{
+			PSD_argument_units = PSD_Argument_Units_Combobox->currentText();
+		});
+
+		//----------------------------------------------------------------------------
+
+		QVBoxLayout* groupbox_2_Layout = new QVBoxLayout;
+			groupbox_2_Layout->setSpacing(4);
+			groupbox_2_Layout->setAlignment(Qt::AlignLeft);
+		groupbox_Layout->addLayout(groupbox_2_Layout);
+
+		QLabel* PSD_1D_Value_Units_Label = new QLabel("1D value");
+		groupbox_2_Layout->addWidget(PSD_1D_Value_Units_Label);
+
+		QComboBox* PSD_1D_Value_Units_Combobox = new QComboBox;
+			PSD_1D_Value_Units_Combobox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+			PSD_1D_Value_Units_Combobox->addItems(PSD_1D_Value_Units_List);
+			PSD_1D_Value_Units_Combobox->setCurrentText(PSD_1D_value_units);
+		groupbox_2_Layout->addWidget(PSD_1D_Value_Units_Combobox);
+		connect(PSD_1D_Value_Units_Combobox, &QComboBox::currentTextChanged, this, [=]
+		{
+			PSD_1D_value_units = PSD_1D_Value_Units_Combobox->currentText();
+		});
+
+		//----------------------------------------------------------------------------
+
+		QVBoxLayout* groupbox_3_Layout = new QVBoxLayout;
+			groupbox_3_Layout->setSpacing(4);
+			groupbox_3_Layout->setAlignment(Qt::AlignLeft);
+		groupbox_Layout->addLayout(groupbox_3_Layout);
+
+		QLabel* PSD_2D_Value_Units_Label = new QLabel("2D value");
+		groupbox_3_Layout->addWidget(PSD_2D_Value_Units_Label);
+
+		QComboBox* PSD_2D_Value_Units_Combobox = new QComboBox;
+			PSD_2D_Value_Units_Combobox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+			PSD_2D_Value_Units_Combobox->addItems(PSD_2D_Value_Units_List);
+			PSD_2D_Value_Units_Combobox->setCurrentText(PSD_2D_value_units);
+		groupbox_3_Layout->addWidget(PSD_2D_Value_Units_Combobox);
+		connect(PSD_2D_Value_Units_Combobox, &QComboBox::currentTextChanged, this, [=]
+		{
+			PSD_2D_value_units = PSD_2D_Value_Units_Combobox->currentText();
+		});
+	}
+
+
 	QGroupBox* path_Groupbox = new QGroupBox("Paths");
 	layout->addWidget(path_Groupbox);
 	{

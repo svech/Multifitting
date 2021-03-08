@@ -897,7 +897,10 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 	structure_Default_Values.endGroup();
 
 	structure_Default_Values.beginGroup( Units );
-		length_units			= structure_Default_Values.value( "length_units",	length_Units_List.first() ).toString();
+		length_units			= structure_Default_Values.value( "length_units",		length_Units_List.first() ).toString();
+		PSD_argument_units		= structure_Default_Values.value( "PSD_argument_units",	PSD_Argument_Units_List[angstrom] ).toString();
+		PSD_1D_value_units		= structure_Default_Values.value( "PSD_1D_value_units",	PSD_1D_Value_Units_List[nm_3] ).toString();
+		PSD_2D_value_units		= structure_Default_Values.value( "PSD_2D_value_units",	PSD_2D_Value_Units_List[nm_4] ).toString();
 	structure_Default_Values.endGroup();
 }
 
@@ -1129,7 +1132,10 @@ void Settings::save_Structure_Default_Values()
 	structure_Default_Values.endGroup();
 
 	structure_Default_Values.beginGroup( Units );
-		structure_Default_Values.setValue( "length_units",		length_units	);
+		structure_Default_Values.setValue( "length_units",			length_units	);
+		structure_Default_Values.setValue( "PSD_argument_units",	PSD_argument_units	);
+		structure_Default_Values.setValue( "PSD_1D_value_units",	PSD_1D_value_units	);
+		structure_Default_Values.setValue( "PSD_2D_value_units",	PSD_2D_value_units	);
 	structure_Default_Values.endGroup();
 }
 

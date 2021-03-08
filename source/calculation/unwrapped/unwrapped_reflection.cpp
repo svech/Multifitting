@@ -422,7 +422,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 		if( measurement.argument_Type  == argument_Types[Wavelength_Energy] )	num_Points = measurement.lambda_Vec.size();
 	}
 	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-	    measurement.measurement_Type == measurement_Types[GISAS_Map] )
+		measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		if_Single_Beam_Value = true;
 		if(spec_Scat_mode == SPECULAR_MODE) 	num_Points = 1;
@@ -554,7 +554,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 	if(	unwrapped_Structure->calc_Functions.check_Field ||
 	    unwrapped_Structure->calc_Functions.check_Joule ||
 	    unwrapped_Structure->calc_Functions.check_Scattering ||
-	    unwrapped_Structure->calc_Functions.check_GISAS )
+		unwrapped_Structure->calc_Functions.check_GISAS )
 	{
 		if( spec_Scat_mode == SCATTERED_MODE )
 		{
@@ -2322,57 +2322,69 @@ void Unwrapped_Reflection::calc_Environmental_Factor(int thread_Index, int point
 
 void Unwrapped_Reflection::choose_PSD_1D_Function(const Data& struct_Data, int thread_Index)
 {
-	if(multilayer->imperfections_Model.PSD_Model == ABC_Model)
+	if(set_PSD_to_1)
 	{
-		PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_1D;
+		PSD_1D_Func_Vec[thread_Index] = Global_Variables::no_PSD_at_all_1D;
 	} else
-	if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
-		if(abs(struct_Data.roughness_Model.fractal_alpha.value-1)>DBL_EPSILON)
+		if(multilayer->imperfections_Model.PSD_Model == ABC_Model)
 		{
-			if(abs(struct_Data.roughness_Model.fractal_alpha.value - 0.5) < DBL_EPSILON)
+			PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_1D;
+		} else
+		if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
+		{
+			if(abs(struct_Data.roughness_Model.fractal_alpha.value-1)>DBL_EPSILON)
 			{
-				PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_1D;
+				if(abs(struct_Data.roughness_Model.fractal_alpha.value - 0.5) < DBL_EPSILON)
+				{
+					PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_1D;
+				} else
+				{
+					PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_Fractal_Gauss_1D;
+				}
 			} else
 			{
-				PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_Fractal_Gauss_1D;
+				PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_Real_Gauss_1D;
 			}
 		} else
+		if(multilayer->imperfections_Model.PSD_Model == measured_PSD)
 		{
-			PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_Real_Gauss_1D;
+			PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_Measured_1D;
 		}
-	} else
-	if(multilayer->imperfections_Model.PSD_Model == measured_PSD)
-	{
-		PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_Measured_1D;
 	}
 }
 
 void Unwrapped_Reflection::choose_PSD_2D_Function(const Data& struct_Data, int thread_Index)
 {
-	if(multilayer->imperfections_Model.PSD_Model == ABC_Model)
+	if(set_PSD_to_1)
 	{
-		PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_2D;
+		PSD_2D_Func_Vec[thread_Index] = Global_Variables::no_PSD_at_all_2D;
 	} else
-	if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
-		if(abs(struct_Data.roughness_Model.fractal_alpha.value-1)>DBL_EPSILON)
+		if(multilayer->imperfections_Model.PSD_Model == ABC_Model)
 		{
-			if(abs(struct_Data.roughness_Model.fractal_alpha.value - 0.5) < DBL_EPSILON)
+			PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_2D;
+		} else
+		if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
+		{
+			if(abs(struct_Data.roughness_Model.fractal_alpha.value-1)>DBL_EPSILON)
 			{
-				PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_2D;
+				if(abs(struct_Data.roughness_Model.fractal_alpha.value - 0.5) < DBL_EPSILON)
+				{
+					PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_2D;
+				} else
+				{
+					PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Fractal_Gauss_2D;
+				}
 			} else
 			{
-				PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Fractal_Gauss_2D;
+				PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Real_Gauss_2D;
 			}
 		} else
+		if(multilayer->imperfections_Model.PSD_Model == measured_PSD)
 		{
-			PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Real_Gauss_2D;
+			PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Measured_2D;
 		}
-	} else
-	if(multilayer->imperfections_Model.PSD_Model == measured_PSD)
-	{
-		PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Measured_2D;
 	}
 }
 
@@ -2485,7 +2497,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 
 	/// SCATTERING
 	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-	    measurement.measurement_Type == measurement_Types[GISAS_Map]     ||
+		measurement.measurement_Type == measurement_Types[GISAS_Map]     ||
 	    measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 	    measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{		

@@ -383,6 +383,9 @@ QMap<QString, QString> PSD_2D_Value_Units_Legend_Map;
 // units
 QString length_units;
 QString density_units = "g/cm" + Cube_Sym;
+QString PSD_argument_units;
+QString PSD_1D_value_units;
+QString PSD_2D_value_units;
 
 // -----------------------------------------------------------------------------------------
 
@@ -449,6 +452,7 @@ int height_add = 0;
 // -----------------------------------------------------------------------------------------
 
 QString multilayer_Approach_Default_Title = "Multifitting";
+bool set_PSD_to_1 = false;
 
 // -----------------------------------------------------------------------------------------
 
@@ -1263,6 +1267,34 @@ double Global_Variables::PSD_Measured_2D(double sigma, double xi, double alpha, 
 	Q_UNUSED(alpha)
 	double nu = k*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi)/(2*M_PI); // here we need real frequency
 	return gsl_spline_eval(spline, nu, acc);
+}
+
+double Global_Variables::no_PSD_at_all_1D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc)
+{
+	Q_UNUSED(sigma)
+	Q_UNUSED(xi)
+	Q_UNUSED(alpha)
+	Q_UNUSED(k)
+	Q_UNUSED(cos_Theta)
+	Q_UNUSED(cos_Theta_0)
+	Q_UNUSED(spline)
+	Q_UNUSED(acc)
+
+	return 1;
+}
+
+double Global_Variables::no_PSD_at_all_2D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline *spline, gsl_interp_accel *acc)
+{
+	Q_UNUSED(sigma)
+	Q_UNUSED(xi)
+	Q_UNUSED(alpha)
+	Q_UNUSED(k)
+	Q_UNUSED(cos_Theta)
+	Q_UNUSED(cos_Theta_0)
+	Q_UNUSED(cos_Phi)
+	Q_UNUSED(spline)
+	Q_UNUSED(acc)
+	return 1;
 }
 
 double Global_Variables::Cor_Fractal_Gauss(double xi, double alpha, double r)

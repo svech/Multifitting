@@ -82,11 +82,22 @@ public:
 
 	template <typename Type>
 	void print_Reflect_To_File(Data_Element<Type>& data_Element, QString struct_Name, int index);
+	void print_PSD_1D_To_File(Data_Element<Target_Curve>& data_Element, QString struct_Name, int index);
+	void print_PSD_Data(QTextStream& out, vector<double>& arg, vector<double>& val,
+									 double incident_Polarization,
+									 QString data_Type,
+									 QString argument_Heading,
+									 QString value_Heading,
+									 QString at_Fixed_Heading,
+									 QString instrumental_Heading,
+									 QString geometry_Heading);
+
 	void print_Calculated_To_File();
 	void print_Data(QTextStream& out, vector<double>& arg,
 									 Unwrapped_Reflection* unwrapped_Reflection,
 									 Calc_Functions& calc_Functions,
 									 double incident_Polarization,
+									 QString measurement_Type,
 									 QString argument_Heading,
 									 QString at_Fixed_Heading,
 									 QString instrumental_Heading,

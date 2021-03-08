@@ -570,6 +570,110 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 		}
 		for(Data_Element<Target_Curve>& target_Data_Element : calculation_Trees[tab_Index]->target)
 		{
+			// extract PSD
+			if(print_1D_PSD_From_Scattering_On_Recalculation)
+			{
+				if( target_Data_Element.the_Class->measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
+					target_Data_Element.the_Class->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+					target_Data_Element.the_Class->measurement.measurement_Type == measurement_Types[Detector_Scan] )
+				{
+					set_PSD_to_1 = true;
+						target_Data_Element.the_Class->calc_cos2_k(0, 0);
+						calculation_Trees[tab_Index]->calculate_1_Curve(target_Data_Element);
+					set_PSD_to_1 = false;
+
+					const Data& measurement = target_Data_Element.the_Class->measurement;
+					Calculated_Values& calculated_Values = target_Data_Element.the_Class->calculated_Values;
+
+					// special postprocessing
+					for(size_t point_Index=0; point_Index<calculated_Values.S.size(); ++point_Index)
+					{
+						calculated_Values.S[point_Index] *= qDegreesToRadians(measurement.theta_Resolution_FWHM);
+						calculated_Values.S_Instrumental[point_Index] = 0; // for storing specular beam
+					}
+
+					// finding specular beam curve and storing it to calculated_Values.S_Instrumental
+					if(measurement.theta_Resolution_FWHM>DBL_EPSILON)
+					{
+						if(target_Data_Element.calc_Functions.add_Specular_Peak)
+						{
+							wrap_With_Specular(calculated_Values, measurement);
+						}
+					}
+
+					// getting PSD
+					vector<double> temp_PSD(calculated_Values.S.size());
+
+					calculated_Values.PSD_Left_Wing_Value .clear();
+					calculated_Values.PSD_Right_Wing_Value.clear();
+					calculated_Values.PSD_Left_Wing_Argument .clear();
+					calculated_Values.PSD_Right_Wing_Argument.clear();
+
+					calculated_Values.PSD_Left_Wing_Value .reserve(calculated_Values.S.size());
+					calculated_Values.PSD_Right_Wing_Value.reserve(calculated_Values.S.size());
+					calculated_Values.PSD_Left_Wing_Argument .reserve(calculated_Values.S.size());
+					calculated_Values.PSD_Right_Wing_Argument.reserve(calculated_Values.S.size());
+
+					for(size_t point_Index=0; point_Index<calculated_Values.S.size(); ++point_Index)
+					{
+						if(calculated_Values.S[point_Index]>0)
+						{
+							temp_PSD[point_Index] = (target_Data_Element.the_Class->curve.shifted_Values[point_Index] - calculated_Values.S_Instrumental[point_Index]) / calculated_Values.S[point_Index];
+						}
+						double p;
+						if(	measurement.measurement_Type == measurement_Types[Detector_Scan] )
+						{
+							p = abs(measurement.detector_Theta_Cos_Vec[point_Index]-measurement.beam_Theta_0_Cos_Value)/measurement.lambda_Value;
+
+							if(target_Data_Element.the_Class->curve.shifted_Argument[point_Index] < measurement.beam_Theta_0_Angle_Value)
+							{
+								// left
+								calculated_Values.PSD_Left_Wing_Argument.push_back(p);
+								calculated_Values.PSD_Left_Wing_Value.push_back(temp_PSD[point_Index]);
+							} else
+							{
+								// right
+								calculated_Values.PSD_Right_Wing_Argument.push_back(p);
+								calculated_Values.PSD_Right_Wing_Value.push_back(temp_PSD[point_Index]);
+							}
+						}
+						if(	measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+						{
+							p = abs(measurement.detector_Theta_Cos_Vec[point_Index]-measurement.beam_Theta_0_Cos_Vec[point_Index])/measurement.lambda_Value;
+
+							if(target_Data_Element.the_Class->curve.shifted_Argument[point_Index] > measurement.beam_Theta_0_Specular_Position)
+							{
+								// left
+								calculated_Values.PSD_Left_Wing_Argument.push_back(p);
+								calculated_Values.PSD_Left_Wing_Value.push_back(temp_PSD[point_Index]);
+							} else
+							{
+								// right
+								calculated_Values.PSD_Right_Wing_Argument.push_back(p);
+								calculated_Values.PSD_Right_Wing_Value.push_back(temp_PSD[point_Index]);
+							}
+						}
+						if(	measurement.measurement_Type == measurement_Types[Offset_Scan] )
+						{
+							p = abs(measurement.detector_Theta_Cos_Vec[point_Index]-measurement.beam_Theta_0_Cos_Vec[point_Index])/measurement.lambda_Value;
+
+							if(measurement.detector_Theta_Offset < 0)
+							{
+								// left
+								calculated_Values.PSD_Left_Wing_Argument.push_back(p);
+								calculated_Values.PSD_Left_Wing_Value.push_back(temp_PSD[point_Index]);
+							} else
+							{
+								// right
+								calculated_Values.PSD_Right_Wing_Argument.push_back(p);
+								calculated_Values.PSD_Right_Wing_Value.push_back(temp_PSD[point_Index]);
+							}
+						}
+					}
+				}
+			}
+
+			// usual calculation
 			calculation_With_Sampling(calculation_Trees[tab_Index], target_Data_Element);
 			postprocessing(target_Data_Element);
 			if(lambda_Out_Of_Range) return;
@@ -2647,6 +2751,165 @@ double Main_Calculation_Module::unparametrize(double parametrized_Shifted_Value,
 	}
 }
 
+void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& data_Element, QString struct_Name, int index)
+{
+	QString first_Name = struct_Name + "+PSD_1D";
+
+	QString path = "";
+	if(use_working_directory) path = working_directory + "/";
+	if(use_last_directory)	  path = last_directory + "/";
+
+	int prec = 10;
+	const Data& measurement = data_Element.the_Class->measurement;
+
+	double angular_Coeff = angle_Coefficients_Map.value(data_Element.the_Class->angular_Units);
+	double spectral_Coeff = wavelength_Coefficients_Map.value(data_Element.the_Class->spectral_Units);
+	QString angular_Units_Name = angle_Units_Legend_Map.value(data_Element.the_Class->angular_Units);
+	QString spectral_Units_Name = wavelength_Units_Legend_Map.value(data_Element.the_Class->spectral_Units);
+
+	double arg_Coeff = PSD_Argument_Coefficients_Map.value(PSD_argument_units);
+	double val_Coeff = PSD_1D_Value_Coefficients_Map.value(PSD_1D_value_units);
+	QString arg_Units_Name = PSD_Argument_Units_Legend_Map.value(PSD_argument_units);
+	QString val_Units_Name = PSD_1D_Value_Units_Legend_Map.value(PSD_1D_value_units);
+
+	QString at_Fixed_Heading = Global_Variables::wavelength_Energy_Name(data_Element.the_Class->spectral_Units, true) + " = " +
+							   Locale.toString(Global_Variables::wavelength_Energy(data_Element.the_Class->spectral_Units, measurement.lambda_Value)/spectral_Coeff, 'g', prec) + " " +
+							   spectral_Units_Name;
+	QString instrumental_Heading =  "spectral resolution (FWHM) = " + Locale.toString(measurement.spectral_Distribution.FWHM_distribution, 'g', prec) +
+									"\n; beam divergence (FWHM) = " + Locale.toString(measurement.beam_Theta_0_Distribution.FWHM_distribution/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+	QString geometry_Heading =  "beam width = " + Locale.toString(measurement.beam_Geometry.size, 'g', prec) + " mm" +
+								"\n; sample size = " + Locale.toString(measurement.sample_Geometry.size, 'g', prec) + " mm";
+
+	QString detector_Width_Heading = "\n; detector angular width (FWHM) = " + Locale.toString(measurement.theta_Resolution_FWHM/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+
+	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Detector_Scan] )
+	{
+		at_Fixed_Heading += "\n; beam grazing angle = " + Locale.toString(measurement.beam_Theta_0_Angle_Value/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+	}
+	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+	{
+		at_Fixed_Heading += "\n; specular grazing angle direction = " + Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+	}
+	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		at_Fixed_Heading += "\n; detector offset from specular direction = " + Locale.toString(measurement.detector_Theta_Offset/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+	}
+	instrumental_Heading += detector_Width_Heading;
+	QString argument_Heading = "Spatial frequency (" + arg_Units_Name + ")";
+	QString value_Heading = "PSD (" + val_Units_Name + ")";
+
+	vector<double> argument_Left  = data_Element.the_Class->calculated_Values.PSD_Left_Wing_Argument;
+	vector<double> argument_Right = data_Element.the_Class->calculated_Values.PSD_Right_Wing_Argument;
+	for(double& arg : argument_Left)	arg = arg/arg_Coeff;
+	for(double& arg : argument_Right)	arg = arg/arg_Coeff;
+	vector<double> value_Left  = data_Element.the_Class->calculated_Values.PSD_Left_Wing_Value;
+	vector<double> value_Right = data_Element.the_Class->calculated_Values.PSD_Right_Wing_Value;
+	for(double& val : value_Left)	val = val/val_Coeff;
+	for(double& val : value_Right)	val = val/val_Coeff;
+
+	// left wing
+	if(argument_Left.size()>0)
+	{
+		QString name_Left = path + first_Name+"_"+Locale.toString(index)+"_left.txt";
+		QFile file_Left(name_Left);
+		file_Left.open(QIODevice::WriteOnly);
+		QTextStream out_Left(&file_Left);
+		out_Left.setFieldAlignment(QTextStream::AlignLeft);
+
+		print_PSD_Data(out_Left,
+					   argument_Left,
+					   value_Left,
+					   data_Element.the_Class->measurement.polarization,
+					   "1D PSD for theta < theta_0 from "+data_Element.the_Class->measurement.measurement_Type,
+					   argument_Heading,
+					   value_Heading,
+					   at_Fixed_Heading,
+					   instrumental_Heading,
+					   geometry_Heading);
+		file_Left.close();
+	}
+
+	// right wing
+	if(argument_Right.size()>0)
+	{
+		QString name_Right = path + first_Name+"_"+Locale.toString(index)+"_right.txt";
+		QFile file_Right(name_Right);
+		file_Right.open(QIODevice::WriteOnly);
+		QTextStream out_Right(&file_Right);
+		out_Right.setFieldAlignment(QTextStream::AlignLeft);
+
+		print_PSD_Data(out_Right,
+					   argument_Right,
+					   value_Right,
+					   data_Element.the_Class->measurement.polarization,
+					   "1D PSD for theta > theta_0 from "+data_Element.the_Class->measurement.measurement_Type,
+					   argument_Heading,
+					   value_Heading,
+					   at_Fixed_Heading,
+					   instrumental_Heading,
+					   geometry_Heading);
+		file_Right.close();
+	}
+}
+
+void Main_Calculation_Module::print_PSD_Data(QTextStream& out, vector<double>& arg, vector<double>& val, double incident_Polarization, QString data_Type, QString argument_Heading, QString value_Heading, QString at_Fixed_Heading, QString instrumental_Heading, QString geometry_Heading)
+{
+	// point as decimal separator
+	Locale=QLocale::c();
+
+	// headline
+	int precision_Arg = 6;
+	int precision_PSD = 6;
+
+	int arg_Shift = 3;
+	int width_Short= 23+precision_Arg;
+	int width_Long = 11+precision_PSD;
+
+	///------------------------------------------------------------------------
+	/// headline
+	{
+		// top header
+		{
+			out << "; " << data_Type << endl;
+			out << "; polarization = " << Locale.toString(incident_Polarization,'f', 3) << endl;
+			out << "; " << at_Fixed_Heading << endl << endl;
+			out << "; " << instrumental_Heading << endl << endl;
+			out << "; " << geometry_Heading << endl << endl;
+		}
+
+		// argument
+		{
+			out << qSetFieldWidth(arg_Shift-1) << ";";
+			out << qSetFieldWidth(width_Short) << argument_Heading  << qSetFieldWidth(width_Long);
+		}
+
+		// psd
+		{
+			out << value_Heading << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
+		}
+	}
+	///------------------------------------------------------------------------
+	/// data
+	{
+		for(size_t i=0; i<arg.size(); ++i)
+		{
+			// argument
+			{
+				out << qSetFieldWidth(width_Short) << Locale.toString(arg[i],'e',precision_Arg)  << qSetFieldWidth(width_Long);
+			}
+
+			// psd
+			{
+				out << Locale.toString(val[i],'e',precision_PSD);
+			}
+			if(i!=arg.size()-1)	out << qSetFieldWidth(arg_Shift) << endl << qSetFieldWidth(width_Short);
+		}
+	}
+
+	// back to system locale
+	Locale = QLocale::system();
+}
+
 void Main_Calculation_Module::print_Calculated_To_File()
 {
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
@@ -2664,7 +2927,19 @@ void Main_Calculation_Module::print_Calculated_To_File()
 		{			
 			for(Data_Element<Target_Curve>& target : calculation_Trees[tab_Index]->target)
 			{
-				print_Reflect_To_File(target, multilayer_Tabs->tabText(tab_Index), counter++);
+				print_Reflect_To_File(target, multilayer_Tabs->tabText(tab_Index), counter);
+
+				if(print_1D_PSD_From_Scattering_On_Recalculation)
+				{
+					const Data& measurement = target.the_Class->measurement;
+					if(	measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+						measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+						measurement.measurement_Type == measurement_Types[Offset_Scan] )
+					{
+						print_PSD_1D_To_File(target, multilayer_Tabs->tabText(tab_Index), counter);
+					}
+				}
+				counter++;
 			}
 		}
 	}
@@ -2674,8 +2949,8 @@ template <typename Type>
 void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Element, QString struct_Name, int index)
 {
 	QString first_Name;
-	if(data_Element.curve_Class == INDEPENDENT)	first_Name = "calc_" + struct_Name + "_independent";
-	if(data_Element.curve_Class == TARGET)		first_Name = "calc_" + struct_Name + "_target";
+	if(data_Element.curve_Class == INDEPENDENT)	first_Name = struct_Name + "_independent";
+	if(data_Element.curve_Class == TARGET)		first_Name = struct_Name + "_target";
 
 	QString path = "";
 	if(use_working_directory) path = working_directory + "/";
@@ -2763,6 +3038,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 					   data_Element.unwrapped_Reflection,
 					   data_Element.calc_Functions,
 					   data_Element.the_Class->measurement.polarization,
+					   data_Element.the_Class->measurement.measurement_Type,
 					   argument_Heading,
 					   at_Fixed_Heading,
 					   instrumental_Heading,
@@ -2826,6 +3102,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out,
 										 Calc_Functions& calc_Functions,
 										 // heading
 										 double incident_Polarization,
+										 QString measurement_Type,
 										 QString argument_Heading,
 										 QString at_Fixed_Heading,
 										 QString instrumental_Heading,
@@ -2868,7 +3145,8 @@ void Main_Calculation_Module::print_Data(QTextStream &out,
 	/// headline
 	{
 		// top header
-		{
+		{			
+			out << "; " << measurement_Type << endl;
 			out << "; polarization = " << Locale.toString(incident_Polarization,'f', 3) << endl;
 			out << "; " << at_Fixed_Heading << endl << endl;
 			out << "; " << instrumental_Heading << endl << endl;

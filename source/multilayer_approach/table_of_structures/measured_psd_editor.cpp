@@ -190,7 +190,7 @@ void Measured_PSD_Editor::create_PSD_Options_Box()
 		argument_Units_Combobox->addItems(PSD_Argument_Units_List);
 		argument_Units_Combobox->setCurrentText(psd_Data.argument_Units);
 	PSD_Units_GroupBox_Layout->addWidget(argument_Units_Combobox,0,1);
-	connect(argument_Units_Combobox,	&QComboBox::currentTextChanged, this, [=]
+	connect(argument_Units_Combobox, &QComboBox::currentTextChanged, this, [=]
 	{
 		psd_Data.argument_Units = argument_Units_Combobox->currentText();
 
@@ -212,7 +212,7 @@ void Measured_PSD_Editor::create_PSD_Options_Box()
 		if(PSD_Type == PSD_Type_2D)	value_Units_Combobox->addItems(PSD_2D_Value_Units_List);
 		value_Units_Combobox->setCurrentText(psd_Data.value_Units);
 	PSD_Units_GroupBox_Layout->addWidget(value_Units_Combobox,1,1);
-	connect(value_Units_Combobox,	&QComboBox::currentTextChanged, this, [=]
+	connect(value_Units_Combobox, &QComboBox::currentTextChanged, this, [=]
 	{
 		psd_Data.value_Units = value_Units_Combobox->currentText();
 
