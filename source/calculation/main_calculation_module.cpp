@@ -2762,10 +2762,12 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 
 	QString first_Name = struct_Name + "_PSD_1D_" + data_Element.the_Class->index/*Locale.toString(index+1)*/ + "_" + data_Element.the_Class->name;
 
+	QString specular_Substraction_Filename = "";
 	QString specular_Substraction = "";
 	if(data_Element.calc_Functions.add_Specular_Peak)
 	{
-		specular_Substraction = "_spec_substracted";
+		specular_Substraction_Filename = "_spec_substracted";
+		specular_Substraction = ", specular peak substracted from measurement data before PSD calculation";
 	}
 
 	QString path = "";
@@ -2822,7 +2824,7 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 	// left wing
 	if(argument_Left.size()>0)
 	{
-		QString name_Left = path + first_Name + "_left" + specular_Substraction+".txt";
+		QString name_Left = path + first_Name + "_left" + specular_Substraction_Filename+".txt";
 		QFile file_Left(name_Left);
 		file_Left.open(QIODevice::WriteOnly);
 		QTextStream out_Left(&file_Left);
@@ -2832,7 +2834,7 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 					   argument_Left,
 					   value_Left,
 					   data_Element.the_Class->measurement.polarization,
-					   "1D PSD for theta < theta_0 from "+data_Element.the_Class->measurement.measurement_Type,
+					   "1D PSD for theta<theta_0 from "+data_Element.the_Class->measurement.measurement_Type+specular_Substraction,
 					   argument_Heading,
 					   value_Heading,
 					   at_Fixed_Heading,
@@ -2844,7 +2846,7 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 	// right wing
 	if(argument_Right.size()>0)
 	{
-		QString name_Right = path + first_Name + "_right" + specular_Substraction+".txt";
+		QString name_Right = path + first_Name + "_right" + specular_Substraction_Filename+".txt";
 		QFile file_Right(name_Right);
 		file_Right.open(QIODevice::WriteOnly);
 		QTextStream out_Right(&file_Right);
@@ -2854,7 +2856,7 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 					   argument_Right,
 					   value_Right,
 					   data_Element.the_Class->measurement.polarization,
-					   "1D PSD for theta > theta_0 from "+data_Element.the_Class->measurement.measurement_Type,
+					   "1D PSD for theta>theta_0 from "+data_Element.the_Class->measurement.measurement_Type+specular_Substraction,
 					   argument_Heading,
 					   value_Heading,
 					   at_Fixed_Heading,
