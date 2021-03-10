@@ -115,16 +115,29 @@ void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int ta
 		tab_Layout->setSpacing(5);
 	tab_Layout->setContentsMargins(2,2,2,2);
 
+	QHBoxLayout* top_Layout = new QHBoxLayout;
+		tab_Layout->addLayout(top_Layout);
 	{
 		QGroupBox* discretization_Group_Box = new QGroupBox("Profile discretization", this);
 			discretization_Group_Box->setCheckable(true);
 			discretization_Group_Box->setObjectName("discretization_Group_Box");
 			discretization_Group_Box->setStyleSheet("QGroupBox#discretization_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
 																	"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
-		tab_Layout->addWidget(discretization_Group_Box);
+		top_Layout->addWidget(discretization_Group_Box);
 
 		discretization_Group_Box_Vec.append(discretization_Group_Box);
 		load_Discretization_Parameters(tab_Index);
+	}
+	{
+		QGroupBox* roughness_Group_Box = new QGroupBox("Roughness", this);
+			roughness_Group_Box->setCheckable(true);
+			roughness_Group_Box->setObjectName("roughness_Group_Box_Vec");
+			roughness_Group_Box->setStyleSheet("QGroupBox#roughness_Group_Box_Vec { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
+																"QGroupBox::title { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
+		top_Layout->addWidget(roughness_Group_Box);
+
+		roughness_Group_Box_Vec.append(roughness_Group_Box);
+		load_Roughness_Parameters(tab_Index);
 	}
 	{
 		QGroupBox* target_Group_Box = new QGroupBox("Measured", this);
@@ -272,6 +285,61 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 			discr_H_Layout->addWidget(step_Units_Label);
 		discretization_Layout->addLayout(discr_H_Layout);
 	}
+}
+
+void Calculation_Settings_Editor::load_Roughness_Parameters(int tab_Index)
+{
+//	QVBoxLayout* roughness_Layout = new QVBoxLayout(discretization_Group_Box_Vec[tab_Index]);
+//		discretization_Layout->setSpacing(6);
+//	discretization_Layout->setContentsMargins(7,12,7,7);
+
+//	{
+//		QLabel* step_Label = new QLabel("Discretization step");
+
+//		MyDoubleSpinBox* step_SpinBox = new MyDoubleSpinBox;
+//			step_SpinBox->setRange(0.01, MAX_DOUBLE);
+//			step_SpinBox->setDecimals(4);
+//			step_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+//			step_SpinBox->setValue(multilayer->discretization_Parameters.discretization_Step);
+//			step_SpinBox->setAccelerated(true);
+//			step_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+//			step_SpinBox->installEventFilter(this);
+//			step_SpinBox->setProperty(min_Size_Property,TABLE_FIX_WIDTH_LINE_EDIT_SHORT+1);
+//		Global_Variables::resize_Line_Edit(step_SpinBox, false);
+//		connect(step_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+//		{
+//			multilayer->discretization_Parameters.discretization_Step = step_SpinBox->value();
+//			Global_Variables::resize_Line_Edit(step_SpinBox, false);
+
+//			if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))
+//			{
+//				Profile_Plot* profile_Plot = global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector[tab_Index];
+//				profile_Plot->plot_Data(true);
+//			}
+//			// threshold line only for 1D
+//			if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+//			{
+//				QVector<Curve_Plot_1D*>& tab_Plots = global_Multilayer_Approach->optical_Graphs_1D->plots_1D[tab_Index];
+//				for(Curve_Plot_1D* curve_Plot : tab_Plots)
+//				{
+//					if( curve_Plot->measurement.measurement_Type == measurement_Types[Specular_Scan] )
+//					{
+//						curve_Plot->discretized_Threshold_Line();
+//					}
+//				}
+//			}
+//			global_Multilayer_Approach->global_Recalculate();
+//		});
+
+//		QLabel* step_Units_Label = new QLabel(" "+Angstrom_Sym);
+
+//		QHBoxLayout* discr_H_Layout = new QHBoxLayout;
+//			discr_H_Layout->setAlignment(Qt::AlignLeft);
+//			discr_H_Layout->addWidget(step_Label);
+//			discr_H_Layout->addWidget(step_SpinBox);
+//			discr_H_Layout->addWidget(step_Units_Label);
+//		discretization_Layout->addLayout(discr_H_Layout);
+//	}
 }
 
 void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)

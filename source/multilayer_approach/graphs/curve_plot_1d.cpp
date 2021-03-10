@@ -434,6 +434,26 @@ void Curve_Plot_1D::create_Options()
 			X_ButtonGroup->addButton(lin_X_RadioButton);
 			X_ButtonGroup->addButton(log_X_RadioButton);
 	}
+	if(multilayer->graph_Options_1D.show_Range)
+	{
+		QLabel* range_Label = new QLabel("Log range: ");
+		options_Layout->addWidget(range_Label);
+
+		range_Spin = new QDoubleSpinBox;
+			range_Spin->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			range_Spin->setAccelerated(true);
+			range_Spin->setRange(1, 99);
+			range_Spin->setDecimals(1);
+			range_Spin->setValue(plot_Options_First.orders_To_Show);
+			range_Spin->setSingleStep(0.1);
+//			range_Spin->setFixedWidth(35);
+		options_Layout->addWidget(range_Spin);
+		connect(range_Spin, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+		{
+			plot_Options_First.orders_To_Show = range_Spin->value();
+			plot_All_Data();
+		});
+	}
 	if(multilayer->graph_Options_1D.show_Scatter)
 	{
 		QLabel* scatter_Label = new QLabel("| Scatter:");
@@ -712,6 +732,7 @@ void Curve_Plot_1D::plot_All_Data()
 			max_Value_For_Plot = max_Value_Left * 1.1;
 		}
 
+		if(plot_Options_Second.y_Scale == log_Scale) { min_Value_For_Plot = max(min_Value_For_Plot,max_Value_For_Plot/pow(10,plot_Options_First.orders_To_Show));}
 		custom_Plot->yAxis->setRange(min_Value_For_Plot,max_Value_For_Plot);
 		custom_Plot->xAxis->setRange(argument.front(), argument.back());
 	}

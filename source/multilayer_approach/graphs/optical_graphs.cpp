@@ -109,6 +109,10 @@ void Optical_Graphs::settings_1D()
 		show_Max_Value_CheckBox->setChecked(multilayer->graph_Options_1D.show_Max_Value);
 		plots_Settings_Group_Box_Layout->addWidget(show_Max_Value_CheckBox);
 
+	QCheckBox* show_Range_CheckBox = new QCheckBox("Show Y range");
+		show_Range_CheckBox->setChecked(multilayer->graph_Options_1D.show_Range);
+		plots_Settings_Group_Box_Layout->addWidget(show_Range_CheckBox);
+
 	QCheckBox* show_Current_Coordinate_CheckBox = new QCheckBox("Show cursor position");
 		show_Current_Coordinate_CheckBox->setChecked(multilayer->graph_Options_1D.show_Current_Coordinate);
 		plots_Settings_Group_Box_Layout->addWidget(show_Current_Coordinate_CheckBox);
@@ -139,6 +143,7 @@ void Optical_Graphs::settings_1D()
 		multilayer->graph_Options_1D.show_Thickness = show_Thickness_CheckBox->isChecked();
 		multilayer->graph_Options_1D.show_X_Scale = show_X_Scale_CheckBox->isChecked();
 		multilayer->graph_Options_1D.show_Max_Value = show_Max_Value_CheckBox->isChecked();
+		multilayer->graph_Options_1D.show_Range = show_Range_CheckBox->isChecked();
 		multilayer->graph_Options_1D.show_Current_Coordinate = show_Current_Coordinate_CheckBox->isChecked();
 		multilayer->graph_Options_1D.show_Title = show_Title_CheckBox->isChecked();
 

@@ -71,6 +71,7 @@ public:
 
 	QDoubleSpinBox* scatter_Spin;
 	QDoubleSpinBox* thickness_Spin;
+	QDoubleSpinBox* range_Spin;
 
 	QLabel* max_Value_Label;
 	QString max_Value_Title;

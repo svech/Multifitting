@@ -14,7 +14,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 10
+#define VERSION_BUILD 11
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -650,6 +650,7 @@ struct Element_Data				{QString element;					  QVector<Point> element_Data;  voi
 
 // curve plot options
 struct Plot_Options				{ bool rescale = true;
+								  double orders_To_Show = 9;
 
 								  // 1D
 								  QString x_Scale = lin_Scale;
@@ -668,7 +669,6 @@ struct Plot_Options				{ bool rescale = true;
 								  bool bottom_Section_Plot = false;
 								  int bottom_Section_Tab_Index = 0;
 								  QString data_To_Show = meas;
-								  double orders_To_Show = 9;
 								  QString orientation = vertical;
 								};
 struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
@@ -682,6 +682,7 @@ struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
 								 bool show_Thickness = false;
 								 bool show_X_Scale = false;
 								 bool show_Max_Value = false;
+								 bool show_Range = true;
 
 								 // 2D
 								 bool show_Interpolation = false;
