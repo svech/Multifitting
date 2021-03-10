@@ -115,8 +115,9 @@ void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int ta
 		tab_Layout->setSpacing(5);
 	tab_Layout->setContentsMargins(2,2,2,2);
 
-	QHBoxLayout* top_Layout = new QHBoxLayout;
-		tab_Layout->addLayout(top_Layout);
+	QBoxLayout* top_Layout = new QVBoxLayout;
+		tab_Layout->setSpacing(10);
+	tab_Layout->addLayout(top_Layout);
 	{
 		QGroupBox* discretization_Group_Box = new QGroupBox("Profile discretization", this);
 			discretization_Group_Box->setCheckable(true);
@@ -130,7 +131,6 @@ void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int ta
 	}
 	{
 		QGroupBox* roughness_Group_Box = new QGroupBox("Roughness", this);
-			roughness_Group_Box->setCheckable(true);
 			roughness_Group_Box->setObjectName("roughness_Group_Box_Vec");
 			roughness_Group_Box->setStyleSheet("QGroupBox#roughness_Group_Box_Vec { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
 																"QGroupBox::title { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
@@ -161,6 +161,17 @@ void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int ta
 		independent_Group_Box_Vec.append(independent_Group_Box);
 		load_Independent_Parameters(tab_Index);
 	}
+
+	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+	int num_Curves_In_Row = 1;
+	int target_Curves	   = ceil(double(total_Number_of_Targets     [tab_Index])/double(multilayer->num_Target_Rows     ));
+	int independent_Curves = ceil(double(total_Number_of_Independents[tab_Index])/double(multilayer->num_Independent_Rows));
+	num_Curves_In_Row = max(num_Curves_In_Row, target_Curves);
+	num_Curves_In_Row = max(num_Curves_In_Row, independent_Curves);
+	if(num_Curves_In_Row > 1)
+		top_Layout->setDirection(QBoxLayout::LeftToRight);
+	else
+		top_Layout->setDirection(QBoxLayout::TopToBottom);
 }
 
 void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
@@ -243,7 +254,7 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 
 		MyDoubleSpinBox* step_SpinBox = new MyDoubleSpinBox;
 			step_SpinBox->setRange(0.01, MAX_DOUBLE);
-			step_SpinBox->setDecimals(4);
+			step_SpinBox->setDecimals(2);
 			step_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			step_SpinBox->setValue(multilayer->discretization_Parameters.discretization_Step);
 			step_SpinBox->setAccelerated(true);
@@ -289,57 +300,58 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 
 void Calculation_Settings_Editor::load_Roughness_Parameters(int tab_Index)
 {
-//	QVBoxLayout* roughness_Layout = new QVBoxLayout(discretization_Group_Box_Vec[tab_Index]);
-//		discretization_Layout->setSpacing(6);
-//	discretization_Layout->setContentsMargins(7,12,7,7);
+	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 
-//	{
-//		QLabel* step_Label = new QLabel("Discretization step");
+	QHBoxLayout* roughness_Layout = new QHBoxLayout(roughness_Group_Box_Vec[tab_Index]);
+		roughness_Layout->setSpacing(6);
+		roughness_Layout->setAlignment(Qt::AlignLeft);
+	roughness_Layout->setContentsMargins(7,12,7,7);
 
-//		MyDoubleSpinBox* step_SpinBox = new MyDoubleSpinBox;
-//			step_SpinBox->setRange(0.01, MAX_DOUBLE);
-//			step_SpinBox->setDecimals(4);
-//			step_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-//			step_SpinBox->setValue(multilayer->discretization_Parameters.discretization_Step);
-//			step_SpinBox->setAccelerated(true);
-//			step_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-//			step_SpinBox->installEventFilter(this);
-//			step_SpinBox->setProperty(min_Size_Property,TABLE_FIX_WIDTH_LINE_EDIT_SHORT+1);
-//		Global_Variables::resize_Line_Edit(step_SpinBox, false);
-//		connect(step_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-//		{
-//			multilayer->discretization_Parameters.discretization_Step = step_SpinBox->value();
-//			Global_Variables::resize_Line_Edit(step_SpinBox, false);
+	QVBoxLayout* radiobutton_Layout = new QVBoxLayout;
+		radiobutton_Layout->setSpacing(0);
+		radiobutton_Layout->setAlignment(Qt::AlignLeft);
+		radiobutton_Layout->setContentsMargins(0,0,0,0);
+	roughness_Layout->addLayout(radiobutton_Layout);
 
-//			if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))
-//			{
-//				Profile_Plot* profile_Plot = global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector[tab_Index];
-//				profile_Plot->plot_Data(true);
-//			}
-//			// threshold line only for 1D
-//			if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
-//			{
-//				QVector<Curve_Plot_1D*>& tab_Plots = global_Multilayer_Approach->optical_Graphs_1D->plots_1D[tab_Index];
-//				for(Curve_Plot_1D* curve_Plot : tab_Plots)
-//				{
-//					if( curve_Plot->measurement.measurement_Type == measurement_Types[Specular_Scan] )
-//					{
-//						curve_Plot->discretized_Threshold_Line();
-//					}
-//				}
-//			}
-//			global_Multilayer_Approach->global_Recalculate();
-//		});
+	QRadioButton* DW_Radiobutton = new QRadioButton("Debye-Waller R");
+		DW_Radiobutton->setChecked(multilayer->imperfections_Model.reflectivity_With_Roughness == Debye_Waller_R);
+	radiobutton_Layout->addWidget(DW_Radiobutton);
+	connect(DW_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(DW_Radiobutton->isChecked())		{
+			multilayer->imperfections_Model.reflectivity_With_Roughness = Debye_Waller_R;
+			global_Multilayer_Approach->global_Recalculate();
+		}
+	});
+	QRadioButton* perturbative_Radiobutton = new QRadioButton("Perturbative R");
+		perturbative_Radiobutton->setChecked(multilayer->imperfections_Model.reflectivity_With_Roughness == perturbative_R);
+	radiobutton_Layout->addWidget(perturbative_Radiobutton);
+	connect(perturbative_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(perturbative_Radiobutton->isChecked())		{
+			multilayer->imperfections_Model.reflectivity_With_Roughness = perturbative_R;
+			global_Multilayer_Approach->global_Recalculate();
+		}
+	});
+	QButtonGroup* reflectivity_Roughness_Group = new QButtonGroup;
+		reflectivity_Roughness_Group->addButton(perturbative_Radiobutton);
+		reflectivity_Roughness_Group->addButton(DW_Radiobutton);
 
-//		QLabel* step_Units_Label = new QLabel(" "+Angstrom_Sym);
+	QLabel* n_Max_Series_Label = new QLabel("Number of terms for\nDWBA, SA, CSA scattering");
+	roughness_Layout->addWidget(n_Max_Series_Label);
 
-//		QHBoxLayout* discr_H_Layout = new QHBoxLayout;
-//			discr_H_Layout->setAlignment(Qt::AlignLeft);
-//			discr_H_Layout->addWidget(step_Label);
-//			discr_H_Layout->addWidget(step_SpinBox);
-//			discr_H_Layout->addWidget(step_Units_Label);
-//		discretization_Layout->addLayout(discr_H_Layout);
-//	}
+	QSpinBox* n_Max_Series_Spinbox = new QSpinBox;
+		n_Max_Series_Spinbox->setRange(1, 150);
+		n_Max_Series_Spinbox->setSingleStep(1);
+		n_Max_Series_Spinbox->setValue(multilayer->imperfections_Model.DWBA_n_Max_Series);
+		n_Max_Series_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		n_Max_Series_Spinbox->setFixedWidth(40);
+	roughness_Layout->addWidget(n_Max_Series_Spinbox);
+	connect(n_Max_Series_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+	{
+		multilayer->imperfections_Model.DWBA_n_Max_Series = n_Max_Series_Spinbox->value();
+		global_Multilayer_Approach->global_Recalculate();
+	});
 }
 
 void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)

@@ -242,38 +242,7 @@ void Calculation_Tree::renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator
 			Data& struct_Data = child.node->data.struct_Data;
 			if(struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate)
 			{
-				double temp_Sigma_Square=0;
-				double sum = 0;
-				for(Interlayer& interlayer : struct_Data.interlayer_Composition)
-				{
-					if(interlayer.enabled)
-					{
-						sum += interlayer.interlayer.value;
-						temp_Sigma_Square += pow(interlayer.my_Sigma_Diffuse.value,2) * interlayer.interlayer.value;
-					}
-				}
-				if(abs(sum)<DBL_EPSILON) {sum = DBL_EPSILON;	qInfo() << "Calculation_Tree::renew_Item_Tree_From_Calc_Tree :: abs(sum)<DBL_EPSILON" << endl;}
-
-				// equalize sigma
-				if(struct_Data.common_Sigma_Diffuse)
-				{
-					for(Interlayer& interlayer : struct_Data.interlayer_Composition)
-					{
-						interlayer.my_Sigma_Diffuse.value = struct_Data.sigma_Diffuse.value;
-					}
-				} else
-				{
-					struct_Data.sigma_Diffuse.value = sqrt(temp_Sigma_Square/sum);
-				}
-
-				// norm weights
-				for(Interlayer& interlayer : struct_Data.interlayer_Composition)
-				{
-					if(interlayer.enabled)
-					{
-						interlayer.interlayer.value /= sum;
-					}
-				}
+				Global_Variables::normalize_Interlayer(struct_Data);
 			}
 
 			QVariant var; var.setValue( /*child.node->data.*/struct_Data );

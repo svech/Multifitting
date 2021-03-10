@@ -457,7 +457,7 @@ bool refill_dependent_structure_table;
 bool replot_graphs_during_fitting_1D;
 //bool replot_graphs_during_fitting_2D;
 
-int    n_max_series;
+//int    DWBA_n_Max_Series;
 //bool use_beam_spot_in_specular_peak;
 
 bool print_1D_Data_On_Recalculation;
@@ -1456,7 +1456,7 @@ void Settings::read_General_Settings(bool reset_to_default)
 		mouse_wheel_spinbox_structure_table	= general_Settings.value( "mouse_wheel_spinbox_structure_table",	true	).toBool();
 		refill_dependent_structure_table	= general_Settings.value( "refill_dependent_structure_table",		true	).toBool();
 
-		n_max_series							= general_Settings.value( "n_max_series",							 5  ).toInt();
+//		DWBA_n_Max_Series					= general_Settings.value( "DWBA_n_Max_Series",							 5  ).toInt();
 //		use_beam_spot_in_specular_peak		= general_Settings.value( "use_beam_spot_in_specular_peak",			true	).toInt();
 	general_Settings.endGroup();
 
@@ -1507,7 +1507,7 @@ void Settings::save_General_Settings()
 		general_Settings.setValue("mouse_wheel_spinbox_structure_table",mouse_wheel_spinbox_structure_table	);
 		general_Settings.setValue("refill_dependent_structure_table",	refill_dependent_structure_table	);
 
-		general_Settings.setValue("n_max_series",							 n_max_series							 );
+//		general_Settings.setValue("DWBA_n_Max_Series",					DWBA_n_Max_Series				    );
 //		general_Settings.setValue("use_beam_spot_in_specular_peak",		use_beam_spot_in_specular_peak		);
 	general_Settings.endGroup();
 

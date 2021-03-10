@@ -14,7 +14,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 11
+#define VERSION_BUILD 12
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -263,6 +263,9 @@ class Node;
 #define DWBA_approximation	"DWBA approximation"
 #define SA_approximation	"SA approximation"
 #define CSA_approximation	"CSA approximation"
+
+#define perturbative_R		"perturbative refrectance"
+#define Debye_Waller_R		"Debye Waller refrectance"
 
 #define full_Correlation		"full vertical correlation"
 #define partial_Correlation		"partial vertical correlation"
@@ -698,7 +701,7 @@ struct Graph_2D_Positions		{
 // profile plot options
 struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 								 QString permittivity_Type = DELTA_EPS;
-								 bool apply_Roughness = true;
+								 bool apply_Roughness = false;
 								 bool apply_Diffuseness = true;
 								 bool show_Sharp_Profile = true;
 								 bool show_Discretization = false;
@@ -954,6 +957,8 @@ struct Imperfections_Model		{
 								bool add_Gauss_Peak = false;
 								bool use_Common_Roughness_Function = true;
 								QString inheritance_Model = replication_Factor_Inheritance_Model;
+								QString reflectivity_With_Roughness = Debye_Waller_R;
+								int DWBA_n_Max_Series = 5;
 
 								PSD_Data PSD_1D;
 								PSD_Data PSD_2D;

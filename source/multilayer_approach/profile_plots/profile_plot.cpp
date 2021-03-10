@@ -267,41 +267,49 @@ void Profile_Plot::create_Left_Side()
 //			});
 
 		show_Sharp_CheckBox = new QCheckBox("Show sharp profile");
-			line_Type_Layout->addWidget(show_Sharp_CheckBox);
-			connect(show_Sharp_CheckBox, &QCheckBox::toggled, this, [=]
-			{
-				multilayer->profile_Plot_Options.show_Sharp_Profile = show_Sharp_CheckBox->isChecked();
-
-				plot_Data(true);
-			});
+		line_Type_Layout->addWidget(show_Sharp_CheckBox);
+		connect(show_Sharp_CheckBox, &QCheckBox::toggled, this, [=]
+		{
+			multilayer->profile_Plot_Options.show_Sharp_Profile = show_Sharp_CheckBox->isChecked();
+			plot_Data(true);
+		});
 
 		discretization_CheckBox = new QCheckBox("Show discretization");
-			line_Type_Layout->addWidget(discretization_CheckBox);
-			connect(discretization_CheckBox, &QCheckBox::toggled, this, [=]
-			{
-				multilayer->profile_Plot_Options.show_Discretization = discretization_CheckBox->isChecked();
-
-				plot_Data(true);
-			});
+		line_Type_Layout->addWidget(discretization_CheckBox);
+		connect(discretization_CheckBox, &QCheckBox::toggled, this, [=]
+		{
+			multilayer->profile_Plot_Options.show_Discretization = discretization_CheckBox->isChecked();
+			plot_Data(true);
+		});
 		if(multilayer->discretization_Parameters.enable_Discretization) {discretization_CheckBox->setDisabled(false);}
 		else															{discretization_CheckBox->setDisabled(true);}
 
 		cursor_Cordinate_CheckBox = new QCheckBox("Show cursor position");
-			line_Type_Layout->addWidget(cursor_Cordinate_CheckBox);
-			connect(cursor_Cordinate_CheckBox, &QCheckBox::toggled, this, [=]
-			{
-				multilayer->profile_Plot_Options.show_Cursor_Position = cursor_Cordinate_CheckBox->isChecked();
+		line_Type_Layout->addWidget(cursor_Cordinate_CheckBox);
+		connect(cursor_Cordinate_CheckBox, &QCheckBox::toggled, this, [=]
+		{
+			multilayer->profile_Plot_Options.show_Cursor_Position = cursor_Cordinate_CheckBox->isChecked();
 
-				// other profiles obtain the same option : synchronization
-				for(Profile_Plot* profile_Plot : profile_Plots_Window->profile_Plot_Vector)
-				{
-					profile_Plot->multilayer->profile_Plot_Options.show_Cursor_Position = multilayer->profile_Plot_Options.show_Cursor_Position;
-					profile_Plot->cursor_Cordinate_CheckBox->blockSignals(true);
-					profile_Plot->cursor_Cordinate_CheckBox->setChecked(profile_Plot->multilayer->profile_Plot_Options.show_Cursor_Position);
-					profile_Plot->cursor_Cordinate_CheckBox->blockSignals(false);
-				}
-				global_Multilayer_Approach->reopen_Profile_Plots();
-			});
+			// other profiles obtain the same option : synchronization
+			for(Profile_Plot* profile_Plot : profile_Plots_Window->profile_Plot_Vector)
+			{
+				profile_Plot->multilayer->profile_Plot_Options.show_Cursor_Position = multilayer->profile_Plot_Options.show_Cursor_Position;
+				profile_Plot->cursor_Cordinate_CheckBox->blockSignals(true);
+				profile_Plot->cursor_Cordinate_CheckBox->setChecked(profile_Plot->multilayer->profile_Plot_Options.show_Cursor_Position);
+				profile_Plot->cursor_Cordinate_CheckBox->blockSignals(false);
+			}
+			global_Multilayer_Approach->reopen_Profile_Plots();
+		});
+
+//		use_Roughness_CheckBox = new QCheckBox("Account roughness");
+//		line_Type_Layout->addWidget(use_Roughness_CheckBox);
+//		connect(use_Roughness_CheckBox, &QCheckBox::toggled, this, [=]
+//		{
+//			multilayer->profile_Plot_Options.apply_Roughness = use_Roughness_CheckBox->isChecked();
+//			plot_Data(true);
+//		});
+//		if(multilayer->imperfections_Model.use_Roughness) {use_Roughness_CheckBox->setDisabled(false);}
+//		else											  {use_Roughness_CheckBox->setDisabled(true);}
 
 		// ----------------------------------------------------
 		line_Type_GroupBox->adjustSize();
@@ -1640,6 +1648,7 @@ void Profile_Plot::fill_All_Data_From_Struct_Vector()
 
 void Profile_Plot::get_Max_My_Sigma(QTreeWidgetItem* item, int periods_Factor)
 {
+	// diffuseness
 	// doesn't look for sigma if ambient only
 	for(int i=0; i<item->childCount(); ++i)
 	{
@@ -1689,6 +1698,52 @@ void Profile_Plot::get_Max_My_Sigma(QTreeWidgetItem* item, int periods_Factor)
 				   struct_Data.item_Type == item_Type_General_Aperiodic)
 				{
 					get_Max_My_Sigma(item->child(i), periods_Factor*struct_Data.num_Repetition.value());
+				}
+			}
+		}
+	}
+	// if using roughness
+	if( multilayer->profile_Plot_Options.apply_Roughness)
+	{
+		for(int i=0; i<item->childCount(); ++i)
+		{
+			Data struct_Data = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			if(struct_Data.item_Enabled)
+			{
+				if(multilayer->imperfections_Model.PSD_Model == zero_Correlation && !multilayer->imperfections_Model.use_Common_Roughness_Function)
+				{
+					if(struct_Data.item_Type == item_Type_Layer   ||
+					   struct_Data.item_Type == item_Type_Substrate)
+					{
+						double sigma_Roughness = struct_Data.roughness_Model.sigma.value;
+						if(multilayer->imperfections_Model.add_Gauss_Peak)	{
+							sigma_Roughness = sqrt(pow(struct_Data.roughness_Model.sigma.value,2) + pow(struct_Data.roughness_Model.peak_Sigma.value,2));
+						}
+						max_Sigma = sqrt(max_Sigma*max_Sigma + sigma_Roughness*sigma_Roughness);
+					}
+				} else
+				// common roughness function or partial correlation => only substrate is accounted
+				{
+					if( struct_Data.item_Type == item_Type_Substrate)
+					{
+						double sigma_Roughness = struct_Data.roughness_Model.sigma.value;
+						if(multilayer->imperfections_Model.add_Gauss_Peak)	{
+							sigma_Roughness = sqrt(pow(struct_Data.roughness_Model.sigma.value,2) + pow(struct_Data.roughness_Model.peak_Sigma.value,2));
+						}
+
+						if(multilayer->imperfections_Model.PSD_Model == measured_PSD)
+						{
+							QString PSD_Type;
+							if(multilayer->imperfections_Model.PSD_1D.argument.size()>2) {
+								PSD_Type = PSD_Type_1D;
+								sigma_Roughness = multilayer->imperfections_Model.PSD_1D.calc_Sigma_Effective()*struct_Data.roughness_Model.sigma_Factor_PSD_1D.value;
+							} else	{
+								PSD_Type = PSD_Type_2D;
+								sigma_Roughness = multilayer->imperfections_Model.PSD_2D.calc_Sigma_Effective()*struct_Data.roughness_Model.sigma_Factor_PSD_2D.value;
+							}
+						}
+						max_Sigma = sqrt(max_Sigma*max_Sigma + sigma_Roughness*sigma_Roughness);
+					}
 				}
 			}
 		}

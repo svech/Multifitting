@@ -320,6 +320,7 @@ public:
 	static double get_Max_Sigma_From_Interlayer_Composition(QVector<Interlayer>& interlayer_Composition);
 //	static double layer_Normalization_GSL(double thickness, QVector<Interlayer>& left_Interlayer_Composition, QVector<Interlayer>& right_Interlayer_Composition, gsl_integration_workspace* w);
 	static double layer_Normalization(double thickness, QVector<Interlayer>& left_Interlayer_Composition, QVector<Interlayer>& right_Interlayer_Composition);
+	static double normalize_Interlayer(Data& struct_Data);
 
 	// beam profile
 	static double beam_Profile(double x, double FWHM, double smoothing);

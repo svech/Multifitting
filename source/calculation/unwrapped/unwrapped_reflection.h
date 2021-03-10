@@ -34,6 +34,7 @@ public:
 	QString spec_Scat_mode;
 	Unwrapped_Structure* unwrapped_Structure;
 	Multilayer* multilayer;
+	int DWBA_n_Max_Series;
 	const Data& measurement;
 
 	const vector<Node*>& short_Flat_Calc_Tree;
