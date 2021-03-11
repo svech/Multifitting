@@ -1,7 +1,13 @@
 #include "node.h"
 #include <iostream>
 #include <boost/math/quadrature/exp_sinh.hpp>
-#include <boost/math/special_functions/gamma.hpp>
+#include <gsl/gsl_sf_gamma.h>
+
+double gamma_q05(double z)
+{
+	if(z>50) return 0;
+	else	 return gsl_sf_gamma_inc(-0.5, z)/boost::math::tgamma(-0.5);
+}
 
 Node::Node()
 {
@@ -511,7 +517,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 		struct_Data.PSD_Real_Gauss_1D_Factor = 2*sqrt(M_PI) * sigma*sigma*xi;
 		struct_Data.PSD_Real_Gauss_2D_Factor = M_PI * sigma*sigma*xi*xi;		
 		if(peak_Frequ>DBL_EPSILON)
-			struct_Data.PSD_Gauss_Peak_2D_Factor = peak_Sigma*peak_Sigma/(peak_Frequ*peak_Width*pow(M_PI,1.5)*(2-boost::math::gamma_q(-0.5,peak_Frequ*peak_Frequ/peak_Width/peak_Width)));
+			struct_Data.PSD_Gauss_Peak_2D_Factor = peak_Sigma*peak_Sigma/(peak_Frequ*peak_Width*pow(M_PI,1.5)*(2-gamma_q05(peak_Frequ*peak_Frequ/(peak_Width*peak_Width))));
 		else
 			struct_Data.PSD_Gauss_Peak_2D_Factor = peak_Sigma*peak_Sigma/(M_PI*peak_Width*peak_Width);
 	}
@@ -1198,7 +1204,6 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 	if(!imperfections_Model.add_Gauss_Peak) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
 	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
-
 
 	qInfo() << struct_Data.PSD_Gauss_Peak_2D_Factor << endl;
 }
