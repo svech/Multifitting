@@ -179,6 +179,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 				}
 				close();
 				global_Multilayer_Approach->reopen_Table_Of_Structures(true);
+				global_Multilayer_Approach->reopen_Calculation_Settings(true);
 			}
 		} else
 		{
@@ -190,6 +191,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 			}
 			close();
 			global_Multilayer_Approach->reopen_Table_Of_Structures(true);
+			global_Multilayer_Approach->reopen_Calculation_Settings(true);
 		}
 	});
 }

@@ -383,7 +383,7 @@ Data::Data(QString item_Type_Passed)
 			roughness_Model.peak_Sigma.confidence.max = roughness_Model.peak_Sigma.fit.max;
 			roughness_Model.peak_Sigma.confidence.num_Points = default_num_confidence_points;
 		}
-		// PSD peak lateral size
+		// PSD peak frequency
 		{
 			roughness_Model.peak_Frequency.value   = default_roughness_peak_frequency;
 			roughness_Model.peak_Frequency.fit.is_Fitable = false;
@@ -397,7 +397,7 @@ Data::Data(QString item_Type_Passed)
 			roughness_Model.peak_Frequency.confidence.max = roughness_Model.peak_Frequency.fit.max;
 			roughness_Model.peak_Frequency.confidence.num_Points = default_num_confidence_points;
 		}
-		// PSD peak lateral size deviation
+		// PSD peak frequency width
 		{
 			roughness_Model.peak_Frequency_Width.value   = default_roughness_peak_frequency_width;
 			roughness_Model.peak_Frequency_Width.fit.is_Fitable = false;

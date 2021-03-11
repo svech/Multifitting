@@ -55,6 +55,12 @@ public:
 	gsl_spline* spline_PSD;
 	gsl_interp_accel* acc_PSD;
 
+	void create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model);
+	void clear_Spline_PSD_Peak (const Imperfections_Model& imperfections_Model);
+
+	gsl_spline* spline_PSD_Peak;
+	gsl_interp_accel* acc_PSD_Peak;
+
 	/// ------------------------------------------------
 
 	double G1_Type_Outer();

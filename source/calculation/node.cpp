@@ -1,6 +1,7 @@
 #include "node.h"
 #include <iostream>
 #include <boost/math/quadrature/exp_sinh.hpp>
+#include <boost/math/special_functions/gamma.hpp>
 
 Node::Node()
 {
@@ -501,10 +502,18 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 		double xi = struct_Data.roughness_Model.cor_radius.value;
 		double alpha = struct_Data.roughness_Model.fractal_alpha.value;
 
+		double peak_Sigma = struct_Data.roughness_Model.peak_Sigma.value;
+		double peak_Frequ = struct_Data.roughness_Model.peak_Frequency.value;
+		double peak_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
+
 		struct_Data.PSD_ABC_1D_Factor = 4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi;
 		struct_Data.PSD_ABC_2D_Factor = 4*M_PI * sigma*sigma * xi*xi * alpha;
 		struct_Data.PSD_Real_Gauss_1D_Factor = 2*sqrt(M_PI) * sigma*sigma*xi;
-		struct_Data.PSD_Real_Gauss_2D_Factor = M_PI * sigma*sigma*xi*xi;
+		struct_Data.PSD_Real_Gauss_2D_Factor = M_PI * sigma*sigma*xi*xi;		
+		if(peak_Frequ>DBL_EPSILON)
+			struct_Data.PSD_Gauss_Peak_2D_Factor = peak_Sigma*peak_Sigma/(peak_Frequ*peak_Width*pow(M_PI,1.5)*(2-boost::math::gamma_q(-0.5,peak_Frequ*peak_Frequ/peak_Width/peak_Width)));
+		else
+			struct_Data.PSD_Gauss_Peak_2D_Factor = peak_Sigma*peak_Sigma/(M_PI*peak_Width*peak_Width);
 	}
 }
 
@@ -663,9 +672,20 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 
 	// integration
 	vector<double> sigma_2(num_Points);
+	vector<double> peak_Sigma_2;
 	exp_sinh<double> sigma_Integrator;
 	double termination = sqrt(std::numeric_limits<double>::epsilon()), error, L1;
 
+	if(imperfections_Model.add_Gauss_Peak)
+	{
+		peak_Sigma_2.resize(num_Points);
+		double peak_Sigma = struct_Data.roughness_Model.peak_Sigma.value;
+		double peak_Frequ = struct_Data.roughness_Model.peak_Frequency.value;
+		double peak_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
+
+
+
+	}
 	if(imperfections_Model.PSD_Model == ABC_Model)
 	{
 		double sigma = struct_Data.roughness_Model.sigma.value;
@@ -691,7 +711,11 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 					sigma_2[i] = sigma*sigma;
 				}
 			}
-		}
+			if(imperfections_Model.add_Gauss_Peak)
+			{
+				sigma_2[i] += peak_Sigma_2[i];
+			}
+		}		
 	}
 	if(imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
@@ -765,14 +789,27 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 			{
 				sigma_2[i] = sigma*sigma;
 			}
+			if(imperfections_Model.add_Gauss_Peak)
+			{
+				sigma_2[i] += peak_Sigma_2[i];
+			}
 		}
 		gsl_spline_free(spline_Delta_Sigma_2);
 		gsl_interp_accel_free(acc_Delta_Sigma_2);
 	}
 	if(imperfections_Model.PSD_Model == measured_PSD)
 	{
-		// PSD_1D should be loaded
-		PSD_Data psd_Data   = imperfections_Model.PSD_1D;
+		// PSD_2D should be loaded if partial correlation, otherwise PSD_1D
+		PSD_Data psd_Data = imperfections_Model.vertical_Correlation == partial_Correlation ? imperfections_Model.PSD_2D : imperfections_Model.PSD_1D;
+		double sigma_Factor = imperfections_Model.vertical_Correlation == partial_Correlation ? struct_Data.roughness_Model.sigma_Factor_PSD_2D.value : struct_Data.roughness_Model.sigma_Factor_PSD_1D.value;
+		QVector<double> pi_nu(psd_Data.argument.size(),1);
+		if(imperfections_Model.vertical_Correlation == partial_Correlation)
+		{
+			for(int i=0; i<psd_Data.argument.size(); i++)
+			{
+				pi_nu[i] = 2*M_PI*psd_Data.value[i];
+			}
+		}
 
 		double min_Meas_p = psd_Data.argument.front();
 		double max_Meas_p = psd_Data.argument.back();
@@ -799,18 +836,18 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 
 				// first point
 				double dnu = psd_Data.argument[psd_Index] - p0[i] + (psd_Data.argument[psd_Index+1] - psd_Data.argument[psd_Index-1])/4;
-				sigma_2[i] += psd_Data.value[psd_Index]*dnu;
+				sigma_2[i] += psd_Data.value[psd_Index]*dnu*pi_nu[psd_Index];
 
 				// intermediate points
 				for(int integration_index = psd_Index+1; integration_index<psd_Data.argument.size()-1; integration_index++)
 				{
 					dnu = (psd_Data.argument[integration_index+1] - psd_Data.argument[integration_index-1])/2;
-					sigma_2[i] += psd_Data.value[integration_index]*dnu;
+					sigma_2[i] += psd_Data.value[integration_index]*dnu*pi_nu[integration_index];
 				}
 
 				// last point
 				dnu = psd_Data.argument[psd_Data.argument.size()-1] - psd_Data.argument[psd_Data.argument.size()-2];
-				sigma_2[i] += psd_Data.value[psd_Data.argument.size()-1]*dnu;
+				sigma_2[i] += psd_Data.value[psd_Data.argument.size()-1]*dnu*pi_nu[psd_Data.argument.size()-1];
 			} else
 			// p0[i]>max_Meas_p
 			{
@@ -818,10 +855,11 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 			}
 
 			// multiply by factor
-			double sigma_Factor = struct_Data.roughness_Model.sigma_Factor_PSD_1D.value;
 			sigma_2[i] *= sigma_Factor*sigma_Factor;
 		}
 	}
+
+
 
 	for(size_t i = 0; i<num_Points; ++i)
 	{
@@ -1153,6 +1191,26 @@ void Node::clear_Spline_PSD_Measured(const Imperfections_Model& imperfections_Mo
 
 	gsl_spline_free(spline_PSD);
 	gsl_interp_accel_free(acc_PSD);
+}
+
+void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model)
+{
+	if(!imperfections_Model.add_Gauss_Peak) return;
+	if(struct_Data.item_Type == item_Type_Ambient ) return;
+	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+
+
+	qInfo() << struct_Data.PSD_Gauss_Peak_2D_Factor << endl;
+}
+
+void Node::clear_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model)
+{
+	if(!imperfections_Model.add_Gauss_Peak) return;
+	if(struct_Data.item_Type == item_Type_Ambient ) return;
+	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+
+	gsl_spline_free(spline_PSD_Peak);
+	gsl_interp_accel_free(acc_PSD_Peak);
 }
 
 double Node::G1_Type_Outer()

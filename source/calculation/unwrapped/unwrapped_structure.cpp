@@ -18,6 +18,7 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 	depth_Grading	(depth_Grading),
 	sigma_Grading	(sigma_Grading),	
 	multilayer			 (multilayer),
+	imperfections_Model  (multilayer->imperfections_Model),
 	calc_Functions		 (calc_Functions),
 	media_Node_Map_Vector(media_Node_Map_Vector),
 	media_Data_Map_Vector(media_Data_Map_Vector),
@@ -141,14 +142,11 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 	enabled_Interlayer.resize(num_Boundaries);
 	boundary_Interlayer_Composition.resize(num_Boundaries, QVector<Interlayer>(transition_Layer_Functions_Size));
 
-	sigma_Roughness.resize(num_Boundaries);
-
 	for(int boundary_Index=0; boundary_Index<num_Boundaries; boundary_Index++)
 	{
 		int media_Index = boundary_Index+1;
 		sigma_Diffuse		[boundary_Index] = media_Data_Map_Vector[media_Index]->sigma_Diffuse.value;
 		common_Sigma_Diffuse[boundary_Index] = media_Data_Map_Vector[media_Index]->common_Sigma_Diffuse;
-		sigma_Roughness     [boundary_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.sigma.value;
 		enabled_Interlayer  [boundary_Index] = false;
 
 		// interlayers
@@ -177,12 +175,10 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 
 	// threaded copy
 	boundary_Interlayer_Composition_Threaded.resize(reflectivity_calc_threads);
-	sigma_Roughness_Threaded.resize(reflectivity_calc_threads);
 
 	for(int thread_Index=0; thread_Index<reflectivity_calc_threads; thread_Index++)
 	{
 		boundary_Interlayer_Composition_Threaded[thread_Index] = boundary_Interlayer_Composition;
-		sigma_Roughness_Threaded[thread_Index] = sigma_Roughness;
 	}
 }
 
@@ -226,20 +222,58 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
 	{
 		int media_Index = layer_Index+1;
-		sigma_Roughness [layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.sigma.value;
-		mu				[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.mu.value;
-		omega			[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.omega.value;
-		alpha			[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.fractal_alpha.value;
-		beta			[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.fractal_beta.value;
-		omega_pow23		[layer_Index] = pow(omega[layer_Index], (2*alpha[layer_Index]+2)/3); // for linear growth
+		if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
+		{
+			double s = media_Data_Map_Vector[media_Index]->roughness_Model.sigma.value;
+			sigma_Roughness [layer_Index] = s;
+			if(imperfections_Model.add_Gauss_Peak)
+			{
+				double p = media_Data_Map_Vector[media_Index]->roughness_Model.peak_Sigma.value;
+				sigma_Roughness [layer_Index] = sqrt(s*s + p*p);
+			}
+		}
+		mu			[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.mu.value;
+		omega		[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.omega.value;
+		alpha		[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.fractal_alpha.value;
+		beta		[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.fractal_beta.value;
+		omega_pow23	[layer_Index] = pow(omega[layer_Index], (2*alpha[layer_Index]+2)/3); // for linear growth
 	}
 	// substrate
-	sigma_Roughness [num_Layers] = media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma.value;
-	alpha           [num_Layers] = media_Data_Map_Vector[num_Layers+1]->roughness_Model.fractal_alpha.value;
+	if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
+	{
+		double s = media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma.value;
+		sigma_Roughness[num_Layers] = s;
+		if(imperfections_Model.add_Gauss_Peak)
+		{
+			double p = media_Data_Map_Vector[num_Layers+1]->roughness_Model.peak_Sigma.value;
+			sigma_Roughness[num_Layers] = sqrt(s*s + p*p);
+		}
+	}
+	if(imperfections_Model.PSD_Model == measured_PSD)
+	{
+		if( measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+			measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+			measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+			measurement.measurement_Type == measurement_Types[Offset_Scan]   )
+		{
+			if( imperfections_Model.vertical_Correlation == zero_Correlation ||
+				imperfections_Model.vertical_Correlation == full_Correlation ) {
+				sigma_Roughness[num_Layers] = imperfections_Model.PSD_1D.calc_Sigma_Effective() * media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma_Factor_PSD_1D.value;
+			}
+			if( imperfections_Model.vertical_Correlation == partial_Correlation )	{
+				sigma_Roughness[num_Layers] = imperfections_Model.PSD_2D.calc_Sigma_Effective() * media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma_Factor_PSD_2D.value;
+			}
+		}
+		if( measurement.measurement_Type == measurement_Types[GISAS_Map])
+		{
+			sigma_Roughness[num_Layers] = imperfections_Model.PSD_2D.calc_Sigma_Effective() * media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma_Factor_PSD_2D.value;
+		}
+	}
+	alpha[num_Layers] = media_Data_Map_Vector[num_Layers+1]->roughness_Model.fractal_alpha.value;
 
-	// common sigma for partial correlation with replication factor
-	if(multilayer->imperfections_Model.use_Common_Roughness_Function)
-	if(multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model)
+	// common sigma for partial correlation. for full correlation we use only substrate
+	if(imperfections_Model.use_Common_Roughness_Function)
+//	if(imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model) // for linear growth too, for a while
 	{
 		for(int boundary_Index=0; boundary_Index<num_Boundaries; boundary_Index++)
 		{

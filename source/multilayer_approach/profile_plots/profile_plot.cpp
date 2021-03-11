@@ -1703,49 +1703,49 @@ void Profile_Plot::get_Max_My_Sigma(QTreeWidgetItem* item, int periods_Factor)
 		}
 	}
 	// if using roughness
-	if( multilayer->profile_Plot_Options.apply_Roughness)
-	{
-		for(int i=0; i<item->childCount(); ++i)
-		{
-			Data struct_Data = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-			if(struct_Data.item_Enabled)
-			{
-				if(multilayer->imperfections_Model.PSD_Model == zero_Correlation && !multilayer->imperfections_Model.use_Common_Roughness_Function)
-				{
-					if(struct_Data.item_Type == item_Type_Layer   ||
-					   struct_Data.item_Type == item_Type_Substrate)
-					{
-						double sigma_Roughness = struct_Data.roughness_Model.sigma.value;
-						if(multilayer->imperfections_Model.add_Gauss_Peak)	{
-							sigma_Roughness = sqrt(pow(struct_Data.roughness_Model.sigma.value,2) + pow(struct_Data.roughness_Model.peak_Sigma.value,2));
-						}
-						max_Sigma = sqrt(max_Sigma*max_Sigma + sigma_Roughness*sigma_Roughness);
-					}
-				} else
-				// common roughness function or partial correlation => only substrate is accounted
-				{
-					if( struct_Data.item_Type == item_Type_Substrate)
-					{
-						double sigma_Roughness = struct_Data.roughness_Model.sigma.value;
-						if(multilayer->imperfections_Model.add_Gauss_Peak)	{
-							sigma_Roughness = sqrt(pow(struct_Data.roughness_Model.sigma.value,2) + pow(struct_Data.roughness_Model.peak_Sigma.value,2));
-						}
+//	if( multilayer->profile_Plot_Options.apply_Roughness)
+//	{
+//		for(int i=0; i<item->childCount(); ++i)
+//		{
+//			Data struct_Data = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+//			if(struct_Data.item_Enabled)
+//			{
+//				if(multilayer->imperfections_Model.PSD_Model == zero_Correlation && !multilayer->imperfections_Model.use_Common_Roughness_Function)
+//				{
+//					if(struct_Data.item_Type == item_Type_Layer   ||
+//					   struct_Data.item_Type == item_Type_Substrate)
+//					{
+//						double sigma_Roughness = struct_Data.roughness_Model.sigma.value;
+//						if(multilayer->imperfections_Model.add_Gauss_Peak)	{
+//							sigma_Roughness = sqrt(pow(struct_Data.roughness_Model.sigma.value,2) + pow(struct_Data.roughness_Model.peak_Sigma.value,2));
+//						}
+//						max_Sigma = sqrt(max_Sigma*max_Sigma + sigma_Roughness*sigma_Roughness);
+//					}
+//				} else
+//				// common roughness function or partial correlation => only substrate is accounted
+//				{
+//					if( struct_Data.item_Type == item_Type_Substrate)
+//					{
+//						double sigma_Roughness = struct_Data.roughness_Model.sigma.value;
+//						if(multilayer->imperfections_Model.add_Gauss_Peak)	{
+//							sigma_Roughness = sqrt(pow(struct_Data.roughness_Model.sigma.value,2) + pow(struct_Data.roughness_Model.peak_Sigma.value,2));
+//						}
 
-						if(multilayer->imperfections_Model.PSD_Model == measured_PSD)
-						{
-							QString PSD_Type;
-							if(multilayer->imperfections_Model.PSD_1D.argument.size()>2) {
-								PSD_Type = PSD_Type_1D;
-								sigma_Roughness = multilayer->imperfections_Model.PSD_1D.calc_Sigma_Effective()*struct_Data.roughness_Model.sigma_Factor_PSD_1D.value;
-							} else	{
-								PSD_Type = PSD_Type_2D;
-								sigma_Roughness = multilayer->imperfections_Model.PSD_2D.calc_Sigma_Effective()*struct_Data.roughness_Model.sigma_Factor_PSD_2D.value;
-							}
-						}
-						max_Sigma = sqrt(max_Sigma*max_Sigma + sigma_Roughness*sigma_Roughness);
-					}
-				}
-			}
-		}
-	}
+//						if(multilayer->imperfections_Model.PSD_Model == measured_PSD)
+//						{
+//							QString PSD_Type;
+//							if(multilayer->imperfections_Model.PSD_1D.argument.size()>2) {
+//								PSD_Type = PSD_Type_1D;
+//								sigma_Roughness = multilayer->imperfections_Model.PSD_1D.calc_Sigma_Effective()*struct_Data.roughness_Model.sigma_Factor_PSD_1D.value;
+//							} else	{
+//								PSD_Type = PSD_Type_2D;
+//								sigma_Roughness = multilayer->imperfections_Model.PSD_2D.calc_Sigma_Effective()*struct_Data.roughness_Model.sigma_Factor_PSD_2D.value;
+//							}
+//						}
+//						max_Sigma = sqrt(max_Sigma*max_Sigma + sigma_Roughness*sigma_Roughness);
+//					}
+//				}
+//			}
+//		}
+//	}
 }

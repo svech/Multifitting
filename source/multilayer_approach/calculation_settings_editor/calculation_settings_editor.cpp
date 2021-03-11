@@ -128,6 +128,8 @@ void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int ta
 
 		discretization_Group_Box_Vec.append(discretization_Group_Box);
 		load_Discretization_Parameters(tab_Index);
+		discretization_Group_Box->adjustSize();
+		discretization_Group_Box->setFixedHeight(discretization_Group_Box->height());
 	}
 	{
 		QGroupBox* roughness_Group_Box = new QGroupBox("Roughness", this);
@@ -138,6 +140,8 @@ void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int ta
 
 		roughness_Group_Box_Vec.append(roughness_Group_Box);
 		load_Roughness_Parameters(tab_Index);
+		roughness_Group_Box->adjustSize();
+		roughness_Group_Box->setFixedHeight(roughness_Group_Box->height());
 	}
 	{
 		QGroupBox* target_Group_Box = new QGroupBox("Measured", this);
@@ -149,6 +153,8 @@ void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int ta
 
 		target_Group_Box_Vec.append(target_Group_Box);
 		load_Target_Parameters(tab_Index);
+		target_Group_Box->adjustSize();
+		target_Group_Box->setFixedHeight(target_Group_Box->height());
 	}
 	{
 		QGroupBox* independent_Group_Box = new QGroupBox("Independent", this);
@@ -162,12 +168,33 @@ void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int ta
 		load_Independent_Parameters(tab_Index);
 	}
 
-	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 	int num_Curves_In_Row = 1;
-	int target_Curves	   = ceil(double(total_Number_of_Targets     [tab_Index])/double(multilayer->num_Target_Rows     ));
-	int independent_Curves = ceil(double(total_Number_of_Independents[tab_Index])/double(multilayer->num_Independent_Rows));
-	num_Curves_In_Row = max(num_Curves_In_Row, target_Curves);
-	num_Curves_In_Row = max(num_Curves_In_Row, independent_Curves);
+	for(int t_i=0; t_i<multilayer_Tabs->count(); t_i++)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(t_i));
+
+		// calculate total number of targets
+		total_Number_of_Targets[t_i] = 0;
+		for(Target_Curve* target_Curve: multilayer->target_Profiles_Vector)	{
+			if(target_Curve->loaded_And_Ready)	{
+				total_Number_of_Targets[t_i]++;
+			}
+		}
+		total_Number_of_Independents[t_i] = 0;
+		for(int independent_Index=0; independent_Index<multilayer->independent_Curve_Tabs->count(); ++independent_Index)
+		{
+			Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(independent_Index));
+			if(independent_Curve->measurement.measurement_Type != no_Measurement_Type)
+			{
+				total_Number_of_Independents[t_i]++;
+			}
+		}
+
+		int target_Curves	   = ceil(double(total_Number_of_Targets     [t_i])/double(multilayer->num_Target_Rows     ));
+		int independent_Curves = ceil(double(total_Number_of_Independents[t_i])/double(multilayer->num_Independent_Rows));
+		num_Curves_In_Row = max(num_Curves_In_Row, target_Curves);
+		num_Curves_In_Row = max(num_Curves_In_Row, independent_Curves);
+	}
 	if(num_Curves_In_Row > 1)
 		top_Layout->setDirection(QBoxLayout::LeftToRight);
 	else
@@ -337,7 +364,11 @@ void Calculation_Settings_Editor::load_Roughness_Parameters(int tab_Index)
 		reflectivity_Roughness_Group->addButton(perturbative_Radiobutton);
 		reflectivity_Roughness_Group->addButton(DW_Radiobutton);
 
+	bool disable_DWBA_SA_CSA =	multilayer->imperfections_Model.approximation != DWBA_approximation &&
+								multilayer->imperfections_Model.approximation != SA_approximation &&
+								multilayer->imperfections_Model.approximation != CSA_approximation;
 	QLabel* n_Max_Series_Label = new QLabel("Number of terms for\nDWBA, SA, CSA scattering");
+		n_Max_Series_Label->setDisabled(disable_DWBA_SA_CSA);
 	roughness_Layout->addWidget(n_Max_Series_Label);
 
 	QSpinBox* n_Max_Series_Spinbox = new QSpinBox;
@@ -346,6 +377,7 @@ void Calculation_Settings_Editor::load_Roughness_Parameters(int tab_Index)
 		n_Max_Series_Spinbox->setValue(multilayer->imperfections_Model.DWBA_n_Max_Series);
 		n_Max_Series_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		n_Max_Series_Spinbox->setFixedWidth(40);
+		n_Max_Series_Spinbox->setDisabled(disable_DWBA_SA_CSA);
 	roughness_Layout->addWidget(n_Max_Series_Spinbox);
 	connect(n_Max_Series_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 	{

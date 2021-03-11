@@ -41,6 +41,7 @@ public:
 	bool sigma_Grading;
 
 	Multilayer* multilayer;
+	Imperfections_Model& imperfections_Model;
 	const Calc_Functions& calc_Functions;
 	const vector<Node*>& media_Node_Map_Vector;
 	const vector<Data*>& media_Data_Map_Vector;
