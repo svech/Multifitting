@@ -1,7 +1,6 @@
 #include "node.h"
-#include <iostream>
-#include <boost/math/quadrature/exp_sinh.hpp>
 #include <gsl/gsl_sf_gamma.h>
+#include <iostream>
 
 double gamma_q05(double z)
 {
@@ -20,7 +19,7 @@ Node::Node(QTreeWidgetItem* item):
 	//	qInfo() << "NODE" << struct_Data.item_Type << endl;
 }
 
-void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, bool depth_Grading, bool inconvenient_Approximation, bool sigma_Grading, bool enable_Discretization, QString mode)
+void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, bool depth_Grading, bool inconvenient_Approximation, bool sigma_Grading, bool enable_Discretization, const Imperfections_Model& imperfections_Model, QString mode)
 {				
 //	struct_Data.relative_Density.value = max(struct_Data.relative_Density.value, DBL_EPSILON); // crutch
 
@@ -509,15 +508,29 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 		double alpha = struct_Data.roughness_Model.fractal_alpha.value;
 
 		double peak_Sigma = struct_Data.roughness_Model.peak_Sigma.value;
-		double peak_Frequ = struct_Data.roughness_Model.peak_Frequency.value;
+		double peak_Frequency = struct_Data.roughness_Model.peak_Frequency.value;
 		double peak_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
 
 		struct_Data.PSD_ABC_1D_Factor = 4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi;
 		struct_Data.PSD_ABC_2D_Factor = 4*M_PI * sigma*sigma * xi*xi * alpha;
 		struct_Data.PSD_Real_Gauss_1D_Factor = 2*sqrt(M_PI) * sigma*sigma*xi;
-		struct_Data.PSD_Real_Gauss_2D_Factor = M_PI * sigma*sigma*xi*xi;		
-		if(peak_Frequ>DBL_EPSILON)
-			struct_Data.PSD_Gauss_Peak_2D_Factor = peak_Sigma*peak_Sigma/(peak_Frequ*peak_Width*pow(M_PI,1.5)*(2-gamma_q05(peak_Frequ*peak_Frequ/(peak_Width*peak_Width))));
+		struct_Data.PSD_Real_Gauss_2D_Factor = M_PI * sigma*sigma*xi*xi;
+
+		// only for cases when we need factor
+		// for splines we don't
+		if(imperfections_Model.PSD_Model == ABC_Model)
+		{
+			struct_Data.main_PSD_1D_factor = struct_Data.PSD_ABC_1D_Factor;
+			struct_Data.main_PSD_2D_factor = struct_Data.PSD_ABC_2D_Factor;
+		}
+		if(imperfections_Model.PSD_Model == fractal_Gauss_Model)
+		{
+			struct_Data.main_PSD_1D_factor = struct_Data.PSD_Real_Gauss_1D_Factor;
+			struct_Data.main_PSD_2D_factor = struct_Data.PSD_Real_Gauss_2D_Factor;
+		}
+
+		if(peak_Frequency>DBL_EPSILON)
+			struct_Data.PSD_Gauss_Peak_2D_Factor = peak_Sigma*peak_Sigma/(peak_Width*peak_Frequency*pow(M_PI,1.5)*(2-gamma_q05(peak_Frequency*peak_Frequency/(peak_Width*peak_Width))));
 		else
 			struct_Data.PSD_Gauss_Peak_2D_Factor = peak_Sigma*peak_Sigma/(M_PI*peak_Width*peak_Width);
 	}
@@ -1199,13 +1212,96 @@ void Node::clear_Spline_PSD_Measured(const Imperfections_Model& imperfections_Mo
 	gsl_interp_accel_free(acc_PSD);
 }
 
+struct Frequency_Params
+{
+	double* pa;
+	double peak_Frequency;
+	double peak_Width;
+};
+double func(double nu, void* par)
+{
+	Frequency_Params* params = reinterpret_cast<Frequency_Params*>(par);
+	double& p = *(params->pa);
+	double& peak_Frequency = params->peak_Frequency;
+	double& peak_Width = params->peak_Width;
+
+	return exp(-pow((nu-peak_Frequency)/peak_Width,2)) * nu / sqrt(nu*nu - p*p);
+}
+
 void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model)
 {
 	if(!imperfections_Model.add_Gauss_Peak) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
 	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
 
-	qInfo() << struct_Data.PSD_Gauss_Peak_2D_Factor << endl;
+	double peak_Range_Factor = 10;
+	double peak_Frequency = struct_Data.roughness_Model.peak_Frequency.value;
+	double peak_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
+
+	double p_Max = peak_Frequency + peak_Width*peak_Range_Factor;
+
+	int common_Size = 1000;
+	QVector<double> interpoints_Argum_Vec(common_Size);
+	QVector<double> interpoints_Value_Vec(common_Size);
+	double dp = p_Max/(common_Size-1);
+
+	// boost integrator
+	double p = 0;
+	if(peak_Frequency>DBL_EPSILON)
+	{
+		gsl_integration_workspace* w = gsl_integration_workspace_alloc(1000);
+
+		double result, abserr;
+		double epsabs = 0;
+		double epsrel = 1E-7;
+		size_t limit = 1000;
+
+		Frequency_Params frequency_Params;
+		frequency_Params.pa = &p;
+		frequency_Params.peak_Frequency = peak_Frequency;
+		frequency_Params.peak_Width = peak_Width;
+
+		gsl_function F;
+		F.function = &func;
+		F.params = &frequency_Params;
+
+		size_t npts = 2;
+		vector<double> pts = {p, p_Max};
+
+		// first point
+		interpoints_Argum_Vec[0] = 0;
+		interpoints_Value_Vec[0] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * 0.5*peak_Width*SQRT_PI * (1+erf(peak_Frequency/peak_Width));
+		// intermediate points (excepting point p==p_Max)
+		for(int i=1; i<common_Size-1; i++)
+		{
+			p += dp;
+			interpoints_Argum_Vec[i] = p;
+
+			pts[0] = p;
+			gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
+			interpoints_Value_Vec[i] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * result;
+		}
+		gsl_integration_workspace_free (w);
+	} else
+	// usual gauss
+	{
+		// first and intermediate points (excepting point p==p_Max)
+		for(int i=0; i<common_Size-1; i++)
+		{
+			interpoints_Argum_Vec[i] = p;
+			interpoints_Value_Vec[i] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * 0.5*peak_Width*SQRT_PI * exp(-pow(p/peak_Width,2));
+			p += dp;
+		}
+	}
+	// last 2 points
+	interpoints_Argum_Vec.back() = p_Max;
+	interpoints_Value_Vec.back() = 0;
+	interpoints_Argum_Vec.append(MAX_DOUBLE);
+	interpoints_Value_Vec.append(0);
+
+	acc_PSD_Peak = gsl_interp_accel_alloc();
+	spline_PSD_Peak = gsl_spline_alloc(gsl_interp_steffen, interpoints_Value_Vec.size());
+	gsl_spline_init(spline_PSD_Peak, interpoints_Argum_Vec.data(), interpoints_Value_Vec.data(), interpoints_Value_Vec.size());
 }
 
 void Node::clear_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model)

@@ -586,7 +586,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 		bool inconvenient_Approximation = (multilayer->imperfections_Model.approximation == DWBA_approximation ||
 										   multilayer->imperfections_Model.approximation == SA_approximation   ||
 										   multilayer->imperfections_Model.approximation == CSA_approximation  ) && (measurement.measurement_Type != measurement_Types[Specular_Scan]);
-		flat_Calc_Tree[node_Index]->calculate_Intermediate_Points(measurement, above_Node, depth_Grading, sigma_Grading, inconvenient_Approximation, multilayer->discretization_Parameters.enable_Discretization, mode);
+		flat_Calc_Tree[node_Index]->calculate_Intermediate_Points(measurement, above_Node, depth_Grading, sigma_Grading, inconvenient_Approximation, multilayer->discretization_Parameters.enable_Discretization, multilayer->imperfections_Model, mode);
 	}
 	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
 	{
@@ -604,6 +604,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 					// case check inside
 					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(measurement, multilayer->imperfections_Model);
 					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Measured(multilayer->imperfections_Model, PSD_Type_1D);
+					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Peak(multilayer->imperfections_Model);
 				}
 				// 2D spline for 2D scans of for 1D scans with partial correlation
 				if(measurement.measurement_Type == measurement_Types[GISAS_Map] ||
@@ -645,6 +646,15 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 				{
 					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Fractal_Gauss(multilayer->imperfections_Model);
 					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Measured(multilayer->imperfections_Model);
+				}
+				// 1D spline only for full- or zero-correlated 1D scans
+				if((measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+					measurement.measurement_Type == measurement_Types[Offset_Scan]) &&
+				   (multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
+					multilayer->imperfections_Model.vertical_Correlation == zero_Correlation))
+				{
+					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Peak(multilayer->imperfections_Model);
 				}
 			}
 			if(multilayer->imperfections_Model.use_Fluctuations)

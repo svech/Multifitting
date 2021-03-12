@@ -320,7 +320,7 @@ public:
 	static double get_Max_Sigma_From_Interlayer_Composition(QVector<Interlayer>& interlayer_Composition);
 //	static double layer_Normalization_GSL(double thickness, QVector<Interlayer>& left_Interlayer_Composition, QVector<Interlayer>& right_Interlayer_Composition, gsl_integration_workspace* w);
 	static double layer_Normalization(double thickness, QVector<Interlayer>& left_Interlayer_Composition, QVector<Interlayer>& right_Interlayer_Composition);
-	static double normalize_Interlayer(Data& struct_Data);
+	static void normalize_Interlayer(Data& struct_Data);
 
 	// beam profile
 	static double beam_Profile(double x, double FWHM, double smoothing);
@@ -354,14 +354,17 @@ public:
 	static double PSD_Real_Gauss_2D		 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Fractal_Gauss_1D	 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Fractal_Gauss_2D	 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
+	static double PSD_Gauss_Peak_1D		 (double factor, double peak_Frequency, double peak_Width, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
+	static double PSD_Gauss_Peak_2D		 (double factor, double peak_Frequency, double peak_Width, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Measured_1D		 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Measured_2D		 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 	static double no_PSD_at_all_1D		 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
+	static double zero_PSD_1D			 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
 	static double no_PSD_at_all_2D		 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
+	static double zero_PSD_2D			 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 
 	static double Cor_Fractal_Gauss		 (				 double xi, double alpha, double r);
 	static double Cor_ABC				 (				 double xi, double alpha, double r);
-	static double splined_Value_1D		 (                                        double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
 
 	static double nu_Alpha_2D			 (              double nu0, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
 	static double nu_Beta_2D			 (				double nu0, double beta,  double k, double cos_Theta, double cos_Theta_0, double cos_Phi);

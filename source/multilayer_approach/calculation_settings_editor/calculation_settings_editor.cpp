@@ -342,6 +342,7 @@ void Calculation_Settings_Editor::load_Roughness_Parameters(int tab_Index)
 
 	QRadioButton* DW_Radiobutton = new QRadioButton("Debye-Waller R");
 		DW_Radiobutton->setChecked(multilayer->imperfections_Model.reflectivity_With_Roughness == Debye_Waller_R);
+		DW_Radiobutton->setDisabled(true);
 	radiobutton_Layout->addWidget(DW_Radiobutton);
 	connect(DW_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
@@ -352,6 +353,7 @@ void Calculation_Settings_Editor::load_Roughness_Parameters(int tab_Index)
 	});
 	QRadioButton* perturbative_Radiobutton = new QRadioButton("Perturbative R");
 		perturbative_Radiobutton->setChecked(multilayer->imperfections_Model.reflectivity_With_Roughness == perturbative_R);
+		perturbative_Radiobutton->setDisabled(true);
 	radiobutton_Layout->addWidget(perturbative_Radiobutton);
 	connect(perturbative_Radiobutton, &QRadioButton::toggled, this, [=]
 	{

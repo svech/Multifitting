@@ -116,7 +116,9 @@ public:
 		double PSD_ABC_2D_Factor;			// without saving
 		double PSD_Real_Gauss_1D_Factor;	// without saving
 		double PSD_Real_Gauss_2D_Factor;	// without saving
-		double PSD_Gauss_Peak_2D_Factor;	// without saving
+		double PSD_Gauss_Peak_2D_Factor;	// without saving		
+		double main_PSD_1D_factor;			// without saving
+		double main_PSD_2D_factor;			// without saving
 
 		double average_Layer_density() const;
 	///---------------------------------------------
