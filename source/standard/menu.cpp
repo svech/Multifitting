@@ -49,6 +49,8 @@ void Menu::add_Menu_Points()
 			menu_Bar->addMenu(calculate_Menu);
 		create_Length_Units_Menu();
 			menu_Bar->addMenu(menu_Length_Units);
+		create_Frequency_Units_Menu();
+			menu_Bar->addMenu(menu_Frequency_Units);
 		create_Table_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
@@ -322,7 +324,7 @@ void Menu::create_Length_Units_Menu()
 {
 	// PARAMETER
 
-	menu_Length_Units = new QMenu("Lengths units", this);
+	menu_Length_Units = new QMenu("Length units", this);
 	{
 		QActionGroup* group_Act_Unit = new QActionGroup(this);
 			group_Act_Unit->setExclusive(true);
@@ -338,6 +340,37 @@ void Menu::create_Length_Units_Menu()
 
 			menu_Length_Units->addAction(act_Unit);
 			connect(act_Unit,  &QAction::triggered, this, &Menu::set_Length_Unit);
+		}
+	}
+}
+
+void Menu::create_Frequency_Units_Menu()
+{
+	// PARAMETER
+
+	menu_Frequency_Units = new QMenu("Frequency units", this);
+	{
+		QActionGroup* group_Act_Unit = new QActionGroup(this);
+			group_Act_Unit->setExclusive(true);
+
+		for(int index=0; index<spatial_Frequency_Units_List.size(); index++)
+		{
+			QAction* act_Unit = new QAction(spatial_Frequency_Units_List[index], this);
+				act_Unit->setProperty(index_Property, index);
+				act_Unit->setCheckable(true);
+				act_Unit->setActionGroup(group_Act_Unit);
+
+				if(spatial_Frequency_Units_List[index] == spatial_frequency_units) act_Unit->setChecked(true);
+
+			menu_Frequency_Units->addAction(act_Unit);
+			connect(act_Unit,  &QAction::triggered, this, [=]
+			{
+				int index = sender()->property(index_Property).toInt();
+				//-------------------------------------------------
+				spatial_frequency_units = spatial_Frequency_Units_List[index];
+				//-------------------------------------------------
+				emit refresh();
+			});
 		}
 	}
 }

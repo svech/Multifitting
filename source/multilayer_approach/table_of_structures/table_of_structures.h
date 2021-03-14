@@ -63,6 +63,8 @@ public:
 	// for measured PSD
 	void create_PSD_Load_Button					(My_Table_Widget* table,                int current_Row, int current_Column,								  Multilayer* multilayer, QString PSD_Type, MyDoubleSpinBox* PSD_Sigma_Lineedit);
 	MyDoubleSpinBox* create_PSD_Sigma_Lineedit	(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, Multilayer* multilayer, QString PSD_Type);
+	void create_Nu0_Label	 (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column);
+	void create_Nu0_Spin_Box (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column);
 
 	// for regular aperiodic
 	void create_Thickness_Restriction(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
@@ -80,7 +82,7 @@ public:
 	void create_MySigma_Line_Edits_Interlayer	(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
 
 	// min/max
-	void create_Simple_Label	 (My_Table_Widget* table, int tab_Index,				 int current_Row, int current_Column, QString whats_This, QString text);
+	void create_Simple_Label	 (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This, QString text);
 	void create_Min_Max_Button	 (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This);
 	void create_Min_Max_Spin_Box (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This);
 
@@ -161,8 +163,8 @@ public:
 	void emit_Data_Edited();
 
 public slots:
-	void reload_All_Widgets(QObject* sender = nullptr);
-	void reload_One_Widget (QWidget* widget_To_Reload);
+	void reload_All_Widgets(bool reload_Disabled = false, QObject* sender = nullptr);
+	void reload_One_Widget (QWidget* widget_To_Reload, bool reload_Disabled = false);
 	void reload_Related_Widgets(QObject* sender = nullptr);
 	void reload_Min_Max_Line_Edits(QString whats_This);
 

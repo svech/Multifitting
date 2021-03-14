@@ -100,7 +100,7 @@ void Table_Of_Structures::create_Menu()
 	main_Layout->setMenuBar(menu->menu_Bar);
 	connect(menu, &Menu::refresh, this, [=]
 	{
-		reload_All_Widgets();
+		reload_All_Widgets(true);
 
 		// in other tabs
 		for(int tab_Index = 0; tab_Index<main_Tabs->count(); tab_Index++)
@@ -112,7 +112,7 @@ void Table_Of_Structures::create_Menu()
 					QWidget* widget_To_Reload = all_Widgets_To_Reload[tab_Index][i];
 					if(widget_To_Reload != nullptr)
 					{
-						reload_One_Widget(widget_To_Reload);
+						reload_One_Widget(widget_To_Reload, true);
 					}
 				}
 			}
@@ -1204,14 +1204,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				// last
 				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
 
-				/// (adaptive step instead of fixed)
-//				// mu step
-//				if(!steps_Are_Done_Mu)
-//				{
-//					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Mu_Sym+" ["+length_units+"]");
-//					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
-//					steps_Are_Done_Mu = true;
-//				}
+				/// here we put nu0 for correlation depth
+				// nu0 value
+				{
+					create_Nu0_Label	(new_Table,	tab_Index, steps_Row,   current_Column);
+					create_Nu0_Spin_Box (new_Table, tab_Index, steps_Row+1, current_Column);
+				}
 				last_Roughness_Column = max(current_Column,last_Roughness_Column);
 				current_Column+=2;
 			}
@@ -1433,7 +1431,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				QString whats_This = whats_This_Roughness_Peak_Frequency;
 				add_Columns			(new_Table, current_Column+1);
-				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Nu_Sym+" ["+Mu_Sym+"m"+Minus_One_Sym+"]");
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Nu_Sym+" ["+spatial_frequency_units+"]");
 				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
@@ -1473,7 +1471,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				QString whats_This = whats_This_Roughness_Peak_Frequency_Width;
 				add_Columns			(new_Table, current_Column+1);
-				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Delta_Small_Sym+Nu_Sym+" ["+Mu_Sym+"m"+Minus_One_Sym+"]");
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Delta_Small_Sym+Nu_Sym+" ["+spatial_frequency_units+"]");
 				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
@@ -2063,17 +2061,17 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)					{precision = line_edit_drift_precision;					coeff = 1;						return struct_Data.sigma_Diffuse_Drift.drift_Sine_Phase;		 }
 
 	// roughness
-	if(whats_This == whats_This_Sigma_Roughness)						{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.sigma;				}
-	if(whats_This == whats_This_Correlation_Radius)						{precision = line_edit_cor_radius_precision;			coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.cor_radius;			}
-	if(whats_This == whats_This_Fractal_Alpha)							{precision = line_edit_fractal_alpha_precision;			coeff = 1;												return struct_Data.roughness_Model.fractal_alpha;		}
-	if(whats_This == whats_This_Linear_PSD_Omega)						{precision = line_edit_omega_precision;					coeff = pow(length_Coefficients_Map.value(length_units),3);	return struct_Data.roughness_Model.omega;			}
-	if(whats_This == whats_This_PSD_Exponenta_Mu)						{precision = line_edit_mu_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.mu;					}
-	if(whats_This == whats_This_Fractal_Beta)							{precision = line_edit_fractal_alpha_precision;			coeff = 1;												return struct_Data.roughness_Model.fractal_beta;		}
-	if(whats_This == whats_This_Roughness_Peak_Sigma)					{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.peak_Sigma;			}
-	if(whats_This == whats_This_Roughness_Peak_Frequency)				{precision = line_edit_frequency_precision;				coeff = 1;												return struct_Data.roughness_Model.peak_Frequency;		}
-	if(whats_This == whats_This_Roughness_Peak_Frequency_Width)			{precision = line_edit_frequency_precision;				coeff = 1;												return struct_Data.roughness_Model.peak_Frequency_Width;}
-	if(whats_This == whats_This_Sigma_Factor_PSD_1D)					{precision = line_edit_psd_factor_precision;			coeff = 1;												return struct_Data.roughness_Model.sigma_Factor_PSD_1D; }
-	if(whats_This == whats_This_Sigma_Factor_PSD_2D)					{precision = line_edit_psd_factor_precision;			coeff = 1;												return struct_Data.roughness_Model.sigma_Factor_PSD_2D; }
+	if(whats_This == whats_This_Sigma_Roughness)						{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);						return struct_Data.roughness_Model.sigma;				}
+	if(whats_This == whats_This_Correlation_Radius)						{precision = line_edit_cor_radius_precision;			coeff = length_Coefficients_Map.value(length_units);						return struct_Data.roughness_Model.cor_radius;			}
+	if(whats_This == whats_This_Fractal_Alpha)							{precision = line_edit_fractal_alpha_precision;			coeff = 1;																	return struct_Data.roughness_Model.fractal_alpha;		}
+	if(whats_This == whats_This_Linear_PSD_Omega)						{precision = line_edit_omega_precision;					coeff = pow(length_Coefficients_Map.value(length_units),3);					return struct_Data.roughness_Model.omega;			}
+	if(whats_This == whats_This_PSD_Exponenta_Mu)						{precision = line_edit_mu_precision;					coeff = length_Coefficients_Map.value(length_units);						return struct_Data.roughness_Model.mu;					}
+	if(whats_This == whats_This_Fractal_Beta)							{precision = line_edit_fractal_alpha_precision;			coeff = 1;																	return struct_Data.roughness_Model.fractal_beta;		}
+	if(whats_This == whats_This_Roughness_Peak_Sigma)					{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);						return struct_Data.roughness_Model.peak_Sigma;			}
+	if(whats_This == whats_This_Roughness_Peak_Frequency)				{precision = line_edit_frequency_precision;				coeff = spatial_Frequency_Coefficients_Map.value(spatial_frequency_units);	return struct_Data.roughness_Model.peak_Frequency;		}
+	if(whats_This == whats_This_Roughness_Peak_Frequency_Width)			{precision = line_edit_frequency_precision;				coeff = spatial_Frequency_Coefficients_Map.value(spatial_frequency_units);	return struct_Data.roughness_Model.peak_Frequency_Width;}
+	if(whats_This == whats_This_Sigma_Factor_PSD_1D)					{precision = line_edit_psd_factor_precision;			coeff = 1;																	return struct_Data.roughness_Model.sigma_Factor_PSD_1D; }
+	if(whats_This == whats_This_Sigma_Factor_PSD_2D)					{precision = line_edit_psd_factor_precision;			coeff = 1;																	return struct_Data.roughness_Model.sigma_Factor_PSD_2D; }
 
 	// density fluctuations
 	if(whats_This == whats_This_Particle_Absolute_Density)		{precision = line_edit_density_precision;	coeff = 1;												return struct_Data.fluctuations_Model.particle_Absolute_Density;			}
@@ -3210,6 +3208,89 @@ MyDoubleSpinBox* Table_Of_Structures::create_PSD_Sigma_Lineedit(My_Table_Widget*
 	table->setCellWidget(current_Row, current_Column, spin_Box);
 
 	return spin_Box;
+}
+
+void Table_Of_Structures::create_Nu0_Label(My_Table_Widget *table, int tab_Index, int current_Row, int current_Column)
+{
+	// PARAMETER
+
+	add_Columns(table,current_Column);
+
+	QLabel* label = new QLabel(Nu_Sym+Zero_Subscript_Sym+" ["+spatial_frequency_units+"]");
+		label->setAlignment(Qt::AlignCenter);
+		label->setStyleSheet("background-color: lightblue");
+	all_Widgets_To_Reload[tab_Index].append(label);
+
+	// add widget to table
+	table->setCellWidget(current_Row, current_Column, label);
+
+	// for reloading
+	label->setProperty(reload_Property, false);
+	label->setProperty(tab_Index_Property, tab_Index);
+
+	connect(label, &QLabel::windowTitleChanged, this, [=]
+	{
+		label->setText(Nu_Sym+Zero_Subscript_Sym+" ["+spatial_frequency_units+"]");
+	});
+}
+
+void Table_Of_Structures::create_Nu0_Spin_Box(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column)
+{
+	add_Columns(table,current_Column);
+	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+
+	double arg_Coeff = spatial_Frequency_Coefficients_Map.value(spatial_frequency_units);
+
+	MyDoubleSpinBox* vertical_Inheritance_Roughness_Frequency_Spinbox = new MyDoubleSpinBox;//(nullptr,false);
+		vertical_Inheritance_Roughness_Frequency_Spinbox->setAccelerated(true);
+		vertical_Inheritance_Roughness_Frequency_Spinbox->setRange(1E-7/arg_Coeff, MAX_DOUBLE);
+		vertical_Inheritance_Roughness_Frequency_Spinbox->setValue(multilayer->imperfections_Model.vertical_Inheritance_Frequency/arg_Coeff); // from A^-1 to spatial_frequency_units
+		vertical_Inheritance_Roughness_Frequency_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+		vertical_Inheritance_Roughness_Frequency_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		vertical_Inheritance_Roughness_Frequency_Spinbox->setProperty(reload_Property, false);
+		vertical_Inheritance_Roughness_Frequency_Spinbox->setProperty(tab_Index_Property, tab_Index);
+		vertical_Inheritance_Roughness_Frequency_Spinbox->setProperty(min_Size_Property,TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+	all_Widgets_To_Reload[tab_Index].append(vertical_Inheritance_Roughness_Frequency_Spinbox);
+
+	{
+		double ff = vertical_Inheritance_Roughness_Frequency_Spinbox->value();
+		if(            ff<1E-5)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(7);
+		if(ff>=1E-5 && ff<1E-4)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(6);
+		if(ff>=1E-4 && ff<1E-3)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(5);
+		if(ff>=1E-3 && ff<1E0)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(4);
+		if(ff>=1    && ff<10)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(3);
+		if(ff>=10)				vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(2);
+		fit_Column(table, 0, current_Column);
+	}
+
+	// add widget to table
+	table->setCellWidget(current_Row, current_Column, vertical_Inheritance_Roughness_Frequency_Spinbox);
+
+	connect(vertical_Inheritance_Roughness_Frequency_Spinbox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+	{
+		double arg_Coeff = spatial_Frequency_Coefficients_Map.value(spatial_frequency_units);
+		if(vertical_Inheritance_Roughness_Frequency_Spinbox->property(reload_Property).toBool())
+		{
+			vertical_Inheritance_Roughness_Frequency_Spinbox->blockSignals(true);
+			vertical_Inheritance_Roughness_Frequency_Spinbox->setValue(multilayer->imperfections_Model.vertical_Inheritance_Frequency/arg_Coeff); // from A^-1 to spatial_frequency_units
+			vertical_Inheritance_Roughness_Frequency_Spinbox->blockSignals(false);
+		} else
+		{
+			multilayer->imperfections_Model.vertical_Inheritance_Frequency = vertical_Inheritance_Roughness_Frequency_Spinbox->value()*arg_Coeff; // from spatial_frequency_units to A^-1
+			if(recalculate_spinbox_structure_table) {global_Multilayer_Approach->calculate(true);}
+		}
+		{
+			double ff = vertical_Inheritance_Roughness_Frequency_Spinbox->value();
+			if(            ff<1E-5)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(7);
+			if(ff>=1E-5 && ff<1E-4)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(6);
+			if(ff>=1E-4 && ff<1E-3)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(5);
+			if(ff>=1E-3 && ff<1E0)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(4);
+			if(ff>=1    && ff<10)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(3);
+			if(ff>=10)				vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(2);
+			fit_Column(table, 0, current_Column);
+		}
+	});
+//	vertical_Inheritance_Roughness_Frequency_Spinbox->valueChanged(multilayer->imperfections_Model.vertical_Inheritance_Frequency/arg_Coeff);
 }
 
 void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, int current_Row, int current_Column, QTreeWidgetItem *structure_Item)
@@ -5133,6 +5214,8 @@ void Table_Of_Structures::refresh_Header(QString)
 			if(whats_This == whats_This_Linear_PSD_Omega)					label->setText(Omega_Big_Sym+" ["+length_units+Cube_Sym+"]");
 			if(whats_This == whats_This_PSD_Exponenta_Mu)					label->setText(Mu_Sym+" ["+length_units+"]");
 			if(whats_This == whats_This_Roughness_Peak_Sigma)				label->setText(Sigma_Sym+Subscript_v_Sym+" ["+length_units+"]");
+			if(whats_This == whats_This_Roughness_Peak_Frequency 	)		label->setText(                Nu_Sym+" ["+spatial_frequency_units+"]");
+			if(whats_This == whats_This_Roughness_Peak_Frequency_Width 	)	label->setText(Delta_Small_Sym+Nu_Sym+" ["+spatial_frequency_units+"]");
 
 			if(whats_This == whats_This_Particle_Radius)					label->setText("R ["+length_units+"]");
 			if(whats_This == whats_This_Particle_Height)					label->setText("H ["+length_units+"]");
@@ -6215,6 +6298,7 @@ void Table_Of_Structures::cells_On_Off(My_Table_Widget* table, bool borders, boo
 	int column_Finish = min(check_Box->property(relative_Columns_To_Disable_Finish_Property).toInt(), table->columnCount()-1);
 
 	for(int row=row_Start; row<=row_Finish; ++row)
+	{
 		for(int col=column_Start; col<=column_Finish; ++col)
 		{
 			QWidget* widget = table->cellWidget(current_Row+row,current_Column+col);
@@ -6241,6 +6325,7 @@ void Table_Of_Structures::cells_On_Off(My_Table_Widget* table, bool borders, boo
 				}
 			}
 		}
+	}
 }
 
 void Table_Of_Structures::cells_On_Off_2(My_Table_Widget* table, QTreeWidgetItem* structure_Item)
@@ -6287,7 +6372,7 @@ void Table_Of_Structures::resize_Line_Edit(My_Table_Widget* table, Type* line_Ed
 template void Table_Of_Structures::resize_Line_Edit<QLineEdit>		 (My_Table_Widget* , QLineEdit* );
 template void Table_Of_Structures::resize_Line_Edit<MyDoubleSpinBox> (My_Table_Widget* , MyDoubleSpinBox* );
 
-void Table_Of_Structures::reload_All_Widgets(QObject* sender)
+void Table_Of_Structures::reload_All_Widgets(bool reload_Disabled, QObject* sender)
 {
 	if(table_Is_Created)
 	{
@@ -6302,13 +6387,13 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 			QWidget* widget_To_Reload = all_Widgets_To_Reload[current_Tab_Index][i];
 			if(widget_To_Reload != sender)
 			{
-				reload_One_Widget(widget_To_Reload);
+				reload_One_Widget(widget_To_Reload, reload_Disabled);
 			}
 		}
 	}
 }
 
-void Table_Of_Structures::reload_One_Widget(QWidget* widget_To_Reload)
+void Table_Of_Structures::reload_One_Widget(QWidget* widget_To_Reload, bool reload_Disabled)
 {
 //	qInfo() << "reload_One_Widget"<<++temp_Counter << endl;
 	// reload dependences and color
@@ -6328,7 +6413,7 @@ void Table_Of_Structures::reload_One_Widget(QWidget* widget_To_Reload)
 	}
 
 	// do not reload disabled widgets
-	if(!widget_To_Reload->property(enabled_Property).toBool())	return;
+	if(!reload_Disabled && !widget_To_Reload->property(enabled_Property).toBool())	return;
 
 	widget_To_Reload->setProperty(reload_Property, true);
 

@@ -39,6 +39,7 @@ public:
 		void create_Item_Precision_Menu();
 
 		void create_Length_Units_Menu();
+		void create_Frequency_Units_Menu();
 		void create_Table_Precision_Menu();
 
 //// menu actions
@@ -76,6 +77,7 @@ public:
 		QMenu* help_Menu;
 		QMenu* menu_Wavelength_Units;
 		QMenu* menu_Length_Units;
+		QMenu* menu_Frequency_Units;
 		QMenu* precision_Menu;
 			QMenu* menu_Density;
 			QMenu* menu_Lengths;

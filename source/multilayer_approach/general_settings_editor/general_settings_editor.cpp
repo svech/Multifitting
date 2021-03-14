@@ -284,12 +284,12 @@ void General_Settings_Editor::create_Output_Tab()
 
 		QComboBox* PSD_Argument_Units_Combobox = new QComboBox;
 			PSD_Argument_Units_Combobox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-			PSD_Argument_Units_Combobox->addItems(PSD_Argument_Units_List);
-			PSD_Argument_Units_Combobox->setCurrentText(PSD_argument_units);
+			PSD_Argument_Units_Combobox->addItems(spatial_Frequency_Units_List);
+			PSD_Argument_Units_Combobox->setCurrentText(spatial_frequency_units_export);
 		groupbox_1_Layout->addWidget(PSD_Argument_Units_Combobox);
 		connect(PSD_Argument_Units_Combobox, &QComboBox::currentTextChanged, this, [=]
 		{
-			PSD_argument_units = PSD_Argument_Units_Combobox->currentText();
+			spatial_frequency_units_export = PSD_Argument_Units_Combobox->currentText();
 		});
 
 		//----------------------------------------------------------------------------

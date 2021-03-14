@@ -9,11 +9,11 @@ Multilayer::Multilayer(QWidget *parent) :
 	graph_Options_2D.show_Current_Coordinate = false;
 
 	imperfections_Model.PSD_1D.PSD_Type = PSD_Type_1D;
-	imperfections_Model.PSD_1D.argument_Units = PSD_argument_units;
+	imperfections_Model.PSD_1D.argument_Units = spatial_frequency_units;
 	imperfections_Model.PSD_1D.value_Units = PSD_1D_value_units;
 
 	imperfections_Model.PSD_2D.PSD_Type = PSD_Type_2D;
-	imperfections_Model.PSD_2D.argument_Units = PSD_argument_units;
+	imperfections_Model.PSD_2D.argument_Units = spatial_frequency_units;
 	imperfections_Model.PSD_2D.value_Units = PSD_2D_value_units;
 
 	create_Main_Layout();

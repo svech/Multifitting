@@ -187,14 +187,14 @@ void Measured_PSD_Editor::create_PSD_Options_Box()
 
 	QComboBox* argument_Units_Combobox = new QComboBox;
 		argument_Units_Combobox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-		argument_Units_Combobox->addItems(PSD_Argument_Units_List);
+		argument_Units_Combobox->addItems(spatial_Frequency_Units_List);
 		argument_Units_Combobox->setCurrentText(psd_Data.argument_Units);
 	PSD_Units_GroupBox_Layout->addWidget(argument_Units_Combobox,0,1);
 	connect(argument_Units_Combobox, &QComboBox::currentTextChanged, this, [=]
 	{
 		psd_Data.argument_Units = argument_Units_Combobox->currentText();
 
-		double arg_Coeff = PSD_Argument_Coefficients_Map.value(psd_Data.argument_Units);
+		double arg_Coeff = spatial_Frequency_Coefficients_Map.value(psd_Data.argument_Units);
 		for(int i=0; i<psd_Data.argument.size(); i++)
 		{
 			psd_Data.argument[i] = psd_Data.raw_Argument[i]*arg_Coeff;
@@ -330,7 +330,7 @@ void Measured_PSD_Editor::read_PSD_File()
 	psd_Data.argument.clear();
 	psd_Data.value.clear();	
 
-	double arg_Coeff = PSD_Argument_Coefficients_Map.value(psd_Data.argument_Units);
+	double arg_Coeff = spatial_Frequency_Coefficients_Map.value(psd_Data.argument_Units);
 	double val_Coeff = PSD_Type == PSD_Type_1D ? PSD_1D_Value_Coefficients_Map.value(psd_Data.value_Units) : PSD_2D_Value_Coefficients_Map.value(psd_Data.value_Units);
 
 	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)

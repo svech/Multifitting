@@ -954,7 +954,7 @@ struct Imperfections_Model		{
 								QString approximation = PT_approximation;
 								QString PSD_Model = ABC_Model;
 								QString vertical_Correlation = full_Correlation;
-								double vertical_Inheritance_Frequency = 10./10000.; // A^-1
+								double vertical_Inheritance_Frequency = 0.001; // A^-1
 								bool add_Gauss_Peak = false;
 								bool use_Common_Roughness_Function = true;
 								QString inheritance_Model = replication_Factor_Inheritance_Model;

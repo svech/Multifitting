@@ -798,13 +798,13 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		default_roughness_peak_sigma_min					= structure_Default_Values.value( "default_roughness_peak_sigma_min",					 0	).toDouble();
 		default_roughness_peak_sigma_max					= structure_Default_Values.value( "default_roughness_peak_sigma_max",					 2	).toDouble();
 
-		default_roughness_peak_frequency					= structure_Default_Values.value( "default_roughness_peak_frequency",			     0	).toDouble();
-		default_roughness_peak_frequency_min				= structure_Default_Values.value( "default_roughness_peak_frequency_min",		     0	).toDouble();
-		default_roughness_peak_frequency_max				= structure_Default_Values.value( "default_roughness_peak_frequency_max",		  1000	).toDouble();
+		default_roughness_peak_frequency					= structure_Default_Values.value( "default_roughness_peak_frequency",			         0	).toDouble();
+		default_roughness_peak_frequency_min				= structure_Default_Values.value( "default_roughness_peak_frequency_min",		         0	).toDouble();
+		default_roughness_peak_frequency_max				= structure_Default_Values.value( "default_roughness_peak_frequency_max",		    0.9E-2	).toDouble();
 
-		default_roughness_peak_frequency_width				= structure_Default_Values.value( "default_roughness_peak_frequency_width",			0.01 ).toDouble();
-		default_roughness_peak_frequency_width_min			= structure_Default_Values.value( "default_roughness_peak_frequency_width_min",		0.001).toDouble();
-		default_roughness_peak_frequency_width_max			= structure_Default_Values.value( "default_roughness_peak_frequency_width_max",		1	 ).toDouble();
+		default_roughness_peak_frequency_width				= structure_Default_Values.value( "default_roughness_peak_frequency_width",			0.9E-6  ).toDouble();
+		default_roughness_peak_frequency_width_min			= structure_Default_Values.value( "default_roughness_peak_frequency_width_min",		0.9E-7  ).toDouble();
+		default_roughness_peak_frequency_width_max			= structure_Default_Values.value( "default_roughness_peak_frequency_width_max",		0.9E-4  ).toDouble();
 	structure_Default_Values.endGroup();
 
 	structure_Default_Values.beginGroup( Fluctuation_Values );
@@ -897,10 +897,11 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 	structure_Default_Values.endGroup();
 
 	structure_Default_Values.beginGroup( Units );
-		length_units			= structure_Default_Values.value( "length_units",		length_Units_List.first() ).toString();
-		PSD_argument_units		= structure_Default_Values.value( "PSD_argument_units",	PSD_Argument_Units_List[angstrom] ).toString();
-		PSD_1D_value_units		= structure_Default_Values.value( "PSD_1D_value_units",	PSD_1D_Value_Units_List[nm_3] ).toString();
-		PSD_2D_value_units		= structure_Default_Values.value( "PSD_2D_value_units",	PSD_2D_Value_Units_List[nm_4] ).toString();
+		length_units					= structure_Default_Values.value( "length_units",					length_Units_List.first()				).toString();
+		spatial_frequency_units			= structure_Default_Values.value( "spatial_frequency_units",		spatial_Frequency_Units_List[angstrom]	).toString();
+		spatial_frequency_units_export	= structure_Default_Values.value( "spatial_frequency_units_export",	spatial_Frequency_Units_List[angstrom]	).toString();
+		PSD_1D_value_units				= structure_Default_Values.value( "PSD_1D_value_units",		PSD_1D_Value_Units_List[nm_3]			).toString();
+		PSD_2D_value_units				= structure_Default_Values.value( "PSD_2D_value_units",		PSD_2D_Value_Units_List[nm_4]			).toString();
 	structure_Default_Values.endGroup();
 }
 
@@ -1132,10 +1133,11 @@ void Settings::save_Structure_Default_Values()
 	structure_Default_Values.endGroup();
 
 	structure_Default_Values.beginGroup( Units );
-		structure_Default_Values.setValue( "length_units",			length_units	);
-		structure_Default_Values.setValue( "PSD_argument_units",	PSD_argument_units	);
-		structure_Default_Values.setValue( "PSD_1D_value_units",	PSD_1D_value_units	);
-		structure_Default_Values.setValue( "PSD_2D_value_units",	PSD_2D_value_units	);
+		structure_Default_Values.setValue( "length_units",					length_units					);
+		structure_Default_Values.setValue( "spatial_frequency_units",		spatial_frequency_units			);
+		structure_Default_Values.setValue( "spatial_frequency_units_export",spatial_frequency_units_export	);
+		structure_Default_Values.setValue( "PSD_1D_value_units",			PSD_1D_value_units	);
+		structure_Default_Values.setValue( "PSD_2D_value_units",			PSD_2D_value_units	);
 	structure_Default_Values.endGroup();
 }
 

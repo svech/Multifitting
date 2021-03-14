@@ -2781,9 +2781,9 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 	QString angular_Units_Name = angle_Units_Legend_Map.value(data_Element.the_Class->angular_Units);
 	QString spectral_Units_Name = wavelength_Units_Legend_Map.value(data_Element.the_Class->spectral_Units);
 
-	double arg_Coeff = PSD_Argument_Coefficients_Map.value(PSD_argument_units);
+	double arg_Coeff = spatial_Frequency_Coefficients_Map.value(spatial_frequency_units_export);
 	double val_Coeff = PSD_1D_Value_Coefficients_Map.value(PSD_1D_value_units);
-	QString arg_Units_Name = PSD_Argument_Units_Legend_Map.value(PSD_argument_units);
+	QString arg_Units_Name = spatial_Frequency_Units_Legend_Map.value(spatial_frequency_units_export);
 	QString val_Units_Name = PSD_1D_Value_Units_Legend_Map.value(PSD_1D_value_units);
 
 	QString at_Fixed_Heading = Global_Variables::wavelength_Energy_Name(data_Element.the_Class->spectral_Units, true) + " = " +
