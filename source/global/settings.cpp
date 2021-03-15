@@ -899,6 +899,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 
 	structure_Default_Values.beginGroup( Units );
 		length_units					= structure_Default_Values.value( "length_units",					length_Units_List.first()				).toString();
+		correlation_length_units		= structure_Default_Values.value( "correlation_length_units",		correlation_Length_Units_List.first()	).toString();
 		spatial_frequency_units			= structure_Default_Values.value( "spatial_frequency_units",		spatial_Frequency_Units_List[angstrom]	).toString();
 		spatial_frequency_units_export	= structure_Default_Values.value( "spatial_frequency_units_export",	spatial_Frequency_Units_List[angstrom]	).toString();
 		PSD_1D_value_units				= structure_Default_Values.value( "PSD_1D_value_units",		PSD_1D_Value_Units_List[nm_3]			).toString();
@@ -1135,6 +1136,7 @@ void Settings::save_Structure_Default_Values()
 
 	structure_Default_Values.beginGroup( Units );
 		structure_Default_Values.setValue( "length_units",					length_units					);
+		structure_Default_Values.setValue( "correlation_length_units",		correlation_length_units		);
 		structure_Default_Values.setValue( "spatial_frequency_units",		spatial_frequency_units			);
 		structure_Default_Values.setValue( "spatial_frequency_units_export",spatial_frequency_units_export	);
 		structure_Default_Values.setValue( "PSD_1D_value_units",			PSD_1D_value_units	);
@@ -1164,7 +1166,7 @@ void Settings::read_Precisions(bool reset_to_default)
 		line_edit_thickness_precision					= precision_Values.value( "line_edit_thickness_precision",					4 ).toInt();
 
 		line_edit_sigma_precision						= precision_Values.value( "line_edit_sigma_precision",						4 ).toInt();	// = thickness precision
-		line_edit_cor_radius_precision					= precision_Values.value( "line_edit_cor_radius_precision",					0 ).toInt();
+		line_edit_cor_radius_precision					= precision_Values.value( "line_edit_cor_radius_precision",					3 ).toInt();
 		line_edit_fractal_alpha_precision				= precision_Values.value( "line_edit_fractal_alpha_precision",				2 ).toInt();
 		line_edit_omega_precision						= precision_Values.value( "line_edit_omega_precision",						2 ).toInt();
 		line_edit_mu_precision							= precision_Values.value( "line_edit_mu_precision",							3 ).toInt();
@@ -1190,7 +1192,7 @@ void Settings::read_Precisions(bool reset_to_default)
 		thumbnail_thickness_precision			= precision_Values.value( "thumbnail_thickness_precision",			3 ).toInt();
 
 		thumbnail_sigma_precision				= precision_Values.value( "thumbnail_sigma_precision",				3 ).toInt();	// = thickness precision
-		thumbnail_cor_radius_precision			= precision_Values.value( "thumbnail_cor_radius_precision",			0 ).toInt();
+		thumbnail_cor_radius_precision			= precision_Values.value( "thumbnail_cor_radius_precision",			3 ).toInt();
 		thumbnail_fractal_alpha_precision		= precision_Values.value( "thumbnail_fractal_alpha_precision",		2 ).toInt();
 		thumbnail_omega_precision				= precision_Values.value( "thumbnail_omega_precision",				1 ).toInt();
 		thumbnail_mu_precision					= precision_Values.value( "thumbnail_mu_precision",					1 ).toInt();

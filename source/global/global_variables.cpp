@@ -355,6 +355,11 @@ QStringList   length_Units_List					{Angstrom_Sym,"nm"}; // Mu_Sym + "m"			// ch
 QList<double> length_Coefficients_List			{1.          , 1E1}; // 1E4
 QMap<QString, double>  length_Coefficients_Map;
 
+// correlation length
+QStringList correlation_Length_Units_List				{Mu_Sym + "m","nm", Angstrom_Sym}; 	// change enum!
+QList<double> correlation_Length_Coefficients_List		{1E4,		  1E1 , 1.          };
+QMap<QString, double> correlation_Length_Coefficients_Map;
+
 // angle
 QStringList   angle_Units_List				{Degree_Sym,Prime_Sym,Double_Prime_Sym,"mrad"   };  // "rad"    // change enum!
 QStringList   angle_Units_Legend_List		{"deg"     ,"arc min","arc sec"       ,"mrad"   };  // "radian"
@@ -382,6 +387,7 @@ QMap<QString, QString> PSD_2D_Value_Units_Legend_Map;
 
 // units
 QString length_units;
+QString correlation_length_units;
 QString density_units = "g/cm" + Cube_Sym;
 QString spatial_frequency_units;
 QString spatial_frequency_units_export;
@@ -777,6 +783,11 @@ void Global_Variables::fill_Units_Maps()
 	{
 		length_Coefficients_Map.insert(length_Units_List[i], length_Coefficients_List[i]);
 	}
+	// correlation length
+	for(int i=0; i<correlation_Length_Units_List.size(); i++)
+	{
+		correlation_Length_Coefficients_Map.insert(correlation_Length_Units_List[i], correlation_Length_Coefficients_List[i]);
+	}
 	// angle
 	for(int i=0; i<angle_Units_List.size(); i++)
 	{
@@ -1103,17 +1114,18 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	if(whats_This == whats_This_Interlayer_My_Sigma_Diffuse)			{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;		*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return nullptr;	}
 
 	// roughness
-	if(whats_This == whats_This_Sigma_Roughness)						{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;			*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);						return &struct_Data.roughness_Model.sigma;				}
-	if(whats_This == whats_This_Correlation_Radius)						{*line_edit_precision = line_edit_cor_radius_precision;		*thumbnail_precision = thumbnail_cor_radius_precision;		*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);						return &struct_Data.roughness_Model.cor_radius;			}
-	if(whats_This == whats_This_Fractal_Alpha)							{*line_edit_precision = line_edit_fractal_alpha_precision;	*thumbnail_precision = thumbnail_fractal_alpha_precision;	*units = "";							*coeff = 1;																	return &struct_Data.roughness_Model.fractal_alpha;		}
-	if(whats_This == whats_This_Linear_PSD_Omega)						{*line_edit_precision = line_edit_omega_precision;			*thumbnail_precision = thumbnail_omega_precision;			*units = " " + length_units+Cube_Sym;   *coeff = pow(length_Coefficients_Map.value(length_units),3);				return &struct_Data.roughness_Model.omega;				}
-	if(whats_This == whats_This_PSD_Exponenta_Mu)						{*line_edit_precision = line_edit_mu_precision;				*thumbnail_precision = thumbnail_mu_precision;				*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);						return &struct_Data.roughness_Model.mu;					}
-	if(whats_This == whats_This_Fractal_Beta)							{*line_edit_precision = line_edit_fractal_alpha_precision;	*thumbnail_precision = thumbnail_fractal_alpha_precision;	*units = "";							*coeff = 1;																	return &struct_Data.roughness_Model.fractal_beta;		}
-	if(whats_This == whats_This_Roughness_Peak_Sigma)					{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;			*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);						return &struct_Data.roughness_Model.peak_Sigma;			}
-	if(whats_This == whats_This_Roughness_Peak_Frequency)				{*line_edit_precision = line_edit_frequency_precision;		*thumbnail_precision = thumbnail_frequency_precision;		*units = " " + spatial_frequency_units;	*coeff = spatial_Frequency_Coefficients_Map.value(spatial_frequency_units);	return &struct_Data.roughness_Model.peak_Frequency;		}
-	if(whats_This == whats_This_Roughness_Peak_Frequency_Width)			{*line_edit_precision = line_edit_frequency_precision;		*thumbnail_precision = thumbnail_frequency_precision;		*units = " " + spatial_frequency_units;	*coeff = spatial_Frequency_Coefficients_Map.value(spatial_frequency_units);	return &struct_Data.roughness_Model.peak_Frequency_Width;}
-	if(whats_This == whats_This_Sigma_Factor_PSD_1D)					{*line_edit_precision = line_edit_psd_factor_precision;		*thumbnail_precision = thumbnail_psd_factor_precision;		*units = "";							*coeff = 1;																	return &struct_Data.roughness_Model.sigma_Factor_PSD_1D;}
-	if(whats_This == whats_This_Sigma_Factor_PSD_2D)					{*line_edit_precision = line_edit_psd_factor_precision;		*thumbnail_precision = thumbnail_psd_factor_precision;		*units = "";							*coeff = 1;																	return &struct_Data.roughness_Model.sigma_Factor_PSD_2D;}
+	if(whats_This == whats_This_Sigma_Roughness)						{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;			*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);							return &struct_Data.roughness_Model.sigma;				}
+//	if(whats_This == whats_This_Correlation_Radius)						{*line_edit_precision = line_edit_cor_radius_precision;		*thumbnail_precision = thumbnail_cor_radius_precision;		*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);							return &struct_Data.roughness_Model.cor_radius;			}
+	if(whats_This == whats_This_Correlation_Radius)						{*line_edit_precision = line_edit_cor_radius_precision;		*thumbnail_precision = thumbnail_cor_radius_precision;		*units = " " + correlation_length_units;*coeff = correlation_Length_Coefficients_Map.value(correlation_length_units);	return &struct_Data.roughness_Model.cor_radius;			}
+	if(whats_This == whats_This_Fractal_Alpha)							{*line_edit_precision = line_edit_fractal_alpha_precision;	*thumbnail_precision = thumbnail_fractal_alpha_precision;	*units = "";							*coeff = 1;																		return &struct_Data.roughness_Model.fractal_alpha;		}
+	if(whats_This == whats_This_Linear_PSD_Omega)						{*line_edit_precision = line_edit_omega_precision;			*thumbnail_precision = thumbnail_omega_precision;			*units = " " + length_units+Cube_Sym;   *coeff = pow(length_Coefficients_Map.value(length_units),3);					return &struct_Data.roughness_Model.omega;				}
+	if(whats_This == whats_This_PSD_Exponenta_Mu)						{*line_edit_precision = line_edit_mu_precision;				*thumbnail_precision = thumbnail_mu_precision;				*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);							return &struct_Data.roughness_Model.mu;					}
+	if(whats_This == whats_This_Fractal_Beta)							{*line_edit_precision = line_edit_fractal_alpha_precision;	*thumbnail_precision = thumbnail_fractal_alpha_precision;	*units = "";							*coeff = 1;																		return &struct_Data.roughness_Model.fractal_beta;		}
+	if(whats_This == whats_This_Roughness_Peak_Sigma)					{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;			*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);							return &struct_Data.roughness_Model.peak_Sigma;			}
+	if(whats_This == whats_This_Roughness_Peak_Frequency)				{*line_edit_precision = line_edit_frequency_precision;		*thumbnail_precision = thumbnail_frequency_precision;		*units = " " + spatial_frequency_units;	*coeff = spatial_Frequency_Coefficients_Map.value(spatial_frequency_units);		return &struct_Data.roughness_Model.peak_Frequency;		}
+	if(whats_This == whats_This_Roughness_Peak_Frequency_Width)			{*line_edit_precision = line_edit_frequency_precision;		*thumbnail_precision = thumbnail_frequency_precision;		*units = " " + spatial_frequency_units;	*coeff = spatial_Frequency_Coefficients_Map.value(spatial_frequency_units);		return &struct_Data.roughness_Model.peak_Frequency_Width;}
+	if(whats_This == whats_This_Sigma_Factor_PSD_1D)					{*line_edit_precision = line_edit_psd_factor_precision;		*thumbnail_precision = thumbnail_psd_factor_precision;		*units = "";							*coeff = 1;																		return &struct_Data.roughness_Model.sigma_Factor_PSD_1D;}
+	if(whats_This == whats_This_Sigma_Factor_PSD_2D)					{*line_edit_precision = line_edit_psd_factor_precision;		*thumbnail_precision = thumbnail_psd_factor_precision;		*units = "";							*coeff = 1;																		return &struct_Data.roughness_Model.sigma_Factor_PSD_2D;}
 
 	// density fluctuations
 	if(whats_This == whats_This_Particle_Absolute_Density)				{*line_edit_precision = line_edit_density_precision;	*thumbnail_precision = thumbnail_density_precision;	*units = " " + density_units;	*coeff = 1;												return &struct_Data.fluctuations_Model.particle_Absolute_Density;			}

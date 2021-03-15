@@ -195,7 +195,9 @@ enum SO_Methods_Enum	{	/* Mesh Iteration. */
 extern QStringList wavelength_Units_List;	extern QMap<QString, double> wavelength_Coefficients_Map;	extern QMap<QString, QString> wavelength_Units_Legend_Map;
 enum wavelength_Units_List_Enum		{ angstrom, nm, eV, keV }; // mcm
 
-extern QStringList length_Units_List;		extern QMap<QString, double> length_Coefficients_Map;
+extern QStringList length_Units_List;				extern QMap<QString, double> length_Coefficients_Map;
+
+extern QStringList correlation_Length_Units_List;	extern QMap<QString, double> correlation_Length_Coefficients_Map;
 
 extern QStringList angle_Units_List;		extern QMap<QString, double> angle_Coefficients_Map;		extern QMap<QString, QString> angle_Units_Legend_Map;
 enum angle_Units_List_Enum {degree, minute, second, mrad}; // radian
@@ -211,6 +213,7 @@ enum PSD_2D_Value_Units_List_Enum {mcm_4, nm_4, angstrom_4};
 
 // units
 extern QString length_units;
+extern QString correlation_length_units;
 extern QString density_units;
 extern QString spatial_frequency_units;
 extern QString spatial_frequency_units_export;
