@@ -449,6 +449,7 @@ int corner_x_shift = 0;
 int corner_y_shift = 0;
 int width_add = 0;
 int height_add = 0;
+bool previous_all_windows_resizeable = true;
 
 // -----------------------------------------------------------------------------------------
 

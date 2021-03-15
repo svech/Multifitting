@@ -8,10 +8,10 @@ Independent_Curve_Editor::Independent_Curve_Editor(Independent_Curve* independen
 	bool new_curve = false;
 	if(independent_Curve->label_Text == "<no description>") new_curve = true;
 
+	setGeometry(independent_x_corner, independent_y_corner,0,0);
 	create_Main_Layout();
 	setWindowTitle(independent_Curve->measurement.measurement_Type);
 	setAttribute(Qt::WA_DeleteOnClose);
-	setGeometry(independent_x_corner, independent_y_corner,0,0);
 
 	/// now we have measurement type and consequently have a new curve
 	if(new_curve)
@@ -52,7 +52,20 @@ void Independent_Curve_Editor::closeEvent(QCloseEvent *event)
 
 void Independent_Curve_Editor::create_Main_Layout()
 {
-	main_Layout = new QGridLayout(this);
+	QWidget* main_Widget = this;
+	if(make_all_windows_resizeable)
+	{
+		QVBoxLayout* top_Layout = new QVBoxLayout(this);
+			top_Layout->setMargin(0);
+
+		main_Widget = new QWidget;
+		QScrollArea* scrollArea = new QScrollArea;
+			scrollArea->setWidget(main_Widget);
+			scrollArea->setWidgetResizable(true);
+		top_Layout->addWidget(scrollArea);
+	}
+
+	main_Layout = new QGridLayout(main_Widget);
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(4,0,4,0);
 		main_Layout->setSizeConstraint(QLayout::SetFixedSize);
@@ -66,6 +79,12 @@ void Independent_Curve_Editor::create_Main_Layout()
 	create_Main_Part();
 
 	Global_Variables::create_Shortcuts(this);
+
+	if(make_all_windows_resizeable)
+	{
+		main_Widget->adjustSize();
+		resize(main_Widget->width()+2,main_Widget->height()+2);
+	}
 }
 
 

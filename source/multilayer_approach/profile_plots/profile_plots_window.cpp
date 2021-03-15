@@ -85,7 +85,20 @@ void Profile_Plots_Window::closeEvent(QCloseEvent *event)
 
 void Profile_Plots_Window::create_Main_Layout()
 {
-	main_Layout = new QVBoxLayout(this);
+	QWidget* main_Widget = this;
+	if(make_all_windows_resizeable)
+	{
+		QVBoxLayout* top_Layout = new QVBoxLayout(this);
+			top_Layout->setMargin(0);
+
+		main_Widget = new QWidget;
+		QScrollArea* scrollArea = new QScrollArea;
+			scrollArea->setWidget(main_Widget);
+			scrollArea->setWidgetResizable(true);
+		top_Layout->addWidget(scrollArea);
+	}
+
+	main_Layout = new QVBoxLayout(main_Widget);
 	main_Layout->setSpacing(0);
 	main_Layout->setContentsMargins(0,0,0,0);
 
@@ -107,11 +120,20 @@ void Profile_Plots_Window::create_Main_Layout()
 			if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)){global_Multilayer_Approach->calculation_Settings_Editor->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
 		}
 	});
+
+//	if(make_all_windows_resizeable)
+//	{
+//		main_Widget->adjustSize();
+//		resize(main_Widget->width()+2,main_Widget->height()+2);
+//	}
 }
 
 void Profile_Plots_Window::set_Window_Geometry()
 {
-	setGeometry(profile_plots_x_corner,profile_plots_y_corner,profile_plots_width,profile_plots_height);
+	int width_add = 0, height_add = 0;
+	if(make_all_windows_resizeable && !previous_all_windows_resizeable) {width_add+=2; height_add+=2;}
+
+	setGeometry(profile_plots_x_corner,profile_plots_y_corner,profile_plots_width+width_add,profile_plots_height+height_add);
 }
 
 void Profile_Plots_Window::write_Window_Geometry()

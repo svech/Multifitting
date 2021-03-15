@@ -18,7 +18,20 @@ void General_Settings_Editor::closeEvent(QCloseEvent *event)
 
 void General_Settings_Editor::create_Main_Layout()
 {
-	main_Layout = new QVBoxLayout(this);
+	QWidget* main_Widget = this;
+	if(make_all_windows_resizeable)
+	{
+		QVBoxLayout* top_Layout = new QVBoxLayout(this);
+			top_Layout->setMargin(0);
+
+		main_Widget = new QWidget;
+		QScrollArea* scrollArea = new QScrollArea;
+			scrollArea->setWidget(main_Widget);
+			scrollArea->setWidgetResizable(true);
+		top_Layout->addWidget(scrollArea);
+	}
+
+	main_Layout = new QVBoxLayout(main_Widget);
 //		main_Layout->setSizeConstraint(QLayout::SetFixedSize);
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(0,0,0,0);
@@ -205,6 +218,22 @@ void General_Settings_Editor::create_Interface_Tab()
 	layout->addWidget(other_Groupbox);
 	QVBoxLayout* other_Layout = new QVBoxLayout(other_Groupbox);
 	{
+		//----------------------------------------------------------------------------
+
+		QCheckBox* resizeable_Windows_CheckBox = new QCheckBox("Make all windows resizeable");
+			resizeable_Windows_CheckBox->setChecked(make_all_windows_resizeable);
+		other_Layout->addWidget(resizeable_Windows_CheckBox);
+		connect(resizeable_Windows_CheckBox, &QCheckBox::toggled,	[=]
+		{
+			previous_all_windows_resizeable = make_all_windows_resizeable;
+			make_all_windows_resizeable = resizeable_Windows_CheckBox->isChecked();
+
+			global_Multilayer_Approach->reopen_Profile_Plots(true);
+			global_Multilayer_Approach->reopen_Optical_Graphs_1D(true);
+			global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);
+			global_Multilayer_Approach->reopen_Calculation_Settings(true);
+		});
+
 		//----------------------------------------------------------------------------
 
 		QCheckBox* synchronize_Tabs_CheckBox = new QCheckBox("Structural tabs synchronization");
@@ -441,8 +470,11 @@ void General_Settings_Editor::create_Output_Tab()
 
 void General_Settings_Editor::set_Window_Geometry()
 {
-	setGeometry(general_settings_x_corner,general_settings_y_corner,general_settings_width,general_settings_height);
-	adjustSize();
+	int width_add=0,height_add=0;
+	if(make_all_windows_resizeable && !previous_all_windows_resizeable) {width_add+=2; height_add+=2;}
+
+	setGeometry(general_settings_x_corner,general_settings_y_corner,general_settings_width+width_add,general_settings_height+height_add);
+	if(!make_all_windows_resizeable) { adjustSize(); }
 }
 
 void General_Settings_Editor::write_Window_Geometry()

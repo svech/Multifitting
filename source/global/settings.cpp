@@ -482,6 +482,7 @@ QString default_independent_curve_tab_name;
 bool tab_synchronization;
 bool calculation_time;
 bool show_residuals;
+bool make_all_windows_resizeable;
 
 ///====================================================================
 
@@ -1467,6 +1468,7 @@ void Settings::read_General_Settings(bool reset_to_default)
 		default_independent_curve_tab_name	= general_Settings.value( "default_independent_curve_tab_name",		"Plot_"   ).toString();
 
 		tab_synchronization					= general_Settings.value( "tab_synchronization",					true    ).toBool();
+		make_all_windows_resizeable			= general_Settings.value( "make_all_windows_resizeable",			false   ).toBool();
 		calculation_time					= general_Settings.value( "calculation_time",						true    ).toBool();
 		show_residuals						= general_Settings.value( "show_residuals",							true    ).toBool();
 		replot_graphs_during_fitting_1D		= general_Settings.value( "replot_graphs_during_fitting_1D",		true	).toBool();
@@ -1514,16 +1516,18 @@ void Settings::save_General_Settings()
 	general_Settings.endGroup();
 
 	general_Settings.beginGroup( Interface_Tab );
-		general_Settings.setValue( "default_multilayer_tab_name",			default_multilayer_tab_name			);
-		general_Settings.setValue( "default_independent_curve_tab_name",	default_independent_curve_tab_name  );
+		general_Settings.setValue("default_multilayer_tab_name",		default_multilayer_tab_name			);
+		general_Settings.setValue("default_independent_curve_tab_name",	default_independent_curve_tab_name  );
 
-		general_Settings.setValue( "tab_synchronization",				    tab_synchronization					);
-		general_Settings.setValue( "calculation_time",						calculation_time					);
-		general_Settings.setValue( "individual_residuals",				    show_residuals						);
-		general_Settings.setValue("replot_graphs_during_fitting_1D",		replot_graphs_during_fitting_1D		);
-//		general_Settings.setValue("replot_graphs_during_fitting_2D",		replot_graphs_during_fitting_2D		);
+		general_Settings.setValue("tab_synchronization",				tab_synchronization					);
+		general_Settings.setValue("make_all_windows_resizeable",		make_all_windows_resizeable			);
+		general_Settings.setValue("calculation_time",					calculation_time					);
+		general_Settings.setValue("individual_residuals",				show_residuals						);
+		general_Settings.setValue("replot_graphs_during_fitting_1D",	replot_graphs_during_fitting_1D		);
+//		general_Settings.setValue("replot_graphs_during_fitting_2D",	replot_graphs_during_fitting_2D		);
 	general_Settings.endGroup();
 }
+
 
 void Settings::read_Regular_Aperiodic(bool reset_to_default)
 {

@@ -5,11 +5,11 @@ Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, Multilayer*
 	multilayer_Parent(multilayer),
 	QDialog(parent)
 {
+	setGeometry(target_x_corner, target_y_corner,0,0);
 	create_Main_Layout();
-	setWindowTitle("Import Data: "+target_Curve->measurement.measurement_Type);
+	setWindowTitle(target_Curve->measurement.measurement_Type);
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
-	setGeometry(target_x_corner, target_y_corner,0,0);
 }
 
 void Target_Curve_Editor::write_Window_Geometry()
@@ -137,7 +137,20 @@ void Target_Curve_Editor::export_Data_File()
 
 void Target_Curve_Editor::create_Main_Layout()
 {
-	main_Layout = new QVBoxLayout(this);
+	QWidget* main_Widget = this;
+	if(make_all_windows_resizeable)
+	{
+		QVBoxLayout* top_Layout = new QVBoxLayout(this);
+			top_Layout->setMargin(0);
+
+		main_Widget = new QWidget;
+		QScrollArea* scrollArea = new QScrollArea;
+			scrollArea->setWidget(main_Widget);
+			scrollArea->setWidgetResizable(true);
+		top_Layout->addWidget(scrollArea);
+	}
+
+	main_Layout = new QVBoxLayout(main_Widget);
 		main_Layout->setContentsMargins(4,4,4,0);
 		main_Layout->setSpacing(0);
 
@@ -159,6 +172,12 @@ void Target_Curve_Editor::create_Main_Layout()
 
 	// shortcuts
 	Global_Variables::create_Shortcuts(this);
+
+	if(make_all_windows_resizeable)
+	{
+		main_Widget->adjustSize();
+		resize(main_Widget->width()+2,main_Widget->height()+2);
+	}
 }
 
 void Target_Curve_Editor::create_Plot()

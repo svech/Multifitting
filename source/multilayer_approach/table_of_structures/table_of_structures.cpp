@@ -48,7 +48,6 @@ void Table_Of_Structures::create_Main_Layout()
 	main_Layout = new QHBoxLayout(this);
 	main_Layout->setContentsMargins(0,0,0,0);
 
-
 	global_Multilayer_Approach->lock_Mainwindow_Interface();
 	create_Menu();
 	create_Tabs();
@@ -3272,6 +3271,7 @@ void Table_Of_Structures::create_Nu0_Spin_Box(My_Table_Widget* table, int tab_In
 		if(vertical_Inheritance_Roughness_Frequency_Spinbox->property(reload_Property).toBool())
 		{
 			vertical_Inheritance_Roughness_Frequency_Spinbox->blockSignals(true);
+			vertical_Inheritance_Roughness_Frequency_Spinbox->setRange(1E-8/arg_Coeff, MAX_DOUBLE);
 			vertical_Inheritance_Roughness_Frequency_Spinbox->setValue(multilayer->imperfections_Model.vertical_Inheritance_Frequency/arg_Coeff); // from A^-1 to spatial_frequency_units
 			vertical_Inheritance_Roughness_Frequency_Spinbox->blockSignals(false);
 		} else
@@ -3281,7 +3281,8 @@ void Table_Of_Structures::create_Nu0_Spin_Box(My_Table_Widget* table, int tab_In
 		}
 		{
 			double ff = vertical_Inheritance_Roughness_Frequency_Spinbox->value();
-			if(            ff<1E-5)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(7);
+			if(            ff<1E-6)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(8);
+			if(ff>=1E-6 && ff<1E-5)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(7);
 			if(ff>=1E-5 && ff<1E-4)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(6);
 			if(ff>=1E-4 && ff<1E-3)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(5);
 			if(ff>=1E-3 && ff<1E0)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(4);

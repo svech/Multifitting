@@ -22,9 +22,23 @@ void Fitting_Settings_Editor::closeEvent(QCloseEvent *event)
 
 void Fitting_Settings_Editor::create_Main_Layout()
 {
-	main_Layout = new QVBoxLayout(this);
-	main_Layout->setSpacing(0);
-	main_Layout->setContentsMargins(4,4,4,0);
+	QWidget* main_Widget = this;
+	if(make_all_windows_resizeable)
+	{
+		QVBoxLayout* top_Layout = new QVBoxLayout(this);
+			top_Layout->setMargin(0);
+
+		main_Widget = new QWidget;
+		QScrollArea* scrollArea = new QScrollArea;
+			scrollArea->setWidget(main_Widget);
+			scrollArea->setWidgetResizable(true);
+		top_Layout->addWidget(scrollArea);
+	}
+
+	main_Layout = new QVBoxLayout(main_Widget);
+		main_Layout->setSpacing(0);
+		main_Layout->setContentsMargins(4,4,4,0);
+		main_Layout->setAlignment(Qt::AlignTop);
 
 	Global_Variables::create_Shortcuts(this);
 	create_Metods();
@@ -63,7 +77,9 @@ void Fitting_Settings_Editor::set_Window_Geometry()
 {
 	setGeometry(fitting_settings_x_corner,fitting_settings_y_corner,width(),height());
 	adjustSize();
-	setFixedSize(size());
+	if(!make_all_windows_resizeable) {
+		setFixedSize(size());
+	}
 }
 
 void Fitting_Settings_Editor::write_Window_Geometry()

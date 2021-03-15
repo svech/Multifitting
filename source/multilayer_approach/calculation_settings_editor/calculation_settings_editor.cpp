@@ -22,8 +22,11 @@ void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 
 void Calculation_Settings_Editor::set_Window_Geometry()
 {
-	setGeometry(calculation_settings_x_corner,calculation_settings_y_corner,calculation_settings_width,calculation_settings_height);
-	adjustSize();
+	int width_add = 0, height_add = 0;
+	if(make_all_windows_resizeable && !previous_all_windows_resizeable) {width_add+=2; height_add+=2;}
+
+	setGeometry(calculation_settings_x_corner,calculation_settings_y_corner,calculation_settings_width+width_add,calculation_settings_height+height_add);
+	if(!make_all_windows_resizeable) { adjustSize(); }
 }
 
 void Calculation_Settings_Editor::write_Window_Geometry()
@@ -40,7 +43,20 @@ void Calculation_Settings_Editor::write_Window_Geometry()
 
 void Calculation_Settings_Editor::create_Main_Layout()
 {
-	main_Layout = new QVBoxLayout(this);
+	QWidget* main_Widget = this;
+	if(make_all_windows_resizeable)
+	{
+		QVBoxLayout* top_Layout = new QVBoxLayout(this);
+			top_Layout->setMargin(0);
+
+		main_Widget = new QWidget;
+		QScrollArea* scrollArea = new QScrollArea;
+			scrollArea->setWidget(main_Widget);
+			scrollArea->setWidgetResizable(true);
+		top_Layout->addWidget(scrollArea);
+	}
+
+	main_Layout = new QVBoxLayout(main_Widget);
 		main_Layout->setSizeConstraint(QLayout::SetFixedSize);
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(0,0,0,0);
@@ -76,6 +92,12 @@ void Calculation_Settings_Editor::create_Main_Layout()
 			if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))		 {global_Multilayer_Approach->profile_Plots_Window->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
 		}
 	});
+
+//	if(make_all_windows_resizeable)
+//	{
+//		main_Widget->adjustSize();
+//		resize(main_Widget->width()+2,main_Widget->height()+2);
+//	}
 }
 
 void Calculation_Settings_Editor::create_Tabs()

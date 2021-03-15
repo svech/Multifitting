@@ -318,7 +318,20 @@ void Optical_Graphs::save_Geometry()
 
 void Optical_Graphs::create_Main_Layout()
 {
-	main_Layout = new QVBoxLayout(this);
+	QWidget* main_Widget = this;
+	if(make_all_windows_resizeable)
+	{
+		QVBoxLayout* top_Layout = new QVBoxLayout(this);
+			top_Layout->setMargin(0);
+
+		main_Widget = new QWidget;
+		QScrollArea* scrollArea = new QScrollArea;
+			scrollArea->setWidget(main_Widget);
+			scrollArea->setWidgetResizable(true);
+		top_Layout->addWidget(scrollArea);
+	}
+
+	main_Layout = new QVBoxLayout(main_Widget);
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(0,0,0,0);
 
@@ -690,8 +703,11 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 
 void Optical_Graphs::set_Window_Geometry()
 {
-	if(dimension == dim_1D) setGeometry(graphs_x_corner_1D,graphs_y_corner_1D,graphs_width_1D,graphs_height_1D);
-	if(dimension == dim_2D) setGeometry(graphs_x_corner_2D,graphs_y_corner_2D,graphs_width_2D,graphs_height_2D);
+	int width_add = 0, height_add = 0;
+	if(make_all_windows_resizeable && !previous_all_windows_resizeable) {width_add+=2; height_add+=2;}
+
+	if(dimension == dim_1D) setGeometry(graphs_x_corner_1D,graphs_y_corner_1D,graphs_width_1D+width_add,graphs_height_1D+height_add);
+	if(dimension == dim_2D) setGeometry(graphs_x_corner_2D,graphs_y_corner_2D,graphs_width_2D+width_add,graphs_height_2D+height_add);
 }
 
 void Optical_Graphs::write_Window_Geometry()

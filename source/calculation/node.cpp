@@ -1231,7 +1231,7 @@ double func(double nu, void* par)
 void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model)
 {
 	if(!imperfections_Model.add_Gauss_Peak) return;
-	if(struct_Data.item_Type == item_Type_Ambient ) return;
+	if(struct_Data.item_Type == item_Type_Ambient) return;
 	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
 
 	double peak_Range_Factor = 10;

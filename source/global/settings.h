@@ -490,6 +490,7 @@ extern QString default_independent_curve_tab_name;
 extern bool tab_synchronization;
 extern bool calculation_time;
 extern bool show_residuals;
+extern bool make_all_windows_resizeable;
 
 ///====================================================================
 

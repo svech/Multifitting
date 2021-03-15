@@ -20,19 +20,32 @@ void Fits_Selector::closeEvent(QCloseEvent* event)
 
 void Fits_Selector::create_Main_Layout()
 {
+//	QWidget* main_Widget = this;
+//	if(make_all_windows_resizeable)
+//	{
+//		QVBoxLayout* top_Layout = new QVBoxLayout(this);
+//			top_Layout->setMargin(0);
+
+//		main_Widget = new QWidget;
+//		QScrollArea* scrollArea = new QScrollArea;
+//			scrollArea->setWidget(main_Widget);
+//			scrollArea->setWidgetResizable(true);
+//		top_Layout->addWidget(scrollArea);
+//	}
+
 	main_Layout = new QVBoxLayout(this);
-	main_Layout->setSpacing(0);
-	main_Layout->setContentsMargins(0,0,0,0);
+		main_Layout->setSpacing(0);
+		main_Layout->setContentsMargins(0,0,0,0);
 
 	create_List();
 	load_Data();
 	{
 		QHBoxLayout* button_Layout = new QHBoxLayout;
-			button_Layout->setAlignment(Qt::AlignCenter);
-			button_Layout->setSpacing(20);
+//			button_Layout->setAlignment(Qt::AlignCenter);
+			button_Layout->setSpacing(5);
 
 		done_Button = new QPushButton("Close");
-			done_Button->setMaximumWidth(60);
+			done_Button->setMaximumWidth(50);
 			done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			done_Button->setFocus();
 			done_Button->setDefault(true);
@@ -40,12 +53,12 @@ void Fits_Selector::create_Main_Layout()
 		button_Layout->addWidget(done_Button);
 
 		clear_Button = new QPushButton("Clear");
-			clear_Button->setMaximumWidth(60);
+			clear_Button->setMaximumWidth(50);
 			clear_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		button_Layout->addWidget(clear_Button);
 
 		save_Button = new QPushButton("Save");
-			save_Button->setMaximumWidth(60);
+			save_Button->setMaximumWidth(50);
 			save_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		button_Layout->addWidget(save_Button);
 
@@ -62,8 +75,10 @@ void Fits_Selector::create_Main_Layout()
 
 void Fits_Selector::set_Window_Geometry()
 {
+//	int width_add = 0, height_add = 0;
+//	if(make_all_windows_resizeable && !previous_all_windows_resizeable) {width_add+=2; height_add+=2;}
 //#ifdef _WIN32
-	setGeometry(fits_selector_settings_x_corner,fits_selector_settings_y_corner,fits_selector_settings_width,fits_selector_settings_height);
+	setGeometry(fits_selector_settings_x_corner,fits_selector_settings_y_corner,fits_selector_settings_width+width_add,fits_selector_settings_height+height_add);
 //#endif
 //#ifdef __linux__
 //	setGeometry(0,0,235,multilayer_height);

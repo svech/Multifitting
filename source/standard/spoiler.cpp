@@ -42,15 +42,18 @@ Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *pa
 
 	connect(&toggleAnimation, &QParallelAnimationGroup::finished, this, [=]
 	{
-		auto contentHeight = contentArea.layout()->sizeHint().height();
-		if(toggleButton.isChecked())
+		if(!make_all_windows_resizeable)
 		{
-			parent->setFixedHeight(parent->property(height_Property).toInt() +contentHeight);
-//			parent->setFixedHeight(parent->height()+contentHeight);
-		} else
-		{
-			parent->setFixedHeight(parent->property(height_Property).toInt());
-//			parent->setFixedHeight(parent->height()-contentHeight);
+			auto contentHeight = contentArea.layout()->sizeHint().height();
+			if(toggleButton.isChecked())
+			{
+				parent->setFixedHeight(parent->property(height_Property).toInt() +contentHeight);
+//				parent->setFixedHeight(parent->height()+contentHeight);
+			} else
+			{
+				parent->setFixedHeight(parent->property(height_Property).toInt());
+//				parent->setFixedHeight(parent->height()-contentHeight);
+			}
 		}
 	});
 }

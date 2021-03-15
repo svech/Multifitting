@@ -252,6 +252,7 @@ extern int corner_x_shift;
 extern int corner_y_shift;
 extern int width_add;
 extern int height_add;
+extern bool previous_all_windows_resizeable;
 
 // -----------------------------------------------------------------------------------------
 
