@@ -15,7 +15,7 @@ void Target_Curve_Plot::create_Main_Layout()
 		main_Layout->setSpacing(0);
 
 	custom_Plot = new QCustomPlot;
-		custom_Plot->setMinimumHeight(250);
+		custom_Plot->setMinimumHeight(230);
 	main_Layout->addWidget(custom_Plot);
 
 	if( target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
