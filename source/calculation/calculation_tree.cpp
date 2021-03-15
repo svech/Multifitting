@@ -511,10 +511,10 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 		data_Element.calc_Functions = target_Curve->calc_Functions;
 
 		// for old version files
-		if( target_Curve->curve.value_Type == value_Types[Reflectance]   )	{ data_Element.calc_Functions.check_Reflectance = true; }
-		if( target_Curve->curve.value_Type == value_Types[Transmittance] )	{ data_Element.calc_Functions.check_Transmittance = true; }
-		if( target_Curve->curve.value_Type == value_Types[Scattering]   )	{ data_Element.calc_Functions.check_Scattering = true; }
-		if( target_Curve->curve.value_Type == value_Types[GISAS]   )		{ data_Element.calc_Functions.check_GISAS = true; }
+		if( target_Curve->curve.value_Type == value_Types[Reflectance]   )	{ data_Element.calc_Functions.check_Reflectance = true;		target_Curve->calc_Functions.check_Reflectance = true;	}
+		if( target_Curve->curve.value_Type == value_Types[Transmittance] )	{ data_Element.calc_Functions.check_Transmittance = true;	target_Curve->calc_Functions.check_Transmittance = true;}
+		if( target_Curve->curve.value_Type == value_Types[Scattering]   )	{ data_Element.calc_Functions.check_Scattering = true;		target_Curve->calc_Functions.check_Scattering = true;	}
+		if( target_Curve->curve.value_Type == value_Types[GISAS]   )		{ data_Element.calc_Functions.check_GISAS = true;			target_Curve->calc_Functions.check_GISAS = true;		}
 	}
 
 	// calculate instrumental function
