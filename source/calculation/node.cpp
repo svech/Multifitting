@@ -445,6 +445,13 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				//-------------------------------------------------------------------------------
 				// normalization
 				{
+					// NaN checking
+					for(size_t i=0; i<num_Points; ++i)
+					{
+						if(isnan(real(weak_Factor_R[i])) || isnan(imag(weak_Factor_R[i]))) weak_Factor_R[i] = 0;
+						if(isnan(real(weak_Factor_T[i])) || isnan(imag(weak_Factor_T[i]))) weak_Factor_T[i] = 1;
+					}
+
 					if( abs(norm) > DBL_MIN )
 					{
 						for(size_t i=0; i<num_Points; ++i)

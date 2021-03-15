@@ -1304,6 +1304,10 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index, int point_Index)
 			//-------------------------------------------------------------------------------
 			// normalization
 			{
+				// NaN checking
+				if(isnan(real(weak_Factor_R[thread_Index][i])) || isnan(imag(weak_Factor_R[thread_Index][i]))) {weak_Factor_R[thread_Index][i] = 0;}
+				if(isnan(real(weak_Factor_R[thread_Index][i])) || isnan(imag(weak_Factor_R[thread_Index][i]))) {weak_Factor_R[thread_Index][i] = 1;}
+
 				if( abs(norm) > DBL_MIN )
 				{
 					weak_Factor_R[thread_Index][i] /= norm;

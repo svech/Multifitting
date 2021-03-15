@@ -223,7 +223,7 @@ void General_Settings_Editor::create_Interface_Tab()
 		QCheckBox* resizeable_Windows_CheckBox = new QCheckBox("Make all windows resizeable");
 			resizeable_Windows_CheckBox->setChecked(make_all_windows_resizeable);
 		other_Layout->addWidget(resizeable_Windows_CheckBox);
-		connect(resizeable_Windows_CheckBox, &QCheckBox::toggled,	[=]
+		connect(resizeable_Windows_CheckBox, &QCheckBox::toggled, [=]
 		{
 			previous_all_windows_resizeable = make_all_windows_resizeable;
 			make_all_windows_resizeable = resizeable_Windows_CheckBox->isChecked();
