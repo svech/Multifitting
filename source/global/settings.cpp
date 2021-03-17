@@ -836,9 +836,9 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		default_fluctuation_particle_distance_deviation_min	= structure_Default_Values.value( "default_fluctuation_particle_distance_deviation_min",0.5	  ).toDouble();
 		default_fluctuation_particle_distance_deviation_max	= structure_Default_Values.value( "default_fluctuation_particle_distance_deviation_max",90    ).toDouble();
 
-		default_fluctuation_domain_size						= structure_Default_Values.value( "default_fluctuation_domain_size",				1e4		).toDouble();
+		default_fluctuation_domain_size						= structure_Default_Values.value( "default_fluctuation_domain_size",				1e5		).toDouble();
 		default_fluctuation_domain_size_min					= structure_Default_Values.value( "default_fluctuation_domain_size_min",			1E2		).toDouble();
-		default_fluctuation_domain_size_max					= structure_Default_Values.value( "default_fluctuation_domain_size_max",			1E8		).toDouble();
+		default_fluctuation_domain_size_max					= structure_Default_Values.value( "default_fluctuation_domain_size_max",			9E6		).toDouble();
 
 		default_fluctuation_z_position						= structure_Default_Values.value( "default_fluctuation_z_position",					  0		).toDouble();
 		default_fluctuation_z_position_min					= structure_Default_Values.value( "default_fluctuation_z_position_min",				-10		).toDouble();

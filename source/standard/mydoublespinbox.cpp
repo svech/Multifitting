@@ -34,8 +34,10 @@ QValidator::State MyDoubleSpinBox::validate(QString &input, int &pos) const
 void MyDoubleSpinBox::fixup(QString &input) const
 {
 	QRegExp symbols;
-	if(minimum()<0) {symbols = negative_Symbols;}
-	else			{symbols = positive_Symbols;}
+	if(minimum()<0)
+	{symbols = negative_Symbols;}
+	else
+	{symbols = positive_Symbols;}
 
 	input.remove(symbols);
 	QList<QString> list = input.split(Locale.decimalPoint());
@@ -50,8 +52,10 @@ void MyDoubleSpinBox::fixup(QString &input) const
 bool MyDoubleSpinBox::isValid(const QString& text) const
 {
 	QRegExp symbols;
-	if(minimum()<0) {symbols = negative_Symbols;}
-	else			{symbols = positive_Symbols;}
+	if(minimum()<0)
+	{symbols = negative_Symbols;}
+	else
+	{symbols = positive_Symbols;}
 
 	int idx = text.indexOf(symbols, 0);
 	if(idx != -1 || text.isEmpty() || text=="-" || text=="." || text=="-." || text==".-")	{

@@ -65,10 +65,16 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitn
 	// duplicate SO functionality for aborting
 	if(params->final_Residual < params->my_Res.best.fitness )
 	{
+//		qInfo() << params->my_Res.best.fitness << " -> " << params->final_Residual << endl;
 		params->my_Res.best.fitness = params->final_Residual;
 		for(size_t i=0; i<params->p; ++i)
 		{
 			params->my_Res.best.x[i] = x[i];
+
+//			double qq = params->main_Calculation_Module->unparametrize(	params->my_Res.best.x[i],
+//																			params->fitables.param_Pointers[i]->fit.min,
+//																			params->fitables.param_Pointers[i]->fit.max);
+//			qInfo() << qq << "  ";
 		}
 	}
 
@@ -185,6 +191,15 @@ bool Fitting_SwarmOps::fit()
 		}  else
 		{
 			final_State_Parametrized = res.best.x;
+
+//			for(size_t i=0; i<params->p; ++i)
+//			{
+//				double qq = params->main_Calculation_Module->unparametrize(	final_State_Parametrized[i],
+//																				params->fitables.param_Pointers[i]->fit.min,
+//																				params->fitables.param_Pointers[i]->fit.max);
+//				qInfo() << qq << "  ";
+//			}
+//			qInfo() << endl << endl;
 		}
 
 		// replace parameters

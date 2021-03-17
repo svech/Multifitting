@@ -288,16 +288,22 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 		}
 
+		bool show_Top_Row = false;
+		bool show_Bottom_Row = false;
+		bool show_Right_Column = false;
 		// place for min_max buttons
 		{
-			rows_List_To_Span.append(current_Row);
-			new_Table->setItem(current_Row,0, new QTableWidgetItem("Set min/max"));
-			new_Table->item   (current_Row,0)->setTextAlignment(Qt::AlignCenter);
-			new_Table->item   (current_Row,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-			new_Table->item   (current_Row,0)->setFont(font_Header);
-			new_Table->item   (current_Row,0)->setSizeHint(QSize(0,0));
+			if(show_Top_Row)
+			{
+				rows_List_To_Span.append(current_Row);
+				new_Table->setItem(current_Row,0, new QTableWidgetItem("Set min/max"));
+				new_Table->item   (current_Row,0)->setTextAlignment(Qt::AlignCenter);
+				new_Table->item   (current_Row,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+				new_Table->item   (current_Row,0)->setFont(font_Header);
+				new_Table->item   (current_Row,0)->setSizeHint(QSize(0,0));
+				new_Table->insertRow(new_Table->rowCount());
+			}
 
-			new_Table->insertRow(new_Table->rowCount());
 			new_Table->insertRow(new_Table->rowCount());
 			current_Row = new_Table->rowCount()-2;
 			new_Table->insertRow(new_Table->rowCount());
@@ -1048,6 +1054,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 			}
 			first_Roughness_Column = current_Column;
+			int additional_Column = show_Right_Column || (multilayer->imperfections_Model.use_Fluctuations && has_Layers) ? 1 : 0;
 
 			// sigma roughness
 			bool show_Sigma = false;
@@ -1258,7 +1265,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(show_Alpha)
 			{
 				QString whats_This = whats_This_Fractal_Alpha;
-				add_Columns			(new_Table, current_Column+1);
+				add_Columns			(new_Table, current_Column+additional_Column);
 				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Alpha_Sym);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
@@ -1279,7 +1286,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(show_Beta)
 			{
 				QString whats_This = whats_This_Fractal_Beta;
-				add_Columns			(new_Table, current_Column+1);
+				add_Columns			(new_Table, current_Column+additional_Column);
 				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Beta_Sym);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
@@ -1347,13 +1354,14 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(show_Sigma_Factor_PSD_2D)
 			{
 				QString whats_This = whats_This_Sigma_Factor_PSD_2D;
-				add_Columns				 (new_Table, current_Column+1);
+				add_Columns				 (new_Table, current_Column + additional_Column);
 				// first
 				MyDoubleSpinBox* PSD_Sigma_Lineedit = create_PSD_Sigma_Lineedit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, multilayer, PSD_Type_2D);
 				create_PSD_Load_Button	 (new_Table,			   current_Row,   current_Column, multilayer, PSD_Type_2D, PSD_Sigma_Lineedit);
 				create_Simple_Label		 (new_Table,	tab_Index, current_Row+1, current_Column, whats_This_Sigma_Eff_PSD, Sigma_Sym+Subscript_e_Sym+" ["+length_units+"]");
 				create_Label			 (new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 2D");
 				create_Line_Edit		 (new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL, PSD_Sigma_Lineedit);
+
 //				create_Line_Edit		 (new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
 //				create_Line_Edit		 (new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 				// last
@@ -1470,7 +1478,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(show_Peak_Frequency_Width)
 			{
 				QString whats_This = whats_This_Roughness_Peak_Frequency_Width;
-				add_Columns			(new_Table, current_Column+1);
+				add_Columns			(new_Table, current_Column + additional_Column);
 				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Delta_Small_Sym+Nu_Sym+" ["+spatial_frequency_units+"]");
 				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
@@ -1501,20 +1509,20 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 						if( multilayer->imperfections_Model.vertical_Correlation != partial_Correlation &&
 							multilayer->imperfections_Model.use_Common_Roughness_Function == true)
 						{
-							add_Columns	(new_Table, current_Column+5);
-							current_Column+=6;
+							add_Columns	(new_Table, current_Column+4+additional_Column);
+							current_Column+=5+additional_Column;
 						}
 					}
 					if( multilayer->imperfections_Model.PSD_Model == measured_PSD )
 					{
-						add_Columns	(new_Table, current_Column+3);
-						current_Column+=4;
+						add_Columns	(new_Table, current_Column+2+additional_Column);
+						current_Column+=3+additional_Column;
 					}
 					if( multilayer->imperfections_Model.add_Gauss_Peak &&
 						multilayer->imperfections_Model.use_Common_Roughness_Function == true)
 					{
-						add_Columns	(new_Table, current_Column+5);
-						current_Column+=6;
+						add_Columns	(new_Table, current_Column+4+additional_Column);
+						current_Column+=5+additional_Column;
 					}
 				}
 			}
@@ -1776,7 +1784,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				QString whats_This = whats_This_Domain_Size;
 				add_Columns			(new_Table, current_Column+1);
-				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "D ["+length_units+"]");
+//				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "D ["+length_units+"]");
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "D ["+correlation_length_units+"]");
 				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
@@ -1840,7 +1849,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(show_Particle_Z_Position_Deviation)
 			{
 				QString whats_This = whats_This_Particle_Z_Position_Deviation;
-				add_Columns			(new_Table, current_Column+1);
+				int additional_Column = show_Right_Column ? 1 : 0;
+				add_Columns			(new_Table, current_Column + additional_Column);
 				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
 				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
@@ -1865,24 +1875,27 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		}
 
 		// big label about roughness model
+		int first_Row = show_Top_Row ? 1 : 0;
 		if(multilayer->imperfections_Model.use_Roughness)
 		{
 			int broadening = 0;
 			if(multilayer->imperfections_Model.PSD_Model == measured_PSD) broadening = 1;
+			int right_Broadening_Factor = show_Right_Column || (multilayer->imperfections_Model.use_Fluctuations && has_Layers) ? 2 : 1;
+
 
 			// row 1
 			QLabel* approximation_Label = new QLabel(multilayer->imperfections_Model.approximation);
 				approximation_Label->setAlignment(Qt::AlignCenter);
 				approximation_Label->setFont(QFont(approximation_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(1,first_Roughness_Column-broadening,1,last_Roughness_Column-first_Roughness_Column+1+2*broadening);
-			new_Table->setCellWidget(1, first_Roughness_Column, approximation_Label);
+			new_Table->setSpan(first_Row,first_Roughness_Column-broadening,1,last_Roughness_Column-first_Roughness_Column+1+right_Broadening_Factor*broadening);
+			new_Table->setCellWidget(first_Row, first_Roughness_Column, approximation_Label);
 
 			// row 2
 			QLabel* model_Label = new QLabel(multilayer->imperfections_Model.PSD_Model);
 				model_Label->setAlignment(Qt::AlignCenter);
 				model_Label->setFont(QFont(model_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(2,first_Roughness_Column-broadening,1,last_Roughness_Column-first_Roughness_Column+1+2*broadening);
-			new_Table->setCellWidget(2, first_Roughness_Column, model_Label);
+			new_Table->setSpan(first_Row+1,first_Roughness_Column-broadening,1,last_Roughness_Column-first_Roughness_Column+1+right_Broadening_Factor*broadening);
+			new_Table->setCellWidget(first_Row+1, first_Roughness_Column, model_Label);
 
 			if(multilayer->imperfections_Model.add_Gauss_Peak)
 			{
@@ -1893,8 +1906,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			QLabel* ver_Cor_Label = new QLabel(multilayer->imperfections_Model.vertical_Correlation);
 				ver_Cor_Label->setAlignment(Qt::AlignCenter);
 				ver_Cor_Label->setFont(QFont(ver_Cor_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(3,first_Roughness_Column-broadening,1,last_Roughness_Column-first_Roughness_Column+1+2*broadening);
-			new_Table->setCellWidget(3, first_Roughness_Column, ver_Cor_Label);
+			new_Table->setSpan(first_Row+2,first_Roughness_Column-broadening,1,last_Roughness_Column-first_Roughness_Column+1+right_Broadening_Factor*broadening);
+			new_Table->setCellWidget(first_Row+2, first_Roughness_Column, ver_Cor_Label);
 		}
 
 		// big label about fluctuations model
@@ -1904,26 +1917,27 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			QLabel* approximation_Label = new QLabel("DWBA approximation");
 				approximation_Label->setAlignment(Qt::AlignCenter);
 				approximation_Label->setFont(QFont(approximation_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(1,first_Fluctuations_Column,1,last_Fluctuations_Column-first_Fluctuations_Column+1);
-			new_Table->setCellWidget(1, first_Fluctuations_Column, approximation_Label);
+			new_Table->setSpan(first_Row,first_Fluctuations_Column,1,last_Fluctuations_Column-first_Fluctuations_Column+1);
+			new_Table->setCellWidget(first_Row, first_Fluctuations_Column, approximation_Label);
 
 			// row 2
 			QLabel* model_Label = new QLabel("in-layer interference");
 				model_Label->setAlignment(Qt::AlignCenter);
 				model_Label->setFont(QFont(model_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(2,first_Fluctuations_Column,1,last_Fluctuations_Column-first_Fluctuations_Column+1);
-			new_Table->setCellWidget(2, first_Fluctuations_Column, model_Label);
+			new_Table->setSpan(first_Row+1,first_Fluctuations_Column,1,last_Fluctuations_Column-first_Fluctuations_Column+1);
+			new_Table->setCellWidget(first_Row+1, first_Fluctuations_Column, model_Label);
 
 			// row 3
 			QLabel* ver_Cor_Label = new QLabel("zero cross-layer correlation");
 				ver_Cor_Label->setAlignment(Qt::AlignCenter);
 				ver_Cor_Label->setFont(QFont(ver_Cor_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(3,first_Fluctuations_Column,1,last_Fluctuations_Column-first_Fluctuations_Column+1);
-			new_Table->setCellWidget(3, first_Fluctuations_Column, ver_Cor_Label);
+			new_Table->setSpan(first_Row+2,first_Fluctuations_Column,1,last_Fluctuations_Column-first_Fluctuations_Column+1);
+			new_Table->setCellWidget(first_Row+2, first_Fluctuations_Column, ver_Cor_Label);
 		}
 
-//		new_Table->insertRow(new_Table->rowCount());
-		rows_List_To_Span.append(new_Table->rowCount()-1);
+		// add or not last row
+		if(show_Bottom_Row) rows_List_To_Span.append(new_Table->rowCount()-1);
+		else					new_Table->removeRow(new_Table->rowCount()-1);
 	}
 	span_Structure_Headers(new_Table);
 	span_Structure_Items(new_Table);
@@ -2075,16 +2089,17 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Sigma_Factor_PSD_2D)					{precision = line_edit_psd_factor_precision;			coeff = 1;																	return struct_Data.roughness_Model.sigma_Factor_PSD_2D; }
 
 	// density fluctuations
-	if(whats_This == whats_This_Particle_Absolute_Density)		{precision = line_edit_density_precision;	coeff = 1;												return struct_Data.fluctuations_Model.particle_Absolute_Density;			}
-	if(whats_This == whats_This_Particle_Relative_Density)		{precision = line_edit_density_precision;	coeff = 1;												return struct_Data.fluctuations_Model.particle_Relative_Density;			}
-	if(whats_This == whats_This_Particle_Radius)				{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Radius;						}
-	if(whats_This == whats_This_Particle_Height)				{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Height;						}
-	if(whats_This == whats_This_Particle_Average_Distance)		{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Average_Distance;			}
-	if(whats_This == whats_This_Particle_Radial_Distance)		{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Radial_Distance;				}
-if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation;	}
-	if(whats_This == whats_This_Domain_Size)					{precision = line_edit_cor_radius_precision;coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.domain_Size;							}
-	if(whats_This == whats_This_Particle_Z_Position)			{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Z_Position;					}
-	if(whats_This == whats_This_Particle_Z_Position_Deviation)	{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Z_Position_Deviation;		}
+	if(whats_This == whats_This_Particle_Absolute_Density)		{precision = line_edit_density_precision;	coeff = 1;																		return struct_Data.fluctuations_Model.particle_Absolute_Density;			}
+	if(whats_This == whats_This_Particle_Relative_Density)		{precision = line_edit_density_precision;	coeff = 1;																		return struct_Data.fluctuations_Model.particle_Relative_Density;			}
+	if(whats_This == whats_This_Particle_Radius)				{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Radius;						}
+	if(whats_This == whats_This_Particle_Height)				{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Height;						}
+	if(whats_This == whats_This_Particle_Average_Distance)		{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Average_Distance;			}
+	if(whats_This == whats_This_Particle_Radial_Distance)		{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Radial_Distance;				}
+if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation;	}
+//	if(whats_This == whats_This_Domain_Size)					{precision = line_edit_cor_radius_precision;coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.domain_Size;							}
+	if(whats_This == whats_This_Domain_Size)					{precision = line_edit_cor_radius_precision;coeff = correlation_Length_Coefficients_Map.value(correlation_length_units);	return struct_Data.fluctuations_Model.domain_Size;							}
+	if(whats_This == whats_This_Particle_Z_Position)			{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Z_Position;					}
+	if(whats_This == whats_This_Particle_Z_Position_Deviation)	{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Z_Position_Deviation;		}
 
 	// multilayer
 	if(whats_This == whats_This_Num_Repetitions)			{precision = 0;								coeff = 1;						return struct_Data.num_Repetition.parameter;			}
@@ -3540,7 +3555,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	if(whats_This == whats_This_Particle_Average_Distance ||
 	   whats_This == whats_This_Particle_Radial_Distance)			spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
-	if(whats_This == whats_This_Domain_Size)						spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+	if(whats_This == whats_This_Domain_Size)						spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DENSITY);
 	if(whats_This == whats_This_Particle_Z_Position)				spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	if(whats_This == whats_This_Particle_Z_Position_Deviation)		spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 
@@ -4212,7 +4227,8 @@ void Table_Of_Structures::create_Simple_Label(My_Table_Widget* table, int tab_In
 		if(whats_This == whats_This_Particle_Height)					label->setText("H ["+length_units+"]");
 		if(whats_This == whats_This_Particle_Distance)					label->setText("r ["+length_units+"]");
 		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	label->setText(Delta_Small_Sym + "r ["+length_units+"]");
-		if(whats_This == whats_This_Domain_Size)						label->setText("D ["+length_units+"]");
+//		if(whats_This == whats_This_Domain_Size)						label->setText("D ["+length_units+"]");
+		if(whats_This == whats_This_Domain_Size)						label->setText("D ["+correlation_length_units+"]");
 		if(whats_This == whats_This_Particle_Z_Position)				label->setText("z" + Subscript_p_Sym + " ["+length_units+"]");
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		label->setText(Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
 	});
@@ -4391,7 +4407,7 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Particle_Height)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
 		if(whats_This == whats_This_Particle_Distance)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
 		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
-		if(whats_This == whats_This_Domain_Size)						{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_LONG;}
+		if(whats_This == whats_This_Domain_Size)						{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_DENSITY;}
 		if(whats_This == whats_This_Particle_Z_Position)				{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
 
@@ -4429,7 +4445,8 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Particle_Height)					{ step_particle_height   = step_SpinBox->value()*length_Coeff;			  for(MyDoubleSpinBox* spb : particle_Height_Spin_Boxes_List)				spb->setSingleStep(step_particle_height/length_Coeff);	}
 		if(whats_This == whats_This_Particle_Distance)					{ step_particle_distance = step_SpinBox->value()*length_Coeff;			  for(MyDoubleSpinBox* spb : particle_Distance_Spin_Boxes_List)				spb->setSingleStep(step_particle_distance/length_Coeff);	}
 		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ step_particle_distance_deviation = step_SpinBox->value()*length_Coeff;  for(MyDoubleSpinBox* spb : particle_Distance_Deviation_Spin_Boxes_List)	spb->setSingleStep(step_particle_distance_deviation/length_Coeff);	}
-		if(whats_This == whats_This_Domain_Size)						{ step_domain_size		 = step_SpinBox->value()*length_Coeff;			  for(MyDoubleSpinBox* spb : domain_Size_Spin_Boxes_List)					spb->setSingleStep(step_domain_size/length_Coeff);	}
+//		if(whats_This == whats_This_Domain_Size)						{ step_domain_size		 = step_SpinBox->value()*length_Coeff;			  for(MyDoubleSpinBox* spb : domain_Size_Spin_Boxes_List)					spb->setSingleStep(step_domain_size/length_Coeff);	}
+		if(whats_This == whats_This_Domain_Size)						{ step_domain_size		 = step_SpinBox->value()*correlation_Length_Coeff;for(MyDoubleSpinBox* spb : domain_Size_Spin_Boxes_List)					spb->setSingleStep(step_domain_size/correlation_Length_Coeff);	}
 		if(whats_This == whats_This_Particle_Z_Position)				{ step_particle_z_position = step_SpinBox->value()*length_Coeff;		  for(MyDoubleSpinBox* spb : particle_Z_Position_Spin_Boxes_List)			spb->setSingleStep(step_particle_z_position/length_Coeff);	}
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ step_particle_z_position_deviation = step_SpinBox->value()*length_Coeff;for(MyDoubleSpinBox* spb : particle_Z_Position_Deviation_Spin_Boxes_List)	spb->setSingleStep(step_particle_z_position_deviation/length_Coeff);	}
 
@@ -4471,7 +4488,8 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Particle_Height)					{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_height/length_Coeff);					step_SpinBox->setDecimals(line_edit_sigma_precision);	}
 		if(whats_This == whats_This_Particle_Distance)					{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_distance/length_Coeff);				step_SpinBox->setDecimals(line_edit_sigma_precision);	}
 		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_distance_deviation/length_Coeff);  	step_SpinBox->setDecimals(line_edit_sigma_precision);	}
-		if(whats_This == whats_This_Domain_Size)						{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_domain_size/length_Coeff);						step_SpinBox->setDecimals(line_edit_cor_radius_precision);	}
+//		if(whats_This == whats_This_Domain_Size)						{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_domain_size/length_Coeff);						step_SpinBox->setDecimals(line_edit_cor_radius_precision);	}
+		if(whats_This == whats_This_Domain_Size)						{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_domain_size/correlation_Length_Coeff);			step_SpinBox->setDecimals(line_edit_cor_radius_precision);	}
 		if(whats_This == whats_This_Particle_Z_Position)				{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_z_position/length_Coeff);				step_SpinBox->setDecimals(line_edit_sigma_precision);	}
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_z_position_deviation/length_Coeff);   step_SpinBox->setDecimals(line_edit_sigma_precision);	}
 
@@ -5233,7 +5251,8 @@ void Table_Of_Structures::refresh_Header(QString)
 			if(whats_This == whats_This_Particle_Average_Distance)			label->setText("r" + Subscript_a_Sym + " ["+length_units+"]");
 			if(whats_This == whats_This_Particle_Radial_Distance)			label->setText("r ["+length_units+"]");
 			if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	label->setText(Delta_Small_Sym + "r ["+length_units+"]");
-			if(whats_This == whats_This_Domain_Size)						label->setText("D ["+length_units+"]");
+//			if(whats_This == whats_This_Domain_Size)						label->setText("D ["+length_units+"]");
+			if(whats_This == whats_This_Domain_Size)						label->setText("D ["+correlation_length_units+"]");
 			if(whats_This == whats_This_Particle_Z_Position)				label->setText("z" + Subscript_p_Sym + " ["+length_units+"]");
 			if(whats_This == whats_This_Particle_Z_Position_Deviation)		label->setText(Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
 

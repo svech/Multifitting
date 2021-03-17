@@ -1246,22 +1246,32 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 	double peak_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
 
 	double p_Max = peak_Frequency + peak_Width*peak_Range_Factor;
+//	double p_Intermediate = peak_Frequency - peak_Width*peak_Range_Factor;
 
-	int common_Size = 1000;
+	int common_Size = 200;
 	QVector<double> interpoints_Argum_Vec(common_Size);
 	QVector<double> interpoints_Value_Vec(common_Size);
 	double dp = p_Max/(common_Size-1);
+
+//	bool has_First_Part = false;//(p_Intermediate>0) ? true : false;
+//	int first_Part_Size = (p_Intermediate>0) ? (1+150*p_Intermediate/p_Max) : 1;
+//	int second_Part_Size = 150;
+//	int common_Size = second_Part_Size + first_Part_Size;
+
+//	QVector<double> interpoints_Argum_Vec(common_Size);
+//	QVector<double> interpoints_Value_Vec(common_Size);
+//	double dp_First = p_Intermediate/(first_Part_Size);
+//	double dp_Second = (p_Max/*-p_Intermediate*/)/(second_Part_Size-1);
 
 	// boost integrator
 	double p = 0;
 	if(peak_Frequency>DBL_EPSILON)
 	{
-		gsl_integration_workspace* w = gsl_integration_workspace_alloc(1000);
-
 		double result, abserr;
 		double epsabs = 0;
 		double epsrel = 1E-7;
 		size_t limit = 1000;
+		gsl_integration_workspace* w = gsl_integration_workspace_alloc(limit);
 
 		Frequency_Params frequency_Params;
 		frequency_Params.pa = &p;
@@ -1279,6 +1289,7 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 		interpoints_Argum_Vec[0] = 0;
 		interpoints_Value_Vec[0] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * 0.5*peak_Width*SQRT_PI * (1+erf(peak_Frequency/peak_Width));
 		// intermediate points (excepting point p==p_Max)
+
 		for(int i=1; i<common_Size-1; i++)
 		{
 			p += dp;
@@ -1288,6 +1299,27 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 			gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
 			interpoints_Value_Vec[i] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * result;
 		}
+//		if(has_First_Part)
+//		{
+//			for(int i=1; i<first_Part_Size; i++)
+//			{
+//				p += dp_First;
+//				interpoints_Argum_Vec[i] = p;
+
+//				pts[0] = p;
+//				gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
+//				interpoints_Value_Vec[i] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * result;
+//			}
+//		}
+//		for(int i=first_Part_Size; i<common_Size-1; i++)
+//		{
+//			p += dp_Second;
+//			interpoints_Argum_Vec[i] = p;
+
+//			pts[0] = p;
+//			gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
+//			interpoints_Value_Vec[i] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * result;
+//		}
 		gsl_integration_workspace_free (w);
 	} else
 	// usual gauss
@@ -1299,6 +1331,22 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 			interpoints_Value_Vec[i] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * 0.5*peak_Width*SQRT_PI * exp(-pow(p/peak_Width,2));
 			p += dp;
 		}
+//		if(has_First_Part)
+//		{
+//			// first and intermediate points (excepting point p==p_Max)
+//			for(int i=0; i<first_Part_Size-1; i++)
+//			{
+//				interpoints_Argum_Vec[i] = p;
+//				interpoints_Value_Vec[i] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * 0.5*peak_Width*SQRT_PI * exp(-pow(p/peak_Width,2));
+//				p += dp_First;
+//			}
+//		}
+//		for(int i=first_Part_Size-1; i<common_Size-1; i++)
+//		{
+//			interpoints_Argum_Vec[i] = p;
+//			interpoints_Value_Vec[i] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * 0.5*peak_Width*SQRT_PI * exp(-pow(p/peak_Width,2));
+//			p += dp_Second;
+//		}
 	}
 	// last 2 points
 	interpoints_Argum_Vec.back() = p_Max;

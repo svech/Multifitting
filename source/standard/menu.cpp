@@ -51,6 +51,8 @@ void Menu::add_Menu_Points()
 			menu_Bar->addMenu(menu_Length_Units);
 		create_Frequency_Units_Menu();
 			menu_Bar->addMenu(menu_Frequency_Units);
+		create_Correlation_Length_Units_Menu();
+			menu_Bar->addMenu(menu_Correlation_Length_Units);
 		create_Table_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
@@ -374,6 +376,36 @@ void Menu::create_Frequency_Units_Menu()
 		}
 	}
 }
+
+void Menu::create_Correlation_Length_Units_Menu()
+{
+	// PARAMETER
+
+	menu_Correlation_Length_Units = new QMenu("Cor. length units", this);
+	{
+		QActionGroup* group_Act_Unit = new QActionGroup(this);
+			group_Act_Unit->setExclusive(true);
+
+		for(int index=0; index<correlation_Length_Units_List.size(); index++)
+		{
+			QAction* act_Unit = new QAction(correlation_Length_Units_List[index], this);
+				act_Unit->setProperty(index_Property, index);
+				act_Unit->setCheckable(true);
+				act_Unit->setActionGroup(group_Act_Unit);
+
+				if(correlation_Length_Units_List[index] == correlation_length_units) act_Unit->setChecked(true);
+
+			menu_Correlation_Length_Units->addAction(act_Unit);
+			connect(act_Unit,  &QAction::triggered, this, [=]
+			{
+				int index = sender()->property(index_Property).toInt();
+				//-------------------------------------------------
+				correlation_length_units = correlation_Length_Units_List[index];
+				//-------------------------------------------------
+				emit refresh();
+			});
+		}
+	}}
 
 void Menu::create_Table_Precision_Menu()
 {

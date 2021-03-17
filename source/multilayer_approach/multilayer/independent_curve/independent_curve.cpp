@@ -213,13 +213,14 @@ void Independent_Curve::calc_Independent_cos2_k(double angle_Shift, double lambd
 				measurement.lambda_Vec.resize(measurement.wavelength.independent.num_Points);
 				measurement.k_Vec.resize(measurement.wavelength.independent.num_Points);
 
-				double wave_Step = (measurement.wavelength.independent.max - measurement.wavelength.independent.min) / (measurement.wavelength.independent.num_Points - 1);
-				double wave = measurement.wavelength.independent.min + lambda_Shift;
+				double wave_Energy_Step = (Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.independent.max) -
+									  Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.independent.min)) / (measurement.wavelength.independent.num_Points - 1);
+				double wave_Energy = Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.independent.min + lambda_Shift);
 				for(int i=0; i<measurement.wavelength.independent.num_Points; ++i)
-				{					
-					measurement.lambda_Vec[i] = max(wave, DBL_EPSILON);
-					measurement.k_Vec[i] = 2*M_PI/measurement.lambda_Vec[i];
-					wave += wave_Step;
+				{
+					measurement.lambda_Vec[i] = max(Global_Variables::wavelength_Energy(spectral_Units, wave_Energy), DBL_EPSILON);
+					measurement.k_Vec[i] = 2*M_PI/Global_Variables::wavelength_Energy(spectral_Units, measurement.lambda_Vec[i]);
+					wave_Energy += wave_Energy_Step;
 				}
 			}
 		}
