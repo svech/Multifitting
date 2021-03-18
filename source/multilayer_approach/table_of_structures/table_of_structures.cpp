@@ -233,14 +233,17 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				{
 					has_Layers = true;
 
-					if( multilayer->imperfections_Model.show_Drift &&
+					if( struct_Data.parent_Item_Type == item_Type_Multilayer &&
+						multilayer->imperfections_Model.show_Drift &&
 					   (multilayer->imperfections_Model.show_Thickness_Drift_Line ||
 						multilayer->imperfections_Model.show_Thickness_Drift_Rand ||
 						multilayer->imperfections_Model.show_Thickness_Drift_Sine ||
 						multilayer->imperfections_Model.show_Sigma_Drift_Line ||
 						multilayer->imperfections_Model.show_Sigma_Drift_Rand ||
 						multilayer->imperfections_Model.show_Sigma_Drift_Sine ))
-					has_Drift = true;
+					{
+						has_Drift = true;
+					}
 
 					if( struct_Data.fluctuations_Model.particle_Shape == full_Spheroid ||
 						struct_Data.fluctuations_Model.particle_Shape == cylinder )
@@ -770,8 +773,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if( struct_Data.item_Type == item_Type_Layer    ||
 					struct_Data.item_Type == item_Type_Substrate )
 				{
-					if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic) add_Columns(new_Table, current_Column+transition_Layer_Functions_Size);
-					else															add_Columns(new_Table, current_Column+interlayer_Types_To_Show);
+					int additional_Column = show_Right_Column ? 0 : -1;
+					if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic) add_Columns(new_Table, current_Column+transition_Layer_Functions_Size+additional_Column);
+					else															add_Columns(new_Table, current_Column+interlayer_Types_To_Show+additional_Column);
 
 					// weights
 					create_Weigts_Interlayer		        (new_Table, tab_Index, current_Row+1, current_Column, structure_Item, VAL);
@@ -811,13 +815,15 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			/// DRIFTS
 			///--------------------------------------------------------------------------------------------
 
+			int additional_Column_Drift = show_Right_Column ? 1 : 0;
+
 			// thickness linear drift
 			if(multilayer->imperfections_Model.show_Thickness_Drift_Line && multilayer->imperfections_Model.show_Drift)
 			{
 				if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 				{
 					QString whats_This = whats_This_Thickness_Drift_Line_Value;
-					add_Columns(new_Table, current_Column+1);
+					add_Columns(new_Table, current_Column+additional_Column_Drift);
 					create_Line_Edit		(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 					// second
 					create_Check_Box_Label	(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This,"dz lin", 1, 1, 0, 0);
@@ -853,7 +859,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 				{
 					QString whats_This = whats_This_Thickness_Drift_Rand_Rms;
-					add_Columns(new_Table, current_Column+1);
+					add_Columns(new_Table, current_Column+additional_Column_Drift);
 					create_Line_Edit		(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 					// second
 					create_Check_Box_Label	(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This,"dz ran", 1, 1, 0, 0);
@@ -888,7 +894,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 				{
-					add_Columns(new_Table, current_Column+3);
+					add_Columns(new_Table, current_Column+2+additional_Column_Drift);
 
 					create_Line_Edit		(new_Table, tab_Index, current_Row+1, current_Column,   structure_Item, whats_This_Thickness_Drift_Sine_Amplitude, VAL);
 					create_Line_Edit		(new_Table, tab_Index, current_Row+1, current_Column+1, structure_Item, whats_This_Thickness_Drift_Sine_Frequency, VAL);
@@ -960,7 +966,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 				{
 					QString whats_This = whats_This_Sigma_Drift_Line_Value;
-					add_Columns(new_Table, current_Column+1);
+					add_Columns(new_Table, current_Column+additional_Column_Drift);
 					create_Line_Edit		(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 					// second
 					create_Check_Box_Label	(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "ds lin", 1, 1, 0, 0);
@@ -996,7 +1002,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 				{
 					QString whats_This = whats_This_Sigma_Drift_Rand_Rms;
-					add_Columns(new_Table, current_Column+1);
+					add_Columns(new_Table, current_Column+additional_Column_Drift);
 					create_Line_Edit		(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 					// second
 					create_Check_Box_Label	(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "ds ran", 1, 1, 0, 0);
@@ -1031,7 +1037,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 				{
-					add_Columns(new_Table, current_Column+3);
+					add_Columns(new_Table, current_Column+2+additional_Column_Drift);
 
 					create_Line_Edit		(new_Table, tab_Index, current_Row+1, current_Column,   structure_Item, whats_This_Sigma_Drift_Sine_Amplitude, VAL);
 					create_Line_Edit		(new_Table, tab_Index, current_Row+1, current_Column+1, structure_Item, whats_This_Sigma_Drift_Sine_Frequency, VAL);
