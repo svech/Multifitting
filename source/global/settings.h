@@ -311,7 +311,11 @@ extern double	step_particle_z_position_deviation;
 
 extern double	step_interlayer;
 extern double	step_gamma;
-extern double	step_drift;
+extern double	step_drift_linear;
+extern double	step_drift_random;
+extern double	step_drift_amplitude;
+extern double	step_drift_frequency;
+extern double	step_drift_phase;
 extern double	step_thickness_aperiodic;
 extern double	step_sigma_aperiodic;
 

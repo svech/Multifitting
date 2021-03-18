@@ -229,7 +229,12 @@ public:
 	QList<MyDoubleSpinBox*> gamma_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> sigma_Diffuse_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> interlayer_Spin_Boxes_List;
-	QList<MyDoubleSpinBox*> drift_Spin_Boxes_List;
+
+	QList<MyDoubleSpinBox*> drift_Linear_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> drift_Random_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> drift_Amplitude_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> drift_Frequency_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> drift_Phase_Spin_Boxes_List;
 
 	QList<MyDoubleSpinBox*> sigma_Roughness_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> correlation_Radius_Roughness_Spin_Boxes_List;

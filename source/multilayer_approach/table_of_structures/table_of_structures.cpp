@@ -494,13 +494,6 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 			}
 
-			// drift step
-			if(has_Multilayers && has_Drift)
-			{
-				create_Simple_Label	(new_Table,	tab_Index, current_Row,   current_Column, whats_This_Drift, "dz/ds");
-				create_Step_Spin_Box(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Drift);
-			}
-
 			// roughness steps are done at the end
 			steps_Row = current_Row;
 		}
@@ -526,6 +519,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 		int first_Fluctuations_Column = 0;
 		int last_Fluctuations_Column = 0;
+
+		bool steps_Are_Done_Line_Drift = false;
+		bool steps_Are_Done_Rand_Drift = false;
+		bool steps_Are_Done_Sine_Drift_Amplitude = false;
+		bool steps_Are_Done_Sine_Drift_Frequency = false;
+		bool steps_Are_Done_Sine_Drift_Phase = false;
 
 		bool steps_Are_Done_Sigma = false;
 		bool steps_Are_Done_Xi = false;		Q_UNUSED(steps_Are_Done_Xi)	  // adaptive step
@@ -826,6 +825,15 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 					// last
 					create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+					// drift line step
+					if(!steps_Are_Done_Line_Drift)
+					{
+						create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "dz lin");
+						create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+						steps_Are_Done_Line_Drift = true;
+					}
+
 					current_Column += 1;
 				} else
 				if(has_Multilayers)
@@ -853,6 +861,15 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 					// last
 					create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+					// drift rand step
+					if(!steps_Are_Done_Rand_Drift)
+					{
+						create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "dz ran");
+						create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+						steps_Are_Done_Rand_Drift = true;
+					}
+
 					current_Column += 1;
 				} else
 				if(has_Multilayers)
@@ -893,6 +910,28 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column+1, structure_Item, whats_This_Thickness_Drift_Sine_Frequency, 1, 2, 0, 0);
 					create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column+2, structure_Item, whats_This_Thickness_Drift_Sine_Phase,	   1, 2, 0, 0);
 
+					// sine amplitude step
+					if(!steps_Are_Done_Sine_Drift_Amplitude)
+					{
+						create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This_Thickness_Drift_Sine_Amplitude, "dz:A");
+						create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This_Thickness_Drift_Sine_Amplitude);
+						steps_Are_Done_Sine_Drift_Amplitude = true;
+					}
+					// sine frequency step
+					if(!steps_Are_Done_Sine_Drift_Frequency)
+					{
+						create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column+1, whats_This_Thickness_Drift_Sine_Frequency, "dz:v");
+						create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column+1, whats_This_Thickness_Drift_Sine_Frequency);
+						steps_Are_Done_Sine_Drift_Frequency = true;
+					}
+					// sine phase step
+					if(!steps_Are_Done_Sine_Drift_Phase)
+					{
+						create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column+2, whats_This_Thickness_Drift_Sine_Phase, "dz:"+Phi_Sym);
+						create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column+2, whats_This_Thickness_Drift_Sine_Phase);
+						steps_Are_Done_Sine_Drift_Phase = true;
+					}
+
 					new_Table->setSpan(current_Row,current_Column,1,3);
 					current_Column += 3;
 				} else
@@ -929,6 +968,15 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 					// last
 					create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+					// drift line step
+					if(!steps_Are_Done_Line_Drift)
+					{
+						create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "ds lin");
+						create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+						steps_Are_Done_Line_Drift = true;
+					}
+
 					current_Column += 1;
 				} else
 				if(has_Multilayers)
@@ -956,6 +1004,15 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 					// last
 					create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+					// drift rand step
+					if(!steps_Are_Done_Rand_Drift)
+					{
+						create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "ds ran");
+						create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+						steps_Are_Done_Rand_Drift = true;
+					}
+
 					current_Column += 1;
 				} else
 				if(has_Multilayers)
@@ -996,6 +1053,27 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column+1, structure_Item, whats_This_Sigma_Drift_Sine_Frequency, 1, 2, 0, 0);
 					create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column+2, structure_Item, whats_This_Sigma_Drift_Sine_Phase,	   1, 2, 0, 0);
 
+					// sine amplitude step
+					if(!steps_Are_Done_Sine_Drift_Amplitude)
+					{
+						create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This_Sigma_Drift_Sine_Amplitude, "ds:A");
+						create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This_Sigma_Drift_Sine_Amplitude);
+						steps_Are_Done_Sine_Drift_Amplitude = true;
+					}
+					// sine frequency step
+					if(!steps_Are_Done_Sine_Drift_Frequency)
+					{
+						create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column+1, whats_This_Sigma_Drift_Sine_Frequency, "ds:v");
+						create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column+1, whats_This_Sigma_Drift_Sine_Frequency);
+						steps_Are_Done_Sine_Drift_Frequency = true;
+					}
+					// sine phase step
+					if(!steps_Are_Done_Sine_Drift_Phase)
+					{
+						create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column+2, whats_This_Sigma_Drift_Sine_Phase, "ds:"+Phi_Sym);
+						create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column+2, whats_This_Sigma_Drift_Sine_Phase);
+						steps_Are_Done_Sine_Drift_Phase = true;
+					}
 					new_Table->setSpan(current_Row,current_Column,1,3);
 					current_Column += 3;
 				} else
@@ -3575,12 +3653,13 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		whats_This == whats_This_Sigma_Factor_PSD_2D )       spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	if( whats_This == whats_This_Thickness || whats_This == whats_This_Period) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS);
 
+	if(	whats_This == whats_This_Gamma	)						spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+
 	if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
 		whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
 		whats_This == whats_This_Sigma_Drift_Line_Value			||
 		whats_This == whats_This_Sigma_Drift_Rand_Rms			||
-		whats_This == whats_This_Gamma	)						spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
-	if(	whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
+		whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
 		whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
 		whats_This == whats_This_Thickness_Drift_Sine_Phase		||
 		whats_This == whats_This_Sigma_Drift_Sine_Amplitude		||
@@ -3684,16 +3763,21 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ spin_Box->setSingleStep(step_particle_z_position_deviation);particle_Z_Position_Deviation_Spin_Boxes_List.append(spin_Box); }
 
 	if( whats_This == whats_This_Gamma)						{ spin_Box->setSingleStep(step_gamma);					gamma_Spin_Boxes_List.append(spin_Box); }
-	if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
-		whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
-		whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
-		whats_This == whats_This_Sigma_Drift_Line_Value			||
-		whats_This == whats_This_Sigma_Drift_Rand_Rms			||
-		whats_This == whats_This_Sigma_Drift_Sine_Amplitude		)  { spin_Box->setSingleStep(step_drift);			drift_Spin_Boxes_List.append(spin_Box); }
+
+	if(	whats_This == whats_This_Thickness_Drift_Line_Value ||
+		whats_This == whats_This_Sigma_Drift_Line_Value		)		{ spin_Box->setSingleStep(step_drift_linear);		drift_Linear_Spin_Boxes_List.append(spin_Box); }
+
+	if(	whats_This == whats_This_Thickness_Drift_Rand_Rms ||
+		whats_This == whats_This_Sigma_Drift_Rand_Rms		)		{ spin_Box->setSingleStep(step_drift_random);		drift_Random_Spin_Boxes_List.append(spin_Box); }
+
+	if(	whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
+		whats_This == whats_This_Sigma_Drift_Sine_Amplitude		)	{ spin_Box->setSingleStep(step_drift_amplitude);	drift_Amplitude_Spin_Boxes_List.append(spin_Box); }
+
 	if(	whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
-		whats_This == whats_This_Thickness_Drift_Sine_Phase		||
-		whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
-		whats_This == whats_This_Sigma_Drift_Sine_Phase	)	{ spin_Box->setSingleStep(0.1);	}
+		whats_This == whats_This_Sigma_Drift_Sine_Frequency		)	{ spin_Box->setSingleStep(step_drift_frequency);	drift_Frequency_Spin_Boxes_List.append(spin_Box); }
+
+	if(	whats_This == whats_This_Thickness_Drift_Sine_Phase		||
+		whats_This == whats_This_Sigma_Drift_Sine_Phase	)			{ spin_Box->setSingleStep(step_drift_phase);		drift_Phase_Spin_Boxes_List.append(spin_Box); }
 }
 
 void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, int r_S, int r_F, int c_S, int c_F)
@@ -4412,7 +4496,18 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
 
 		if(whats_This == whats_This_Gamma)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_LONG; step_SpinBox->setRange(0, 0.5);}
-		if(whats_This == whats_This_Drift)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_LONG;	}
+
+		if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
+			whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
+			whats_This == whats_This_Sigma_Drift_Line_Value			||
+			whats_This == whats_This_Sigma_Drift_Rand_Rms			||
+			whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
+			whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
+			whats_This == whats_This_Thickness_Drift_Sine_Phase		||
+			whats_This == whats_This_Sigma_Drift_Sine_Amplitude		||
+			whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
+			whats_This == whats_This_Sigma_Drift_Sine_Phase	)		{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
+
 		step_SpinBox->setFixedWidth(min_Width);
 		step_SpinBox->setProperty(min_Size_Property, step_SpinBox->width());
 
@@ -4450,8 +4545,22 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Particle_Z_Position)				{ step_particle_z_position = step_SpinBox->value()*length_Coeff;		  for(MyDoubleSpinBox* spb : particle_Z_Position_Spin_Boxes_List)			spb->setSingleStep(step_particle_z_position/length_Coeff);	}
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ step_particle_z_position_deviation = step_SpinBox->value()*length_Coeff;for(MyDoubleSpinBox* spb : particle_Z_Position_Deviation_Spin_Boxes_List)	spb->setSingleStep(step_particle_z_position_deviation/length_Coeff);	}
 
-		if(whats_This == whats_This_Gamma)					{ step_gamma = step_SpinBox->value();					for(MyDoubleSpinBox* spb : gamma_Spin_Boxes_List)		spb->setSingleStep(step_gamma);					}
-		if(whats_This == whats_This_Drift)					{ step_drift = step_SpinBox->value();					for(MyDoubleSpinBox* spb : drift_Spin_Boxes_List)		spb->setSingleStep(step_drift);					}
+		if(whats_This == whats_This_Gamma)								{ step_gamma = step_SpinBox->value();				for(MyDoubleSpinBox* spb : gamma_Spin_Boxes_List)			spb->setSingleStep(step_gamma);				}
+
+		if(	whats_This == whats_This_Thickness_Drift_Line_Value ||
+			whats_This == whats_This_Sigma_Drift_Line_Value		)		{ step_drift_linear = step_SpinBox->value(); 		for(MyDoubleSpinBox* spb : drift_Linear_Spin_Boxes_List)	spb->setSingleStep(step_drift_linear);	}
+
+		if(	whats_This == whats_This_Thickness_Drift_Rand_Rms ||
+			whats_This == whats_This_Sigma_Drift_Rand_Rms		)		{ step_drift_random = step_SpinBox->value();		for(MyDoubleSpinBox* spb : drift_Random_Spin_Boxes_List)	spb->setSingleStep(step_drift_random);	}
+
+		if(	whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
+			whats_This == whats_This_Sigma_Drift_Sine_Amplitude		)	{ step_drift_amplitude = step_SpinBox->value(); 	for(MyDoubleSpinBox* spb : drift_Amplitude_Spin_Boxes_List)	spb->setSingleStep(step_drift_amplitude);	}
+
+		if(	whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
+			whats_This == whats_This_Sigma_Drift_Sine_Frequency		)	{ step_drift_frequency = step_SpinBox->value();		for(MyDoubleSpinBox* spb : drift_Frequency_Spin_Boxes_List)	spb->setSingleStep(step_drift_frequency);	}
+
+		if(	whats_This == whats_This_Thickness_Drift_Sine_Phase		||
+			whats_This == whats_This_Sigma_Drift_Sine_Phase	)			{ step_drift_phase = step_SpinBox->value();			for(MyDoubleSpinBox* spb : drift_Phase_Spin_Boxes_List)		spb->setSingleStep(step_drift_phase);		}
 
 		resize_Line_Edit(table, step_SpinBox);
 	});
@@ -4493,8 +4602,22 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Particle_Z_Position)				{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_z_position/length_Coeff);				step_SpinBox->setDecimals(line_edit_sigma_precision);	}
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_z_position_deviation/length_Coeff);   step_SpinBox->setDecimals(line_edit_sigma_precision);	}
 
-		if(whats_This == whats_This_Gamma)					{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_gamma);						step_SpinBox->setDecimals(line_edit_gamma_precision);			}
-		if(whats_This == whats_This_Drift)					{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_drift);						step_SpinBox->setDecimals(line_edit_drift_precision);			}
+		if(whats_This == whats_This_Gamma)								{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_gamma);						step_SpinBox->setDecimals(line_edit_gamma_precision);			}
+
+		if(	whats_This == whats_This_Thickness_Drift_Line_Value ||
+			whats_This == whats_This_Sigma_Drift_Line_Value		)		{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_drift_linear);		step_SpinBox->setDecimals(line_edit_drift_precision);	}
+
+		if(	whats_This == whats_This_Thickness_Drift_Rand_Rms ||
+			whats_This == whats_This_Sigma_Drift_Rand_Rms		)		{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_drift_random);		step_SpinBox->setDecimals(line_edit_drift_precision);	}
+
+		if(	whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
+			whats_This == whats_This_Sigma_Drift_Sine_Amplitude		)	{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_drift_amplitude);	step_SpinBox->setDecimals(line_edit_drift_precision);	}
+
+		if(	whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
+			whats_This == whats_This_Sigma_Drift_Sine_Frequency		)	{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_drift_frequency);	step_SpinBox->setDecimals(line_edit_drift_precision);	}
+
+		if(	whats_This == whats_This_Thickness_Drift_Sine_Phase		||
+			whats_This == whats_This_Sigma_Drift_Sine_Phase	)			{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_drift_phase);		step_SpinBox->setDecimals(line_edit_drift_precision);	}
 
 		step_SpinBox->setRange(pow(10,-step_SpinBox->decimals()), MAX_DOUBLE);
 		step_SpinBox->valueChanged(step_SpinBox->value());

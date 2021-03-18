@@ -863,37 +863,53 @@ double PSD_Data::calc_Sigma_Effective() const
 		double dnu;
 		if(PSD_Type == PSD_Type_1D)
 		{
-			// first point
-			dnu = argument[1] - argument[0];
-			sigma2 += value[0]*dnu;
+			/// integrating by rectangles
+//			// first point
+//			dnu = argument[1] - argument[0];
+//			sigma2 += value[0]*dnu;
 
-			// intermediate points
-			for(int i=1; i<argument.size()-1; i++)
+//			// intermediate points
+//			for(int i=1; i<argument.size()-1; i++)
+//			{
+//				dnu = (argument[i+1] - argument[i-1])/2;
+//				sigma2 += value[i]*dnu;
+//			}
+
+//			// last point
+//			dnu = argument[argument.size()-1] - argument[argument.size()-2];
+//			sigma2 += value[argument.size()-1]*dnu;
+
+			/// integrating by trapezoids
+			for(int i=0; i<argument.size()-1; i++)
 			{
-				dnu = (argument[i+1] - argument[i-1])/2;
-				sigma2 += value[i]*dnu;
+				dnu = argument[i+1] - argument[i];
+				sigma2 += (value[i] + value[i+1])/2 * dnu;
 			}
-
-			// last point
-			dnu = argument[argument.size()-1] - argument[argument.size()-2];
-			sigma2 += value[argument.size()-1]*dnu;
 		}
 		if(PSD_Type == PSD_Type_2D)
 		{
-			// first point
-			dnu = argument[1] - argument[0];
-			sigma2 += value[0]*dnu * 2*M_PI*argument[0];
+			/// integrating by rectangles
+//			// first point
+//			dnu = argument[1] - argument[0];
+//			sigma2 += value[0]*dnu * 2*M_PI*argument[0];
 
-			// intermediate points
-			for(int i=1; i<argument.size()-1; i++)
+//			// intermediate points
+//			for(int i=1; i<argument.size()-1; i++)
+//			{
+//				dnu = (argument[i+1] - argument[i-1])/2;
+//				sigma2 += value[i]*dnu * 2*M_PI*argument[i];
+//			}
+
+//			// last point
+//			dnu = argument[argument.size()-1] - argument[argument.size()-2];
+//			sigma2 += value[argument.size()-1]*dnu * 2*M_PI*argument[argument.size()-1];
+
+			/// integrating by trapezoids
+			for(int i=0; i<argument.size()-1; i++)
 			{
-				dnu = (argument[i+1] - argument[i-1])/2;
-				sigma2 += value[i]*dnu * 2*M_PI*argument[i];
+				dnu = argument[i+1] - argument[i];
+				sigma2 += M_PI*(value[i]*argument[i] + value[i+1]*argument[i+1]) * dnu;
 			}
-
-			// last point
-			dnu = argument[argument.size()-1] - argument[argument.size()-2];
-			sigma2 += value[argument.size()-1]*dnu * 2*M_PI*argument[argument.size()-1];
 		}
 		return sqrt(sigma2);
 	} else

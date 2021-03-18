@@ -303,7 +303,11 @@ double	step_particle_z_position_deviation;
 
 double	step_interlayer;
 double	step_gamma;
-double	step_drift;
+double	step_drift_linear;
+double	step_drift_random;
+double	step_drift_amplitude;
+double	step_drift_frequency;
+double	step_drift_phase;
 double	step_thickness_aperiodic;
 double	step_sigma_aperiodic;
 
@@ -892,7 +896,11 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 
 		step_interlayer			= structure_Default_Values.value( "step_interlayer",		 0.1  ).toDouble();
 		step_gamma				= structure_Default_Values.value( "step_gamma",				 0.01 ).toDouble();
-		step_drift				= structure_Default_Values.value( "step_drift",				 0.001).toDouble();
+		step_drift_linear		= structure_Default_Values.value( "step_drift_linear",		 0.001).toDouble();
+		step_drift_random		= structure_Default_Values.value( "step_drift_random",		 0.01).toDouble();
+		step_drift_amplitude	= structure_Default_Values.value( "step_drift_amplitude",	 0.01).toDouble();
+		step_drift_frequency	= structure_Default_Values.value( "step_drift_frequency",	 0.01).toDouble();
+		step_drift_phase		= structure_Default_Values.value( "step_drift_phase",		 0.01).toDouble();
 		step_thickness_aperiodic= structure_Default_Values.value( "step_thickness_aperiodic",0.1  ).toDouble();
 		step_sigma_aperiodic	= structure_Default_Values.value( "step_sigma_aperiodic",	 0.1  ).toDouble();
 	structure_Default_Values.endGroup();
@@ -1128,8 +1136,12 @@ void Settings::save_Structure_Default_Values()
 		structure_Default_Values.setValue( "step_particle_z_position_deviation",step_particle_z_position_deviation	);
 
 		structure_Default_Values.setValue( "step_interlayer",			step_interlayer			);
-		structure_Default_Values.setValue( "step_gamma",				step_gamma				);
-		structure_Default_Values.setValue( "step_drift",				step_drift				);
+		structure_Default_Values.setValue( "step_gamma",				step_gamma				);		
+		structure_Default_Values.setValue( "step_drift_linear",			step_drift_linear		);
+		structure_Default_Values.setValue( "step_drift_random",			step_drift_random		);
+		structure_Default_Values.setValue( "step_drift_amplitude",		step_drift_amplitude	);
+		structure_Default_Values.setValue( "step_drift_frequency",		step_drift_frequency	);
+		structure_Default_Values.setValue( "step_drift_phase",			step_drift_phase		);
 		structure_Default_Values.setValue( "step_thickness_aperiodic",	step_thickness_aperiodic);
 		structure_Default_Values.setValue( "step_sigma_aperiodic",		step_sigma_aperiodic	);
 	structure_Default_Values.endGroup();

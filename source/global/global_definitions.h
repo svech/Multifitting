@@ -352,7 +352,6 @@ class Node;
 #define whats_This_Thickness_Drift_Sine_Phase		"Thickness Drift Sine Phase"
 
 #define whats_This_Thickness_Drift_Sine				"Thickness Drift Sine"
-#define whats_This_Drift							"Drift"
 
 // whatsThis : sigma drifts
 #define whats_This_Sigma_Drift_Line_Value			"Sigma Drift Lin Value"
