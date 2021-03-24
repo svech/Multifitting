@@ -20,6 +20,12 @@ Rocking_Independent_Curve_Part::Rocking_Independent_Curve_Part(Independent_Curve
 	independent_Curve->refresh_Description_Label();
 }
 
+void Rocking_Independent_Curve_Part::closeEvent(QCloseEvent* event)
+{
+	independent_Curve->measurement.beam_Theta_0_Angle.independent.min = temporary_Min;
+	independent_Curve->measurement.beam_Theta_0_Angle.independent.max = temporary_Max;
+}
+
 void Rocking_Independent_Curve_Part::create_Units_GroupBox()
 {
 	QGroupBox* units_GroupBox = new QGroupBox("Units");
@@ -128,6 +134,9 @@ void Rocking_Independent_Curve_Part::create_Argument_GroupBox()
 		argument_Units_Label = new QLabel(independent_Curve->angular_Units);
 		argument_GroupBox_Layout->addWidget(argument_Units_Label,0,Qt::AlignLeft);
 
+		// initialization
+		temporary_Min = independent_Curve->measurement.beam_Theta_0_Angle.independent.min;
+		temporary_Max = independent_Curve->measurement.beam_Theta_0_Angle.independent.max;
 		fill_Argument();
 	}
 }
@@ -285,30 +294,21 @@ void Rocking_Independent_Curve_Part::fill_Argument()
 
 	double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
 
-	independent_Curve->measurement.beam_Theta_0_Angle.independent.min = max(independent_Curve->measurement.beam_Theta_0_Angle.independent.min, 0.);
-	independent_Curve->measurement.beam_Theta_0_Angle.independent.min = min(independent_Curve->measurement.beam_Theta_0_Angle.independent.min, 2*independent_Curve->measurement.beam_Theta_0_Specular_Position);
-
-	independent_Curve->measurement.beam_Theta_0_Angle.independent.max = max(independent_Curve->measurement.beam_Theta_0_Angle.independent.max, 0.);
-	independent_Curve->measurement.beam_Theta_0_Angle.independent.max = min(independent_Curve->measurement.beam_Theta_0_Angle.independent.max, 2*independent_Curve->measurement.beam_Theta_0_Specular_Position);
-
 	if(independent_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 	{
-		start_Argument_Spinbox->setRange(0, 2*independent_Curve->measurement.beam_Theta_0_Specular_Position/coeff);
-		final_Argument_Spinbox->setRange(0, 2*independent_Curve->measurement.beam_Theta_0_Specular_Position/coeff);
+		start_Argument_Spinbox->setRange(0, 90/coeff);
+		final_Argument_Spinbox->setRange(0, 90/coeff);
 
-		start_Argument_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.min/coeff);
-		final_Argument_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.max/coeff);
+		start_Argument_Spinbox->setValue(temporary_Min/coeff);
+		final_Argument_Spinbox->setValue(temporary_Max/coeff);
 	}
 	if(independent_Curve->measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
 	{
-		double min_Range = -independent_Curve->measurement.beam_Theta_0_Specular_Position;
-		double max_Range =  independent_Curve->measurement.beam_Theta_0_Specular_Position;
+		start_Argument_Spinbox->setRange(-90/coeff, 90/coeff);
+		final_Argument_Spinbox->setRange(-90/coeff, 90/coeff);
 
-		start_Argument_Spinbox->setRange(min_Range/coeff, max_Range/coeff);
-		final_Argument_Spinbox->setRange(min_Range/coeff, max_Range/coeff);
-
-		start_Argument_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.min/coeff-independent_Curve->measurement.beam_Theta_0_Specular_Position/coeff);
-		final_Argument_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.max/coeff-independent_Curve->measurement.beam_Theta_0_Specular_Position/coeff);
+		start_Argument_Spinbox->setValue(temporary_Min/coeff-independent_Curve->measurement.beam_Theta_0_Specular_Position/coeff);
+		final_Argument_Spinbox->setValue(temporary_Max/coeff-independent_Curve->measurement.beam_Theta_0_Specular_Position/coeff);
 	}
 
 	start_Argument_Spinbox->blockSignals(false);
@@ -395,37 +395,70 @@ void Rocking_Independent_Curve_Part::refresh_Spectral_Units()
 	}
 }
 
-void Rocking_Independent_Curve_Part::refresh_Argument_Values(bool num_Points_Changed)
+void Rocking_Independent_Curve_Part::refresh_Num_Points()
 {
-	double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
-
 	independent_Curve->measurement.beam_Theta_0_Angle.independent.num_Points = num_Points_Spinbox->value();
 
+	// independently of main calculation
+	independent_Curve->calc_Independent_cos2_k();
+}
+
+void Rocking_Independent_Curve_Part::refresh_Argument_Min()
+{
+	double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
 	if(independent_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 	{
-		independent_Curve->measurement.beam_Theta_0_Angle.independent.min = start_Argument_Spinbox->value()*coeff;
-		independent_Curve->measurement.beam_Theta_0_Angle.independent.max = final_Argument_Spinbox->value()*coeff;
+		temporary_Min = start_Argument_Spinbox->value()*coeff;
 	}
 	if(independent_Curve->measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
 	{
-		independent_Curve->measurement.beam_Theta_0_Angle.independent.min = start_Argument_Spinbox->value()*coeff + independent_Curve->measurement.beam_Theta_0_Specular_Position;
-		independent_Curve->measurement.beam_Theta_0_Angle.independent.max = final_Argument_Spinbox->value()*coeff + independent_Curve->measurement.beam_Theta_0_Specular_Position;
+		temporary_Min = start_Argument_Spinbox->value()*coeff + independent_Curve->measurement.beam_Theta_0_Specular_Position;
 	}
+	independent_Curve->measurement.beam_Theta_0_Angle.independent.min = min(temporary_Min, 2*independent_Curve->measurement.beam_Theta_0_Specular_Position);
+	independent_Curve->measurement.beam_Theta_0_Angle.independent.min = max(independent_Curve->measurement.beam_Theta_0_Angle.independent.min, 0.);
+
 	independent_Curve->refresh_Description_Label();
 
 	// independently of main calculation
 	independent_Curve->calc_Independent_cos2_k();
 
 	// curve plots
-	if(!num_Points_Changed)
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 	{
-		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
 		{
-			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
-			{
-				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
-				curve_Plot_1D->plot_All_Data();
-			}
+			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
+			curve_Plot_1D->plot_All_Data();
+		}
+	}
+}
+
+void Rocking_Independent_Curve_Part::refresh_Argument_Max()
+{
+	double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
+	if(independent_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+	{
+		temporary_Max = final_Argument_Spinbox->value()*coeff;
+	}
+	if(independent_Curve->measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
+	{
+		temporary_Max = final_Argument_Spinbox->value()*coeff + independent_Curve->measurement.beam_Theta_0_Specular_Position;
+	}
+	independent_Curve->measurement.beam_Theta_0_Angle.independent.max = min(temporary_Max, 2*independent_Curve->measurement.beam_Theta_0_Specular_Position);
+	independent_Curve->measurement.beam_Theta_0_Angle.independent.max = max(independent_Curve->measurement.beam_Theta_0_Angle.independent.max, 0.);
+
+	independent_Curve->refresh_Description_Label();
+
+	// independently of main calculation
+	independent_Curve->calc_Independent_cos2_k();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
+		{
+			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
+			curve_Plot_1D->plot_All_Data();
 		}
 	}
 }
@@ -461,10 +494,14 @@ void Rocking_Independent_Curve_Part::refresh_At_Fixed_Specular_Position()
 
 	if(independent_Curve->measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
 	{
-		independent_Curve->measurement.beam_Theta_0_Angle.independent.min += delta;
-		independent_Curve->measurement.beam_Theta_0_Angle.independent.max += delta;
+		temporary_Min += delta;
+		temporary_Max += delta;
 	}
-	fill_Argument();
+	independent_Curve->measurement.beam_Theta_0_Angle.independent.min = min(temporary_Min, 2*independent_Curve->measurement.beam_Theta_0_Specular_Position);
+	independent_Curve->measurement.beam_Theta_0_Angle.independent.min = max(independent_Curve->measurement.beam_Theta_0_Angle.independent.min, 0.);
+	independent_Curve->measurement.beam_Theta_0_Angle.independent.max = min(temporary_Max, 2*independent_Curve->measurement.beam_Theta_0_Specular_Position);
+	independent_Curve->measurement.beam_Theta_0_Angle.independent.max = max(independent_Curve->measurement.beam_Theta_0_Angle.independent.max, 0.);
+
 	independent_Curve->refresh_Description_Label();
 
 	// independently of main calculation
@@ -551,19 +588,19 @@ void Rocking_Independent_Curve_Part::connecting()
 	// number of points
 	connect(num_Points_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 	{
-		refresh_Argument_Values(true);
+		refresh_Num_Points();
 		global_Multilayer_Approach->global_Recalculate();
 	});
 	// start value
 	connect(start_Argument_Spinbox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		refresh_Argument_Values();
+		refresh_Argument_Min();
 		global_Multilayer_Approach->global_Recalculate();
 	});
 	// final value
 	connect(final_Argument_Spinbox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		refresh_Argument_Values();
+		refresh_Argument_Max();
 		global_Multilayer_Approach->global_Recalculate();
 	});
 
