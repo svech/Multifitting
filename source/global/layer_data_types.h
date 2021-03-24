@@ -54,7 +54,7 @@ public:
 		size_t end_Phi_Number; // last index +1
 
 
-		// deam distribution
+		// beam distribution
 		Distribution spectral_Distribution;		
 		Distribution beam_Theta_0_Distribution;
 		Distribution beam_Phi_0_Distribution;
@@ -71,6 +71,7 @@ public:
 		double polarization;
 		double background;
 
+		double  beam_Theta_0_Divergence_With_Curvature;			// wihout saving
 		vector<double> theta_0_Resolution_Vec;					// without saving, arg = Beam_Grazing_Angle
 		vector<double> theta_0_Resolution_Vec_Rocking_Offset;	// without saving, arg = Beam_Grazing_Angle
 		vector<double> theta_0_Resolution_From_Spectral_Vec;	// without saving, arg = Beam_Grazing_Angle

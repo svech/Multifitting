@@ -960,17 +960,18 @@ void Data::calc_Mixed_Resolution()
 {	
 	// supplementary
 	double curvature_In_Mm = sample_Geometry.curvature/1000;
-	double alpha_Max = 0, beta_Max = 0;
+	double alpha_Max = 0; // maximum divergence of truncated beam
+	double beta_Max  = 0; // maximum divergence, produced by curvature
 	if(beam_Geometry.size > sample_Geometry.size*beam_Theta_0_Sin_Value)
 	{
 		alpha_Max = sample_Geometry.size*beam_Theta_0_Sin_Value/beam_Geometry.size*beam_Theta_0_Distribution.FWHM_distribution;	// in degrees
-		beta_Max = qRadiansToDegrees(asin(sample_Geometry.size/2*curvature_In_Mm));			// in degrees, fixed
+		beta_Max = qRadiansToDegrees(asin(sample_Geometry.size/2*curvature_In_Mm));												// in degrees, fixed
 	} else
 	{
-		alpha_Max = beam_Theta_0_Distribution.FWHM_distribution;										 // in degrees, fixed
-		beta_Max = qRadiansToDegrees(asin(beam_Geometry.size/2/beam_Theta_0_Sin_Value*curvature_In_Mm));// in degrees
+		alpha_Max = beam_Theta_0_Distribution.FWHM_distribution;											// in degrees, fixed
+		beta_Max = qRadiansToDegrees(asin((beam_Geometry.size/beam_Theta_0_Sin_Value)/2*curvature_In_Mm));	// in degrees
 	}
-	double real_Alpha = abs(alpha_Max-2*beta_Max);
+	beam_Theta_0_Divergence_With_Curvature = abs(alpha_Max-2*beta_Max);
 
 	// dependent on theta_0 position
 	if( (measurement_Type == measurement_Types[Specular_Scan] && argument_Type == argument_Types[Beam_Grazing_Angle]) ||
@@ -1004,11 +1005,14 @@ void Data::calc_Mixed_Resolution()
 				if(beam_Geometry.size > sample_Geometry.size*beam_Theta_0_Sin_Vec[i])
 				{
 					alpha_Max = sample_Geometry.size*beam_Theta_0_Sin_Vec[i]/beam_Geometry.size*beam_Theta_0_Distribution.FWHM_distribution;	// in degrees
+					beta_Max = qRadiansToDegrees(asin(sample_Geometry.size/2*curvature_In_Mm));						// in degrees, fixed
 				} else
 				{
 					alpha_Max = beam_Theta_0_Distribution.FWHM_distribution;										 // in degrees, fixed
+					beta_Max = qRadiansToDegrees(asin(beam_Geometry.size/2/beam_Theta_0_Sin_Vec[i]*curvature_In_Mm)); // in degrees
 				}
-				theta_0_Resolution_Vec_Rocking_Offset[i] = alpha_Max/2;
+				theta_0_Resolution_Vec_Rocking_Offset[i] = abs(alpha_Max-2*beta_Max)/2;
+//				theta_0_Resolution_Vec_Rocking_Offset[i] = alpha_Max/2;
 			}
 		}
 
@@ -1038,7 +1042,7 @@ void Data::calc_Mixed_Resolution()
 			if(beam_Theta_0_Angle_Value-beam_Theta_0_Distribution.FWHM_distribution/2>0 && beam_Theta_0_Angle_Value>0)
 			{
 				double angle_Temp = qDegreesToRadians(beam_Theta_0_Angle_Value); // in radians
-				double angular_Resolution_Temp = qDegreesToRadians(real_Alpha); // in radians
+				double angular_Resolution_Temp = qDegreesToRadians(beam_Theta_0_Divergence_With_Curvature); // in radians
 				angular_Component = 2*(1-sin(angle_Temp-angular_Resolution_Temp/2)/sin(angle_Temp));
 			}
 			spectral_Resolution_From_Theta_0_Vec[i] = angular_Component*lambda_Vec[i];
