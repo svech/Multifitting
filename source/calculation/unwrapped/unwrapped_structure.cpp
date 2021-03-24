@@ -18,6 +18,7 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 	depth_Grading	(depth_Grading),
 	sigma_Grading	(sigma_Grading),	
 	multilayer			 (multilayer),
+	enable_Discretization(multilayer->discretization_Parameters.enable_Discretization),
 	imperfections_Model  (multilayer->imperfections_Model),
 	calc_Functions		 (calc_Functions),
 	media_Node_Map_Vector(media_Node_Map_Vector),
@@ -25,19 +26,19 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 	media_Period_Index_Map_Vector(media_Period_Index_Map_Vector),
 	measurement			 (measurement)
 {
-	if( multilayer->discretization_Parameters.enable_Discretization ||
+	if( enable_Discretization ||
 		calc_Functions.check_Field || calc_Functions.check_Joule ||
 		calc_Functions.check_Scattering	|| calc_Functions.check_GISAS )
 	{
 		fill_Epsilon_Sharp();
 	}
-	if( multilayer->discretization_Parameters.enable_Discretization ||
+	if( enable_Discretization ||
 		calc_Functions.check_Scattering	|| calc_Functions.check_GISAS ||
 		sigma_Grading )
 	{
 		fill_Sigma_Diffuse_And_Interlayers();
 	}
-	if( multilayer->discretization_Parameters.enable_Discretization ||
+	if( enable_Discretization ||
 		calc_Functions.check_Field || calc_Functions.check_Joule ||
 		calc_Functions.check_Scattering	|| calc_Functions.check_GISAS ||
 		depth_Grading )
@@ -51,7 +52,7 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 	}
 
 	// discretized structure (if discretization is on or just field-epsilon integration for scattering with interlayer)
-	if( multilayer->discretization_Parameters.enable_Discretization ||
+	if( enable_Discretization ||
 		calc_Functions.check_Scattering || calc_Functions.check_GISAS )
 	{
 		// discretized_Thickness is constructed here
@@ -92,7 +93,7 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 	if( calc_Functions.check_Field ||
 		calc_Functions.check_Joule )
 	{
-		if(multilayer->discretization_Parameters.enable_Discretization)
+		if(enable_Discretization)
 		{
 			discretized_Slices_Boundaries.resize(discretized_Thickness.size()+1);
 			discretized_Slices_Boundaries.front() = -num_Prefix_Slices*discretized_Thickness.front();
@@ -149,10 +150,15 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 		common_Sigma_Diffuse[boundary_Index] = media_Data_Map_Vector[media_Index]->common_Sigma_Diffuse;
 		enabled_Interlayer  [boundary_Index] = false;
 
+
 		// interlayers
 		for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
 		{
 			boundary_Interlayer_Composition[boundary_Index][func_Index] = media_Data_Map_Vector[boundary_Index+1]->interlayer_Composition[func_Index];
+
+			if(common_Sigma_Diffuse[boundary_Index]) 	{
+				boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value = sigma_Diffuse[boundary_Index];
+			}
 			// getting max_Sigma
 			if(boundary_Interlayer_Composition[boundary_Index][func_Index].enabled)	{
 				enabled_Interlayer[boundary_Index] = true;
@@ -555,7 +561,7 @@ void Unwrapped_Structure::find_Field_Spacing()
 
 int Unwrapped_Structure::get_Layer_or_Slice_Index(double z)
 {
-	if(multilayer->discretization_Parameters.enable_Discretization)
+	if(enable_Discretization)
 	{
 		std::vector<double>::iterator it_low = std::lower_bound(discretized_Slices_Boundaries.begin(), discretized_Slices_Boundaries.end(), z);
 		return int(it_low-discretized_Slices_Boundaries.begin())-1;

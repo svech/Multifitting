@@ -31,9 +31,9 @@ void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multi
 			qInfo() << endl << "Zero gradient : residual doesn't depend on the variables" << endl << endl;
 			longjmp(buffer_GSL, 2020); // not zero! zero means repeating in infinite loop!
 		}
-		printf("%f\t|f|=%g", params->fitables.param_Pointers[i]->value, residual);
+		printf("%f\t", params->fitables.param_Pointers[i]->value);
 	}
-	printf("\n\n");
+	printf("|f|=%g\n\n", residual);
 }
 
 bool Fitting_GSL::fit()

@@ -15,7 +15,7 @@ Fitting_SwarmOps::Fitting_SwarmOps(Fitting* fitting):
 void Fitting_SwarmOps::callback(Fitting_Params* params, SO_TFitness residual)
 {
 	// print out current location
-	if(params->counter%10 == 0)
+	if(params->counter%10 == 0 || params->counter == params->num_Iter-1)
 	{
 		printf("iter %zu :", params->counter);
 		for(size_t i=0; i<params->fitables.param_Pointers.size(); ++i)
@@ -41,15 +41,16 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitn
 	{
 		longjmp(buffer_SO, 2018); // not zero! zero means repeating in infinite loop!
 	}
-
 	Q_UNUSED(fitnessLimit);
 	Fitting_Params* params = ((struct Fitting_Params*)context);
 
 	// first point is the initial
 	if(global_Multilayer_Approach->fitting_Settings->initialize_By_Current_State && params->counter == 0)
-	for(size_t i=0; i<params->p; ++i)
 	{
-		x[i]  = params->fitables.values_Parametrized[i];
+		for(size_t i=0; i<params->p; ++i)
+		{
+			x[i]  = params->fitables.values_Parametrized[i];
+		}
 	}
 
 	// fill x
@@ -65,16 +66,10 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitn
 	// duplicate SO functionality for aborting
 	if(params->final_Residual < params->my_Res.best.fitness )
 	{
-//		qInfo() << params->my_Res.best.fitness << " -> " << params->final_Residual << endl;
 		params->my_Res.best.fitness = params->final_Residual;
 		for(size_t i=0; i<params->p; ++i)
 		{
 			params->my_Res.best.x[i] = x[i];
-
-//			double qq = params->main_Calculation_Module->unparametrize(	params->my_Res.best.x[i],
-//																			params->fitables.param_Pointers[i]->fit.min,
-//																			params->fitables.param_Pointers[i]->fit.max);
-//			qInfo() << qq << "  ";
 		}
 	}
 
@@ -100,6 +95,7 @@ bool Fitting_SwarmOps::fit()
 	{
 		kNumIterations = global_Multilayer_Approach->fitting_Settings->max_Eval_Factor*kDim;
 	}
+	params->num_Iter = kNumIterations;
 	{
 		// read method
 		if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Mesh_Iteration])						{	kMethodId = SO_kMethodMESH;		}
@@ -191,15 +187,6 @@ bool Fitting_SwarmOps::fit()
 		}  else
 		{
 			final_State_Parametrized = res.best.x;
-
-//			for(size_t i=0; i<params->p; ++i)
-//			{
-//				double qq = params->main_Calculation_Module->unparametrize(	final_State_Parametrized[i],
-//																				params->fitables.param_Pointers[i]->fit.min,
-//																				params->fitables.param_Pointers[i]->fit.max);
-//				qInfo() << qq << "  ";
-//			}
-//			qInfo() << endl << endl;
 		}
 
 		// replace parameters
@@ -212,7 +199,7 @@ bool Fitting_SwarmOps::fit()
 			res.best.x[i] = params->main_Calculation_Module->unparametrize(	final_State_Parametrized[i],
 																			params->fitables.param_Pointers[i]->fit.min,
 																			params->fitables.param_Pointers[i]->fit.max);
-//			params->fitables.param_Pointers[i]->value = res.best.x[i];
+			params->fitables.param_Pointers[i]->value = res.best.x[i];
 		}
 	} else
 	// if randomized start

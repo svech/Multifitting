@@ -217,21 +217,22 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 
 	// change value of slaves of ACTIVE confidentials
 	if(params->calc_Mode == CONFIDENCE )
-	for(size_t i=0; i<params->confidentials.param_Pointers.size(); ++i)
 	{
-		if(params->confidentials.param_Pointers[i]->confidence.is_Active)
+		for(size_t i=0; i<params->confidentials.param_Pointers.size(); ++i)
 		{
-			double old_Value = params->confidentials.param_Pointers[i]->value;
-			double new_Value = params->confidentials.values[i];
+			if(params->confidentials.param_Pointers[i]->confidence.is_Active)
+			{
+				double old_Value = params->confidentials.param_Pointers[i]->value;
+				double new_Value = params->confidentials.values[i];
 
-			// refresh
-			params->confidentials.param_Pointers[i]->value = params->confidentials.values[i];
-			change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, CONFIDENCE);
+				// refresh
+				params->confidentials.param_Pointers[i]->value = params->confidentials.values[i];
+				change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, CONFIDENCE);
+			}
 		}
 	}
 
 	/// now all real_Calc_Tree are changed; we can replicate and stratify them
-
 	int residual_Shift=0;
 
 	// iterate over structures

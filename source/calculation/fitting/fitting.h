@@ -33,6 +33,7 @@ struct Fitting_Params
 
 	// for SwarmOps
 	size_t counter;
+	size_t num_Iter;
 	SO_Results my_Res;
 };
 
