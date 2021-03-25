@@ -48,12 +48,23 @@ public:
 	void calculation_With_Sampling_Theta_0_Vector(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, double lambda_Shift);
 	void single_Calculation(bool print_And_Verbose = true);
 
-	void wrap_Curve(const vector<double>& sparse_Argument, const vector<double>* sparse_Input_Curve, const vector<double>& resolution_FWHM, vector<double>* output_Sparse_Curve, QString distribution_Function);
+	void wrap_Curve(const Data& measurement,
+					const vector<double>& sparse_Argument,
+					const vector<double>* sparse_Input_Curve,
+					const vector<double>& resolution_FWHM,
+					vector<double>* output_Sparse_Curve,
+					QString distribution_Function,
+					bool theta_0_Beam_Profile = false);
 	void wrap_With_Specular		  (Calculated_Values& calculated_Values, const Data& measurement);
 //	void wrap_With_Specular_Single(Calculated_Values& calculated_Values, const Data& measurement);
 //	void wrap_With_Specular_Vector(Calculated_Values& calculated_Values, const Data& measurement);
 	void wrap_With_Specular_2D(Calculated_Values& calculated_Values, const Data& measurement);
-	void wrap_2D_Curve(const Data& measurement, Calculated_Values& calculated_Values, const vector<double>& resolution_FWHM, QString distribution_Function, QString theta_Phi);
+	void wrap_2D_Curve(const Data& measurement,
+					   Calculated_Values& calculated_Values,
+					   const vector<double>& resolution_FWHM,
+					   QString distribution_Function,
+					   QString theta_Phi,
+					   bool theta_0_Beam_Profile = false);
 	template <typename Type>
 	void postprocessing(Data_Element<Type>& data_Element, bool fit_Mode = false);
 

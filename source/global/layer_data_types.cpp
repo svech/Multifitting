@@ -1113,12 +1113,14 @@ void Data::calc_Mixed_Resolution()
 		if(detector_2D.detector_Type == detectors[Spherical])	{phi_Resolution_FWHM = detector_2D.detector_Phi_Resolution.FWHM_distribution; phi_Distribution = detector_2D.detector_Phi_Resolution.distribution_Function;}
 
 		phi_Resolution_Vec.resize(detector_Phi_Angle_Vec.size());
+		phi_Beam_Spot_Size_Vec.resize(detector_Phi_Angle_Vec.size());
 		for(size_t i=0; i<phi_Resolution_Vec.size(); ++i)
 		{
 			phi_Resolution_Vec[i] = sqrt(phi_Resolution_FWHM*
 										 phi_Resolution_FWHM +
 										 beam_Phi_0_Distribution.FWHM_distribution*
 										 beam_Phi_0_Distribution.FWHM_distribution);
+			phi_Beam_Spot_Size_Vec[i] = qRadiansToDegrees(beam_Geometry.lateral_Width/detector_2D.distance_To_Sample);
 		}
 	}
 }

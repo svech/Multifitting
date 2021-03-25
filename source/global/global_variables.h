@@ -330,6 +330,7 @@ public:
 	// beam profile
 	static double beam_Profile(double x, double FWHM, double smoothing);
 	static double beam_Profile_Integral(double x, double FWHM, double smoothing);
+	static double beam_Profile_Bounds(double FWHM, double smoothing);
 	static double beam_Profile_Integral_Bounded(double x, double FWHM, double smoothing, double left_Bound, double right_Bound);
 	static double beam_Profile_With_Wings(double x, double FWHM, double smoothing, double wings_FW, double wings_Intensity);
 	static double beam_Profile_With_Wings_Integral(double x, double FWHM, double smoothing, double wings_FW, double wings_Intensity);

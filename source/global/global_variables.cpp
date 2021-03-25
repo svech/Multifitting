@@ -2352,9 +2352,10 @@ double Global_Variables::beam_Profile(double x, double FWHM, double smoothing)
 }
 
 double Global_Variables::beam_Profile_Integral(double x, double FWHM, double smoothing)
-{	
-	if(x >  0.7*FWHM+10*FWHM*smoothing) x =  0.7*FWHM+10*FWHM*smoothing;
-	if(x < -0.7*FWHM-10*FWHM*smoothing) x = -0.7*FWHM-10*FWHM*smoothing;
+{
+	double bound = beam_Profile_Bounds(FWHM,smoothing);
+	if(x >  bound) x =  bound;
+	if(x < -bound) x = -bound;
 
 	if(smoothing < DBL_EPSILON)
 	{
@@ -2369,6 +2370,11 @@ double Global_Variables::beam_Profile_Integral(double x, double FWHM, double smo
 		return FWHM/2 + log( cosh(co_Smooth + 4*x*acosh_Value) / cosh(co_Smooth - 4*x*acosh_Value) ) / denominator;
 	}
 	return 0;
+}
+
+double Global_Variables::beam_Profile_Bounds(double FWHM, double smoothing)
+{
+	return 0.7*FWHM+7*FWHM*smoothing;
 }
 
 double Global_Variables::beam_Profile_Integral_Bounded(double x, double FWHM, double smoothing, double left_Bound, double right_Bound)
