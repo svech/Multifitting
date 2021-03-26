@@ -1107,6 +1107,7 @@ inline void Unwrapped_Reflection::fill_Item_PSD_2D(int thread_Index, int point_I
 	{
 		Node* node = short_Flat_Calc_Tree[item_Index];
 		Data& item = appropriate_Item_Vec[item_Index];
+		choose_PSD_2D_Function(item, thread_Index);
 		double value = PSD_2D_Func_Vec[thread_Index](item.main_PSD_2D_factor,
 		                                             item.roughness_Model.cor_radius.value,
 		                                             item.roughness_Model.fractal_alpha.value,
@@ -2394,7 +2395,7 @@ double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point
 				half_Sum_Field_Term[i][j] = 2*real(field_Term_Boundary[i]*conj(field_Term_Boundary[j]));
 			}
 		}
-		if(multilayer->imperfections_Model.PSD_Model == ABC_Model)			 return incoherent_Diagonal_Sum;
+		return incoherent_Diagonal_Sum;
 	}
 	return -2020;
 }
@@ -2427,13 +2428,13 @@ void Unwrapped_Reflection::choose_PSD_1D_Function(const Data& struct_Data, int t
 		{
 			if(abs(struct_Data.roughness_Model.fractal_alpha.value-1)>DBL_EPSILON)
 			{
-				if(abs(struct_Data.roughness_Model.fractal_alpha.value - 0.5) < DBL_EPSILON)
-				{
-					PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_1D;
-				} else
-				{
+//				if(abs(struct_Data.roughness_Model.fractal_alpha.value - 0.5) < DBL_EPSILON)
+//				{
+//					PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_1D; // don't use, because of different factors main_PSD_1D_factor and main_PSD_2D_factor in Node, used with different functions
+//				} else
+//				{
 					PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_Fractal_Gauss_1D;
-				}
+//				}
 			} else
 			{
 				PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_Real_Gauss_1D;
@@ -2471,13 +2472,13 @@ void Unwrapped_Reflection::choose_PSD_2D_Function(const Data& struct_Data, int t
 		{
 			if(abs(struct_Data.roughness_Model.fractal_alpha.value-1)>DBL_EPSILON)
 			{
-				if(abs(struct_Data.roughness_Model.fractal_alpha.value - 0.5) < DBL_EPSILON)
-				{
-					PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_2D;
-				} else
-				{
+//				if(abs(struct_Data.roughness_Model.fractal_alpha.value - 0.5) < DBL_EPSILON)
+//				{
+//					PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_2D; // don't use, because of different factors main_PSD_1D_factor and main_PSD_2D_factor in Node, used with different functions
+//				} else
+//				{
 					PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Fractal_Gauss_2D;
-				}
+//				}
 			} else
 			{
 				PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Real_Gauss_2D;

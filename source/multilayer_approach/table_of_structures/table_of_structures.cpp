@@ -537,7 +537,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		bool steps_Are_Done_Peak_Sigma = false;
 		bool steps_Are_Done_Peak_Frequency = false;			Q_UNUSED(steps_Are_Done_Peak_Frequency)// adaptive step
 		bool steps_Are_Done_Peak_Frequency_Width = false;	Q_UNUSED(steps_Are_Done_Peak_Frequency_Width)// adaptive step
-		bool steps_Are_Done_Sigma_Factor_PSD = false;
+		bool steps_Are_Done_Sigma_Factor_PSD = false;		
+		bool nu0_Is_Done = false;
+
 
 		bool steps_Are_Done_Particle_Density = false;
 		bool steps_Are_Done_Particle_Radius = false;
@@ -1297,9 +1299,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 				/// here we put nu0 for correlation depth
 				// nu0 value
+				if(!nu0_Is_Done)
 				{
 					create_Nu0_Label	(new_Table,	tab_Index, steps_Row,   current_Column);
 					create_Nu0_Spin_Box (new_Table, tab_Index, steps_Row+1, current_Column);
+					nu0_Is_Done = true;
 				}
 				last_Roughness_Column = max(current_Column,last_Roughness_Column);
 				current_Column+=2;
@@ -3352,6 +3356,7 @@ void Table_Of_Structures::create_Nu0_Spin_Box(My_Table_Widget* table, int tab_In
 		vertical_Inheritance_Roughness_Frequency_Spinbox->setProperty(min_Size_Property,TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	all_Widgets_To_Reload[tab_Index].append(vertical_Inheritance_Roughness_Frequency_Spinbox);
 
+
 	{
 		double ff = vertical_Inheritance_Roughness_Frequency_Spinbox->value();
 		if(            ff<1E-5)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(7);
@@ -4204,7 +4209,7 @@ void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* tabl
 			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 			QLabel* label = new QLabel("s "+transition_Layer_Functions[interlayer_Index]);
-			label->setAlignment(Qt::AlignCenter);
+				label->setAlignment(Qt::AlignCenter);
 			all_Widgets_To_Reload[tab_Index].append(label);
 
 			// set up BACK widget

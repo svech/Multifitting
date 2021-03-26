@@ -972,7 +972,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 			p += dp[sec];
 
 			interpoints_Sum_Argum_Vec[counter] = p;
-			if(abs(1-alpha)>DBL_EPSILON && abs(0.5-alpha)>DBL_EPSILON)
+			if(abs(1-alpha)>DBL_EPSILON/* && abs(0.5-alpha)>DBL_EPSILON*/) // integrate even for alpha == 0.5
 			{
 				std::pair<double, double> result_Boost = integrator.integrate(f, p);
 				result = result_Boost.first;
@@ -1098,7 +1098,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 
 			interpoints_Sum_Argum_Vec[counter] = nu;
 
-			if(abs(1-alpha)>DBL_EPSILON && abs(0.5-alpha)>DBL_EPSILON)
+			if(abs(1-alpha)>DBL_EPSILON/* && abs(0.5-alpha)>DBL_EPSILON*/) // integrate even for alpha == 0.5
 			{
 				double integral = 0;
 				double division_Point = shift/nu;
