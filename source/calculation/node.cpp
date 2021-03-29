@@ -705,7 +705,7 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	if(imperfections_Model.add_Gauss_Peak)
 	{
 		peak_Sigma_2.resize(num_Points);
-		double peak_Range_Factor = 10;
+		double peak_Range_Factor = 8;
 		double peak_Sigma = struct_Data.roughness_Model.peak_Sigma.value;
 		double peak_Frequency = struct_Data.roughness_Model.peak_Frequency.value;
 		double peak_Frequency_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
@@ -718,7 +718,7 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 			if(p0[i]>DBL_MIN)
 			{
 				double p_Bound = min(p0[i]/(2*M_PI), p_Max); // real frequency
-				double integral = gauss_kronrod<double,15>::integrate(psd_Peak, 0, p_Bound, 2, 1e-7);
+				double integral = gauss_kronrod<double,11>::integrate(psd_Peak, 0, p_Bound, 1, 1e-7);
 				if(isnan(integral)) integral = 0;
 				peak_Sigma_2[i] = peak_Sigma*peak_Sigma - integral;
 			} else
@@ -1255,19 +1255,19 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 	if(struct_Data.item_Type == item_Type_Ambient) return;
 	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
 
-	double peak_Range_Factor = 10;
+	double peak_Range_Factor = 8;
 	double peak_Frequency = struct_Data.roughness_Model.peak_Frequency.value;
 	double peak_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
 
 	double p_Max = peak_Frequency + peak_Width*peak_Range_Factor;
-	int common_Size = 200;
+	int common_Size = 150;
 
 	QVector<double> interpoints_Argum_Vec(common_Size);
 	QVector<double> interpoints_Value_Vec(common_Size);
 	double dp = p_Max/(common_Size-1);
 
 
-	// boost integrator
+	// integrator
 	double p = 0;
 	if(peak_Frequency>DBL_EPSILON)
 	{	
@@ -1303,17 +1303,7 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 			gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
 			interpoints_Value_Vec[i] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * result;
 		}
-
 		gsl_integration_workspace_free (w);
-
-
-//		Global_Variables::parallel_For(int(q_Vec.size()), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
-//		{
-//			for(size_t q_Index = n_Min; q_Index<n_Max; q_Index++)
-//			{
-
-//			}
-//		});
 	} else
 	// usual gauss
 	{
