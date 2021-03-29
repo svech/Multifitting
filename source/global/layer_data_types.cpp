@@ -964,8 +964,8 @@ void Data::calc_Mixed_Resolution()
 	double beta_Max  = 0; // maximum divergence, produced by curvature
 	if(beam_Geometry.size > sample_Geometry.size*beam_Theta_0_Sin_Value)
 	{
-		alpha_Max = sample_Geometry.size*beam_Theta_0_Sin_Value/beam_Geometry.size*beam_Theta_0_Distribution.FWHM_distribution;	// in degrees
-		beta_Max = qRadiansToDegrees(asin(sample_Geometry.size/2*curvature_In_Mm));												// in degrees, fixed
+		alpha_Max = (sample_Geometry.size*beam_Theta_0_Sin_Value/beam_Geometry.size) * beam_Theta_0_Distribution.FWHM_distribution;	// in degrees
+		beta_Max = qRadiansToDegrees(asin(sample_Geometry.size/2*curvature_In_Mm));													// in degrees, fixed
 	} else
 	{
 		alpha_Max = beam_Theta_0_Distribution.FWHM_distribution;											// in degrees, fixed

@@ -596,22 +596,22 @@ void Rocking_Target_Curve_Part::refresh_At_Fixed_Wavelength_Value()
 
 void Rocking_Target_Curve_Part::reset_Range_Specular_Position()
 {
-	at_Fixed_Specular_Position_SpinBox->blockSignals(true);
+//	at_Fixed_Specular_Position_SpinBox->blockSignals(true);
 
-	if(target_Curve->loaded_And_Ready)
-	{
-		double coeff = angle_Coefficients_Map.value(target_Curve->angular_Units);
-		double max_Value = max(abs(target_Curve->curve.shifted_Argument.front()), abs(target_Curve->curve.shifted_Argument.back()))*coeff;
-		if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
-		{
-			max_Value = max_Value/2;
-		}
-		at_Fixed_Specular_Position_SpinBox->setRange(max_Value/coeff, 90./coeff);
-		target_Curve->measurement.beam_Theta_0_Specular_Position = max(target_Curve->measurement.beam_Theta_0_Specular_Position, max_Value);
-		at_Fixed_Specular_Position_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Specular_Position/coeff);
-	}
+//	if(target_Curve->loaded_And_Ready)
+//	{
+//		double coeff = angle_Coefficients_Map.value(target_Curve->angular_Units);
+//		double max_Value = max(abs(target_Curve->curve.shifted_Argument.front()), abs(target_Curve->curve.shifted_Argument.back()))*coeff;
+//		if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+//		{
+//			max_Value = max_Value/2;
+//		}
+//		at_Fixed_Specular_Position_SpinBox->setRange(max_Value/coeff, 90./coeff);
+//		target_Curve->measurement.beam_Theta_0_Specular_Position = max(target_Curve->measurement.beam_Theta_0_Specular_Position, max_Value);
+//		at_Fixed_Specular_Position_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Specular_Position/coeff);
+//	}
 
-	at_Fixed_Specular_Position_SpinBox->blockSignals(false);
+//	at_Fixed_Specular_Position_SpinBox->blockSignals(false);
 }
 
 void Rocking_Target_Curve_Part::refresh_Plot_Axes_Labels()

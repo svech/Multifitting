@@ -964,14 +964,14 @@ void Common_Part::auto_Replot_Curve()
 
 	// show arrows
 	double factor = (sample_Profile_CustomPlot->yAxis->range().upper-sample_Profile_CustomPlot->yAxis->range().lower) /
-			(sample_Profile_CustomPlot->xAxis->range().upper-sample_Profile_CustomPlot->xAxis->range().lower);
+					(sample_Profile_CustomPlot->xAxis->range().upper-sample_Profile_CustomPlot->xAxis->range().lower);
 
 	double limit = 0.5*size;
-	arrow_Incident->start->setCoords(-limit, limit*factor+z_Pos*0.8);
-	arrow_Incident->end->setCoords(-size/10, size/10*factor+z_Pos*0.8);
+	arrow_Incident->start->setCoords(-limit, limit*factor+z_Pos*0.2);
+	arrow_Incident->end->setCoords(-size/10, size/10*factor+z_Pos*0.2);
 
-	arrow_Reflected->start->setCoords(size/10, size/10*factor+z_Pos*0.8);
-	arrow_Reflected->end->setCoords(limit, limit*factor+z_Pos*0.8);
+	arrow_Reflected->start->setCoords(size/10, size/10*factor+z_Pos*0.2);
+	arrow_Reflected->end->setCoords(limit, limit*factor+z_Pos*0.2);
 
 	sample_Profile_CustomPlot->replot();
 }

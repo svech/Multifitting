@@ -1132,7 +1132,7 @@ void Main_Calculation_Module::wrap_With_Specular(Calculated_Values& calculated_V
 		return integral;
 	};
 
-	double nominal_Divergence = measurement.beam_Theta_0_Divergence_With_Curvature;//measurement.beam_Theta_0_Distribution.FWHM_distribution;
+	double nominal_Divergence = max(measurement.beam_Theta_0_Distribution.FWHM_distribution, measurement.beam_Theta_0_Divergence_With_Curvature);
 	Global_Variables::parallel_For(theta_Vec.size(), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 	{
 		Q_UNUSED(thread_Index)
