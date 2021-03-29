@@ -2356,7 +2356,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		return;
 	}
 
-	// prepare cos2 and active_Parameter_Whats_This
+	// prepare measurement vectors and fill calc_Trees
 	preliminary_Calculation();
 
 	// reload dependences
@@ -2381,7 +2381,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	// checking for lambda_Out_Of_Range
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
-		calculation_Trees[tab_Index]->fill_Calc_Trees();
+//		calculation_Trees[tab_Index]->fill_Calc_Trees();
 		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 		{
 			calculation_With_Sampling(calculation_Trees[tab_Index], target_Element);
@@ -2395,7 +2395,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		// prepare real_Calc_Tree (for all multilayers!)
-		calculation_Trees[tab_Index]->fill_Tree_From_Scratch(calculation_Trees[tab_Index]->real_Calc_Tree, calculation_Trees[tab_Index]->real_Struct_Tree, multilayers[tab_Index]);
+//		calculation_Trees[tab_Index]->fill_Tree_From_Scratch(calculation_Trees[tab_Index]->real_Calc_Tree, calculation_Trees[tab_Index]->real_Struct_Tree, multilayers[tab_Index]);
 
 		if( calculation_Trees[tab_Index]->target.size()>0 )
 		{

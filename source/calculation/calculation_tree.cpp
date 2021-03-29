@@ -627,6 +627,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 		if( measurement.measurement_Type == measurement_Types[Specular_Scan])
 		{
 			// here we create DW sigmas
+			short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Peak(multilayer->imperfections_Model);
 			short_Flat_Calc_Tree[node_Index]->calc_Debye_Waller_Sigma(measurement, multilayer->imperfections_Model);
 		}
 	}
@@ -639,6 +640,11 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 		{
 			if(multilayer->imperfections_Model.use_Roughness)
 			{
+				if(measurement.measurement_Type == measurement_Types[Specular_Scan])
+				{
+					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Peak(multilayer->imperfections_Model);
+				}
+
 				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
 					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 					measurement.measurement_Type == measurement_Types[Offset_Scan] ||
@@ -662,6 +668,13 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 				// TODO when 2D, when 1D
 				short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D(measurement, multilayer->imperfections_Model);
 			}
+		}
+	}
+	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
+	{
+		if( measurement.measurement_Type == measurement_Types[Specular_Scan])
+		{
+			short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Peak(multilayer->imperfections_Model);
 		}
 	}
 }

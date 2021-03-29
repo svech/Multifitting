@@ -1043,7 +1043,7 @@ void Unwrapped_Reflection::fill_DW_Factors_From_Node_Vector(int thread_Index, in
 
 			if(multilayer->imperfections_Model.use_Common_Roughness_Function)
 			{
-				double sigma = unwrapped_Structure->sigma_Roughness_Threaded[thread_Index].back();
+				double sigma = unwrapped_Structure->sigma_Roughness_Threaded[thread_Index].back();				
 				specular_Debye_Waller_Weak_Factor_R_Final[thread_Index] = exp( - 4. * hi*hi * sigma*sigma );
 			} else
 			{
@@ -1080,8 +1080,8 @@ inline void Unwrapped_Reflection::fill_Item_PSD_1D(int thread_Index, int point_I
 		Data& item = appropriate_Item_Vec[item_Index];
 		choose_PSD_1D_Function(item, thread_Index);
 		double value = PSD_1D_Func_Vec[thread_Index](item.main_PSD_1D_factor,
-													 item.roughness_Model.peak_Frequency.value,
-													 item.roughness_Model.peak_Frequency_Width.value,
+													 item.roughness_Model.cor_radius.value,
+													 item.roughness_Model.fractal_alpha.value,
 													 measurement.k_Value,
 													 measurement.detector_Theta_Cos_Vec[point_Index],
 													 cos_Theta_0,
@@ -1089,8 +1089,8 @@ inline void Unwrapped_Reflection::fill_Item_PSD_1D(int thread_Index, int point_I
 													 node->acc_PSD)
 
 		  + PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
-													 item.roughness_Model.cor_radius.value,
-													 item.roughness_Model.fractal_alpha.value,
+													 item.roughness_Model.peak_Frequency.value,
+													 item.roughness_Model.peak_Frequency_Width.value,
 													 measurement.k_Value,
 													 measurement.detector_Theta_Cos_Vec[point_Index],
 													 cos_Theta_0,
@@ -2663,8 +2663,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																				  substrate_Node->acc_PSD)
 
 									   + PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
-																				  substrate.roughness_Model.cor_radius.value,
-																				  substrate.roughness_Model.fractal_alpha.value,
+																				  substrate.roughness_Model.peak_Frequency.value,
+																				  substrate.roughness_Model.peak_Frequency_Width.value,
 																				  measurement.k_Value,
 																				  measurement.detector_Theta_Cos_Vec[point_Index],
 																				  cos_Theta_0,
