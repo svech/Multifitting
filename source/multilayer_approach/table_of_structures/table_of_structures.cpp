@@ -4801,6 +4801,7 @@ void Table_Of_Structures::change_Slaves_in_Structure_Tree(Parameter& master, con
 
 		QTreeWidgetItem* slave_Structure_Item = get_Struct_Item_From_Multilayer_by_Id (slave_Indicator.id);
 		Data slave_Struct_Data = slave_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
 		Parameter* slave_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(slave_Struct_Data, slave_Indicator.id);
 
 		if(refill_dependent_structure_table)

@@ -1495,7 +1495,7 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 
 			// for substrate and (layers with zero correlation) or for (layers with linear growth)
 			if( item_Type == item_Type_Substrate ||
-				imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model || // implies that imperfections_Model.vertical_Correlation == partial_Correlation
+				(imperfections_Model.vertical_Correlation == partial_Correlation && imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model) ||
 				imperfections_Model.use_Common_Roughness_Function == false	)				// implies that imperfections_Model.vertical_Correlation == zero_Correlation
 			{
 				if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)				{
