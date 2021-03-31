@@ -1382,16 +1382,16 @@ double Global_Variables::PSD_Linear_Growth_2D(double exponent, double nu2_mu_Alp
 {
 	Q_UNUSED(nu2_omega_23)
 	Q_UNUSED(alpha)
-	const double factor = 4*M_PI*M_PI;
+//	const double factor = 4*M_PI*M_PI;
 	if(nu2_mu_Alpha_2 > DBL_EPSILON)
 	{
 //		if(nu2_omega_23<2*factor)
-			return omega/*/factor*//* * alpha*/ * (1-exponent) / nu2_mu_Alpha_2;
+			return omega/*/factor*/ /* * alpha*/ * (1-exponent) / nu2_mu_Alpha_2;
 //		else
 //			return 0;
 	} else
 	{
-		return omega/*/factor*//* * alpha*/ * thickness;
+		return omega/*/factor*/ /* * alpha*/ * thickness;
 	}
 }
 
