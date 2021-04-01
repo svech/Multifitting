@@ -836,21 +836,21 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		default_roughness_mu_min							= structure_Default_Values.value( "default_roughness_mu_min",							10	).toDouble();
 		default_roughness_mu_max							= structure_Default_Values.value( "default_roughness_mu_max",						  1000	).toDouble();
 
-		default_roughness_a1								= structure_Default_Values.value( "default_roughness_a1",							   200	).toDouble();
-		default_roughness_a1_min							= structure_Default_Values.value( "default_roughness_a1_min",							10	).toDouble();
-		default_roughness_a1_max							= structure_Default_Values.value( "default_roughness_a1_max",						  1000	).toDouble();
+		default_roughness_a1								= structure_Default_Values.value( "default_roughness_a1",							   0.6	).toDouble();
+		default_roughness_a1_min							= structure_Default_Values.value( "default_roughness_a1_min",							 0	).toDouble();
+		default_roughness_a1_max							= structure_Default_Values.value( "default_roughness_a1_max",						    10	).toDouble();
 
-		default_roughness_a2								= structure_Default_Values.value( "default_roughness_a2",							   200	).toDouble();
-		default_roughness_a2_min							= structure_Default_Values.value( "default_roughness_a2_min",							10	).toDouble();
-		default_roughness_a2_max							= structure_Default_Values.value( "default_roughness_a2_max",						  1000	).toDouble();
+		default_roughness_a2								= structure_Default_Values.value( "default_roughness_a2",							    20	).toDouble();
+		default_roughness_a2_min							= structure_Default_Values.value( "default_roughness_a2_min",							 0	).toDouble();
+		default_roughness_a2_max							= structure_Default_Values.value( "default_roughness_a2_max",						   900	).toDouble();
 
-		default_roughness_a3								= structure_Default_Values.value( "default_roughness_a3",							   200	).toDouble();
-		default_roughness_a3_min							= structure_Default_Values.value( "default_roughness_a3_min",							10	).toDouble();
-		default_roughness_a3_max							= structure_Default_Values.value( "default_roughness_a3_max",						  1000	).toDouble();
+		default_roughness_a3								= structure_Default_Values.value( "default_roughness_a3",							   6E2	).toDouble();
+		default_roughness_a3_min							= structure_Default_Values.value( "default_roughness_a3_min",							 0	).toDouble();
+		default_roughness_a3_max							= structure_Default_Values.value( "default_roughness_a3_max",						   9E4	).toDouble();
 
-		default_roughness_a4								= structure_Default_Values.value( "default_roughness_a4",							   200	).toDouble();
-		default_roughness_a4_min							= structure_Default_Values.value( "default_roughness_a4_min",							10	).toDouble();
-		default_roughness_a4_max							= structure_Default_Values.value( "default_roughness_a4_max",						  1000	).toDouble();
+		default_roughness_a4								= structure_Default_Values.value( "default_roughness_a4",							   2E4	).toDouble();
+		default_roughness_a4_min							= structure_Default_Values.value( "default_roughness_a4_min",							 0	).toDouble();
+		default_roughness_a4_max							= structure_Default_Values.value( "default_roughness_a4_max",					       9E5	).toDouble();
 
 		default_roughness_peak_sigma						= structure_Default_Values.value( "default_roughness_peak_sigma",						 0	).toDouble();
 		default_roughness_peak_sigma_min					= structure_Default_Values.value( "default_roughness_peak_sigma_min",					 0	).toDouble();
@@ -966,9 +966,9 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		correlation_length_units		= structure_Default_Values.value( "correlation_length_units",		correlation_Length_Units_List.first()	).toString();
 		omega_units						= structure_Default_Values.value( "omega_units",					omega_Units_List.first()				).toString();
 		mu_units						= structure_Default_Values.value( "mu_units",						mu_Units_List.first()					).toString();
-		linear_a2_units					= structure_Default_Values.value( "linear_a2_units",				linear_a2_Units_List.first()			).toString();
-		linear_a3_units					= structure_Default_Values.value( "linear_a3_units",				linear_a3_Units_List.first()			).toString();
-		linear_a4_units					= structure_Default_Values.value( "linear_a4_units",				linear_a4_Units_List.first()			).toString();
+		linear_a2_units					= structure_Default_Values.value( "linear_a2_units",				linear_a2_Units_List[1]					).toString();
+		linear_a3_units					= structure_Default_Values.value( "linear_a3_units",				linear_a3_Units_List[1]					).toString();
+		linear_a4_units					= structure_Default_Values.value( "linear_a4_units",				linear_a4_Units_List[1]					).toString();
 		spatial_frequency_units			= structure_Default_Values.value( "spatial_frequency_units",		spatial_Frequency_Units_List[angstrom]	).toString();
 		spatial_frequency_units_export	= structure_Default_Values.value( "spatial_frequency_units_export",	spatial_Frequency_Units_List[angstrom]	).toString();
 		PSD_1D_value_units				= structure_Default_Values.value( "PSD_1D_value_units",				PSD_1D_Value_Units_List[nm_3]			).toString();

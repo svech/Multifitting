@@ -215,12 +215,6 @@ void Menu::create_Length_Units_Menu()
 {
 	// PARAMETER
 
-	if(window_Type == window_Type_Item_Editor)
-	{
-		QString item_Type = item_Editor->item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type;
-		if(item_Type == item_Type_Ambient)	{menu_Length_Units->setDisabled(true);}
-	}
-
 	menu_Length_Units = new QMenu("Length units", this);
 
 	QActionGroup* group_Act_Unit = new QActionGroup(this);
