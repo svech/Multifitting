@@ -485,42 +485,25 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		QLabel* inheritance_Label = new QLabel("Inheritance");
 		inheritance_Layout->addWidget(inheritance_Label);
 
-		QRadioButton* replication_Factor_Radiobutton = new QRadioButton("Replication factor");
+		QRadioButton* replication_Factor_Radiobutton = new QRadioButton(replication_Factor_Inheritance_Model);
 			replication_Factor_Radiobutton->setChecked(multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model);
 			replication_Factor_Radiobutton->setDisabled(multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
 		inheritance_Layout->addWidget(replication_Factor_Radiobutton);
 
-		QRadioButton* linear_Growth_Radiobutton = new QRadioButton("Linear growth");
-			linear_Growth_Radiobutton->setChecked(multilayer->imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model);
-			linear_Growth_Radiobutton->setDisabled(multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
-		inheritance_Layout->addWidget(linear_Growth_Radiobutton);
+		QRadioButton* linear_Growth_Alpha_Radiobutton = new QRadioButton(linear_Growth_Alpha_Inheritance_Model);
+			linear_Growth_Alpha_Radiobutton->setChecked(multilayer->imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model);
+			linear_Growth_Alpha_Radiobutton->setDisabled(multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
+		inheritance_Layout->addWidget(linear_Growth_Alpha_Radiobutton);
+
+		QRadioButton* linear_Growth_n_1_4_Radiobutton = new QRadioButton(linear_Growth_n_1_4_Inheritance_Model);
+			linear_Growth_n_1_4_Radiobutton->setChecked(multilayer->imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model);
+			linear_Growth_n_1_4_Radiobutton->setDisabled(multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
+		inheritance_Layout->addWidget(linear_Growth_n_1_4_Radiobutton);
 
 		QButtonGroup* use_Group = new QButtonGroup;
 			use_Group->addButton(replication_Factor_Radiobutton);
-		use_Group->addButton(linear_Growth_Radiobutton);
-
-//		// nu0 layout
-//		QHBoxLayout* nu0_Layout = new QHBoxLayout;
-//		inheritance_Layout->addLayout(nu0_Layout);
-
-//		QLabel* vertical_Inheritance_Roughness_Frequency_Label = new QLabel(Nu_Sym+Subscript_0_Sym+" for length "+Mu_Sym);
-//			vertical_Inheritance_Roughness_Frequency_Label->setDisabled(multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
-//		nu0_Layout->addWidget(vertical_Inheritance_Roughness_Frequency_Label);
-
-//		double arg_Coeff = spatial_Frequency_Coefficients_Map.value(spatial_frequency_units);
-//		MyDoubleSpinBox* vertical_Inheritance_Roughness_Frequency_Spinbox = new MyDoubleSpinBox;
-//			vertical_Inheritance_Roughness_Frequency_Spinbox->setAccelerated(true);
-//			vertical_Inheritance_Roughness_Frequency_Spinbox->setRange(1E-8/arg_Coeff, 1/arg_Coeff);
-//			vertical_Inheritance_Roughness_Frequency_Spinbox->setValue(multilayer->imperfections_Model.vertical_Inheritance_Frequency/arg_Coeff);// from A^-1 to spatial_frequency_units
-//			vertical_Inheritance_Roughness_Frequency_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-//			vertical_Inheritance_Roughness_Frequency_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-//			vertical_Inheritance_Roughness_Frequency_Spinbox->setProperty(min_Size_Property, 30);
-//			vertical_Inheritance_Roughness_Frequency_Spinbox->setDisabled(multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
-//		nu0_Layout->addWidget(vertical_Inheritance_Roughness_Frequency_Spinbox);
-
-//		QLabel* vertical_Inheritance_Roughness_Frequency_Units_Label = new QLabel(spatial_frequency_units);
-//			vertical_Inheritance_Roughness_Frequency_Units_Label->setDisabled(multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
-//		nu0_Layout->addWidget(vertical_Inheritance_Roughness_Frequency_Units_Label);
+			use_Group->addButton(linear_Growth_Alpha_Radiobutton);
+			use_Group->addButton(linear_Growth_n_1_4_Radiobutton);
 
 	// connections
 	connect(PT_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -538,10 +521,8 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			if(partial_Radiobutton->isChecked())
 			{
 				replication_Factor_Radiobutton->setDisabled(false);
-				linear_Growth_Radiobutton->setDisabled(false);
-//				vertical_Inheritance_Roughness_Frequency_Label->setDisabled(false);
-//				vertical_Inheritance_Roughness_Frequency_Spinbox->setDisabled(false);
-//				vertical_Inheritance_Roughness_Frequency_Units_Label->setDisabled(false);
+				linear_Growth_Alpha_Radiobutton->setDisabled(false);
+				linear_Growth_n_1_4_Radiobutton->setDisabled(false);
 			}
 		}
 	});
@@ -644,10 +625,8 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			multilayer->imperfections_Model.vertical_Correlation = full_Correlation;
 
 			replication_Factor_Radiobutton->setDisabled(true);
-			linear_Growth_Radiobutton->setDisabled(true);
-//			vertical_Inheritance_Roughness_Frequency_Label->setDisabled(true);
-//			vertical_Inheritance_Roughness_Frequency_Spinbox->setDisabled(true);
-//			vertical_Inheritance_Roughness_Frequency_Units_Label->setDisabled(true);
+			linear_Growth_Alpha_Radiobutton->setDisabled(true);
+			linear_Growth_n_1_4_Radiobutton->setDisabled(true);
 
 			common_Checkbox->setChecked(true);
 			common_Checkbox->toggled(true);
@@ -666,10 +645,8 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			multilayer->imperfections_Model.vertical_Correlation = partial_Correlation;
 
 			replication_Factor_Radiobutton->setDisabled(false);
-			linear_Growth_Radiobutton->setDisabled(false);
-//			vertical_Inheritance_Roughness_Frequency_Label->setDisabled(false);
-//			vertical_Inheritance_Roughness_Frequency_Spinbox->setDisabled(false);
-//			vertical_Inheritance_Roughness_Frequency_Units_Label->setDisabled(false);
+			linear_Growth_Alpha_Radiobutton->setDisabled(false);
+			linear_Growth_n_1_4_Radiobutton->setDisabled(false);
 
 			common_Checkbox->setChecked(true);
 			common_Checkbox->toggled(true);
@@ -694,10 +671,8 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			multilayer->imperfections_Model.vertical_Correlation = zero_Correlation;
 
 			replication_Factor_Radiobutton->setDisabled(true);
-			linear_Growth_Radiobutton->setDisabled(true);
-//			vertical_Inheritance_Roughness_Frequency_Label->setDisabled(true);
-//			vertical_Inheritance_Roughness_Frequency_Spinbox->setDisabled(true);
-//			vertical_Inheritance_Roughness_Frequency_Units_Label->setDisabled(true);
+			linear_Growth_Alpha_Radiobutton->setDisabled(true);
+			linear_Growth_n_1_4_Radiobutton->setDisabled(true);
 
 			if(multilayer->imperfections_Model.PSD_Model != measured_PSD) common_Checkbox->setDisabled(false);
 
@@ -765,32 +740,22 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			refresh_Tree_Roughness();
 		}
 	});
-	connect(linear_Growth_Radiobutton, &QRadioButton::toggled, this, [=]
+	connect(linear_Growth_Alpha_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(linear_Growth_Radiobutton->isChecked())
+		if(linear_Growth_Alpha_Radiobutton->isChecked())
 		{
-			multilayer->imperfections_Model.inheritance_Model = linear_Growth_Inheritance_Model;
+			multilayer->imperfections_Model.inheritance_Model = linear_Growth_Alpha_Inheritance_Model;
 			refresh_Tree_Roughness();
 		}
 	});
-//	connect(vertical_Inheritance_Roughness_Frequency_Spinbox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-//	{
-//		double arg_Coeff = spatial_Frequency_Coefficients_Map.value(spatial_frequency_units);
-//		multilayer->imperfections_Model.vertical_Inheritance_Frequency = vertical_Inheritance_Roughness_Frequency_Spinbox->value()*arg_Coeff; // from spatial_frequency_units to A^-1
-//		double ff = vertical_Inheritance_Roughness_Frequency_Spinbox->value();
-//		if(            ff<1E-7)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(9);
-//		if(ff>=1E-7 && ff<1E-6)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(8);
-//		if(ff>=1E-6 && ff<1E-5)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(7);
-//		if(ff>=1E-5 && ff<1E-4)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(6);
-//		if(ff>=1E-4 && ff<1E-3)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(5);
-//		if(ff>=1E-3 && ff<1E-2)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(4);
-//		if(ff>=1E-2 && ff<1E-1)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(3);
-//		if(ff>=1E-1 && ff<1)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(2);
-//		if(ff>=1    && ff<10)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(1);
-//		if(ff>=10)				vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(0);
-//	});
-//	vertical_Inheritance_Roughness_Frequency_Spinbox->valueChanged(multilayer->imperfections_Model.vertical_Inheritance_Frequency/arg_Coeff);
-//	Global_Variables::resize_Line_Edit(vertical_Inheritance_Roughness_Frequency_Spinbox);
+	connect(linear_Growth_n_1_4_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(linear_Growth_n_1_4_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.inheritance_Model = linear_Growth_n_1_4_Inheritance_Model;
+			refresh_Tree_Roughness();
+		}
+	});
 }
 
 void Table_Roughness_Model_Editor::create_Density_Fluctuations_Groupbox()

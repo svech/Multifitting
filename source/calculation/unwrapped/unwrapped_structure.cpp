@@ -224,6 +224,10 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 	omega_pow23.resize(num_Layers);
 	alpha.resize(num_Boundaries);
 	beta.resize(num_Layers);
+	a1.resize(num_Layers);
+	a2.resize(num_Layers);
+	a3.resize(num_Layers);
+	a4.resize(num_Layers);
 
 	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
 	{
@@ -243,6 +247,11 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 		alpha		[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.fractal_alpha.value;
 		beta		[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.fractal_beta.value;
 		omega_pow23	[layer_Index] = pow(omega[layer_Index], (2*alpha[layer_Index]+2)/3); // for linear growth
+
+		a1[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.a1.value;
+		a2[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.a2.value;
+		a3[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.a3.value;
+		a4[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.a4.value;
 	}
 	// substrate
 	if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
@@ -294,6 +303,10 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 	omega_pow23_Threaded.	 resize(reflectivity_calc_threads);
 	alpha_Threaded.			 resize(reflectivity_calc_threads);
 	beta_Threaded.			 resize(reflectivity_calc_threads);
+	a1_Threaded.			 resize(reflectivity_calc_threads);
+	a2_Threaded.			 resize(reflectivity_calc_threads);
+	a3_Threaded.			 resize(reflectivity_calc_threads);
+	a4_Threaded.			 resize(reflectivity_calc_threads);
 	for(int thread_Index=0; thread_Index<reflectivity_calc_threads; thread_Index++)
 	{
 		sigma_Roughness_Threaded[thread_Index] = sigma_Roughness;
@@ -302,6 +315,11 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 		omega_pow23_Threaded	[thread_Index] = omega_pow23;
 		alpha_Threaded			[thread_Index] = alpha;
 		beta_Threaded			[thread_Index] = beta;
+
+		a1_Threaded[thread_Index] = a1;
+		a2_Threaded[thread_Index] = a2;
+		a3_Threaded[thread_Index] = a3;
+		a4_Threaded[thread_Index] = a4;
 	}
 }
 

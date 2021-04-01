@@ -6,6 +6,7 @@
 #include "grading_editor.h"
 
 class Structure_Tree;
+class MyDoubleSpinBox;
 
 class Item_Editor : public QDialog
 {
@@ -159,8 +160,8 @@ public:
 						QLabel* my_Sigma_Label_Layer;
 						QLabel* my_Sigma_Label_Substrate;
 						QVector<QCheckBox*> interlayer_Composition_Check_Box_Vec;
-						QVector<QLineEdit*> interlayer_Composition_Comp_Line_Edit_Vec;
-						QVector<QLineEdit*> interlayer_Composition_My_Sigma_Line_Edit_Vec;
+						QVector<MyDoubleSpinBox*> interlayer_Composition_Comp_Line_Edit_Vec;
+						QVector<MyDoubleSpinBox*> interlayer_Composition_My_Sigma_Line_Edit_Vec;
 				QCheckBox* individual_Sigma_Check_Box;
 			QPushButton* sigma_Grading_Button;
 

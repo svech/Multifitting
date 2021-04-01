@@ -540,6 +540,8 @@ QDataStream& operator <<( QDataStream& stream, const Roughness_Model& roughness_
 				  << roughness_Model.sigma << roughness_Model.cor_radius << roughness_Model.fractal_alpha
 				  << roughness_Model.omega << roughness_Model.mu << roughness_Model.fractal_beta
 
+				  << roughness_Model.a1 << roughness_Model.a2 << roughness_Model.a3 << roughness_Model.a4
+
 				  << roughness_Model.peak_Sigma << roughness_Model.peak_Frequency << roughness_Model.peak_Frequency_Width
 				  << roughness_Model.sigma_Factor_PSD_1D << roughness_Model.sigma_Factor_PSD_2D;
 }
@@ -551,8 +553,13 @@ QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Mode
 
 	if(Global_Variables::check_Loaded_Version(1,11,7))
 	{
-	stream >> roughness_Model.fractal_beta
-		   >> roughness_Model.peak_Sigma >> roughness_Model.peak_Frequency >> roughness_Model.peak_Frequency_Width;
+	stream >> roughness_Model.fractal_beta;
+
+		if(Global_Variables::check_Loaded_Version(1,11,13))	{
+			stream >> roughness_Model.a1 >> roughness_Model.a2 >> roughness_Model.a3 >> roughness_Model.a4;
+		}
+
+	stream >> roughness_Model.peak_Sigma >> roughness_Model.peak_Frequency >> roughness_Model.peak_Frequency_Width;
 	}
 	if(Global_Variables::check_Loaded_Version(1,11,10))
 	{stream >> roughness_Model.sigma_Factor_PSD_1D >> roughness_Model.sigma_Factor_PSD_2D;}
@@ -634,7 +641,15 @@ QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfecti
 	stream >> imperfections_Model.use_Common_Roughness_Function;
 
 	if(Global_Variables::check_Loaded_Version(1,11,7))
-	{stream >> imperfections_Model.inheritance_Model;}
+	{
+		stream >> imperfections_Model.inheritance_Model;
+		if(!Global_Variables::check_Loaded_Version(1,11,13))
+		{
+			if(imperfections_Model.inheritance_Model == "Linear growth") {
+				imperfections_Model.inheritance_Model = linear_Growth_Alpha_Inheritance_Model;
+			}
+		}
+	}
 
 	if(Global_Variables::check_Loaded_Version(1,11,12))
 	{stream >> imperfections_Model.reflectivity_With_Roughness >> imperfections_Model.DWBA_n_Max_Series;}

@@ -15,7 +15,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 12
+#define VERSION_BUILD 13
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -174,8 +174,12 @@ class Node;
 #define Subscript_a_Sym			QString(QChar(0x2090))
 #define Subscript_p_Sym			QString(QChar(0x209A))
 #define Subscript_v_Sym			QString(QChar(0x1d65))
-#define Subscript_0_Sym			QString(QChar(0x2080))
 #define Subscript_e_Sym			QString(QChar(0x2091))
+#define Subscript_0_Sym			QString(QChar(0x2080))
+#define Subscript_1_Sym			QString(QChar(0x2081))
+#define Subscript_2_Sym			QString(QChar(0x2082))
+#define Subscript_3_Sym			QString(QChar(0x2083))
+#define Subscript_4_Sym			QString(QChar(0x2084))
 
 // -----------------------------------------------------------------------------------------
 
@@ -282,8 +286,9 @@ class Node;
 #define PSD_Type_2D				"PSD 2D"
 
 // PSD inheritance models
-#define linear_Growth_Inheritance_Model			"Linear growth"
 #define replication_Factor_Inheritance_Model	"Replication factor"
+#define linear_Growth_Alpha_Inheritance_Model	"Linear growth, alpha"
+#define linear_Growth_n_1_4_Inheritance_Model	"Linear growth, n=1-4"
 
 // whatsThis : delimiters
 #define whats_This_Delimiter ";"
@@ -314,6 +319,10 @@ class Node;
 #define whats_This_Linear_PSD_Omega				"Linear PSD Omega"
 #define whats_This_PSD_Exponenta_Mu				"PSD Exponenta Mu"
 #define whats_This_Fractal_Beta					"Fractal Beta"
+#define whats_This_Linear_A1					"Linear A1"
+#define whats_This_Linear_A2					"Linear A2"
+#define whats_This_Linear_A3					"Linear A3"
+#define whats_This_Linear_A4					"Linear A4"
 #define whats_This_Roughness_Peak_Sigma			"Roughness Peak Sigma"
 #define whats_This_Roughness_Peak_Frequency		"Roughness Peak Frequency"
 #define whats_This_Roughness_Peak_Frequency_Width "Roughness Peak Frequency Width"
@@ -872,6 +881,10 @@ struct Roughness_Model			{
 								Parameter omega;
 								Parameter mu;
 								Parameter fractal_beta;
+								Parameter a1;
+								Parameter a2;
+								Parameter a3;
+								Parameter a4;
 
 								Parameter peak_Sigma;
 								Parameter peak_Frequency;

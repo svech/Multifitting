@@ -16,13 +16,9 @@ Menu::~Menu()
 
 void Menu::add_Menu_Points()
 {
-	// for all
-	{
-		create_File_Menu();
-	}
 	if(window_Type == window_Type_Multilayer_Approach)
 	{
-//		create_File_Menu();
+		create_File_Menu();
 			menu_Bar->addMenu(file_Menu);
 		create_Calculate_Menu();
 			menu_Bar->addMenu(calculate_Menu);
@@ -34,40 +30,34 @@ void Menu::add_Menu_Points()
 	if(window_Type == window_Type_Item_Editor)
 	{
 		item_Editor = qobject_cast<Item_Editor*>(my_Parent);
-//		create_File_Menu();
-//			menu_Bar->addMenu(file_Menu);
-		create_Item_Length_Units_Menu();
+		create_Length_Units_Menu();
 			menu_Bar->addMenu(menu_Length_Units);
-		create_Item_Precision_Menu();
+		create_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
 	if(window_Type == window_Type_Table_Of_Structures)
 	{
-//		create_File_Menu();
+		create_File_Menu();
 			menu_Bar->addMenu(file_Menu);
 		create_Calculate_Menu();
 			menu_Bar->addMenu(calculate_Menu);
 		create_Length_Units_Menu();
 			menu_Bar->addMenu(menu_Length_Units);
-		create_Frequency_Units_Menu();
-			menu_Bar->addMenu(menu_Frequency_Units);
-		create_Correlation_Length_Units_Menu();
-			menu_Bar->addMenu(menu_Correlation_Length_Units);
-		create_Table_Precision_Menu();
+		create_Other_Units_Menu();
+			menu_Bar->addMenu(menu_Other_Units);
+		create_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
 	if(window_Type == window_Type_Regular_Aperiodic_Table )
 	{
-//		create_File_Menu();
+		create_File_Menu();
 			menu_Bar->addMenu(file_Menu);
 		create_Length_Units_Menu();
 			menu_Bar->addMenu(menu_Length_Units);
-		create_Table_Precision_Menu();
+		create_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
-
-//	if(window_Type == window_Type_Launcher ||
-//	   window_Type == window_Type_Multilayer_Approach)
+//	if(window_Type == window_Type_Launcher)
 //	{
 //		create_File_Menu();
 //			menu_Bar->addMenu(file_Menu);
@@ -200,7 +190,7 @@ void Menu::create_Calculate_Menu()
 
 	if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table_Of_Structures)
 	{
-		connect(act_Specular,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calculate();			 });
+		connect(act_Specular,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calculate();				 });
 		connect(act_Fitting,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->start_Fitting();			 });
 		connect(act_Confidence,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calc_Confidence_Intervals();});
 		connect(act_Abort,		&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->abort_Calculations();		 });
@@ -221,313 +211,216 @@ void Menu::create_Optical_Constants_Menu()
 	optical_Constants_Menu->addAction(act_optical_Constants);
 }
 
-void Menu::create_Item_Length_Units_Menu()
-{
-	// PARAMETER
-
-	QString item_Type = item_Editor->item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type;
-	create_Length_Units_Menu();
-	if(item_Type == item_Type_Ambient)	{menu_Length_Units->setDisabled(true);}
-}
-
-void Menu::create_Item_Precision_Menu()
-{
-	// PARAMETER
-
-	QString item_Type = item_Editor->item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type;
-
-	precision_Menu = new QMenu("Precision", this);
-
-	menu_Density	 = new QMenu("Density", this);
-	menu_Lengths	 = new QMenu("Lengths", this);
-	menu_Gamma	     = new QMenu("Gamma",   this);
-	menu_Composition = new QMenu("Atomic Composition", this);
-	menu_Interlayer  = new QMenu("Interlayer Composition", this);
-
-	menu_Thumb  = new QMenu("Thumbnail precision", this);
-	menu_Edit   = new QMenu("Operating precision", this);
-
-	if(item_Type == item_Type_Ambient ||
-	   item_Type == item_Type_Layer   ||
-	   item_Type == item_Type_Substrate)
-	{
-		precision_Menu->addMenu(menu_Density);
-			menu_Density->addMenu(menu_Thumb);
-			menu_Density->addMenu(menu_Edit);
-	}
-	if(item_Type == item_Type_Regular_Aperiodic ||
-	   item_Type == item_Type_General_Aperiodic ||
-	   item_Type == item_Type_Multilayer ||
-	   item_Type == item_Type_Layer	   ||
-	   item_Type == item_Type_Substrate)
-	{
-		precision_Menu->addMenu(menu_Lengths);
-			menu_Lengths->addMenu(menu_Thumb);
-			menu_Lengths->addMenu(menu_Edit);
-	}
-	if(item_Type == item_Type_Multilayer)
-	{
-		precision_Menu->addMenu(menu_Gamma);
-			menu_Gamma->addMenu(menu_Thumb);
-			menu_Gamma->addMenu(menu_Edit);
-	}
-
-	if(item_Type == item_Type_Ambient ||
-	   item_Type == item_Type_Layer   ||
-	   item_Type == item_Type_Substrate)
-	{
-		precision_Menu->addMenu(menu_Composition);
-			//menu_Composition->addMenu(menu_Thumb);
-			menu_Composition->addMenu(menu_Edit);
-	}
-	if(item_Type == item_Type_Layer   ||
-	   item_Type == item_Type_Substrate)
-	{
-		precision_Menu->addMenu(menu_Interlayer);
-			//menu_Interlayer->addMenu(menu_Thumb);
-			menu_Interlayer->addMenu(menu_Edit);
-	}
-
-	connect(menu_Density,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);//set_Length_Unit);
-	connect(menu_Lengths,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);
-	connect(menu_Gamma,		 &QMenu::aboutToShow, this, &Menu::menu_Focus);
-	connect(menu_Composition,&QMenu::aboutToShow, this, &Menu::menu_Focus);
-	connect(menu_Interlayer, &QMenu::aboutToShow, this, &Menu::menu_Focus);
-
-	connect(menu_Thumb,		 &QMenu::aboutToShow, this, &Menu::thumb_Edit_Focus);
-	connect(menu_Edit,		 &QMenu::aboutToShow, this, &Menu::thumb_Edit_Focus);
-
-	QActionGroup* group_Precision_Thumb = new QActionGroup(this);
-	QActionGroup* group_Precision_Edit  = new QActionGroup(this);
-		group_Precision_Thumb->setExclusive(true);
-		group_Precision_Edit->setExclusive(true);
-
-	for(int index=0; index<MAX_PRECISION_USED; index++)
-	{
-		QAction* precision_Thumb  = new QAction(Locale.toString(index), menu_Thumb);
-		QAction* precision_Edit   = new QAction(Locale.toString(index), menu_Edit);
-			precision_Thumb->setProperty(index_Property, index);
-			precision_Edit->setProperty(index_Property, index);
-
-			precision_Thumb->setCheckable(true);
-			precision_Edit->setCheckable(true);
-			precision_Thumb->setActionGroup(group_Precision_Thumb);
-			precision_Edit->setActionGroup(group_Precision_Edit);
-
-			menu_Thumb->addAction(precision_Thumb);
-			menu_Edit->addAction(precision_Edit);
-
-		connect(precision_Thumb, &QAction::triggered, this, &Menu::activate_Item_Thumbnail_Precision);
-		connect(precision_Edit,  &QAction::triggered, this, &Menu::activate_Item_Line_Edit_Precision);
-	}
-}
-
 void Menu::create_Length_Units_Menu()
 {
 	// PARAMETER
 
+	if(window_Type == window_Type_Item_Editor)
+	{
+		QString item_Type = item_Editor->item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type;
+		if(item_Type == item_Type_Ambient)	{menu_Length_Units->setDisabled(true);}
+	}
+
 	menu_Length_Units = new QMenu("Length units", this);
+
+	QActionGroup* group_Act_Unit = new QActionGroup(this);
+		group_Act_Unit->setExclusive(true);
+
+	for(int index=0; index<length_Units_List.size(); index++)
 	{
-		QActionGroup* group_Act_Unit = new QActionGroup(this);
-			group_Act_Unit->setExclusive(true);
+		QAction* act_Unit = new QAction(length_Units_List[index], this);
+			act_Unit->setCheckable(true);
+			act_Unit->setChecked(length_Units_List[index] == length_units);
+			act_Unit->setActionGroup(group_Act_Unit);
 
-		for(int index=0; index<length_Units_List.size(); index++)
+		menu_Length_Units->addAction(act_Unit);
+		connect(act_Unit,  &QAction::triggered, this, [=]
 		{
-			QAction* act_Unit = new QAction(length_Units_List[index], this);
-				act_Unit->setProperty(index_Property, index);
-				act_Unit->setCheckable(true);
-				act_Unit->setActionGroup(group_Act_Unit);
-
-				if(length_Units_List[index] == length_units) act_Unit->setChecked(true);
-
-			menu_Length_Units->addAction(act_Unit);
-			connect(act_Unit,  &QAction::triggered, this, &Menu::set_Length_Unit);
-		}
+			length_units = length_Units_List[index];
+			emit refresh();
+		});
 	}
 }
 
-void Menu::create_Frequency_Units_Menu()
+void Menu::create_Other_Units_Menu()
 {
 	// PARAMETER
+	menu_Other_Units = new QMenu("Other units", this);
 
-	menu_Frequency_Units = new QMenu("Frequency units", this);
+//	QMenu* menu_Length_Units			 = new QMenu("Lengths", this);
+//	units_Menu_Map.		insert(menu_Length_Units, &length_units);
+//	units_List_Menu_Map.insert(menu_Length_Units, &length_Units_List);
+//	menu_Other_Units-> addMenu(menu_Length_Units);
+	QMenu* menu_Correlation_Length_Units = new QMenu("Lateral correlation: D, "+Xi_Sym, this);
+	units_Menu_Map.		insert(menu_Correlation_Length_Units, &correlation_length_units);
+	units_List_Menu_Map.insert(menu_Correlation_Length_Units, &correlation_Length_Units_List);
+	menu_Other_Units-> addMenu(menu_Correlation_Length_Units);
+	QMenu* menu_Mu_Units				 = new QMenu("Vertical correlation: "+Mu_Sym, this);
+	units_Menu_Map.		insert(menu_Mu_Units, &mu_units);
+	units_List_Menu_Map.insert(menu_Mu_Units, &mu_Units_List);
+	menu_Other_Units-> addMenu(menu_Mu_Units);
+	QMenu* menu_Omega_Units				 = new QMenu("Particle volume: "+Omega_Big_Sym, this);
+	units_Menu_Map.		insert(menu_Omega_Units, &omega_units);
+	units_List_Menu_Map.insert(menu_Omega_Units, &omega_Units_List);
+	menu_Other_Units-> addMenu(menu_Omega_Units);
+	QMenu* menu_a2_Units				 = new QMenu("Linear growth exponent factor: a"+Subscript_2_Sym, this);
+	units_Menu_Map.		insert(menu_a2_Units, &linear_a2_units);
+	units_List_Menu_Map.insert(menu_a2_Units, &linear_a2_Units_List);
+	menu_Other_Units-> addMenu(menu_a2_Units);
+	QMenu* menu_a3_Units				 = new QMenu("Linear growth exponent factor: a"+Subscript_3_Sym, this);
+	units_Menu_Map.		insert(menu_a3_Units, &linear_a3_units);
+	units_List_Menu_Map.insert(menu_a3_Units, &linear_a3_Units_List);
+	menu_Other_Units-> addMenu(menu_a3_Units);
+	QMenu* menu_a4_Units				 = new QMenu("Linear growth exponent factor: a"+Subscript_4_Sym, this);
+	units_Menu_Map.		insert(menu_a4_Units, &linear_a4_units);
+	units_List_Menu_Map.insert(menu_a4_Units, &linear_a4_Units_List);
+	menu_Other_Units-> addMenu(menu_a4_Units);
+	QMenu* menu_Frequency_Units			 = new QMenu("Spatial frequency: "+Nu_Sym+", "+Delta_Small_Sym+Nu_Sym, this);
+	units_Menu_Map.		insert(menu_Frequency_Units, &spatial_frequency_units);
+	units_List_Menu_Map.insert(menu_Frequency_Units, &spatial_Frequency_Units_List);
+	menu_Other_Units-> addMenu(menu_Frequency_Units);
+
+	// functionality
+	for(QMenu* current_Menu : units_Menu_Map.keys())
 	{
-		QActionGroup* group_Act_Unit = new QActionGroup(this);
-			group_Act_Unit->setExclusive(true);
+		QActionGroup* group_Units  = new QActionGroup(this);
+			group_Units->setExclusive(true);
 
-		for(int index=0; index<spatial_Frequency_Units_List.size(); index++)
+		QString* current_units = units_Menu_Map.value(current_Menu);
+		QStringList* units_List = units_List_Menu_Map.value(current_Menu);
+		for(QString unit_String : *units_List)
 		{
-			QAction* act_Unit = new QAction(spatial_Frequency_Units_List[index], this);
-				act_Unit->setProperty(index_Property, index);
-				act_Unit->setCheckable(true);
-				act_Unit->setActionGroup(group_Act_Unit);
-
-				if(spatial_Frequency_Units_List[index] == spatial_frequency_units) act_Unit->setChecked(true);
-
-			menu_Frequency_Units->addAction(act_Unit);
-			connect(act_Unit,  &QAction::triggered, this, [=]
+			QAction* units_Action = new QAction(unit_String);
+				units_Action->setCheckable(true);
+				units_Action->setChecked(unit_String == *current_units);
+				units_Action->setActionGroup(group_Units);
+			current_Menu->addAction(units_Action);
+			connect(units_Action, &QAction::triggered, this, [=]
 			{
-				int index = sender()->property(index_Property).toInt();
-				//-------------------------------------------------
-				spatial_frequency_units = spatial_Frequency_Units_List[index];
-				//-------------------------------------------------
+				*current_units = unit_String;
 				emit refresh();
 			});
 		}
 	}
 }
 
-void Menu::create_Correlation_Length_Units_Menu()
+void Menu::create_Precision_Menu()
 {
 	// PARAMETER
-
-	menu_Correlation_Length_Units = new QMenu("Cor. length units", this);
-	{
-		QActionGroup* group_Act_Unit = new QActionGroup(this);
-			group_Act_Unit->setExclusive(true);
-
-		for(int index=0; index<correlation_Length_Units_List.size(); index++)
-		{
-			QAction* act_Unit = new QAction(correlation_Length_Units_List[index], this);
-				act_Unit->setProperty(index_Property, index);
-				act_Unit->setCheckable(true);
-				act_Unit->setActionGroup(group_Act_Unit);
-
-				if(correlation_Length_Units_List[index] == correlation_length_units) act_Unit->setChecked(true);
-
-			menu_Correlation_Length_Units->addAction(act_Unit);
-			connect(act_Unit,  &QAction::triggered, this, [=]
-			{
-				int index = sender()->property(index_Property).toInt();
-				//-------------------------------------------------
-				correlation_length_units = correlation_Length_Units_List[index];
-				//-------------------------------------------------
-				emit refresh();
-			});
-		}
-	}}
-
-void Menu::create_Table_Precision_Menu()
-{
-	// PARAMETER
-
 	precision_Menu = new QMenu("Precision", this);
 
-	menu_Density	 = new QMenu("Density", this);
-	menu_Composition = new QMenu("Atomic Composition", this);
-	menu_Lengths	 = new QMenu("Thickness & sigma", this);
-	menu_Gamma		 = new QMenu("Gamma",   this);
-	menu_Interlayer  = new QMenu("Interlayer Composition", this);
+	QMenu* menu_Composition_Precision				= new QMenu("Atomic composition: "+Zeta_Sym, this);
+	precision_Menu_Map.insert(menu_Composition_Precision, &line_edit_composition_precision);
+	QMenu* menu_Density_Precision					= new QMenu("Density: "+Rho_Sym+", "+Rho_Sym + Subscript_p_Sym, this);
+	precision_Menu_Map.insert(menu_Density_Precision, &line_edit_density_precision);
+	QMenu* menu_Thickness_Precision					= new QMenu("Thickness: z, d", this);;
+	precision_Menu_Map.insert(menu_Thickness_Precision, &line_edit_thickness_precision);
+	QMenu* menu_Gamma_Precision						= new QMenu("Gamma: "+Gamma_Sym,  this);
+	precision_Menu_Map.insert(menu_Gamma_Precision, &line_edit_gamma_precision);
+	QMenu* menu_Sigma_Precision						= new QMenu("Sigma: s, "+Sigma_Sym+", "+Sigma_Sym+Subscript_v_Sym, this);
+	precision_Menu_Map.insert(menu_Sigma_Precision, &line_edit_sigma_precision);
+	QMenu* menu_Interlayer_Precision				= new QMenu("Interlayer composition", this);
+	precision_Menu_Map.insert(menu_Interlayer_Precision, &line_edit_interlayer_precision);
+	QMenu* menu_Drift_Precision						= new QMenu("Drift: dz, ds", this);
+	precision_Menu_Map.insert(menu_Drift_Precision, &line_edit_drift_precision);
+	QMenu* menu_Correlation_Length_Precision		= new QMenu("Lateral correlation: D, "+Xi_Sym, this);
+	precision_Menu_Map.insert(menu_Correlation_Length_Precision, &line_edit_cor_radius_precision);
+	QMenu* menu_Alpha_Beta_Precision				= new QMenu("Fractality: "+Alpha_Sym+", "+Beta_Sym, this);
+	precision_Menu_Map.insert(menu_Alpha_Beta_Precision, &line_edit_fractal_alpha_beta_precision);
+	QMenu* menu_Mu_Precision						= new QMenu("Vertical correlation: "+Mu_Sym, this);
+	precision_Menu_Map.insert(menu_Mu_Precision, &line_edit_mu_precision);
+	QMenu* menu_Omega_Precision						= new QMenu("Particle volume: "+Omega_Big_Sym, this);
+	precision_Menu_Map.insert(menu_Omega_Precision, &line_edit_omega_precision);
+	QMenu* menu_Linear_A_Precision					= new QMenu("Linear growth exponent factor: a"+Subscript_1_Sym+", a"+Subscript_2_Sym+", a"+Subscript_3_Sym+", a"+Subscript_4_Sym, this);
+	precision_Menu_Map.insert(menu_Linear_A_Precision, &line_edit_linear_a_precision);
+	QMenu* menu_Frequency_Precision					= new QMenu("Spatial frequency: "+Nu_Sym+", "+Delta_Small_Sym+Nu_Sym, this);
+	precision_Menu_Map.insert(menu_Frequency_Precision, &line_edit_frequency_precision);
+	QMenu* menu_PSD_Factor_Precision				= new QMenu("Measured roughness factor: rf", this);
+	precision_Menu_Map.insert(menu_PSD_Factor_Precision, &line_edit_psd_factor_precision);
+	QMenu* menu_Particle_Size_Precision				= new QMenu("Particle dimensions: R, H", this);
+	precision_Menu_Map.insert(menu_Particle_Size_Precision, &line_edit_particle_size_precision);
+	QMenu* menu_Particle_Lateral_Distance_Precision	= new QMenu("Particle lateral distance: r, r"+Subscript_a_Sym+", "+Delta_Small_Sym+"r", this);
+	precision_Menu_Map.insert(menu_Particle_Lateral_Distance_Precision, &line_edit_particle_lateral_distance_precision);
+	QMenu* menu_Particle_Z_Position_Precision		= new QMenu("Particle z position: z"+Subscript_p_Sym+", "+Delta_Small_Sym+"z"+Subscript_p_Sym, this);
+	precision_Menu_Map.insert(menu_Particle_Z_Position_Precision, &line_edit_particle_z_position_precision);
 
-	menu_Thumb  = new QMenu("Thumbnail precision", this);
-	menu_Edit   = new QMenu("Operating precision", this);
-
-	if(window_Type == window_Type_Table_Of_Structures )
-	{
-		precision_Menu->addMenu(menu_Density);
-			menu_Density->addMenu(menu_Thumb);
-			menu_Density->addMenu(menu_Edit);
-	}
-	if(window_Type == window_Type_Table_Of_Structures )
-	{
-		precision_Menu->addMenu(menu_Composition);
-			//menu_Composition->addMenu(menu_Thumb);
-			menu_Composition->addMenu(menu_Edit);
-	}
-	{
-		precision_Menu->addMenu(menu_Lengths);
-			menu_Lengths->addMenu(menu_Thumb);
-			menu_Lengths->addMenu(menu_Edit);
-	}
-	if(window_Type == window_Type_Table_Of_Structures )
-	{
-		precision_Menu->addMenu(menu_Gamma);
-			menu_Gamma->addMenu(menu_Thumb);
-			menu_Gamma->addMenu(menu_Edit);
-	}
 	if(window_Type == window_Type_Table_Of_Structures)
 	{
-		precision_Menu->addMenu(menu_Interlayer);
-			//menu_Interlayer->addMenu(menu_Thumb);
-			menu_Interlayer->addMenu(menu_Edit);
+		precision_Menu->addMenu(menu_Composition_Precision);
+		precision_Menu->addMenu(menu_Density_Precision);
+		precision_Menu->addMenu(menu_Thickness_Precision);
+		precision_Menu->addMenu(menu_Gamma_Precision);
+		precision_Menu->addMenu(menu_Sigma_Precision);
+		precision_Menu->addMenu(menu_Interlayer_Precision);
+		precision_Menu->addMenu(menu_Drift_Precision);
+		precision_Menu->addMenu(menu_Correlation_Length_Precision);
+		precision_Menu->addMenu(menu_Alpha_Beta_Precision);
+		precision_Menu->addMenu(menu_Mu_Precision);
+		precision_Menu->addMenu(menu_Omega_Precision);
+		precision_Menu->addMenu(menu_Linear_A_Precision);
+		precision_Menu->addMenu(menu_Frequency_Precision);
+		precision_Menu->addMenu(menu_PSD_Factor_Precision);
+		precision_Menu->addMenu(menu_Particle_Size_Precision);
+		precision_Menu->addMenu(menu_Particle_Lateral_Distance_Precision);
+		precision_Menu->addMenu(menu_Particle_Z_Position_Precision);
+	}
+	if(window_Type == window_Type_Regular_Aperiodic_Table)
+	{
+		precision_Menu->addMenu(menu_Thickness_Precision);
+		precision_Menu->addMenu(menu_Sigma_Precision);
 	}
 
-	connect(menu_Density,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);
-	connect(menu_Composition,&QMenu::aboutToShow, this, &Menu::menu_Focus);
-	connect(menu_Lengths,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);
-	connect(menu_Gamma,		 &QMenu::aboutToShow, this, &Menu::menu_Focus);
-	connect(menu_Interlayer, &QMenu::aboutToShow, this, &Menu::menu_Focus);
-
-	connect(menu_Thumb,		 &QMenu::aboutToShow, this, &Menu::thumb_Edit_Focus);
-	connect(menu_Edit,		 &QMenu::aboutToShow, this, &Menu::thumb_Edit_Focus);
-
-	QActionGroup* group_Precision_Thumb = new QActionGroup(this);
-	QActionGroup* group_Precision_Edit  = new QActionGroup(this);
-		group_Precision_Thumb->setExclusive(true);
-		group_Precision_Edit->setExclusive(true);
-
-	for(int index=0; index<MAX_PRECISION_USED; index++)
+	if(window_Type == window_Type_Item_Editor)
 	{
-		QAction* precision_Thumb  = new QAction(Locale.toString(index), menu_Thumb);
-		QAction* precision_Edit   = new QAction(Locale.toString(index), menu_Edit);
-			precision_Thumb->setProperty(index_Property, index);
-			precision_Edit->setProperty(index_Property, index);
+		QString item_Type = item_Editor->item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type;
 
-			precision_Thumb->setCheckable(true);
-			precision_Edit->setCheckable(true);
-			precision_Thumb->setActionGroup(group_Precision_Thumb);
-			precision_Edit->setActionGroup(group_Precision_Edit);
-
-			menu_Thumb->addAction(precision_Thumb);
-			menu_Edit->addAction(precision_Edit);
-
-		connect(precision_Thumb,&QAction::triggered, this, &Menu::activate_Item_Thumbnail_Precision);
-		connect(precision_Edit, &QAction::triggered, this, &Menu::activate_Item_Line_Edit_Precision);
-	}
-}
-
-void Menu::menu_Focus()
-{
-	precision_Menu_Title = qobject_cast<QMenu*>(sender())->title();
-}
-
-void Menu::thumb_Edit_Focus()
-{
-	precision_Menu_Thumb_Edit = qobject_cast<QMenu*>(sender())->title();;
-
-	// density
-	if(menu_Density->title() == precision_Menu_Title)
-	{
-		if(precision_Menu_Thumb_Edit == menu_Thumb->title()) menu_Thumb->actions()[thumbnail_density_precision]->setChecked(true);
-		if(precision_Menu_Thumb_Edit == menu_Edit ->title()) menu_Edit ->actions()[line_edit_density_precision]->setChecked(true);
+		if(item_Type == item_Type_Ambient ||
+		   item_Type == item_Type_Layer   ||
+		   item_Type == item_Type_Substrate)
+		{
+			precision_Menu->addMenu(menu_Composition_Precision);
+			precision_Menu->addMenu(menu_Density_Precision);
+		}
+		if(item_Type == item_Type_Regular_Aperiodic ||
+		   item_Type == item_Type_General_Aperiodic ||
+		   item_Type == item_Type_Multilayer ||
+		   item_Type == item_Type_Layer	   ||
+		   item_Type == item_Type_Substrate)
+		{
+			precision_Menu->addMenu(menu_Thickness_Precision);
+		}
+		if(item_Type == item_Type_Multilayer)
+		{
+			precision_Menu->addMenu(menu_Gamma_Precision);
+		}
+		if(item_Type == item_Type_Layer   ||
+		   item_Type == item_Type_Substrate)
+		{
+			precision_Menu->addMenu(menu_Interlayer_Precision);
+			precision_Menu->addMenu(menu_Sigma_Precision);
+		}
 	}
 
-	// thickness
-	if(menu_Lengths->title() == precision_Menu_Title)
+	// functionality
+	for(QMenu* current_Menu : precision_Menu_Map.keys())
 	{
-		if(precision_Menu_Thumb_Edit == menu_Thumb->title()) menu_Thumb->actions()[thumbnail_thickness_precision]->setChecked(true);
-		if(precision_Menu_Thumb_Edit == menu_Edit ->title()) menu_Edit ->actions()[line_edit_thickness_precision]->setChecked(true);
-	}
+		QActionGroup* group_Precision  = new QActionGroup(this);
+			group_Precision->setExclusive(true);
 
-	// gamma
-	if(menu_Gamma->title() == precision_Menu_Title)
-	{
-		if(precision_Menu_Thumb_Edit == menu_Thumb->title()) menu_Thumb->actions()[thumbnail_gamma_precision]->setChecked(true);
-		if(precision_Menu_Thumb_Edit == menu_Edit ->title()) menu_Edit ->actions()[line_edit_gamma_precision]->setChecked(true);
-	}
-
-	// composition
-	if(menu_Composition->title() == precision_Menu_Title)
-	{
-		if(precision_Menu_Thumb_Edit == menu_Thumb->title()) menu_Thumb->actions()[thumbnail_composition_precision]->setChecked(true);
-		if(precision_Menu_Thumb_Edit == menu_Edit ->title()) menu_Edit ->actions()[line_edit_composition_precision]->setChecked(true);
-	}
-
-	// interlayer
-	if(menu_Interlayer->title() == precision_Menu_Title)
-	{
-		if(precision_Menu_Thumb_Edit == menu_Thumb->title()) menu_Thumb->actions()[thumbnail_interlayer_precision]->setChecked(true);
-		if(precision_Menu_Thumb_Edit == menu_Edit ->title()) menu_Edit ->actions()[line_edit_interlayer_precision]->setChecked(true);
+		int* current_line_edit_precision = precision_Menu_Map.value(current_Menu);
+		for(int index=0; index<MAX_PRECISION_USED; index++)
+		{
+			QAction* precision_Action   = new QAction(Locale.toString(index));
+				precision_Action->setCheckable(true);
+				precision_Action->setChecked(index == *current_line_edit_precision);
+				precision_Action->setActionGroup(group_Precision);
+			current_Menu->addAction(precision_Action);
+			connect(precision_Action, &QAction::triggered, this, [=]
+			{
+				*current_line_edit_precision = index;
+				emit refresh();
+			});
+		}
 	}
 }
 
@@ -602,138 +495,4 @@ void Menu::open_About()
 					  );
 	about_Box.setIcon(QMessageBox::Information);
 	about_Box.exec();
-}
-
-void Menu::set_Length_Unit()
-{
-	int index = sender()->property(index_Property).toInt();
-	//-------------------------------------------------
-	length_units = length_Units_List[index];
-	//-------------------------------------------------
-	emit refresh();
-}
-
-void Menu::activate_Item_Thumbnail_Precision()
-{
-	// density
-	if(menu_Density->title() == precision_Menu_Title)		set_Thumbnail_Density_Precision();
-
-	// thickness
-	if(menu_Lengths->title() == precision_Menu_Title)	{	set_Thumbnail_Thickness_Precision();
-															set_Thumbnail_Sigma_Precision();
-															set_Thumbnail_Period_Precision();}
-
-	// gamma
-	if(menu_Gamma->title() == precision_Menu_Title)		{	set_Thumbnail_Gamma_Precision();}
-
-	// composition
-	if(menu_Composition->title() == precision_Menu_Title)	set_Thumbnail_Composition_Precision();
-
-	// interlayer
-	if(menu_Interlayer->title() == precision_Menu_Title)	set_Thumbnail_Interlayer_Precision();
-}
-
-void Menu::activate_Item_Line_Edit_Precision()
-{
-	// density
-	if(menu_Density->title() == precision_Menu_Title)		set_Line_Edit_Density_Precision();
-
-	// thickness
-	if(menu_Lengths->title() == precision_Menu_Title)	{	set_Line_Edit_Thickness_Precision();
-															set_Line_Edit_Sigma_Precision();
-															set_Line_Edit_Period_Precision(); }
-	// gamma
-	if(menu_Gamma->title() == precision_Menu_Title)		{	set_Line_Edit_Gamma_Precision();	}
-
-	// composition
-	if(menu_Composition->title() == precision_Menu_Title)	set_Line_Edit_Composition_Precision();
-
-	// interlayer
-	if(menu_Interlayer->title() == precision_Menu_Title)	set_Line_Edit_Interlayer_Precision();
-}
-
-//// precisions
-
-void Menu::set_Thumbnail_Density_Precision()
-{
-	thumbnail_density_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Line_Edit_Density_Precision()
-{
-	line_edit_density_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Thumbnail_Composition_Precision()
-{
-	thumbnail_composition_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Line_Edit_Composition_Precision()
-{
-	line_edit_composition_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Thumbnail_Thickness_Precision()
-{
-	thumbnail_thickness_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Line_Edit_Thickness_Precision()
-{
-	line_edit_thickness_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Thumbnail_Sigma_Precision()
-{
-	thumbnail_sigma_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Line_Edit_Sigma_Precision()
-{
-	line_edit_sigma_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Thumbnail_Interlayer_Precision()
-{
-	thumbnail_interlayer_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Line_Edit_Interlayer_Precision()
-{
-	line_edit_interlayer_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Thumbnail_Period_Precision()
-{
-	thumbnail_period_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Line_Edit_Period_Precision()
-{
-	line_edit_period_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Thumbnail_Gamma_Precision()
-{
-	thumbnail_gamma_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Line_Edit_Gamma_Precision()
-{
-	line_edit_gamma_precision = sender()->property(index_Property).toInt();
-	emit refresh();
 }

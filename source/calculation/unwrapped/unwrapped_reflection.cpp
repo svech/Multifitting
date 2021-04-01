@@ -2753,7 +2753,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
 								}
 							} else
-							if( multilayer->imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model)
+							if( multilayer->imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model)
 							{
 								// pure s-polarization
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
@@ -2984,7 +2984,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									}
 								}
 							} else
-							if( multilayer->imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model )
+							if( multilayer->imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model )
 							{
 								// pure s-polarization
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)

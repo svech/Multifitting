@@ -241,7 +241,11 @@ public:
 	QList<MyDoubleSpinBox*> fractal_Alpha_Beta_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> vertical_Correlation_Length_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> linear_PSD_Omega_Spin_Boxes_List;
-	QList<MyDoubleSpinBox*> Linear_PSD_Exponenta_Mu_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> linear_PSD_Exponenta_Mu_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> linear_A1_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> linear_A2_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> linear_A3_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> linear_A4_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> sigma_Roughness_Peak_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> peak_Frequency_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> peak_Frequency_Width_Spin_Boxes_List;

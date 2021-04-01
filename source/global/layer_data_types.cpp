@@ -327,34 +327,6 @@ Data::Data(QString item_Type_Passed)
 			roughness_Model.fractal_alpha.confidence.max = roughness_Model.fractal_alpha.fit.max;
 			roughness_Model.fractal_alpha.confidence.num_Points = default_num_confidence_points;
 		}
-		// particle volume omega
-		{
-			roughness_Model.omega.value   = default_roughness_omega;
-			roughness_Model.omega.fit.is_Fitable = false;
-			roughness_Model.omega.fit.min = default_roughness_omega_min;
-			roughness_Model.omega.fit.max = default_roughness_omega_max;
-			roughness_Model.omega.indicator.whats_This = whats_This_Linear_PSD_Omega;
-			roughness_Model.omega.indicator.item_Id = id;
-
-			roughness_Model.omega.confidence.calc_Conf_Interval = false;
-			roughness_Model.omega.confidence.min = roughness_Model.omega.fit.min;
-			roughness_Model.omega.confidence.max = roughness_Model.omega.fit.max;
-			roughness_Model.omega.confidence.num_Points = default_num_confidence_points;
-		}
-		// factor in growth exponent (depends on alpha?)
-		{
-			roughness_Model.mu.value   = default_roughness_mu;
-			roughness_Model.mu.fit.is_Fitable = false;
-			roughness_Model.mu.fit.min = default_roughness_mu_min;
-			roughness_Model.mu.fit.max = default_roughness_mu_max;
-			roughness_Model.mu.indicator.whats_This = whats_This_PSD_Exponenta_Mu;
-			roughness_Model.mu.indicator.item_Id = id;
-
-			roughness_Model.mu.confidence.calc_Conf_Interval = false;
-			roughness_Model.mu.confidence.min = roughness_Model.mu.fit.min;
-			roughness_Model.mu.confidence.max = roughness_Model.mu.fit.max;
-			roughness_Model.mu.confidence.num_Points = default_num_confidence_points;
-		}
 		// inheritance power
 		{
 			roughness_Model.fractal_beta.value   = default_roughness_fractal_beta;
@@ -369,6 +341,91 @@ Data::Data(QString item_Type_Passed)
 			roughness_Model.fractal_beta.confidence.max = roughness_Model.fractal_beta.fit.max;
 			roughness_Model.fractal_beta.confidence.num_Points = default_num_confidence_points;
 		}
+		// particle volume omega
+		{
+			roughness_Model.omega.value   = default_roughness_omega;
+			roughness_Model.omega.fit.is_Fitable = false;
+			roughness_Model.omega.fit.min = default_roughness_omega_min;
+			roughness_Model.omega.fit.max = default_roughness_omega_max;
+			roughness_Model.omega.indicator.whats_This = whats_This_Linear_PSD_Omega;
+			roughness_Model.omega.indicator.item_Id = id;
+
+			roughness_Model.omega.confidence.calc_Conf_Interval = false;
+			roughness_Model.omega.confidence.min = roughness_Model.omega.fit.min;
+			roughness_Model.omega.confidence.max = roughness_Model.omega.fit.max;
+			roughness_Model.omega.confidence.num_Points = default_num_confidence_points;
+		}
+		// correlation depth mu
+		{
+			roughness_Model.mu.value   = default_roughness_mu;
+			roughness_Model.mu.fit.is_Fitable = false;
+			roughness_Model.mu.fit.min = default_roughness_mu_min;
+			roughness_Model.mu.fit.max = default_roughness_mu_max;
+			roughness_Model.mu.indicator.whats_This = whats_This_PSD_Exponenta_Mu;
+			roughness_Model.mu.indicator.item_Id = id;
+
+			roughness_Model.mu.confidence.calc_Conf_Interval = false;
+			roughness_Model.mu.confidence.min = roughness_Model.mu.fit.min;
+			roughness_Model.mu.confidence.max = roughness_Model.mu.fit.max;
+			roughness_Model.mu.confidence.num_Points = default_num_confidence_points;
+		}
+		// linear growth coefficient a1
+		{
+			roughness_Model.a1.value   = default_roughness_a1;
+			roughness_Model.a1.fit.is_Fitable = false;
+			roughness_Model.a1.fit.min = default_roughness_a1_min;
+			roughness_Model.a1.fit.max = default_roughness_a1_max;
+			roughness_Model.a1.indicator.whats_This = whats_This_Linear_A1;
+			roughness_Model.a1.indicator.item_Id = id;
+
+			roughness_Model.a1.confidence.calc_Conf_Interval = false;
+			roughness_Model.a1.confidence.min = roughness_Model.a1.fit.min;
+			roughness_Model.a1.confidence.max = roughness_Model.a1.fit.max;
+			roughness_Model.a1.confidence.num_Points = default_num_confidence_points;
+		}
+		// linear growth coefficient a2
+		{
+			roughness_Model.a2.value   = default_roughness_a2;
+			roughness_Model.a2.fit.is_Fitable = false;
+			roughness_Model.a2.fit.min = default_roughness_a2_min;
+			roughness_Model.a2.fit.max = default_roughness_a2_max;
+			roughness_Model.a2.indicator.whats_This = whats_This_Linear_A2;
+			roughness_Model.a2.indicator.item_Id = id;
+
+			roughness_Model.a2.confidence.calc_Conf_Interval = false;
+			roughness_Model.a2.confidence.min = roughness_Model.a2.fit.min;
+			roughness_Model.a2.confidence.max = roughness_Model.a2.fit.max;
+			roughness_Model.a2.confidence.num_Points = default_num_confidence_points;
+		}
+		// linear growth coefficient a3
+		{
+			roughness_Model.a3.value   = default_roughness_a3;
+			roughness_Model.a3.fit.is_Fitable = false;
+			roughness_Model.a3.fit.min = default_roughness_a3_min;
+			roughness_Model.a3.fit.max = default_roughness_a3_max;
+			roughness_Model.a3.indicator.whats_This = whats_This_Linear_A3;
+			roughness_Model.a3.indicator.item_Id = id;
+
+			roughness_Model.a3.confidence.calc_Conf_Interval = false;
+			roughness_Model.a3.confidence.min = roughness_Model.a3.fit.min;
+			roughness_Model.a3.confidence.max = roughness_Model.a3.fit.max;
+			roughness_Model.a3.confidence.num_Points = default_num_confidence_points;
+		}
+		// linear growth coefficient a4
+		{
+			roughness_Model.a4.value   = default_roughness_a4;
+			roughness_Model.a4.fit.is_Fitable = false;
+			roughness_Model.a4.fit.min = default_roughness_a4_min;
+			roughness_Model.a4.fit.max = default_roughness_a4_max;
+			roughness_Model.a4.indicator.whats_This = whats_This_Linear_A4;
+			roughness_Model.a4.indicator.item_Id = id;
+
+			roughness_Model.a4.confidence.calc_Conf_Interval = false;
+			roughness_Model.a4.confidence.min = roughness_Model.a4.fit.min;
+			roughness_Model.a4.confidence.max = roughness_Model.a4.fit.max;
+			roughness_Model.a4.confidence.num_Points = default_num_confidence_points;
+		}
+
 		// PSD peak sigma
 		{
 			roughness_Model.peak_Sigma.value   = default_roughness_peak_sigma;
@@ -835,9 +892,14 @@ void Data::reset_All_IDs()
 		roughness_Model.sigma					.indicator.id = Global_Definitions::generate_Id(); roughness_Model.sigma.				indicator.item_Id = id;	roughness_Model.sigma.					coupled.clear_Coupled();
 		roughness_Model.cor_radius				.indicator.id = Global_Definitions::generate_Id(); roughness_Model.cor_radius.			indicator.item_Id = id;	roughness_Model.cor_radius.				coupled.clear_Coupled();
 		roughness_Model.fractal_alpha			.indicator.id = Global_Definitions::generate_Id(); roughness_Model.fractal_alpha.		indicator.item_Id = id;	roughness_Model.fractal_alpha.			coupled.clear_Coupled();
+		roughness_Model.fractal_beta			.indicator.id = Global_Definitions::generate_Id(); roughness_Model.fractal_beta.		indicator.item_Id = id;	roughness_Model.fractal_beta.			coupled.clear_Coupled();
 		roughness_Model.omega					.indicator.id = Global_Definitions::generate_Id(); roughness_Model.omega.				indicator.item_Id = id;	roughness_Model.omega.					coupled.clear_Coupled();
 		roughness_Model.mu						.indicator.id = Global_Definitions::generate_Id(); roughness_Model.mu.					indicator.item_Id = id;	roughness_Model.mu.						coupled.clear_Coupled();
-		roughness_Model.fractal_beta			.indicator.id = Global_Definitions::generate_Id(); roughness_Model.fractal_beta.		indicator.item_Id = id;	roughness_Model.fractal_beta.			coupled.clear_Coupled();
+
+		roughness_Model.a1						.indicator.id = Global_Definitions::generate_Id(); roughness_Model.a1.					indicator.item_Id = id;	roughness_Model.a1.						coupled.clear_Coupled();
+		roughness_Model.a2						.indicator.id = Global_Definitions::generate_Id(); roughness_Model.a2.					indicator.item_Id = id;	roughness_Model.a2.						coupled.clear_Coupled();
+		roughness_Model.a3						.indicator.id = Global_Definitions::generate_Id(); roughness_Model.a3.					indicator.item_Id = id;	roughness_Model.a3.						coupled.clear_Coupled();
+		roughness_Model.a4						.indicator.id = Global_Definitions::generate_Id(); roughness_Model.a4.					indicator.item_Id = id;	roughness_Model.a4.						coupled.clear_Coupled();
 
 		roughness_Model.peak_Sigma				.indicator.id = Global_Definitions::generate_Id(); roughness_Model.peak_Sigma.			indicator.item_Id = id;	roughness_Model.peak_Sigma.				coupled.clear_Coupled();
 		roughness_Model.peak_Frequency			.indicator.id = Global_Definitions::generate_Id(); roughness_Model.peak_Frequency.		indicator.item_Id = id;	roughness_Model.peak_Frequency.			coupled.clear_Coupled();
@@ -1260,51 +1322,74 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 		}
 		if(imperfections_Model.use_Roughness && roughness_Model.is_Enabled) // automatically imperfections_Model.use_Roughness == roughness_Model.is_Enabled
 		{
-			// for layers with partial correlation
-			if( item_Type == item_Type_Layer && imperfections_Model.vertical_Correlation == partial_Correlation )
+			// for layers
+			if( item_Type == item_Type_Layer )
 			{
-				potentially_Fitable_Parameters.push_back(&roughness_Model.mu);
-
-				// inheritance models
-				if( imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model )	{
-					potentially_Fitable_Parameters.push_back(&roughness_Model.omega);
+				/// partial correlation
+				if( imperfections_Model.vertical_Correlation == partial_Correlation )
+				{
+					// inheritance models for any basic PSD models
+					if( imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model )	{
+						potentially_Fitable_Parameters.push_back(&roughness_Model.mu);
+						potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_beta);
+					}
+					if( imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model )	{
+						potentially_Fitable_Parameters.push_back(&roughness_Model.omega);
+						potentially_Fitable_Parameters.push_back(&roughness_Model.mu);
+						potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
+					}
+					if( imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model )	{
+						potentially_Fitable_Parameters.push_back(&roughness_Model.omega);
+						potentially_Fitable_Parameters.push_back(&roughness_Model.a1);
+						potentially_Fitable_Parameters.push_back(&roughness_Model.a2);
+						potentially_Fitable_Parameters.push_back(&roughness_Model.a3);
+						potentially_Fitable_Parameters.push_back(&roughness_Model.a4);
+					}
 				}
-				if( imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model )	{
-					potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_beta);
+				/// common function for zero and full correlation
+				if( imperfections_Model.vertical_Correlation == full_Correlation ||
+				   (imperfections_Model.vertical_Correlation == zero_Correlation && imperfections_Model.use_Common_Roughness_Function == true))
+				{
+					// nothing here
+				}
+				/// individual functions for zero correlation
+				if(imperfections_Model.vertical_Correlation == zero_Correlation && imperfections_Model.use_Common_Roughness_Function == false)
+				{
+					// ABC and FG models
+					if( imperfections_Model.PSD_Model == ABC_Model ||
+						imperfections_Model.PSD_Model == fractal_Gauss_Model)		{
+						potentially_Fitable_Parameters.push_back(&roughness_Model.cor_radius);
+						potentially_Fitable_Parameters.push_back(&roughness_Model.sigma);
+						potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
+					}
+					// gauss peak
+					if( imperfections_Model.add_Gauss_Peak)			{
+						potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Sigma);
+						potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Frequency);
+						potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Frequency_Width);
+					}
 				}
 			}
-
-			// for substrate only
+			// for substrate
 			if(item_Type == item_Type_Substrate)
 			{
+				// ABC and FG models
+				if( imperfections_Model.PSD_Model == ABC_Model ||
+					imperfections_Model.PSD_Model == fractal_Gauss_Model)		{
+					potentially_Fitable_Parameters.push_back(&roughness_Model.cor_radius);
+					potentially_Fitable_Parameters.push_back(&roughness_Model.sigma);
+					potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
+				}
+				// measured model
 				if(imperfections_Model.PSD_Model == measured_PSD)				{
 					potentially_Fitable_Parameters.push_back(&roughness_Model.sigma_Factor_PSD_1D);
 					potentially_Fitable_Parameters.push_back(&roughness_Model.sigma_Factor_PSD_2D);
 				}
-			}
-
-			// for substrate and layers with zero correlation
-			if( item_Type == item_Type_Substrate ||
-				imperfections_Model.use_Common_Roughness_Function == false	) // implies that imperfections_Model.vertical_Correlation == zero_Correlation
-			{
-				if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)		{
-					potentially_Fitable_Parameters.push_back(&roughness_Model.cor_radius);
-					potentially_Fitable_Parameters.push_back(&roughness_Model.sigma);
-				}
-				if(imperfections_Model.add_Gauss_Peak)			{
+				// gauss peak
+				if( imperfections_Model.add_Gauss_Peak)			{
 					potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Sigma);
 					potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Frequency);
 					potentially_Fitable_Parameters.push_back(&roughness_Model.peak_Frequency_Width);
-				}
-			}
-
-			// for substrate and layers with zero correlation or for layers with linear growth
-			if( item_Type == item_Type_Substrate ||
-				imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model || // implies that imperfections_Model.vertical_Correlation == partial_Correlation
-				imperfections_Model.use_Common_Roughness_Function == false	)				// implies that imperfections_Model.vertical_Correlation == zero_Correlation
-			{
-				if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)		{
-					potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
 				}
 			}
 		}
@@ -1454,52 +1539,74 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 
 		if(imperfections_Model.use_Roughness)
 		{
-			// for layers with partial correlation
-			if( item_Type == item_Type_Layer && imperfections_Model.vertical_Correlation == partial_Correlation )
+			// for layers
+			if( item_Type == item_Type_Layer )
 			{
-				table_Showed_Parameters.push_back(&roughness_Model.mu);
-
-				// inheritance models
-				if( imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model )	{
-					table_Showed_Parameters.push_back(&roughness_Model.omega);
+				/// partial correlation
+				if( imperfections_Model.vertical_Correlation == partial_Correlation )
+				{
+					// inheritance models for any basic PSD models
+					if( imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model )	{
+						table_Showed_Parameters.push_back(&roughness_Model.mu);
+						table_Showed_Parameters.push_back(&roughness_Model.fractal_beta);
+					}
+					if( imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model )	{
+						table_Showed_Parameters.push_back(&roughness_Model.omega);
+						table_Showed_Parameters.push_back(&roughness_Model.mu);
+						table_Showed_Parameters.push_back(&roughness_Model.fractal_alpha);
+					}
+					if( imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model )	{
+						table_Showed_Parameters.push_back(&roughness_Model.omega);
+						table_Showed_Parameters.push_back(&roughness_Model.a1);
+						table_Showed_Parameters.push_back(&roughness_Model.a2);
+						table_Showed_Parameters.push_back(&roughness_Model.a3);
+						table_Showed_Parameters.push_back(&roughness_Model.a4);
+					}
 				}
-				if( imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model )	{
-					table_Showed_Parameters.push_back(&roughness_Model.fractal_beta);
+				/// common function for zero and full correlation
+				if( imperfections_Model.vertical_Correlation == full_Correlation ||
+				   (imperfections_Model.vertical_Correlation == zero_Correlation && imperfections_Model.use_Common_Roughness_Function == true))
+				{
+					// nothing here
+				}
+				/// individual functions for zero correlation
+				if(imperfections_Model.vertical_Correlation == zero_Correlation && imperfections_Model.use_Common_Roughness_Function == false)
+				{
+					// ABC and FG models
+					if( imperfections_Model.PSD_Model == ABC_Model ||
+						imperfections_Model.PSD_Model == fractal_Gauss_Model)		{
+						table_Showed_Parameters.push_back(&roughness_Model.cor_radius);
+						table_Showed_Parameters.push_back(&roughness_Model.sigma);
+						table_Showed_Parameters.push_back(&roughness_Model.fractal_alpha);
+					}
+					// gauss peak
+					if( imperfections_Model.add_Gauss_Peak)			{
+						table_Showed_Parameters.push_back(&roughness_Model.peak_Sigma);
+						table_Showed_Parameters.push_back(&roughness_Model.peak_Frequency);
+						table_Showed_Parameters.push_back(&roughness_Model.peak_Frequency_Width);
+					}
 				}
 			}
-
-			// for substrate only
+			// for substrate
 			if(item_Type == item_Type_Substrate)
 			{
+				// ABC and FG models
+				if( imperfections_Model.PSD_Model == ABC_Model ||
+					imperfections_Model.PSD_Model == fractal_Gauss_Model)		{
+					table_Showed_Parameters.push_back(&roughness_Model.cor_radius);
+					table_Showed_Parameters.push_back(&roughness_Model.sigma);
+					table_Showed_Parameters.push_back(&roughness_Model.fractal_alpha);
+				}
+				// measured model
 				if(imperfections_Model.PSD_Model == measured_PSD)				{
 					table_Showed_Parameters.push_back(&roughness_Model.sigma_Factor_PSD_1D);
 					table_Showed_Parameters.push_back(&roughness_Model.sigma_Factor_PSD_2D);
 				}
-			}
-
-			// for substrate or layers with zero correlation
-			if( item_Type == item_Type_Substrate ||
-				imperfections_Model.use_Common_Roughness_Function == false	) // implies that imperfections_Model.vertical_Correlation == zero_Correlation
-			{
-				if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)				{
-					table_Showed_Parameters.push_back(&roughness_Model.cor_radius);
-					table_Showed_Parameters.push_back(&roughness_Model.sigma);
-				}
-
-				if(imperfections_Model.add_Gauss_Peak)				{
+				// gauss peak
+				if( imperfections_Model.add_Gauss_Peak)			{
 					table_Showed_Parameters.push_back(&roughness_Model.peak_Sigma);
 					table_Showed_Parameters.push_back(&roughness_Model.peak_Frequency);
 					table_Showed_Parameters.push_back(&roughness_Model.peak_Frequency_Width);
-				}
-			}
-
-			// for substrate and (layers with zero correlation) or for (layers with linear growth)
-			if( item_Type == item_Type_Substrate ||
-				(imperfections_Model.vertical_Correlation == partial_Correlation && imperfections_Model.inheritance_Model == linear_Growth_Inheritance_Model) ||
-				imperfections_Model.use_Common_Roughness_Function == false	)				// implies that imperfections_Model.vertical_Correlation == zero_Correlation
-			{
-				if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)				{
-					table_Showed_Parameters.push_back(&roughness_Model.fractal_alpha);
 				}
 			}
 		}
@@ -1612,9 +1719,14 @@ void Data::prepare_Layer_For_Regular_Component()
 	make_Free(roughness_Model.sigma);
 	make_Free(roughness_Model.cor_radius);
 	make_Free(roughness_Model.fractal_alpha);
-	make_Free(roughness_Model.omega);
-	make_Free(roughness_Model.mu);
 	make_Free(roughness_Model.fractal_beta);
+	make_Free(roughness_Model.omega);
+	make_Free(roughness_Model.mu);	
+	make_Free(roughness_Model.a1);
+	make_Free(roughness_Model.a2);
+	make_Free(roughness_Model.a3);
+	make_Free(roughness_Model.a4);
+
 	make_Free(roughness_Model.peak_Sigma);
 	make_Free(roughness_Model.peak_Frequency);
 	make_Free(roughness_Model.peak_Frequency_Width);

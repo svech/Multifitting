@@ -1024,11 +1024,13 @@ void Item_Editor::make_Sigma_Group_Box()
 			PSD_Layout->setContentsMargins(10,0,0,0);
 		individual_Sigma_Check_Box = new QCheckBox("Use many s");
 		if(item->parent())
-		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 		{
-			individual_Sigma_Check_Box->setDisabled(true);
+			if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+			{
+				individual_Sigma_Check_Box->setDisabled(true);
+			}
 		}
-			PSD_Layout->addWidget(individual_Sigma_Check_Box);
+		PSD_Layout->addWidget(individual_Sigma_Check_Box);
 		sigma_PSD_Layout->addWidget(PSD_Frame);
 
 		connect(individual_Sigma_Check_Box, &QCheckBox::stateChanged, this, &Item_Editor::interlayer_Check);
@@ -1359,31 +1361,37 @@ void Item_Editor::read_Interlayers_From_Item()
 		{
 			// creating ui elements
 			QCheckBox* check_Box = new QCheckBox(transition_Layer_Functions[i]);
-			QLineEdit* comp_Line_Edit = new QLineEdit;
+			MyDoubleSpinBox* comp_Line_Edit = new MyDoubleSpinBox;
 				comp_Line_Edit->setFixedWidth(41);
+				comp_Line_Edit->setRange(0, MAX_DOUBLE);
+				comp_Line_Edit->setDecimals(line_edit_interlayer_precision);
+				comp_Line_Edit->setValue(struct_Data.interlayer_Composition[i].interlayer.value);
+				comp_Line_Edit->setAccelerated(true);
+				comp_Line_Edit->setButtonSymbols(QAbstractSpinBox::NoButtons);
 //				comp_Line_Edit->setProperty(min_Size_Property, line_Edit->width());
-				comp_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			QLineEdit* my_Sigma_Line_Edit = new QLineEdit;
+			MyDoubleSpinBox* my_Sigma_Line_Edit = new MyDoubleSpinBox;
 				my_Sigma_Line_Edit->setFixedWidth(41);
+				my_Sigma_Line_Edit->setRange(0, MAX_DOUBLE);
+				my_Sigma_Line_Edit->setDecimals(line_edit_sigma_precision);
+				my_Sigma_Line_Edit->setValue(struct_Data.interlayer_Composition[i].my_Sigma_Diffuse.value/coeff);
+				my_Sigma_Line_Edit->setAccelerated(true);
+				my_Sigma_Line_Edit->setButtonSymbols(QAbstractSpinBox::NoButtons);
 //				my_Sigma_Line_Edit->setProperty(min_Size_Property, line_Edit->width());
-				my_Sigma_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 //			connect(comp_Line_Edit,		&QLineEdit::textEdited,	this, [=]{Global_Variables::resize_Line_Edit(comp_Line_Edit);}); // better not use
 //			connect(my_Sigma_Line_Edit, &QLineEdit::textEdited,	this, [=]{Global_Variables::resize_Line_Edit(my_Sigma_Line_Edit);}); // better not use
 
 			check_Box->setChecked(struct_Data.interlayer_Composition[i].enabled);
-			comp_Line_Edit->setText(Locale.toString(struct_Data.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
-			my_Sigma_Line_Edit->setText(Locale.toString(struct_Data.interlayer_Composition[i].my_Sigma_Diffuse.value/coeff,line_edit_short_double_format,line_edit_interlayer_precision));
-//				Global_Variables::resize_Line_Edit(comp_Line_Edit);     // better not use
-//				Global_Variables::resize_Line_Edit(my_Sigma_Line_Edit); // better not use
+//			Global_Variables::resize_Line_Edit(comp_Line_Edit);     // better not use
+//			Global_Variables::resize_Line_Edit(my_Sigma_Line_Edit); // better not use
 
 			interlayer_Composition_Check_Box_Vec		 [i]=check_Box;
 			interlayer_Composition_Comp_Line_Edit_Vec	 [i]=comp_Line_Edit;
 			interlayer_Composition_My_Sigma_Line_Edit_Vec[i]=my_Sigma_Line_Edit;
 
 			connect(check_Box,			&QCheckBox::stateChanged, this, [=]{interlayer_Check();});
-			connect(comp_Line_Edit,		&QLineEdit::textEdited,   this, &Item_Editor::refresh_Data);
-			connect(my_Sigma_Line_Edit, &QLineEdit::textEdited,   this, &Item_Editor::refresh_Data);
+			connect(comp_Line_Edit,		static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged),   this, &Item_Editor::refresh_Data);
+			connect(my_Sigma_Line_Edit, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged),   this, &Item_Editor::refresh_Data);
 
 			// placing ui elements
 			QVBoxLayout* vert_Layout = new QVBoxLayout;
@@ -1512,7 +1520,7 @@ void Item_Editor::show_Stack_Parameters()
 		period_Label->setText(period_Label_1 + length_units + period_Label_2);
 
 		repetitions_Line_Edit->setValue(struct_Data.num_Repetition.value());
-		period_Line_Edit->setText(Locale.toString(struct_Data.period.value/coeff,line_edit_double_format,line_edit_period_precision));
+		period_Line_Edit->setText(Locale.toString(struct_Data.period.value/coeff,line_edit_double_format,line_edit_thickness_precision));
 		gamma_Line_Edit ->setText(Locale.toString(struct_Data.gamma.value,line_edit_double_format,line_edit_gamma_precision));
 
 		if(!forbid_Period_Gamma)
@@ -1536,11 +1544,12 @@ void Item_Editor::show_Interlayers(QObject* my_Sender)
 		{
 			for(int i=0; i<struct_Data.interlayer_Composition.size(); ++i)
 			{
-				if(interlayer_Composition_Comp_Line_Edit_Vec	 [i]!=my_Sender)
-					interlayer_Composition_Comp_Line_Edit_Vec	 [i]->setText(Locale.toString(struct_Data.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
-
-				if(interlayer_Composition_My_Sigma_Line_Edit_Vec [i]!=my_Sender)
-					interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(Locale.toString(struct_Data.interlayer_Composition[i].my_Sigma_Diffuse.value/coeff,line_edit_short_double_format,line_edit_sigma_precision));
+				if(interlayer_Composition_Comp_Line_Edit_Vec	 [i]!=my_Sender) {
+					interlayer_Composition_Comp_Line_Edit_Vec	 [i]->setValue(struct_Data.interlayer_Composition[i].interlayer.value);
+				}
+				if(interlayer_Composition_My_Sigma_Line_Edit_Vec [i]!=my_Sender) {
+					interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setValue(struct_Data.interlayer_Composition[i].my_Sigma_Diffuse.value/coeff);
+				}
 			}
 			my_Sigma_Label_Layer->setText(sigma_Label_3 + length_units + sigma_Label_2);
 		}
@@ -1635,8 +1644,8 @@ void Item_Editor::norm_Interlayer_Composition()
 		{
 			if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 			{
-				interlayer_Composition_Comp_Line_Edit_Vec[i]->setText(Locale.toString(Locale.toDouble(interlayer_Composition_Comp_Line_Edit_Vec[i]->text())/sum,line_edit_short_double_format,line_edit_interlayer_precision));
-				struct_Data.interlayer_Composition[i].interlayer.value = Locale.toDouble(interlayer_Composition_Comp_Line_Edit_Vec[i]->text());
+				interlayer_Composition_Comp_Line_Edit_Vec[i]->setValue(interlayer_Composition_Comp_Line_Edit_Vec[i]->value()/sum);
+				struct_Data.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->value();
 			}
 		}
 	}

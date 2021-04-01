@@ -90,6 +90,9 @@ public:
 	vector<double> beta;											//	[boundary]
 	vector<vector<double>> beta_Threaded;							//	[thread][boundary]
 
+	vector<double> a1,a2,a3,a4;												//	[boundary]
+	vector<vector<double>> a1_Threaded,a2_Threaded,a3_Threaded,a4_Threaded;	//	[thread][boundary]
+
 	vector<double> PSD_h_mu;										//	[layer]
 	vector<vector<double>> PSD_h_mu_Threaded;						//	[thread][layer]
 

@@ -205,6 +205,10 @@ extern double	default_roughness_fractal_alpha;
 extern double	default_roughness_fractal_alpha_min;
 extern double	default_roughness_fractal_alpha_max;
 
+extern double	default_roughness_fractal_beta;
+extern double	default_roughness_fractal_beta_min;
+extern double	default_roughness_fractal_beta_max;
+
 extern double	default_roughness_omega;
 extern double	default_roughness_omega_min;
 extern double	default_roughness_omega_max;
@@ -213,9 +217,21 @@ extern double	default_roughness_mu;
 extern double	default_roughness_mu_min;
 extern double	default_roughness_mu_max;
 
-extern double	default_roughness_fractal_beta;
-extern double	default_roughness_fractal_beta_min;
-extern double	default_roughness_fractal_beta_max;
+extern double	default_roughness_a1;
+extern double	default_roughness_a1_min;
+extern double	default_roughness_a1_max;
+
+extern double	default_roughness_a2;
+extern double	default_roughness_a2_min;
+extern double	default_roughness_a2_max;
+
+extern double	default_roughness_a3;
+extern double	default_roughness_a3_min;
+extern double	default_roughness_a3_max;
+
+extern double	default_roughness_a4;
+extern double	default_roughness_a4_min;
+extern double	default_roughness_a4_max;
 
 extern double	default_roughness_peak_sigma;
 extern double	default_roughness_peak_sigma_min;
@@ -290,11 +306,14 @@ extern double	step_thickness;
 extern double	step_sigma_diffuse;
 
 extern double	step_sigma_roughness;
-extern double	step_sigma_cor_radius;
-extern double	step_sigma_fractal_alpha_beta;
-extern double	step_sigma_vertical_cor_length;
-extern double	step_sigma_omega;
-extern double	step_sigma_mu;
+extern double	step_cor_radius;
+extern double	step_fractal_alpha_beta;
+extern double	step_omega;
+extern double	step_mu;
+extern double	step_linear_a1;
+extern double	step_linear_a2;
+extern double	step_linear_a3;
+extern double	step_linear_a4;
 extern double	step_sigma_roughness_peak;
 extern double	step_peak_frequency;
 extern double	step_peak_frequency_width;
@@ -336,19 +355,29 @@ extern int line_edit_thickness_precision	;
 
 extern int line_edit_sigma_precision		;
 extern int line_edit_cor_radius_precision	;
-extern int line_edit_fractal_alpha_precision;
+extern int line_edit_fractal_alpha_beta_precision;
 extern int line_edit_omega_precision		;
 extern int line_edit_mu_precision			;
 extern int line_edit_frequency_precision	;
 extern int line_edit_psd_factor_precision	;
 
+extern int line_edit_linear_a_precision	;
+//extern int line_edit_linear_a1_precision	;
+//extern int line_edit_linear_a2_precision	;
+//extern int line_edit_linear_a3_precision	;
+//extern int line_edit_linear_a4_precision	;
+
 extern int line_edit_interlayer_precision	;
 extern int line_edit_drift_precision		;
-extern int line_edit_period_precision		;
 extern int line_edit_gamma_precision		;
 extern int line_edit_sample_size_precision	;
 extern int line_edit_beam_size_precision	;
 extern int line_edit_background_precision	;
+
+extern int line_edit_particle_size_precision;
+extern int line_edit_particle_lateral_distance_precision;
+extern int line_edit_particle_z_position_precision;
+
 
 // thumbnail
 extern char thumbnail_double_format			;
@@ -362,19 +391,28 @@ extern int thumbnail_thickness_precision	;
 
 extern int thumbnail_sigma_precision		;
 extern int thumbnail_cor_radius_precision	;
-extern int thumbnail_fractal_alpha_precision;
+extern int thumbnail_fractal_alpha_beta_precision;
 extern int thumbnail_omega_precision		;
 extern int thumbnail_mu_precision			;
 extern int thumbnail_frequency_precision	;
 extern int thumbnail_psd_factor_precision	;
 
+extern int thumbnail_linear_a_precision	;
+//extern int thumbnail_linear_a1_precision	;
+//extern int thumbnail_linear_a2_precision	;
+//extern int thumbnail_linear_a3_precision	;
+//extern int thumbnail_linear_a4_precision	;
+
 extern int thumbnail_interlayer_precision	;
 extern int thumbnail_drift_precision		;
-extern int thumbnail_period_precision		;
 extern int thumbnail_gamma_precision		;
 extern int thumbnail_sample_size_precision	;
 extern int thumbnail_beam_size_precision	;
 extern int thumbnail_background_precision	;
+
+extern int thumbnail_particle_size_precision;
+extern int thumbnail_particle_lateral_distance_precision;
+extern int thumbnail_particle_z_position_precision;
 
 // other
 extern int at_weight_precision				;

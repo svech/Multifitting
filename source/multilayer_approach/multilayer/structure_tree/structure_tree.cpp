@@ -387,7 +387,7 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item, int i)
 				if(data.item_Type == item_Type_Multilayer)
 				{
 					item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + ", N=" + Locale.toString(data.num_Repetition.value())
-								  + ", d="  + Locale.toString(data.period.value/length_Coeff,thumbnail_double_format,thumbnail_period_precision) + length_units);
+								  + ", d="  + Locale.toString(data.period.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units);
 
 					if(item->childCount()==2 && abs(data.period.value)>DBL_EPSILON)
 					{
