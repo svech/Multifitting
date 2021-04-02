@@ -3643,6 +3643,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		if(whats_This == whats_This_Correlation_Radius)
 		{
 			spin_Box->setMinimum(10/coeff);
+			spin_Box->setMaximum(1e10/coeff);
 		}
 		if(whats_This == whats_This_PSD_Exponenta_Mu)
 		{
@@ -5936,6 +5937,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			if(whats_This == whats_This_Correlation_Radius)
 			{
 				spin_Box->setMinimum(10/coeff);
+				spin_Box->setMaximum(1e10/coeff);
 			}
 			if(whats_This == whats_This_PSD_Exponenta_Mu)
 			{

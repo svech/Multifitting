@@ -737,20 +737,31 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 		auto f_2 = [&](double p){return 2./sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(p+p_Bound)*(p+p_Bound)*xi*xi, alpha+0.5);};
 		for(size_t i = 0; i<num_Points; ++i)
 		{
-			double z = -p0[i]*p0[i]*xi*xi;
-			if(abs(z)<1)
+			double z = -p0[i]*p0[i]*xi*xi; // z is non-negative
+			double zz = z/(z-1);
+
+			if(p0[i]>DBL_MIN)
 			{
-				sigma_2[i] = sigma*sigma - 2*p0[i]*xi*sigma*sigma*tgamma(alpha+0.5) * boost::math::hypergeometric_pFq({0.5, 0.5+alpha}, {1.5}, z) / (sqrt(M_PI) * tgamma(alpha));
-			} else
-			{
-				if(p0[i]>DBL_MIN)
+				if( z >-1)
 				{
-					p_Bound = p0[i];
-					sigma_2[i] = sigma_Integrator.integrate(f_2, termination, &error, &L1);
+					double pFq = boost::math::hypergeometric_pFq({0.5, 0.5+alpha}, {1.5}, z);
+					sigma_2[i] = sigma*sigma - 2*p0[i]*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
 				} else
 				{
-					sigma_2[i] = sigma*sigma;
+					if(abs(zz)<1)
+					{
+						double pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
+//						double pFq = 1./sqrt(1-z) * boost::math::hypergeometric_pFq({0.5, 1.-alpha}, {1.5}, zz);
+						sigma_2[i] = sigma*sigma - 2*p0[i]*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
+					} else
+					{
+						p_Bound = p0[i];
+						sigma_2[i] = sigma_Integrator.integrate(f_2, termination, &error, &L1);
+					}
 				}
+			} else
+			{
+				sigma_2[i] = sigma*sigma;
 			}
 			if(imperfections_Model.add_Gauss_Peak)
 			{

@@ -7,6 +7,7 @@
 #include <boost/math/quadrature/trapezoidal.hpp>
 #include <boost/math/special_functions/hypergeometric_pFq.hpp>
 #include <boost/math/quadrature/exp_sinh.hpp>
+#include <gsl/gsl_sf_hyperg.h>
 #include <QtWidgets>
 #include <vector>
 #include <complex>
