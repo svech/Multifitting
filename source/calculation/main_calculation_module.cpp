@@ -2142,6 +2142,10 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 			{
 				(*working_Curve)[point_Index] *= qDegreesToRadians(measurement.theta_Resolution_FWHM);
 			}
+//			*calculated_Curve = *working_Curve;
+//			if(data_Element.calc_Functions.instrumental_Smoothing)	{
+//				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution);
+//			}
 		}
 		// specular peak
 		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
@@ -2187,6 +2191,10 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 			{
 				(*working_Curve)[point_Index] *= qDegreesToRadians(measurement.theta_Resolution_FWHM);
 			}
+//			*calculated_Curve = *working_Curve;
+//			if(data_Element.calc_Functions.instrumental_Smoothing)	{
+//				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution);
+//			}
 		}
 		// specular peak
 		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{

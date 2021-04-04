@@ -742,12 +742,12 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 
 			if(p0[i]>DBL_MIN)
 			{
-				if( z >-1)
-				{
-					double pFq = boost::math::hypergeometric_pFq({0.5, 0.5+alpha}, {1.5}, z);
-					sigma_2[i] = sigma*sigma - 2*p0[i]*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
-				} else
-				{
+//				if( z >-1)
+//				{
+//					double pFq = boost::math::hypergeometric_pFq({0.5, 0.5+alpha}, {1.5}, z);
+//					sigma_2[i] = sigma*sigma - 2*p0[i]*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
+//				} else
+//				{
 					if(abs(zz)<1)
 					{
 						double pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
@@ -758,7 +758,7 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 						p_Bound = p0[i];
 						sigma_2[i] = sigma_Integrator.integrate(f_2, termination, &error, &L1);
 					}
-				}
+//				}
 			} else
 			{
 				sigma_2[i] = sigma*sigma;
