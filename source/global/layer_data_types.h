@@ -41,6 +41,7 @@ public:
 		Parameter detector_Theta_Angle;
 		vector<double> detector_Theta_Cos2_Vec;  double detector_Theta_Cos2_Value;	// wihout saving
 		vector<double> detector_Theta_Cos_Vec;   double detector_Theta_Cos_Value;	// wihout saving
+		vector<double> detector_Theta_Sin_Vec;   double detector_Theta_Sin_Value;	// wihout saving
 		vector<double> detector_Theta_Angle_Vec; double detector_Theta_Angle_Value; // wihout saving
 
 		double detector_Theta_Offset;

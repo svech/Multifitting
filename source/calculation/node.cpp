@@ -909,6 +909,37 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	}
 }
 
+double integral_ABC(double p0, const Data& measurement, const Data& struct_Data, int i, ooura_fourier_sin<double>& integrator)
+{
+	const double& sigma = struct_Data.roughness_Model.sigma.value;
+	const double& xi =    struct_Data.roughness_Model.cor_radius.value;
+	const double& alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+	double z = -4*M_PI*M_PI*p0*p0*xi*xi;	// z is non-negative
+	double zz = z/(z-1);					// 0 <= zz < 1is non-negative
+
+	if(abs(zz)<1)
+	{
+		double pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
+		return 4*sqrt(M_PI)*p0*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / tgamma(alpha)  * measurement.lambda_Value / measurement.detector_Theta_Sin_Vec[i];
+	}
+
+	qInfo() << "Node::integral_ABC  :  abs(zz)>=1, zz = " << zz << endl;
+	return 0.;
+}
+double integral_Fractal_Gauss(double p0, const Data& measurement, const Data& struct_Data, int i, ooura_fourier_sin<double>& integrator)
+{
+	const double& sigma = struct_Data.roughness_Model.sigma.value;
+	const double& xi =    struct_Data.roughness_Model.cor_radius.value;
+	const double& alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+	auto f = [&](double r) {return 1/r * sigma*sigma * exp(-pow(r/xi,2*alpha));};
+
+	std::pair<double, double> result_Boost = integrator.integrate(f, 2*M_PI*p0);
+
+	return M_2_PI*result_Boost.first * measurement.lambda_Value / measurement.detector_Theta_Sin_Vec[i];
+}
+
 void Node::calc_Integral_Intensity_Near_Specular(const Data& measurement, const Imperfections_Model& imperfections_Model)
 {
 	if(imperfections_Model.approximation != PT_approximation) return;
@@ -964,57 +995,42 @@ void Node::calc_Integral_Intensity_Near_Specular(const Data& measurement, const 
 			}
 		}
 
-		if(imperfections_Model.PSD_Model == ABC_Model)
-		{
-			double sigma = struct_Data.roughness_Model.sigma.value;
-			double xi =    struct_Data.roughness_Model.cor_radius.value;
-			double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+		ooura_fourier_sin<double> ooura_integrator;
+		double (*integral_Func)(double, const Data&, const Data&, int, ooura_fourier_sin<double>&);
+		vector<double> integrated_PSD(num_Points,0);
 
-			auto integral = [&](double p0, double sin_Theta)
-			{
-				double z = -4*M_PI*M_PI*p0*p0*xi*xi; // z is non-negative
-				double zz = z/(z-1);
-
-				if(abs(zz)<1)
-				{
-					double pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
-					return 4*sqrt(M_PI)*p0*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / tgamma(alpha)  * measurement.lambda_Value / sin_Theta;
-				} else
-				{
-					qInfo() << "Node::calc_Integral_Intensity_Near_Specular  :  abs(zz)>=1, zz = " << zz << endl;
-					return 0.;
-				}
-			};
-
-//			qInfo() << 2*max_Delta_Theta_Detector << measurement.theta_Resolution_FWHM << endl;
-			vector<double> integrated_PSD(num_Points,0);
-			for(int i = first_Point; i<=second_Point; i++)
-			{
-				if(two_Intervals[i])
-				{
-					integrated_PSD[i] = integral(p_max_1[i], sqrt(1-measurement.detector_Theta_Cos2_Vec[i])) + integral(p_max_2[i], sqrt(1-measurement.detector_Theta_Cos2_Vec[i]));
-				} else
-				{
-					integrated_PSD[i] = integral(p_max_1[i], sqrt(1-measurement.detector_Theta_Cos2_Vec[i])) - integral(p_min[i], sqrt(1-measurement.detector_Theta_Cos2_Vec[i]));
-				}
-
-				double p = abs(measurement.beam_Theta_0_Cos_Value - measurement.detector_Theta_Cos_Vec[i])/measurement.lambda_Value;
-//				double p1 = abs(measurement.beam_Theta_0_Cos_Value - cos(qDegreesToRadians(measurement.beam_Theta_0_Angle_Value + 0.01)))/measurement.lambda_Value;
-
-//				qInfo() << measurement.detector_Theta_Angle_Vec[i] << p1 << integral(p1) << endl;
-
-
-//				qInfo() << p_max_1[i] << measurement.detector_Theta_Angle_Vec[i] << p << 4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(2*M_PI*p*xi)*(2*M_PI*p*xi), alpha+0.5) << endl;
-
-
-				qInfo() << measurement.detector_Theta_Angle_Vec[i] << integrated_PSD[i] <<
-					qDegreesToRadians(measurement.theta_Resolution_FWHM) *
-					4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(2*M_PI*p*xi)*(2*M_PI*p*xi), alpha+0.5) << endl;
-			}
-			qInfo() << endl << endl;
+		if(imperfections_Model.PSD_Model == ABC_Model)	{
+			integral_Func = &integral_ABC;
+		}
+		if(imperfections_Model.PSD_Model == fractal_Gauss_Model)	{
+			integral_Func = &integral_Fractal_Gauss;
+		}
+		if(imperfections_Model.PSD_Model == measured_PSD)	{
+			// TODO remove!
 		}
 
+		for(int i = first_Point; i<=second_Point; i++)
+		{
+			if(two_Intervals[i])
+			{
+				integrated_PSD[i] = integral_Func(p_max_1[i], measurement, struct_Data, i, ooura_integrator) + integral_Func(p_max_2[i], measurement, struct_Data, i, ooura_integrator);
+			} else
+			{
+				integrated_PSD[i] = integral_Func(p_max_1[i], measurement, struct_Data, i, ooura_integrator) - integral_Func(p_min[i], measurement, struct_Data, i, ooura_integrator);
+			}
 
+			integrated_PSD[i] = max(integrated_PSD[i], 0.);
+
+//			const double& sigma = struct_Data.roughness_Model.sigma.value;
+//			const double& xi =    struct_Data.roughness_Model.cor_radius.value;
+//			const double& alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+//			double p = abs(measurement.beam_Theta_0_Cos_Value - measurement.detector_Theta_Cos_Vec[i])/measurement.lambda_Value;
+//			qInfo() << measurement.detector_Theta_Angle_Vec[i] << integrated_PSD[i] <<
+//				qDegreesToRadians(measurement.theta_Resolution_FWHM) *
+//				4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(2*M_PI*p*xi)*(2*M_PI*p*xi), alpha+0.5) << endl;
+		}
+		qInfo() << endl << endl;
 	}
 }
 
