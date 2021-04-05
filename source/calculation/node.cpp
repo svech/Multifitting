@@ -632,17 +632,7 @@ void Node::fill_Epsilon_Contrast_For_Density_Fluctuations(vector<double>& spectr
 void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_Model& imperfections_Model)
 {
 	// angular width of detector
-	double max_Delta_Theta_Detector = 0;
-	if(measurement.detector_1D.detector_Type == detectors[Slit])
-	{
-		double w_2 = (measurement.detector_1D.slit_Width/2);
-		double d = (measurement.detector_1D.distance_To_Sample);
-		max_Delta_Theta_Detector = qRadiansToDegrees(atan(w_2/d));  // in degrees
-	}
-	if(measurement.detector_1D.detector_Type == detectors[Crystal])
-	{
-		max_Delta_Theta_Detector = qRadiansToDegrees(measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/2);
-	}
+	double max_Delta_Theta_Detector = measurement.get_Max_Delta_Theta_Detector();
 
 	// measurement points
 	size_t num_Points = 0;
@@ -919,6 +909,115 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	}
 }
 
+void Node::calc_Integral_Intensity_Near_Specular(const Data& measurement, const Imperfections_Model& imperfections_Model)
+{
+	if(imperfections_Model.approximation != PT_approximation) return;
+	if(struct_Data.item_Type == item_Type_Ambient ) return;
+	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+
+	// angular width of detector
+	double max_Delta_Theta_Detector = measurement.get_Max_Delta_Theta_Detector();
+	double area_Factor = 5.0;
+
+	if(measurement.measurement_Type == measurement_Types[Detector_Scan])
+	{
+		double limit_Distance_to_Specular = area_Factor*max_Delta_Theta_Detector;
+		size_t num_Points = measurement.detector_Theta_Angle_Vec.size();
+
+		int first_Point = -2021, second_Point = -2021;
+		bool first_Point_Detected = false;
+
+		for(int i = 0; i<num_Points; i++)
+		{
+			double detector_Theta_Position = measurement.detector_Theta_Angle_Vec[i];
+			double specular_Position = measurement.beam_Theta_0_Angle.value;
+
+			if(abs(detector_Theta_Position-specular_Position)<=limit_Distance_to_Specular) {
+				second_Point = i;
+				if(!first_Point_Detected) {
+					first_Point = i;
+					first_Point_Detected = true;
+				}
+			}
+		}
+		if(first_Point<0 || second_Point<0) return;
+
+		vector<double> p1(num_Points), p2(num_Points);
+		vector<double> p_min(num_Points), p_max_1(num_Points), p_max_2(num_Points);
+		vector<double> two_Intervals(num_Points,false);
+
+		for(int i = first_Point; i<=second_Point; i++)
+		{
+			p1[i] = 1/measurement.lambda_Value * (measurement.beam_Theta_0_Cos_Value - cos(qDegreesToRadians(measurement.detector_Theta_Angle_Vec[i] - max_Delta_Theta_Detector)));
+			p2[i] = 1/measurement.lambda_Value * (measurement.beam_Theta_0_Cos_Value - cos(qDegreesToRadians(measurement.detector_Theta_Angle_Vec[i] + max_Delta_Theta_Detector)));
+
+			p_max_1[i] = max(abs(p1[i]),abs(p2[i]));
+			if(p1[i]*p2[i]<0)
+			{
+				p_min[i] = 0;
+				p_max_2[i] = min(abs(p1[i]),abs(p2[i]));
+				two_Intervals[i] = true;
+			} else
+			{
+				p_min[i] = min(abs(p1[i]),abs(p2[i]));
+				p_max_2[i] = -2021;
+			}
+		}
+
+		if(imperfections_Model.PSD_Model == ABC_Model)
+		{
+			double sigma = struct_Data.roughness_Model.sigma.value;
+			double xi =    struct_Data.roughness_Model.cor_radius.value;
+			double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+			auto integral = [&](double p0, double sin_Theta)
+			{
+				double z = -4*M_PI*M_PI*p0*p0*xi*xi; // z is non-negative
+				double zz = z/(z-1);
+
+				if(abs(zz)<1)
+				{
+					double pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
+					return 4*sqrt(M_PI)*p0*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / tgamma(alpha)  * measurement.lambda_Value / sin_Theta;
+				} else
+				{
+					qInfo() << "Node::calc_Integral_Intensity_Near_Specular  :  abs(zz)>=1, zz = " << zz << endl;
+					return 0.;
+				}
+			};
+
+//			qInfo() << 2*max_Delta_Theta_Detector << measurement.theta_Resolution_FWHM << endl;
+			vector<double> integrated_PSD(num_Points,0);
+			for(int i = first_Point; i<=second_Point; i++)
+			{
+				if(two_Intervals[i])
+				{
+					integrated_PSD[i] = integral(p_max_1[i], sqrt(1-measurement.detector_Theta_Cos2_Vec[i])) + integral(p_max_2[i], sqrt(1-measurement.detector_Theta_Cos2_Vec[i]));
+				} else
+				{
+					integrated_PSD[i] = integral(p_max_1[i], sqrt(1-measurement.detector_Theta_Cos2_Vec[i])) - integral(p_min[i], sqrt(1-measurement.detector_Theta_Cos2_Vec[i]));
+				}
+
+				double p = abs(measurement.beam_Theta_0_Cos_Value - measurement.detector_Theta_Cos_Vec[i])/measurement.lambda_Value;
+//				double p1 = abs(measurement.beam_Theta_0_Cos_Value - cos(qDegreesToRadians(measurement.beam_Theta_0_Angle_Value + 0.01)))/measurement.lambda_Value;
+
+//				qInfo() << measurement.detector_Theta_Angle_Vec[i] << p1 << integral(p1) << endl;
+
+
+//				qInfo() << p_max_1[i] << measurement.detector_Theta_Angle_Vec[i] << p << 4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(2*M_PI*p*xi)*(2*M_PI*p*xi), alpha+0.5) << endl;
+
+
+				qInfo() << measurement.detector_Theta_Angle_Vec[i] << integrated_PSD[i] <<
+					qDegreesToRadians(measurement.theta_Resolution_FWHM) *
+					4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(2*M_PI*p*xi)*(2*M_PI*p*xi), alpha+0.5) << endl;
+			}
+			qInfo() << endl << endl;
+		}
+
+
+	}
+}
+
 void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imperfections_Model& imperfections_Model)
 {
 	if(imperfections_Model.approximation != PT_approximation) return;
@@ -1014,7 +1113,6 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 
 	gsl_spline_init(spline_PSD, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 }
-
 void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imperfections_Model& imperfections_Model)
 {
 	if(imperfections_Model.approximation != PT_approximation) return;
@@ -1233,7 +1331,6 @@ void Node::create_Spline_PSD_Measured(const Imperfections_Model& imperfections_M
 	spline_PSD = gsl_spline_alloc(gsl_interp_linear, argument_Vec.size());
 	gsl_spline_init(spline_PSD, argument_Vec.data(), value_Vec.data(), argument_Vec.size());
 }
-
 void Node::clear_Spline_PSD_Measured(const Imperfections_Model& imperfections_Model)
 {
 	if(imperfections_Model.approximation != PT_approximation) return;

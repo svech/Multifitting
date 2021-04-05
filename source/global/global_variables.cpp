@@ -1448,16 +1448,15 @@ double Global_Variables::nu2(double k, double cos_Theta, double cos_Theta_0, dou
 
 double Global_Variables::PSD_Linear_Growth_2D(double exponent, double nu2_mu_Alpha_2, double omega, double thickness)
 {
-//	const double factor = 4*M_PI*M_PI;
 	if(nu2_mu_Alpha_2 > DBL_EPSILON)
 	{
-//		if(nu2_omega_23<2*factor)
-			return omega/*/factor*/ * (1-exponent) / nu2_mu_Alpha_2;
+//		if(nu2_omega_23<2)
+			return omega * (1-exponent) / nu2_mu_Alpha_2;
 //		else
 //			return 0;
 	} else
 	{
-		return omega/*/factor*/ * thickness;
+		return omega * thickness;
 	}
 }
 

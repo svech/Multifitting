@@ -1187,6 +1187,22 @@ void Data::calc_Mixed_Resolution()
 	}
 }
 
+double Data::get_Max_Delta_Theta_Detector() const
+{
+	double max_Delta_Theta_Detector = 0;
+	if(detector_1D.detector_Type == detectors[Slit])
+	{
+		double w_2 = (detector_1D.slit_Width/2);
+		double d = (detector_1D.distance_To_Sample);
+		max_Delta_Theta_Detector = qRadiansToDegrees(atan(w_2/d));  // in degrees
+	}
+	if(detector_1D.detector_Type == detectors[Crystal])
+	{
+		max_Delta_Theta_Detector = qRadiansToDegrees(detector_1D.detector_Theta_Resolution.FWHM_distribution/2);
+	}
+	return max_Delta_Theta_Detector;
+}
+
 QString Data::get_Composed_Material()
 {
 	QString composed;

@@ -89,6 +89,7 @@ public:
 
 		void calc_Instrumental_Factor();
 		void calc_Mixed_Resolution();
+		double get_Max_Delta_Theta_Detector() const;
 	///---------------------------------------------
 	///---------------------------------------------
 	// Ambient, Layer, Substrate
