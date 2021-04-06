@@ -752,7 +752,7 @@ void Curve_Plot_1D::plot_All_Data()
 			if(	measurement.argument_Type == argument_Types[Detector_Polar_Angle])			argument_Units = angular_Units;
 			if(	measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])	argument_Units = angular_Units;
 
-			max_Value_Label->setText(max_Value_Title + " " + Locale.toString(max_Value,'f',4) + " at " + Locale.toString(max_Value_Position,'f',4) + " " + argument_Units);
+			max_Value_Label->setText(max_Value_Title + " " + Locale.toString(max_Value,'g',4) + " at " + Locale.toString(max_Value_Position,'f',4) + " " + argument_Units);
 			if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 			{
 				max_Value_Label->setText(max_Value_Label->text() + ", FWHM " + Locale.toString(width,'f',4) + " " + argument_Units);

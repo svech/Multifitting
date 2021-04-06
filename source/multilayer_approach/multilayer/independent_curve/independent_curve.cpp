@@ -283,6 +283,9 @@ void Independent_Curve::calc_Independent_cos2_k(double angle_Shift, double lambd
 				measurement.beam_Theta_0_Sin_Vec.  resize(measurement.beam_Theta_0_Angle.independent.num_Points);
 				measurement.beam_Theta_0_Cos2_Vec. resize(measurement.beam_Theta_0_Angle.independent.num_Points);
 
+				measurement.beam_Theta_0_Angle.independent.max = min(2*measurement.beam_Theta_0_Specular_Position, measurement.beam_Theta_0_Angle.independent.max);
+				measurement.beam_Theta_0_Angle.independent.min = min(2*measurement.beam_Theta_0_Specular_Position, measurement.beam_Theta_0_Angle.independent.min);
+
 				double angle_Step = (measurement.beam_Theta_0_Angle.independent.max - measurement.beam_Theta_0_Angle.independent.min) / (measurement.beam_Theta_0_Angle.independent.num_Points - 1);
 				double angle_Temp =  measurement.beam_Theta_0_Angle.independent.min + angle_Shift;
 				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)

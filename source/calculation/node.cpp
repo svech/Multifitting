@@ -1,5 +1,6 @@
 #include "node.h"
 #include <gsl/gsl_sf_gamma.h>
+#include <boost/math/quadrature/tanh_sinh.hpp>
 #include <iostream>
 
 double gamma_q05(double z)
@@ -909,11 +910,23 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	}
 }
 
-double integral_ABC(double p0, const Data& measurement, const Data& struct_Data, int i, ooura_fourier_sin<double>& integrator)
+struct Params
 {
-	const double& sigma = struct_Data.roughness_Model.sigma.value;
-	const double& xi =    struct_Data.roughness_Model.cor_radius.value;
-	const double& alpha = struct_Data.roughness_Model.fractal_alpha.value;
+	double lambda;
+	double sin_Theta;
+	Data* struct_Data;
+	ooura_fourier_sin<double>* ooura_integrator;
+	tanh_sinh<double>* tanh_sinh_integrator;
+	gsl_spline* spline_PSD_Peak;
+	gsl_interp_accel* acc_PSD_Peak;
+	gsl_spline* spline_PSD;
+	gsl_interp_accel* acc_PSD;
+};
+
+double integral_ABC(double p0, Params& params)
+{
+	const double& xi =    params.struct_Data->roughness_Model.cor_radius.value;
+	const double& alpha = params.struct_Data->roughness_Model.fractal_alpha.value;
 
 	double z = -4*M_PI*M_PI*p0*p0*xi*xi;	// z is non-negative
 	double zz = z/(z-1);					// 0 <= zz < 1is non-negative
@@ -921,117 +934,316 @@ double integral_ABC(double p0, const Data& measurement, const Data& struct_Data,
 	if(abs(zz)<1)
 	{
 		double pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
-		return 4*sqrt(M_PI)*p0*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / tgamma(alpha)  * measurement.lambda_Value / measurement.detector_Theta_Sin_Vec[i];
+		return params.struct_Data->PSD_ABC_1D_Factor * p0 * pFq * params.lambda / params.sin_Theta;
+//		return 4*sqrt(M_PI)*p0*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / params.lambda / params.sin_Theta;
 	}
 
 	qInfo() << "Node::integral_ABC  :  abs(zz)>=1, zz = " << zz << endl;
 	return 0.;
 }
-double integral_Fractal_Gauss(double p0, const Data& measurement, const Data& struct_Data, int i, ooura_fourier_sin<double>& integrator)
+double integral_Fractal_Gauss(double p0, Params& params)
 {
-	const double& sigma = struct_Data.roughness_Model.sigma.value;
-	const double& xi =    struct_Data.roughness_Model.cor_radius.value;
-	const double& alpha = struct_Data.roughness_Model.fractal_alpha.value;
+	const double& sigma = params.struct_Data->roughness_Model.sigma.value;
+	const double& xi =    params.struct_Data->roughness_Model.cor_radius.value;
+	const double& alpha = params.struct_Data->roughness_Model.fractal_alpha.value;
 
 	auto f = [&](double r) {return 1/r * sigma*sigma * exp(-pow(r/xi,2*alpha));};
+	std::pair<double, double> result_Boost = params.ooura_integrator->integrate(f, 2*M_PI*p0);
 
-	std::pair<double, double> result_Boost = integrator.integrate(f, 2*M_PI*p0);
+	return M_2_PI*result_Boost.first * params.lambda / params.sin_Theta;
+}
+double integral_Real_Gauss(double p0, Params& params)
+{
+	const double& sigma = params.struct_Data->roughness_Model.sigma.value;
+	const double& xi =    params.struct_Data->roughness_Model.cor_radius.value;
 
-	return M_2_PI*result_Boost.first * measurement.lambda_Value / measurement.detector_Theta_Sin_Vec[i];
+	return sigma*sigma*erf(p0*M_PI*xi) * params.lambda / params.sin_Theta;
+}
+double integral_Gauss_Peak(double p0, Params& params)
+{
+	double termination = 1E-5;
+	double error, L1;
+	size_t levels;
+	auto f = [&](double p) {return gsl_spline_eval(params.spline_PSD_Peak, p, params.acc_PSD_Peak);};
+	double result = params.tanh_sinh_integrator->integrate(f, 0.0, p0, termination, &error, &L1, &levels);
+
+	return result * params.lambda / params.sin_Theta;
+}
+double zero_Func(double p0, Params& params)
+{
+	Q_UNUSED(p0)
+	Q_UNUSED(params)
+	return 0;
 }
 
-void Node::calc_Integral_Intensity_Near_Specular(const Data& measurement, const Imperfections_Model& imperfections_Model)
+void Node::calc_Integral_Intensity_Near_Specular(Data& measurement, const Imperfections_Model& imperfections_Model, const vector<Data*>& media_Data_Map_Vector, bool instrumental_Smoothing)
 {
 	if(imperfections_Model.approximation != PT_approximation) return;
-	if(struct_Data.item_Type == item_Type_Ambient ) return;
-	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+	if(struct_Data.item_Type != item_Type_Substrate) return;
 
 	// angular width of detector
 	double max_Delta_Theta_Detector = measurement.get_Max_Delta_Theta_Detector();
-	double area_Factor = 5.0;
+	double area_Factor = 4.0;
+	double ooura_Precision = 1E-4;
+	// less impact of growth roughness
+	if(imperfections_Model.vertical_Correlation == partial_Correlation &&
+		(imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model || imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model))
+	{
+		area_Factor = 3.0;
+	}
+	double limit_Distance_to_Specular = area_Factor*max_Delta_Theta_Detector;
+
+	vector<double> theta_0_Vec,     theta_Vec;
+	vector<double> theta_0_Cos_Vec, theta_Cos_Vec, theta_Sin_Vec;
+	size_t num_Points;
 
 	if(measurement.measurement_Type == measurement_Types[Detector_Scan])
 	{
-		double limit_Distance_to_Specular = area_Factor*max_Delta_Theta_Detector;
-		size_t num_Points = measurement.detector_Theta_Angle_Vec.size();
+		theta_Vec = measurement.detector_Theta_Angle_Vec;
+		theta_Cos_Vec = measurement.detector_Theta_Cos_Vec;
+		theta_Sin_Vec = measurement.detector_Theta_Sin_Vec;
 
-		int first_Point = -2021, second_Point = -2021;
-		bool first_Point_Detected = false;
+		num_Points = theta_Vec.size();
 
-		for(int i = 0; i<num_Points; i++)
-		{
-			double detector_Theta_Position = measurement.detector_Theta_Angle_Vec[i];
-			double specular_Position = measurement.beam_Theta_0_Angle.value;
+		theta_0_Vec.resize(num_Points, measurement.beam_Theta_0_Angle_Value);
+		theta_0_Cos_Vec.resize(num_Points, measurement.beam_Theta_0_Cos_Value);
+	}
+	if(measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+	   measurement.measurement_Type == measurement_Types[Offset_Scan])
+	{
+		theta_0_Vec = measurement.beam_Theta_0_Angle_Vec;
+		theta_0_Cos_Vec = measurement.beam_Theta_0_Cos_Vec;
 
-			if(abs(detector_Theta_Position-specular_Position)<=limit_Distance_to_Specular) {
-				second_Point = i;
-				if(!first_Point_Detected) {
-					first_Point = i;
-					first_Point_Detected = true;
-				}
+		num_Points = theta_0_Vec.size();
+
+		theta_Vec = measurement.detector_Theta_Angle_Vec;
+		theta_Cos_Vec = measurement.detector_Theta_Cos_Vec;
+		theta_Sin_Vec = measurement.detector_Theta_Sin_Vec;
+	}
+
+	measurement.detector_Factor_for_Intensity_Integration.resize(num_Points);
+	for(double& point : measurement.detector_Factor_for_Intensity_Integration) point = qDegreesToRadians(measurement.theta_Resolution_FWHM);
+
+	int& first_Point = measurement.first_Point_of_Intensity_Integration;
+	int& second_Point = measurement.last_Point_of_Intensity_Integration;
+	first_Point = -2021;
+	second_Point = -2021;
+
+//	return;
+	if(!instrumental_Smoothing) return;
+	if(struct_Data.roughness_Model.sigma.value<=DBL_EPSILON) {
+		if(!imperfections_Model.add_Gauss_Peak || struct_Data.roughness_Model.peak_Sigma.value<=DBL_EPSILON) {
+			return;
+		}
+	}
+
+	bool first_Point_Detected = false;
+	for(int i = 0; i<num_Points; i++)
+	{
+		double detector_Theta_Position = theta_Vec[i];
+		double specular_Theta_Position = theta_0_Vec[i];
+
+		if(abs(detector_Theta_Position-specular_Theta_Position)<=limit_Distance_to_Specular) {
+			second_Point = i;
+			if(!first_Point_Detected) {
+				first_Point = i;
+				first_Point_Detected = true;
 			}
 		}
-		if(first_Point<0 || second_Point<0) return;
+	}
+	if(first_Point<0 || second_Point<0) return;
 
-		vector<double> p1(num_Points), p2(num_Points);
-		vector<double> p_min(num_Points), p_max_1(num_Points), p_max_2(num_Points);
-		vector<double> two_Intervals(num_Points,false);
+	vector<double> p1(num_Points), p2(num_Points);
+	vector<double> p_min(num_Points), p_max_1(num_Points), p_max_2(num_Points);
+	vector<double> two_Intervals(num_Points,false);
 
-		for(int i = first_Point; i<=second_Point; i++)
+	// finding integration intervals for each point
+	for(int i = first_Point; i<=second_Point; i++)
+	{
+		p1[i] = 1/measurement.lambda_Value * (theta_0_Cos_Vec[i] - cos(qDegreesToRadians(theta_Vec[i] - max_Delta_Theta_Detector)));
+		p2[i] = 1/measurement.lambda_Value * (theta_0_Cos_Vec[i] - cos(qDegreesToRadians(theta_Vec[i] + max_Delta_Theta_Detector)));
+
+		p_max_1[i] = max(abs(p1[i]),abs(p2[i]));
+		if(p1[i]*p2[i]<0)
 		{
-			p1[i] = 1/measurement.lambda_Value * (measurement.beam_Theta_0_Cos_Value - cos(qDegreesToRadians(measurement.detector_Theta_Angle_Vec[i] - max_Delta_Theta_Detector)));
-			p2[i] = 1/measurement.lambda_Value * (measurement.beam_Theta_0_Cos_Value - cos(qDegreesToRadians(measurement.detector_Theta_Angle_Vec[i] + max_Delta_Theta_Detector)));
-
-			p_max_1[i] = max(abs(p1[i]),abs(p2[i]));
-			if(p1[i]*p2[i]<0)
-			{
-				p_min[i] = 0;
-				p_max_2[i] = min(abs(p1[i]),abs(p2[i]));
-				two_Intervals[i] = true;
-			} else
-			{
-				p_min[i] = min(abs(p1[i]),abs(p2[i]));
-				p_max_2[i] = -2021;
-			}
+			p_min[i] = 0;
+			p_max_2[i] = min(abs(p1[i]),abs(p2[i]));
+			two_Intervals[i] = true;
+		} else
+		{
+			p_min[i] = min(abs(p1[i]),abs(p2[i]));
+			p_max_2[i] = -2021;
 		}
+	}
 
-		ooura_fourier_sin<double> ooura_integrator;
-		double (*integral_Func)(double, const Data&, const Data&, int, ooura_fourier_sin<double>&);
-		vector<double> integrated_PSD(num_Points,0);
+	// choosing functions
+	double (*integral_Func)(double, Params&);
+	double (*PSD_Func)(double, double, double, double, double, double, gsl_spline*, gsl_interp_accel*);
+	double (*integral_Peak_Func)(double, Params&);
+	double (*PSD_Peak_Func)(double, double, double, double, double, double, gsl_spline*, gsl_interp_accel*);
+	double factor = 1;
 
-		if(imperfections_Model.PSD_Model == ABC_Model)	{
-			integral_Func = &integral_ABC;
-		}
-		if(imperfections_Model.PSD_Model == fractal_Gauss_Model)	{
+	if(imperfections_Model.PSD_Model == ABC_Model)	{
+		integral_Func = &integral_ABC;
+		PSD_Func = &Global_Variables::PSD_ABC_1D;
+		factor = struct_Data.PSD_ABC_1D_Factor;
+	}
+	if(imperfections_Model.PSD_Model == fractal_Gauss_Model)	{
+		const double& alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+		if(abs(alpha-1)>DBL_EPSILON) {
 			integral_Func = &integral_Fractal_Gauss;
+			PSD_Func = &Global_Variables::PSD_Fractal_Gauss_1D;
+		} else {
+			integral_Func = &integral_Real_Gauss;
+			PSD_Func = &Global_Variables::PSD_Real_Gauss_1D;
+			factor = struct_Data.PSD_Real_Gauss_1D_Factor;
 		}
-		if(imperfections_Model.PSD_Model == measured_PSD)	{
-			// TODO remove!
-		}
+	}
+	if(imperfections_Model.PSD_Model == measured_PSD)	{
+		// TODO remove!
+	}
 
-		for(int i = first_Point; i<=second_Point; i++)
+	// add near-specular gauss peak intensity
+	if(imperfections_Model.add_Gauss_Peak && struct_Data.roughness_Model.peak_Sigma.value>DBL_EPSILON)	{
+		integral_Peak_Func = &integral_Gauss_Peak;
+		PSD_Peak_Func = &Global_Variables::PSD_Gauss_Peak_1D;
+	} else	{
+		integral_Peak_Func = &zero_Func;
+		PSD_Peak_Func = &Global_Variables::zero_PSD_1D;
+	}
+
+	// add near-specular linear growth intensity
+	{
+		// TODO
+//		double growth_Zero_Frequency_Addition = 0;
+//		for(int media_Index = 0; media_Index<media_Data_Map_Vector.size(); media_Index++)
+//		{
+//			const Data& layer = *(media_Data_Map_Vector[media_Index]);
+//			if(layer.item_Type == item_Type_Layer)
+//			{
+//				double omega = layer.roughness_Model.omega.value;
+//				double thickness = layer.thickness.value; // without drift, but it should have low importance
+//				growth_Zero_Frequency_Addition += omega*thickness;
+//			}
+//		}
+	}
+
+	/// with parallelization
+
+	// detector-factor for multiplying calculated intensity
+	Global_Variables::parallel_For(second_Point-first_Point+1, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
+	{
+		// parameters for calculation
+		ooura_fourier_sin<double> ooura_integrator(ooura_Precision);
+		tanh_sinh<double> tanh_sinh_integrator;
+
+		Params params;
+		params.lambda = measurement.lambda_Value;
+		//params.sin_Theta = measurement.detector_Theta_Sin_Vec;
+		params.struct_Data = &struct_Data;
+		params.ooura_integrator = &ooura_integrator;
+		params.tanh_sinh_integrator = &tanh_sinh_integrator;
+		params.spline_PSD_Peak = spline_PSD_Peak;
+		params.acc_PSD_Peak = acc_PSD_Peak;
+		params.spline_PSD = spline_PSD;
+		params.acc_PSD = acc_PSD;
+
+
+		Q_UNUSED(thread_Index)
+		for(int i = first_Point + n_Min; i<first_Point+n_Max; i++)
 		{
+			params.sin_Theta = theta_Sin_Vec[i];
+
 			if(two_Intervals[i])
 			{
-				integrated_PSD[i] = integral_Func(p_max_1[i], measurement, struct_Data, i, ooura_integrator) + integral_Func(p_max_2[i], measurement, struct_Data, i, ooura_integrator);
+				measurement.detector_Factor_for_Intensity_Integration[i]  =      integral_Func(p_max_1[i], params) +      integral_Func(p_max_2[i], params);
+				measurement.detector_Factor_for_Intensity_Integration[i] += integral_Peak_Func(p_max_1[i], params) + integral_Peak_Func(p_max_2[i], params);
 			} else
 			{
-				integrated_PSD[i] = integral_Func(p_max_1[i], measurement, struct_Data, i, ooura_integrator) - integral_Func(p_min[i], measurement, struct_Data, i, ooura_integrator);
+				measurement.detector_Factor_for_Intensity_Integration[i]  =      integral_Func(p_max_1[i], params) -      integral_Func(p_min[i], params);
+				measurement.detector_Factor_for_Intensity_Integration[i] += integral_Peak_Func(p_max_1[i], params) - integral_Peak_Func(p_min[i], params);
 			}
 
-			integrated_PSD[i] = max(integrated_PSD[i], 0.);
+			measurement.detector_Factor_for_Intensity_Integration[i] = max(measurement.detector_Factor_for_Intensity_Integration[i], 0.);
 
-//			const double& sigma = struct_Data.roughness_Model.sigma.value;
-//			const double& xi =    struct_Data.roughness_Model.cor_radius.value;
-//			const double& alpha = struct_Data.roughness_Model.fractal_alpha.value;
 
-//			double p = abs(measurement.beam_Theta_0_Cos_Value - measurement.detector_Theta_Cos_Vec[i])/measurement.lambda_Value;
-//			qInfo() << measurement.detector_Theta_Angle_Vec[i] << integrated_PSD[i] <<
-//				qDegreesToRadians(measurement.theta_Resolution_FWHM) *
-//				4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(2*M_PI*p*xi)*(2*M_PI*p*xi), alpha+0.5) << endl;
+			// divide on old value, multiply on new
+			const double& xi =    struct_Data.roughness_Model.cor_radius.value;
+			const double& alpha = struct_Data.roughness_Model.fractal_alpha.value;
+			const double& peak_Frequency = struct_Data.roughness_Model.peak_Frequency.value;
+			const double& peak_Frequency_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
+			const double& k = measurement.k_Value;
+			const double& cos_Theta_0 = theta_0_Cos_Vec[i];
+			const double& cos_Theta = theta_Cos_Vec[i];
+
+			measurement.detector_Factor_for_Intensity_Integration[i] /= (
+													PSD_Func(factor, xi, alpha, k, cos_Theta, cos_Theta_0, spline_PSD, acc_PSD) +
+													PSD_Peak_Func(factor, peak_Frequency, peak_Frequency_Width, k, cos_Theta, cos_Theta_0, spline_PSD_Peak, acc_PSD_Peak)
+													);
 		}
-		qInfo() << endl << endl;
-	}
+	});
+
+	/// without parallelization
+
+//	// parameters for calculation
+//	ooura_fourier_sin<double> ooura_integrator(ooura_Precision);
+//	tanh_sinh<double> tanh_sinh_integrator;
+
+//	Params params;
+//	params.lambda = measurement.lambda_Value;
+//	//params.sin_Theta = measurement.detector_Theta_Sin_Vec;
+//	params.struct_Data = &struct_Data;
+//	params.ooura_integrator = &ooura_integrator;
+//	params.tanh_sinh_integrator = &tanh_sinh_integrator;
+//	params.spline_PSD_Peak = spline_PSD_Peak;
+//	params.acc_PSD_Peak = acc_PSD_Peak;
+//	params.spline_PSD = spline_PSD;
+//	params.acc_PSD = acc_PSD;
+
+//	for(int i = first_Point; i<=second_Point; i++)
+//	{
+//		params.sin_Theta = theta_Sin_Vec[i];
+
+//		if(two_Intervals[i])
+//		{
+//			measurement.detector_Factor_for_Intensity_Integration[i]  =      integral_Func(p_max_1[i], params) +      integral_Func(p_max_2[i], params);
+//			measurement.detector_Factor_for_Intensity_Integration[i] += integral_Peak_Func(p_max_1[i], params) + integral_Peak_Func(p_max_2[i], params);
+//		} else
+//		{
+//			measurement.detector_Factor_for_Intensity_Integration[i]  =      integral_Func(p_max_1[i], params) -      integral_Func(p_min[i], params);
+//			measurement.detector_Factor_for_Intensity_Integration[i] += integral_Peak_Func(p_max_1[i], params) - integral_Peak_Func(p_min[i], params);
+//		}
+
+//		measurement.detector_Factor_for_Intensity_Integration[i] = max(measurement.detector_Factor_for_Intensity_Integration[i], 0.);
+
+
+//		// divide on old value, multiply on new
+//		const double& xi =    struct_Data.roughness_Model.cor_radius.value;
+//		const double& alpha = struct_Data.roughness_Model.fractal_alpha.value;
+//		const double& peak_Frequency = struct_Data.roughness_Model.peak_Frequency.value;
+//		const double& peak_Frequency_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
+//		const double& k = measurement.k_Value;
+//		const double& cos_Theta_0 = theta_0_Cos_Vec[i];
+//		const double& cos_Theta = theta_Cos_Vec[i];
+
+//		measurement.detector_Factor_for_Intensity_Integration[i] /= (
+//												PSD_Func(factor, xi, alpha, k, cos_Theta, cos_Theta_0, spline_PSD, acc_PSD) +
+//												PSD_Peak_Func(factor, peak_Frequency, peak_Frequency_Width, k, cos_Theta, cos_Theta_0, spline_PSD_Peak, acc_PSD_Peak)
+//												);
+
+
+////		double p = abs(measurement.beam_Theta_0_Cos_Value - measurement.detector_Theta_Cos_Vec[i])/measurement.lambda_Value;
+////		qInfo() << measurement.detector_Theta_Angle_Vec[i] << measurement.detector_Factor_for_Intensity_Integration[i]
+////			<< qDegreesToRadians(measurement.theta_Resolution_FWHM) *
+////			   4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(2*M_PI*p*xi)*(2*M_PI*p*xi), alpha+0.5)
+////				<< qDegreesToRadians(measurement.theta_Resolution_FWHM) *
+////				   PSD_Func(factor, xi, alpha, k, cos_Theta, cos_Theta_0, spline_PSD, acc_PSD)
+////				<< qDegreesToRadians(measurement.theta_Resolution_FWHM) *
+////				   PSD_Peak_Func(factor, peak_Frequency, peak_Frequency_Width, k, cos_Theta, cos_Theta_0, spline_PSD_Peak, acc_PSD_Peak)
+////				<< endl;
+//	}
+////	qInfo() << endl << endl;
 }
 
 void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imperfections_Model& imperfections_Model)
@@ -1064,11 +1276,13 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 
 
 	int num_Sections = 8; // plus zero point
+	int points_Per_Section = 40;
 	vector<int> interpoints(num_Sections);
 	int common_Size = 0;
 	for(int i=0; i<num_Sections; i++)
 	{
-		interpoints[i] = 50-3*i;
+//		interpoints[i] = 40-1*i;
+		interpoints[i] = points_Per_Section;
 		common_Size+=interpoints[i];
 	}
 	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
@@ -1076,12 +1290,12 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 
 	vector<double> starts(num_Sections); // open start
 	starts[0] = 0;
-	starts[1] = p_Max/1000;
-	starts[2] = p_Max/300;
-	starts[3] = p_Max/100;
-	starts[4] = p_Max/40;
+	starts[1] = p_Max/3000;
+	starts[2] = p_Max/1000;
+	starts[3] = p_Max/200;
+	starts[4] = p_Max/50;
 	starts[5] = p_Max/10;
-	starts[6] = p_Max/5;
+	starts[6] = p_Max/4;
 	starts[7] = p_Max/2;
 
 	vector<double> dp(num_Sections);
@@ -1097,31 +1311,54 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 		interpoints_Sum_Value_Vec[0] = 4*sigma*sigma*xi*tgamma(1.+1/(2*alpha));
 	}
 
-	double p = 0, result = 0;
-	int counter = 1;
 	// boost integrator
 	auto f = [&](double r) {return sigma*sigma * exp(-pow(r/xi,2*alpha));};
-
 	const double tol = 1E-7;
 	int depth = 4;
-	ooura_fourier_cos<double> integrator(tol,depth);
-	for(int sec=0; sec<num_Sections; sec++)
-	{
-		for(int i=0; i<interpoints[sec]; i++)
-		{
-			p += dp[sec];
 
-			interpoints_Sum_Argum_Vec[counter] = p;
+	/// with parallelization
+
+	Global_Variables::parallel_For(points_Per_Section*num_Sections, num_Sections, [&](int n_Min, int n_Max, int thread_Index)
+	{
+		ooura_fourier_cos<double> integrator(tol,depth);
+
+		double p = starts[thread_Index];
+		double result = 0;
+		for(int i = 1+n_Min; i<1+n_Max; i++)
+		{
+			p += dp[thread_Index];
+			interpoints_Sum_Argum_Vec[i] = p;
 			if(abs(1-alpha)>DBL_EPSILON/* && abs(0.5-alpha)>DBL_EPSILON*/) // integrate even for alpha == 0.5
 			{
 				std::pair<double, double> result_Boost = integrator.integrate(f, p);
 				result = result_Boost.first;
 			}
-
-			interpoints_Sum_Value_Vec[counter] = 4*result;
-			counter++;
+			interpoints_Sum_Value_Vec[i] = 4*result;
 		}
-	}
+	});
+
+	/// without parallelization
+
+//	double p = 0, result = 0;
+//	int counter = 1;
+//	ooura_fourier_cos<double> integrator(tol,depth);
+//	for(int sec=0; sec<num_Sections; sec++)
+//	{
+//		for(int i=0; i<interpoints[sec]; i++)
+//		{
+//			p += dp[sec];
+
+//			interpoints_Sum_Argum_Vec[counter] = p;
+//			if(abs(1-alpha)>DBL_EPSILON/* && abs(0.5-alpha)>DBL_EPSILON*/) // integrate even for alpha == 0.5
+//			{
+//				std::pair<double, double> result_Boost = integrator.integrate(f, p);
+//				result = result_Boost.first;
+//			}
+
+//			interpoints_Sum_Value_Vec[counter] = 4*result;
+//			counter++;
+//		}
+//	}
 
 	acc_PSD = gsl_interp_accel_alloc();
 	if(p_Max<10*addition) 	spline_PSD = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
@@ -1187,11 +1424,13 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 	}
 
 	int num_Sections = 8; // plus zero point
+	int points_Per_Section = 50;
 	vector<int> interpoints(num_Sections);
 	int common_Size = 0;
 	for(int i=0; i<num_Sections; i++)
 	{
-		interpoints[i] = 50-3*i;
+//		interpoints[i] = 50-3*i;
+		interpoints[i] = points_Per_Section;
 		common_Size+=interpoints[i];
 	}
 	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
@@ -1222,21 +1461,27 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 
 	const double tol = 1E-7;
 	int depth = 4;
-	ooura_fourier_cos<double> integrator_Cos(tol, depth);
-	ooura_fourier_sin<double> integrator_Sin(tol, depth);
-
+	int gauss_kronrod_Depth = 3;
+	if(xi<100)
+	{
+		gauss_kronrod_Depth = 5;
+	}
 	double n = 2;
 	double shift = M_PI*(2*n+0.25);
-	double nu = 0, error;
-	int counter = 1;
-	for(int sec=0; sec<num_Sections; sec++)
+
+	/// with parallelization
+
+	Global_Variables::parallel_For(points_Per_Section*num_Sections, num_Sections, [&](int n_Min, int n_Max, int thread_Index)
 	{
-		for(int i=0; i<interpoints[sec]; i++)
+		ooura_fourier_cos<double> integrator_Cos(tol, depth);
+		ooura_fourier_sin<double> integrator_Sin(tol, depth);
+
+		double nu = starts[thread_Index];
+		double error;
+		for(int i = 1+n_Min; i<1+n_Max; i++)
 		{
-			nu += dnu[sec];
-
-			interpoints_Sum_Argum_Vec[counter] = nu;
-
+			nu += dnu[thread_Index];
+			interpoints_Sum_Argum_Vec[i] = nu;
 			if(abs(1-alpha)>DBL_EPSILON/* && abs(0.5-alpha)>DBL_EPSILON*/) // integrate even for alpha == 0.5
 			{
 				double integral = 0;
@@ -1246,7 +1491,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 				{
 					return exp(-pow(r/xi,2*alpha)) * cyl_bessel_j(0, nu*r) * r;
 				};
-				integral = 2*M_PI*gauss_kronrod<double, 31>::integrate(f_1, 0, division_Point, 2, 1e-7, &error);
+				integral = 2*M_PI*gauss_kronrod<double, 61>::integrate(f_1, 0, division_Point, gauss_kronrod_Depth, 1e-7, &error);
 
 				// second part
 				auto f_2_cos = [&](double r)
@@ -1268,11 +1513,62 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 				std::pair<double, double> sin_Integral = integrator_Sin.integrate(f_2_sin, nu);
 				integral += sqrt(8*M_PI)*sin_Integral.first;
 
-				interpoints_Sum_Value_Vec[counter] = sigma*sigma*integral;
+				interpoints_Sum_Value_Vec[i] = sigma*sigma*integral;
 			}
-			counter++;
 		}
-	}
+	});
+
+	/// without parallelization
+
+//	ooura_fourier_cos<double> integrator_Cos(tol, depth);
+//	ooura_fourier_sin<double> integrator_Sin(tol, depth);
+
+//	double nu = 0, error;
+//	int counter = 1;
+//	for(int sec=0; sec<num_Sections; sec++)
+//	{
+//		for(int i=0; i<interpoints[sec]; i++)
+//		{
+//			nu += dnu[sec];
+
+//			interpoints_Sum_Argum_Vec[counter] = nu;
+
+//			if(abs(1-alpha)>DBL_EPSILON/* && abs(0.5-alpha)>DBL_EPSILON*/) // integrate even for alpha == 0.5
+//			{
+//				double integral = 0;
+//				double division_Point = shift/nu;
+//				// first part
+//				auto f_1 = [&](double r)
+//				{
+//					return exp(-pow(r/xi,2*alpha)) * cyl_bessel_j(0, nu*r) * r;
+//				};
+//				integral = 2*M_PI*gauss_kronrod<double, 61>::integrate(f_1, 0, division_Point, 5, 1e-7, &error);
+
+//				// second part
+//				auto f_2_cos = [&](double r)
+//				{
+//					double r_Sh = r + shift/nu;
+//					double r_Sh_W = nu*r + shift;
+//					double cos_Val = Global_Variables::val_Cos_Expansion(r_Sh_W);
+//					return exp(-pow(r_Sh/xi,2*alpha)) * cos_Val * sqrt(r_Sh/nu);
+//				};
+//				auto f_2_sin = [&](double r)
+//				{
+//					double r_Sh = r + shift/nu;
+//					double r_Sh_W = nu*r + shift;
+//					double sin_Val = Global_Variables::val_Sin_Expansion(r_Sh_W);
+//					return exp(-pow(r_Sh/xi,2*alpha)) * sin_Val * sqrt(r_Sh/nu);
+//				};
+//				std::pair<double, double> cos_Integral = integrator_Cos.integrate(f_2_cos, nu);
+//				integral += sqrt(8*M_PI)*cos_Integral.first;
+//				std::pair<double, double> sin_Integral = integrator_Sin.integrate(f_2_sin, nu);
+//				integral += sqrt(8*M_PI)*sin_Integral.first;
+
+//				interpoints_Sum_Value_Vec[counter] = sigma*sigma*integral;
+//			}
+//			counter++;
+//		}
+//	}
 
 	acc_PSD = gsl_interp_accel_alloc();
 	if(nu_Max<10*addition) 	spline_PSD = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());

@@ -65,7 +65,7 @@ public:
 	template <typename Type>
 	void calculate_1_Curve(Data_Element<Type>& data_Element);
 
-	void calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree, const Data& measurement, QString mode);
+	void calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree, const vector<Data*>& media_Data_Map_Vector, bool instrumental_Smoothing, Data &measurement, QString mode);
 	void clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, const Data& measurement, QString mode);
 
 	void calculate_Unwrapped_Structure   (const Calc_Functions& calc_Functions, const vector<Node*>& media_Node_Map_Vector, const vector<Data*>& media_Data_Map_Vector, const vector<int>& media_Period_Index_Map_Vector, const Data& measurement, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);

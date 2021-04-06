@@ -236,7 +236,7 @@ void Optical_Constants::make_Epsilon_From_Factors(const QList<Stoichiometry>& co
 
 		for(size_t point_Index=0; point_Index<spectral_Points.size(); ++point_Index)
 		{
-			n[point_Index] -= spectral_Points[point_Index] * spectral_Points[point_Index] * Q * element_Concentration[element_Index] * interpolated[point_Index];
+			n[point_Index] -= spectral_Points[point_Index] * spectral_Points[point_Index] * Q_q * element_Concentration[element_Index] * interpolated[point_Index];
 		}
 	}
 

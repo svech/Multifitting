@@ -91,6 +91,10 @@ public:
 		void calc_Instrumental_Factor();
 		void calc_Mixed_Resolution();
 		double get_Max_Delta_Theta_Detector() const;
+		vector<double> detector_Factor_for_Intensity_Integration;	// without saving. filled in substrate Node::calc_Integral_Intensity_Near_Specular
+		int first_Point_of_Intensity_Integration;					// without saving. filled in substrate Node::calc_Integral_Intensity_Near_Specular
+		int last_Point_of_Intensity_Integration;					// without saving. filled in substrate Node::calc_Integral_Intensity_Near_Specular
+
 	///---------------------------------------------
 	///---------------------------------------------
 	// Ambient, Layer, Substrate

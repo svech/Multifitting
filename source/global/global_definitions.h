@@ -509,7 +509,7 @@ class Node;
 // calculation
 #define I complex<double>(0,1)
 #define Na 6.022140857E23
-#define Q  4.484891E-30
+#define Q_q  4.484891E-30
 #define SQRT_PI 1.772453850905516
 
 #ifndef DBL_EPSILON

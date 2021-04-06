@@ -371,8 +371,8 @@ public:
 	static double PSD_ABC_2D			 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Real_Gauss_1D		 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
 	static double PSD_Real_Gauss_2D		 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
-	static double PSD_Fractal_Gauss_1D	 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
-	static double PSD_Fractal_Gauss_2D	 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
+	static double PSD_Fractal_Gauss_1D	 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
+	static double PSD_Fractal_Gauss_2D	 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Gauss_Peak_1D		 (double factor, double peak_Frequency, double peak_Width, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Gauss_Peak_2D		 (double factor, double peak_Frequency, double peak_Width, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Measured_1D		 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);

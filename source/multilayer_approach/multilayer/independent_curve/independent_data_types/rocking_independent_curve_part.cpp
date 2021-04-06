@@ -135,8 +135,12 @@ void Rocking_Independent_Curve_Part::create_Argument_GroupBox()
 		argument_GroupBox_Layout->addWidget(argument_Units_Label,0,Qt::AlignLeft);
 
 		// initialization
+		independent_Curve->measurement.beam_Theta_0_Angle.independent.max = min(2*independent_Curve->measurement.beam_Theta_0_Specular_Position, independent_Curve->measurement.beam_Theta_0_Angle.independent.max);
+		independent_Curve->measurement.beam_Theta_0_Angle.independent.min = min(2*independent_Curve->measurement.beam_Theta_0_Specular_Position, independent_Curve->measurement.beam_Theta_0_Angle.independent.min);
+
 		temporary_Min = independent_Curve->measurement.beam_Theta_0_Angle.independent.min;
 		temporary_Max = independent_Curve->measurement.beam_Theta_0_Angle.independent.max;
+
 		fill_Argument();
 	}
 }
