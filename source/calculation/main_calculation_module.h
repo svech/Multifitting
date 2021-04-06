@@ -54,7 +54,7 @@ public:
 					const vector<double>& resolution_FWHM,
 					vector<double>* output_Sparse_Curve,
 					QString distribution_Function,
-					bool theta_0_Beam_Profile = false);
+					bool theta_0_Beam_Profile = false, bool detector_Wrap = false);
 	void wrap_With_Specular		  (Calculated_Values& calculated_Values, const Data& measurement);
 //	void wrap_With_Specular_Single(Calculated_Values& calculated_Values, const Data& measurement);
 //	void wrap_With_Specular_Vector(Calculated_Values& calculated_Values, const Data& measurement);

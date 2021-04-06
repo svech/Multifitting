@@ -766,7 +766,8 @@ void Main_Calculation_Module::wrap_Curve(const Data& measurement,
 										 const vector<double>& resolution_FWHM,
 										 vector<double>* output_Sparse_Curve,
 										 QString distribution_Function,
-										 bool theta_0_Beam_Profile)
+										 bool theta_0_Beam_Profile,
+										 bool detector_Wrap)
 {
 	int first_Point = measurement.first_Point_of_Intensity_Integration;
 	int second_Point = measurement.last_Point_of_Intensity_Integration;
@@ -850,7 +851,7 @@ void Main_Calculation_Module::wrap_Curve(const Data& measurement,
 	};
 	auto f = [&](double point_Index)
 	{
-		if(first_Point<=point_Index && point_Index<=second_Point) return;
+		if(detector_Wrap && first_Point<=point_Index && point_Index<=second_Point) return;
 
 		(*output_Sparse_Curve)[point_Index] = (*sparse_Input_Curve)[point_Index];
 		double weight_Accumulator = 1;
@@ -2153,7 +2154,7 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 		// detector theta
 		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
 			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution);
+				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution, false, true);
 			}
 		}
 		// specular peak
@@ -2205,7 +2206,7 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 		// detector theta
 		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
 			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution);
+				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution, false, true);
 			}
 		}
 		// specular peak
