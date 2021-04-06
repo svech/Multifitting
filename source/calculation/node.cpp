@@ -1029,7 +1029,6 @@ void Node::calc_Integral_Intensity_Near_Specular(Data& measurement, const Imperf
 	first_Point = -2021;
 	second_Point = -2021;
 
-//	return;
 	if(!instrumental_Smoothing) return;
 	if(struct_Data.roughness_Model.sigma.value<=DBL_EPSILON) {
 		if(!imperfections_Model.add_Gauss_Peak || struct_Data.roughness_Model.peak_Sigma.value<=DBL_EPSILON) {

@@ -2133,6 +2133,7 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 				(*working_Curve)[point_Index] *= measurement.detector_Factor_for_Intensity_Integration[point_Index];
 //				(*working_Curve)[point_Index] *= qDegreesToRadians(measurement.theta_Resolution_FWHM);
 			}
+			*calculated_Curve = *working_Curve;
 		}
 
 		// spectral distribution
