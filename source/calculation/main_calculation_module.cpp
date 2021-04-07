@@ -1858,7 +1858,7 @@ void Main_Calculation_Module::wrap_With_Specular_2D(Calculated_Values& calculate
 		{
 			double f_Theta_Val = -2020;
 			if(use_Beam_Spot)
-			{					
+			{
 				if(beam_Diverg_FWHM_Theta_0>DBL_EPSILON && (beam_Spot_FWHM_Theta_0>DBL_EPSILON || (beam_Spot_Wing_FWHM_Theta_0>DBL_EPSILON && beam_Spot_Wings_Theta_0_Intensity>DBL_EPSILON)))	  {
 					f_Theta_Val = f_Theta_SD(theta_Index);
 				}
@@ -2146,7 +2146,8 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 		// theta_0 distribution
 		if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
 			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec_Rocking_Offset, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+//				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec_Rocking_Offset, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec,				   working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
 				*calculated_Curve = *working_Curve;
 			}
 		}
@@ -2281,9 +2282,9 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 						for(size_t phi_Index=0; phi_Index<calculated_Values.GISAS_Map.size(); ++phi_Index)
 						{
 							calculated_Values.GISAS_Instrumental[phi_Index][theta_Index] = calculated_Values.GISAS_Map[phi_Index][theta_Index]*
-							                                                                    qDegreesToRadians(measurement.theta_Resolution_FWHM)*
-							                                                                    qDegreesToRadians(measurement.phi_Resolution_FWHM)*
-							                                                                    measurement.detector_Theta_Cos_Vec[theta_Index];
+																								qDegreesToRadians(measurement.theta_Resolution_FWHM)*
+																								qDegreesToRadians(measurement.phi_Resolution_FWHM)*
+																								measurement.detector_Theta_Cos_Vec[theta_Index];
 						}
 					}
 //				});
@@ -2457,7 +2458,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	// starting from fitable top-masters
 	for(Parameter* parameter : fitables.param_Pointers)	{
 		slaves_Pointer_Iteration(parameter);
-	}	
+	}
 	// starting from confidentials
 	for(Parameter* parameter : confidentials.param_Pointers) {
 		slaves_Pointer_Iteration(parameter);
@@ -3179,7 +3180,7 @@ void Main_Calculation_Module::print_Calculated_To_File()
 		}
 		counter = 0;
 		if( multilayers[tab_Index]->enable_Calc_Target_Curves )
-		{			
+		{
 			for(Data_Element<Target_Curve>& target : calculation_Trees[tab_Index]->target)
 			{
 				print_Reflect_To_File(target, multilayer_Tabs->tabText(tab_Index), counter);
