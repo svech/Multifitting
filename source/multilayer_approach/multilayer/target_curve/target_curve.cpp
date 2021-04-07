@@ -29,6 +29,7 @@ Curve::Curve()
 	// intensity
 	divide_On_Beam_Intensity = true;
 	beam_Intensity_Initial = 1;
+	beam_Time = 1;
 	// 1D only
 	use_Final_Intensity = false;
 	beam_Intensity_Final = 1;
@@ -286,7 +287,7 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 		{
 			for(int i=0; i<curve.argument.size(); ++i)
 			{
-				intensity_Factor[i] = curve.beam_Intensity_Initial + i*delta;
+				intensity_Factor[i] = curve.beam_Time*(curve.beam_Intensity_Initial + i*delta);
 			}
 		}
 
@@ -312,7 +313,7 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_2D_Data()
 		}
 
 		double intensity_Factor = 1;
-		if(curve.divide_On_Beam_Intensity) intensity_Factor = curve.beam_Intensity_Initial;
+		if(curve.divide_On_Beam_Intensity) {intensity_Factor = curve.beam_Time*curve.beam_Intensity_Initial;}
 		for(int row=0; row<curve.value_2D.size(); row++)
 		{
 			for(int col=0; col<curve.value_2D.front().size(); col++)
@@ -829,7 +830,7 @@ QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 					<< curve.use_Subinterval << curve.outer_Area << curve.subinterval_Left << curve.subinterval_Right << curve.subinterval_Top << curve.subinterval_Bottom
 					<< curve.horizontal_Arg_Shift << curve.horizontal_Arg_Factor
 					<< curve.val_Shift << curve.val_Factor
-					<< curve.divide_On_Beam_Intensity << curve.beam_Intensity_Initial << curve.use_Final_Intensity << curve.beam_Intensity_Final
+					<< curve.divide_On_Beam_Intensity << curve.beam_Intensity_Initial << curve.use_Final_Intensity << curve.beam_Intensity_Final << curve.beam_Time
 					<< curve.value_Type << curve.argument << curve.values << curve.value_2D;
 }
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
@@ -840,8 +841,12 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 				>> curve.use_Subinterval >> curve.outer_Area >> curve.subinterval_Left >> curve.subinterval_Right >> curve.subinterval_Top >> curve.subinterval_Bottom
 				>> curve.horizontal_Arg_Shift >> curve.horizontal_Arg_Factor
 				>> curve.val_Shift >> curve.val_Factor
-				>> curve.divide_On_Beam_Intensity >> curve.beam_Intensity_Initial >> curve.use_Final_Intensity >> curve.beam_Intensity_Final
-				>> curve.value_Type >> curve.argument >> curve.values >> curve.value_2D;
+				>> curve.divide_On_Beam_Intensity >> curve.beam_Intensity_Initial >> curve.use_Final_Intensity >> curve.beam_Intensity_Final;
+
+				if(Global_Variables::check_Loaded_Version(1,11,14))
+				{ stream >> curve.beam_Time;}
+
+		stream	>> curve.value_Type >> curve.argument >> curve.values >> curve.value_2D;
 	} else // before 1.11.0
 	{
 		if(Global_Variables::check_Loaded_Version(1,10,1))		// since 1.10.1

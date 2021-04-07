@@ -2153,9 +2153,11 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 		// no beam spot theta_0 for rocking and offset scans
 
 		// detector theta
-		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution, false, true);
+		if(measurement.measurement_Type == measurement_Types[Rocking_Curve]){ // no wrapping with detector for offset scans
+			if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution, false, true);
+				}
 			}
 		}
 		// specular peak
@@ -2186,8 +2188,6 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 			if(data_Element.calc_Functions.instrumental_Smoothing)	{
 				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
 				*calculated_Curve = *working_Curve;
-//				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
-//				*calculated_Curve = *working_Curve;
 			}
 		}
 		// theta_0 distribution
@@ -2228,8 +2228,6 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 			if(data_Element.calc_Functions.instrumental_Smoothing)	{
 				wrap_2D_Curve(measurement, calculated_Values, measurement.theta_0_Resolution_From_Spectral_Vec, measurement.spectral_Distribution.distribution_Function, "theta");
 				calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
-//				wrap_2D_Curve(measurement, calculated_Values, measurement.theta_Resolution_From_Spectral_Vec, measurement.spectral_Distribution.distribution_Function, "theta");
-//				calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
 				recalculated = true;
 			}
 		}

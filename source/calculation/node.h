@@ -47,14 +47,22 @@ public:
 	/// ------------------------------------------------
 
 	void create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imperfections_Model& imperfections_Model);
+	void clear_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model);
+
+	gsl_spline* spline_PSD_FG_1D;
+	gsl_interp_accel* acc_PSD_FG_1D;
+
 	void create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imperfections_Model& imperfections_Model);
-	void clear_Spline_PSD_Fractal_Gauss(const Imperfections_Model& imperfections_Model);
+	void clear_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfections_Model);
+
+	gsl_spline* spline_PSD_FG_2D;
+	gsl_interp_accel* acc_PSD_FG_2D;
 
 	void create_Spline_PSD_Measured(const Imperfections_Model& imperfections_Model, QString PSD_Type);
 	void clear_Spline_PSD_Measured (const Imperfections_Model& imperfections_Model);
 
-	gsl_spline* spline_PSD;
-	gsl_interp_accel* acc_PSD;
+	gsl_spline* spline_PSD_Meas;
+	gsl_interp_accel* acc_PSD_Meas;
 
 	void create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model);
 	void clear_Spline_PSD_Peak (const Imperfections_Model& imperfections_Model);

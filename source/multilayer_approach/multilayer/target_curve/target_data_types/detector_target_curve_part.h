@@ -60,6 +60,10 @@ public:
 	QCheckBox* beam_Intensity_Final_CheckBox;
 	MyDoubleSpinBox* beam_Intensity_Final_SpinBox;
 
+	QLabel* beam_Time_Label;
+	MyDoubleSpinBox* beam_Time_SpinBox;
+	QLabel* beam_Time_Units_Label;
+
 	// beam
 	QLabel* at_Fixed_Beam_Theta_0_Label;
 	MyDoubleSpinBox* at_Fixed_Beam_Theta_0_SpinBox;

@@ -457,7 +457,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 							   target_Curve->curve.val_Factor.value +
 							   target_Curve->curve.val_Shift;
 						fi_2 = max(model_Curve[point_Index], DBL_MIN);
-						f_Val = factor*(fi_1-fi_2)*sqrt((target_Curve->curve.beam_Intensity_Initial+target_Curve->curve.beam_Intensity_Final)/(2*fi_2));
+						f_Val = factor*(fi_1-fi_2)*sqrt(target_Curve->curve.beam_Time*(target_Curve->curve.beam_Intensity_Initial+target_Curve->curve.beam_Intensity_Final)/(2*fi_2));
 					}
 				} else
 				// GISAS
@@ -495,7 +495,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 							if(!isnan(fi_1)) f_Val += fi_1;
 						}
 					}
-					f_Val = factor * sqrt(f_Val) * sqrt((target_Curve->curve.beam_Intensity_Initial+target_Curve->curve.beam_Intensity_Final)/(2*fi_2));
+					f_Val = factor * sqrt(f_Val) * sqrt(target_Curve->curve.beam_Time*(target_Curve->curve.beam_Intensity_Initial+target_Curve->curve.beam_Intensity_Final)/(2*fi_2));
 				}
 
 				// fill

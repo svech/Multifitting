@@ -34,6 +34,7 @@ struct Curve
 	// intensity
 	bool divide_On_Beam_Intensity;
 	double beam_Intensity_Initial;
+	double beam_Time;
 	// 1D only
 	bool use_Final_Intensity;
 	double beam_Intensity_Final;

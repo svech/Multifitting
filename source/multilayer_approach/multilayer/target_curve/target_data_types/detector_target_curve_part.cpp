@@ -69,7 +69,7 @@ void Detector_Target_Curve_Part::create_Argument_GroupBox()
 			arg_Shift_SpinBox->setRange(-100000, MAX_DOUBLE);
 			arg_Shift_SpinBox->setDecimals(4);
 			arg_Shift_SpinBox->setValue(target_Curve->curve.horizontal_Arg_Shift);
-			arg_Shift_SpinBox->setSingleStep(0.001);
+			arg_Shift_SpinBox->setSingleStep(0.0001);
 			arg_Shift_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			arg_Shift_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		argument_GroupBox_Layout->addWidget(arg_Shift_SpinBox,0,Qt::AlignLeft);
@@ -187,7 +187,7 @@ void Detector_Target_Curve_Part::create_Value_GroupBox()
 			val_Shift_SpinBox->setDecimals(4);
 			val_Shift_SpinBox->setRange(-100000, MAX_DOUBLE);
 			val_Shift_SpinBox->setValue(target_Curve->curve.val_Shift);
-			val_Shift_SpinBox->setSingleStep(0.001);
+			val_Shift_SpinBox->setSingleStep(0.0001);
 			val_Shift_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			val_Shift_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		value_GroupBox_Layout->addWidget(val_Shift_SpinBox,0,Qt::AlignLeft);
@@ -293,8 +293,33 @@ void Detector_Target_Curve_Part::create_Value_GroupBox()
 			beam_Intensity_Final_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity && target_Curve->curve.use_Final_Intensity);
 		value_GroupBox_Layout->addWidget(beam_Intensity_Final_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(beam_Intensity_Final_SpinBox);
-	}
 
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		beam_Time_Label = new QLabel("t =");
+			beam_Time_Label->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
+		value_GroupBox_Layout->addWidget(beam_Time_Label,0,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		beam_Time_SpinBox = new MyDoubleSpinBox;
+			beam_Time_SpinBox->setAccelerated(true);
+			beam_Time_SpinBox->setRange(0.1, MAX_DOUBLE);
+			beam_Time_SpinBox->setDecimals(1);
+			beam_Time_SpinBox->setSingleStep(0.1);
+			beam_Time_SpinBox->setValue(target_Curve->curve.beam_Time);
+			beam_Time_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			beam_Time_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
+			beam_Time_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
+		value_GroupBox_Layout->addWidget(beam_Time_SpinBox,0,Qt::AlignLeft);
+		Global_Variables::resize_Line_Edit(beam_Time_SpinBox);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		beam_Time_Units_Label = new QLabel("s");
+			beam_Time_Units_Label->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
+		value_GroupBox_Layout->addWidget(beam_Time_Units_Label,0,Qt::AlignLeft);
+	}
 }
 
 void Detector_Target_Curve_Part::create_Beam_GroupBox()
@@ -803,6 +828,8 @@ void Detector_Target_Curve_Part::connecting()
 		beam_Intensity_Final_CheckBox ->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
 		beam_Intensity_Final_SpinBox  ->setEnabled(target_Curve->curve.divide_On_Beam_Intensity && target_Curve->curve.use_Final_Intensity);
 
+		beam_Time_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
+
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data_1D();
 
@@ -866,6 +893,23 @@ void Detector_Target_Curve_Part::connecting()
 	connect(beam_Intensity_Final_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->curve.beam_Intensity_Final= beam_Intensity_Final_SpinBox->value();
+
+		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+		target_Curve_Plot->plot_Data_1D();
+
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->plot_All_Data();
+			}
+		}
+	});
+	connect(beam_Time_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+	{
+		target_Curve->curve.beam_Time = beam_Time_SpinBox->value();
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data_1D();

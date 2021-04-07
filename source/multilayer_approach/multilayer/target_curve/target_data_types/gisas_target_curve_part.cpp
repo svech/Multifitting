@@ -276,7 +276,7 @@ void GISAS_Target_Curve_Part::create_Value_GroupBox()
 			val_Shift_SpinBox->setDecimals(4);
 			val_Shift_SpinBox->setRange(-100000, MAX_DOUBLE);
 			val_Shift_SpinBox->setValue(target_Curve->curve.val_Shift);
-			val_Shift_SpinBox->setSingleStep(0.001);
+			val_Shift_SpinBox->setSingleStep(0.0001);
 			val_Shift_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			val_Shift_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		value_GroupBox_Layout->addWidget(val_Shift_SpinBox,0,Qt::AlignLeft);
@@ -355,6 +355,32 @@ void GISAS_Target_Curve_Part::create_Value_GroupBox()
 			beam_Intensity_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
 		value_GroupBox_Layout->addWidget(beam_Intensity_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(beam_Intensity_SpinBox);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		beam_Time_Label = new QLabel("t =");
+			beam_Time_Label->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
+		value_GroupBox_Layout->addWidget(beam_Time_Label,0,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		beam_Time_SpinBox = new MyDoubleSpinBox;
+			beam_Time_SpinBox->setAccelerated(true);
+			beam_Time_SpinBox->setRange(0.1, MAX_DOUBLE);
+			beam_Time_SpinBox->setDecimals(1);
+			beam_Time_SpinBox->setSingleStep(0.1);
+			beam_Time_SpinBox->setValue(target_Curve->curve.beam_Time);
+			beam_Time_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			beam_Time_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
+			beam_Time_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
+		value_GroupBox_Layout->addWidget(beam_Time_SpinBox,0,Qt::AlignLeft);
+		Global_Variables::resize_Line_Edit(beam_Time_SpinBox);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		beam_Time_Units_Label = new QLabel("s");
+			beam_Time_Units_Label->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
+		value_GroupBox_Layout->addWidget(beam_Time_Units_Label,0,Qt::AlignLeft);
 	}
 }
 
@@ -1077,6 +1103,8 @@ void GISAS_Target_Curve_Part::connecting()
 
 		beam_Intensity_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
 
+		beam_Time_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
+
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data_2D();
 
@@ -1094,6 +1122,23 @@ void GISAS_Target_Curve_Part::connecting()
 	{
 		target_Curve->curve.beam_Intensity_Initial= beam_Intensity_SpinBox->value();
 		target_Curve->curve.beam_Intensity_Final = target_Curve->curve.beam_Intensity_Initial;
+
+		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+		target_Curve_Plot->plot_Data_2D();
+
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(target_Curve->measurement.id);
+				curve_Plot_2D->plot_All_Data();
+			}
+		}
+	});
+	connect(beam_Time_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+	{
+		target_Curve->curve.beam_Time = beam_Time_SpinBox->value();
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data_2D();

@@ -978,7 +978,6 @@ double zero_Func(double p0, Params& params)
 
 void Node::calc_Integral_Intensity_Near_Specular(Data& measurement, const Imperfections_Model& imperfections_Model, const vector<Data*>& media_Data_Map_Vector, bool instrumental_Smoothing)
 {
-	if(imperfections_Model.approximation != PT_approximation) return;
 	if(struct_Data.item_Type != item_Type_Substrate) return;
 
 	// angular width of detector
@@ -1029,6 +1028,7 @@ void Node::calc_Integral_Intensity_Near_Specular(Data& measurement, const Imperf
 	first_Point = -2021;
 	second_Point = -2021;
 
+	if(imperfections_Model.approximation != PT_approximation) return;
 	if(!instrumental_Smoothing) return;
 	if(struct_Data.roughness_Model.sigma.value<=DBL_EPSILON) {
 		if(!imperfections_Model.add_Gauss_Peak || struct_Data.roughness_Model.peak_Sigma.value<=DBL_EPSILON) {
@@ -1145,27 +1145,14 @@ void Node::calc_Integral_Intensity_Near_Specular(Data& measurement, const Imperf
 		params.tanh_sinh_integrator = &tanh_sinh_integrator;
 		params.spline_PSD_Peak = spline_PSD_Peak;
 		params.acc_PSD_Peak = acc_PSD_Peak;
-		params.spline_PSD = spline_PSD;
-		params.acc_PSD = acc_PSD;
+		params.spline_PSD = spline_PSD_FG_1D;
+		params.acc_PSD = acc_PSD_FG_1D;
 
 
 		Q_UNUSED(thread_Index)
 		for(int i = first_Point + n_Min; i<first_Point+n_Max; i++)
 		{
 			params.sin_Theta = theta_Sin_Vec[i];
-
-			if(two_Intervals[i])
-			{
-				measurement.detector_Factor_for_Intensity_Integration[i]  =      integral_Func(p_max_1[i], params) +      integral_Func(p_max_2[i], params);
-				measurement.detector_Factor_for_Intensity_Integration[i] += integral_Peak_Func(p_max_1[i], params) + integral_Peak_Func(p_max_2[i], params);
-			} else
-			{
-				measurement.detector_Factor_for_Intensity_Integration[i]  =      integral_Func(p_max_1[i], params) -      integral_Func(p_min[i], params);
-				measurement.detector_Factor_for_Intensity_Integration[i] += integral_Peak_Func(p_max_1[i], params) - integral_Peak_Func(p_min[i], params);
-			}
-
-			measurement.detector_Factor_for_Intensity_Integration[i] = max(measurement.detector_Factor_for_Intensity_Integration[i], 0.);
-
 
 			// divide on old value, multiply on new
 			const double& xi =    struct_Data.roughness_Model.cor_radius.value;
@@ -1176,10 +1163,29 @@ void Node::calc_Integral_Intensity_Near_Specular(Data& measurement, const Imperf
 			const double& cos_Theta_0 = theta_0_Cos_Vec[i];
 			const double& cos_Theta = theta_Cos_Vec[i];
 
+			if(two_Intervals[i])
+			{
+				measurement.detector_Factor_for_Intensity_Integration[i]  =      integral_Func(p_max_1[i], params) +      integral_Func(p_max_2[i], params);
+//				measurement.detector_Factor_for_Intensity_Integration[i] += integral_Peak_Func(p_max_1[i], params) + integral_Peak_Func(p_max_2[i], params);
+				measurement.detector_Factor_for_Intensity_Integration[i] += PSD_Peak_Func(factor, peak_Frequency, peak_Frequency_Width, k, cos_Theta, cos_Theta_0, spline_PSD_Peak, acc_PSD_Peak)*qDegreesToRadians(measurement.theta_Resolution_FWHM);
+			} else
+			{
+				measurement.detector_Factor_for_Intensity_Integration[i]  =      integral_Func(p_max_1[i], params) -      integral_Func(p_min[i], params);
+//				measurement.detector_Factor_for_Intensity_Integration[i] += integral_Peak_Func(p_max_1[i], params) - integral_Peak_Func(p_min[i], params);
+				measurement.detector_Factor_for_Intensity_Integration[i] += PSD_Peak_Func(factor, peak_Frequency, peak_Frequency_Width, k, cos_Theta, cos_Theta_0, spline_PSD_Peak, acc_PSD_Peak)*qDegreesToRadians(measurement.theta_Resolution_FWHM);
+			}
+
+			measurement.detector_Factor_for_Intensity_Integration[i] = max(measurement.detector_Factor_for_Intensity_Integration[i], 0.);
+
 			measurement.detector_Factor_for_Intensity_Integration[i] /= (
-													PSD_Func(factor, xi, alpha, k, cos_Theta, cos_Theta_0, spline_PSD, acc_PSD) +
-													PSD_Peak_Func(factor, peak_Frequency, peak_Frequency_Width, k, cos_Theta, cos_Theta_0, spline_PSD_Peak, acc_PSD_Peak)
-													);
+														PSD_Func(factor, xi, alpha, k, cos_Theta, cos_Theta_0, spline_PSD_FG_1D, acc_PSD_FG_1D) +
+														PSD_Peak_Func(factor, peak_Frequency, peak_Frequency_Width, k, cos_Theta, cos_Theta_0, spline_PSD_Peak, acc_PSD_Peak)
+														);
+			if( isinf(measurement.detector_Factor_for_Intensity_Integration[i]) ||
+				isnan(measurement.detector_Factor_for_Intensity_Integration[i]))
+			{
+				measurement.detector_Factor_for_Intensity_Integration[i] = qDegreesToRadians(measurement.theta_Resolution_FWHM);
+			}
 		}
 	});
 
@@ -1197,25 +1203,12 @@ void Node::calc_Integral_Intensity_Near_Specular(Data& measurement, const Imperf
 //	params.tanh_sinh_integrator = &tanh_sinh_integrator;
 //	params.spline_PSD_Peak = spline_PSD_Peak;
 //	params.acc_PSD_Peak = acc_PSD_Peak;
-//	params.spline_PSD = spline_PSD;
-//	params.acc_PSD = acc_PSD;
+//	params.spline_PSD = spline_PSD_FG_1D;
+//	params.acc_PSD = acc_PSD_FG_1D;
 
 //	for(int i = first_Point; i<=second_Point; i++)
 //	{
 //		params.sin_Theta = theta_Sin_Vec[i];
-
-//		if(two_Intervals[i])
-//		{
-//			measurement.detector_Factor_for_Intensity_Integration[i]  =      integral_Func(p_max_1[i], params) +      integral_Func(p_max_2[i], params);
-//			measurement.detector_Factor_for_Intensity_Integration[i] += integral_Peak_Func(p_max_1[i], params) + integral_Peak_Func(p_max_2[i], params);
-//		} else
-//		{
-//			measurement.detector_Factor_for_Intensity_Integration[i]  =      integral_Func(p_max_1[i], params) -      integral_Func(p_min[i], params);
-//			measurement.detector_Factor_for_Intensity_Integration[i] += integral_Peak_Func(p_max_1[i], params) - integral_Peak_Func(p_min[i], params);
-//		}
-
-//		measurement.detector_Factor_for_Intensity_Integration[i] = max(measurement.detector_Factor_for_Intensity_Integration[i], 0.);
-
 
 //		// divide on old value, multiply on new
 //		const double& xi =    struct_Data.roughness_Model.cor_radius.value;
@@ -1226,23 +1219,44 @@ void Node::calc_Integral_Intensity_Near_Specular(Data& measurement, const Imperf
 //		const double& cos_Theta_0 = theta_0_Cos_Vec[i];
 //		const double& cos_Theta = theta_Cos_Vec[i];
 
+//		if(two_Intervals[i])
+//		{
+//			measurement.detector_Factor_for_Intensity_Integration[i]  =      integral_Func(p_max_1[i], params) +      integral_Func(p_max_2[i], params);
+////			measurement.detector_Factor_for_Intensity_Integration[i] += integral_Peak_Func(p_max_1[i], params) + integral_Peak_Func(p_max_2[i], params);
+//			measurement.detector_Factor_for_Intensity_Integration[i] += PSD_Peak_Func(factor, peak_Frequency, peak_Frequency_Width, k, cos_Theta, cos_Theta_0, spline_PSD_Peak, acc_PSD_Peak)*qDegreesToRadians(measurement.theta_Resolution_FWHM);
+//		} else
+//		{
+//			measurement.detector_Factor_for_Intensity_Integration[i]  =      integral_Func(p_max_1[i], params) -      integral_Func(p_min[i], params);
+////			measurement.detector_Factor_for_Intensity_Integration[i] += integral_Peak_Func(p_max_1[i], params) - integral_Peak_Func(p_min[i], params);
+//			measurement.detector_Factor_for_Intensity_Integration[i] += PSD_Peak_Func(factor, peak_Frequency, peak_Frequency_Width, k, cos_Theta, cos_Theta_0, spline_PSD_Peak, acc_PSD_Peak)*qDegreesToRadians(measurement.theta_Resolution_FWHM);
+//		}
+
+//		measurement.detector_Factor_for_Intensity_Integration[i] = max(measurement.detector_Factor_for_Intensity_Integration[i], 0.);
+
 //		measurement.detector_Factor_for_Intensity_Integration[i] /= (
-//												PSD_Func(factor, xi, alpha, k, cos_Theta, cos_Theta_0, spline_PSD, acc_PSD) +
-//												PSD_Peak_Func(factor, peak_Frequency, peak_Frequency_Width, k, cos_Theta, cos_Theta_0, spline_PSD_Peak, acc_PSD_Peak)
-//												);
+//												PSD_Func(factor, xi, alpha, k, cos_Theta, cos_Theta_0, spline_PSD_FG_1D, acc_PSD_FG_1D)
+//											  + PSD_Peak_Func(factor, peak_Frequency, peak_Frequency_Width, k, cos_Theta, cos_Theta_0, spline_PSD_Peak, acc_PSD_Peak)
+//											  );
+
+//		if( isinf(measurement.detector_Factor_for_Intensity_Integration[i]) ||
+//			isnan(measurement.detector_Factor_for_Intensity_Integration[i]))
+//		{
+//			measurement.detector_Factor_for_Intensity_Integration[i] = qDegreesToRadians(measurement.theta_Resolution_FWHM);
+//		}
 
 
 ////		double p = abs(measurement.beam_Theta_0_Cos_Value - measurement.detector_Theta_Cos_Vec[i])/measurement.lambda_Value;
-////		qInfo() << measurement.detector_Theta_Angle_Vec[i] << measurement.detector_Factor_for_Intensity_Integration[i]
+//		qInfo() << measurement.detector_Theta_Angle_Vec[i] << measurement.detector_Factor_for_Intensity_Integration[i] / qDegreesToRadians(measurement.theta_Resolution_FWHM)
 ////			<< qDegreesToRadians(measurement.theta_Resolution_FWHM) *
 ////			   4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(2*M_PI*p*xi)*(2*M_PI*p*xi), alpha+0.5)
 ////				<< qDegreesToRadians(measurement.theta_Resolution_FWHM) *
 ////				   PSD_Func(factor, xi, alpha, k, cos_Theta, cos_Theta_0, spline_PSD, acc_PSD)
 ////				<< qDegreesToRadians(measurement.theta_Resolution_FWHM) *
 ////				   PSD_Peak_Func(factor, peak_Frequency, peak_Frequency_Width, k, cos_Theta, cos_Theta_0, spline_PSD_Peak, acc_PSD_Peak)
-////				<< endl;
+////				<< PSD_Func(factor, xi, alpha, k, cos_Theta, cos_Theta_0, spline_PSD_FG_1D, acc_PSD_FG_1D)
+//				<< endl;
 //	}
-////	qInfo() << endl << endl;
+//	qInfo() << endl << endl;
 }
 
 void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imperfections_Model& imperfections_Model)
@@ -1359,12 +1373,23 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 //		}
 //	}
 
-	acc_PSD = gsl_interp_accel_alloc();
-	if(p_Max<10*addition) 	spline_PSD = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
-	else					spline_PSD = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
+	acc_PSD_FG_1D = gsl_interp_accel_alloc();
+	if(p_Max<10*addition) 	spline_PSD_FG_1D = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
+	else					spline_PSD_FG_1D = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
 
-	gsl_spline_init(spline_PSD, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
+	gsl_spline_init(spline_PSD_FG_1D, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 }
+void Node::clear_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model)
+{
+	if(imperfections_Model.approximation != PT_approximation) return;
+	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
+	if(struct_Data.item_Type == item_Type_Ambient ) return;
+	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+
+	gsl_spline_free(spline_PSD_FG_1D);
+	gsl_interp_accel_free(acc_PSD_FG_1D);
+}
+
 void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imperfections_Model& imperfections_Model)
 {
 	if(imperfections_Model.approximation != PT_approximation) return;
@@ -1569,21 +1594,21 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imp
 //		}
 //	}
 
-	acc_PSD = gsl_interp_accel_alloc();
-	if(nu_Max<10*addition) 	spline_PSD = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
-	else					spline_PSD = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
+	acc_PSD_FG_2D = gsl_interp_accel_alloc();
+	if(nu_Max<10*addition) 	spline_PSD_FG_2D = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
+	else					spline_PSD_FG_2D = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
 
-	gsl_spline_init(spline_PSD, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
+	gsl_spline_init(spline_PSD_FG_2D, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 }
-void Node::clear_Spline_PSD_Fractal_Gauss(const Imperfections_Model& imperfections_Model)
+void Node::clear_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfections_Model)
 {
 	if(imperfections_Model.approximation != PT_approximation) return;
 	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
 	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
 
-	gsl_spline_free(spline_PSD);
-	gsl_interp_accel_free(acc_PSD);
+	gsl_spline_free(spline_PSD_FG_2D);
+	gsl_interp_accel_free(acc_PSD_FG_2D);
 }
 
 void Node::create_Spline_PSD_Measured(const Imperfections_Model& imperfections_Model, QString PSD_Type)
@@ -1638,9 +1663,9 @@ void Node::create_Spline_PSD_Measured(const Imperfections_Model& imperfections_M
 	}
 
 	// linear interpolation
-	acc_PSD = gsl_interp_accel_alloc();
-	spline_PSD = gsl_spline_alloc(gsl_interp_linear, argument_Vec.size());
-	gsl_spline_init(spline_PSD, argument_Vec.data(), value_Vec.data(), argument_Vec.size());
+	acc_PSD_Meas = gsl_interp_accel_alloc();
+	spline_PSD_Meas = gsl_spline_alloc(gsl_interp_linear, argument_Vec.size());
+	gsl_spline_init(spline_PSD_Meas, argument_Vec.data(), value_Vec.data(), argument_Vec.size());
 }
 void Node::clear_Spline_PSD_Measured(const Imperfections_Model& imperfections_Model)
 {
@@ -1648,8 +1673,8 @@ void Node::clear_Spline_PSD_Measured(const Imperfections_Model& imperfections_Mo
 	if(imperfections_Model.PSD_Model != measured_PSD) return;
 	if(struct_Data.item_Type != item_Type_Substrate ) return;
 
-	gsl_spline_free(spline_PSD);
-	gsl_interp_accel_free(acc_PSD);
+	gsl_spline_free(spline_PSD_Meas);
+	gsl_interp_accel_free(acc_PSD_Meas);
 }
 
 struct Frequency_Params

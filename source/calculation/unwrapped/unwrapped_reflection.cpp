@@ -24,8 +24,8 @@ double base_PSD(double cos_Phi, Params* params)
 												params->cos_Theta,
 												params->cos_Theta_0,
 												cos_Phi,
-												u->substrate_Node->spline_PSD,
-												u->substrate_Node->acc_PSD)
+												u->substrate_Node->spline_PSD_FG_2D,
+												u->substrate_Node->acc_PSD_FG_2D)
 
   + u->PSD_Gauss_Peak_2D_Func_Vec[thread_Index](u->substrate.PSD_Gauss_Peak_2D_Factor,
 												u->substrate.roughness_Model.peak_Frequency.value,
@@ -1167,8 +1167,8 @@ inline void Unwrapped_Reflection::fill_Item_PSD_1D(int thread_Index, int point_I
 													 measurement.k_Value,
 													 measurement.detector_Theta_Cos_Vec[point_Index],
 													 cos_Theta_0,
-													 node->spline_PSD,
-													 node->acc_PSD)
+													 node->spline_PSD_FG_1D,
+													 node->acc_PSD_FG_1D)
 
 		  + PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
 													 item.roughness_Model.peak_Frequency.value,
@@ -1197,8 +1197,8 @@ inline void Unwrapped_Reflection::fill_Item_PSD_2D(int thread_Index, int point_I
 		                                             measurement.detector_Theta_Cos_Vec[point_Index],
 		                                             measurement.beam_Theta_0_Cos_Value,
 													 measurement.detector_Phi_Cos_Vec[phi_Index],
-													 node->spline_PSD,
-													 node->acc_PSD)
+													 node->spline_PSD_FG_2D,
+													 node->acc_PSD_FG_2D)
 
 		  + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](item.PSD_Gauss_Peak_2D_Factor,
 													 item.roughness_Model.peak_Frequency.value,
@@ -2756,8 +2756,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																				  measurement.k_Value,
 																				  measurement.detector_Theta_Cos_Vec[point_Index],
 																				  cos_Theta_0,
-																				  substrate_Node->spline_PSD,
-																				  substrate_Node->acc_PSD)
+																				  substrate_Node->spline_PSD_FG_1D,
+																				  substrate_Node->acc_PSD_FG_1D)
 
 									   + PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
 																				  substrate.roughness_Model.peak_Frequency.value,
@@ -2905,8 +2905,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																					  measurement.detector_Theta_Cos_Vec[point_Index],
 																					  measurement.beam_Theta_0_Cos_Value,
 																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-																					  substrate_Node->spline_PSD,
-																					  substrate_Node->acc_PSD)
+																					  substrate_Node->spline_PSD_FG_2D,
+																					  substrate_Node->acc_PSD_FG_2D)
 
 										   + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
 																					  substrate.roughness_Model.peak_Frequency.value,
@@ -2935,8 +2935,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																					  measurement.detector_Theta_Cos_Vec[point_Index],
 																					  measurement.beam_Theta_0_Cos_Value,
 																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-																					  substrate_Node->spline_PSD,
-																					  substrate_Node->acc_PSD)
+																					  substrate_Node->spline_PSD_FG_2D,
+																					  substrate_Node->acc_PSD_FG_2D)
 
 										   + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
 																					  substrate.roughness_Model.peak_Frequency.value,
@@ -2964,8 +2964,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																					  measurement.detector_Theta_Cos_Vec[point_Index],
 																					  measurement.beam_Theta_0_Cos_Value,
 																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-																					  substrate_Node->spline_PSD,
-																					  substrate_Node->acc_PSD);
+																					  substrate_Node->spline_PSD_FG_2D,
+																					  substrate_Node->acc_PSD_FG_2D);
 
 										   + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
 																					  substrate.roughness_Model.peak_Frequency.value,
