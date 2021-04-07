@@ -853,7 +853,9 @@ void Offset_Target_Curve_Part::connecting()
 		beam_Intensity_Final_CheckBox ->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
 		beam_Intensity_Final_SpinBox  ->setEnabled(target_Curve->curve.divide_On_Beam_Intensity && target_Curve->curve.use_Final_Intensity);
 
+		beam_Time_Label->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
 		beam_Time_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
+		beam_Time_Units_Label->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data_1D();
