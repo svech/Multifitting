@@ -611,7 +611,12 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 					{
 						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_2D (multilayer->imperfections_Model, measurement);
 						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Measured		 (multilayer->imperfections_Model, PSD_Type_2D);
+							auto start = std::chrono::system_clock::now();
 						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model, media_Data_Map_Vector);
+							if(lambda_Out_Of_Range) return;
+							auto end = std::chrono::system_clock::now();
+							auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+							qInfo() << "\nqqq:   "<< elapsed.count()/1000000. << " seconds" << endl;
 					}
 					short_Flat_Calc_Tree[node_Index]->calc_Integral_Intensity_Near_Specular	 (multilayer->imperfections_Model, measurement, calc_Functions);
 				}

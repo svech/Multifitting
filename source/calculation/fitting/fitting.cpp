@@ -262,7 +262,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 
 			// calculation
 			params->main_Calculation_Module->calculation_With_Sampling(params->calculation_Trees[tab_Index], target_Element);
-			params->main_Calculation_Module->postprocessing(target_Element, true);
+			params->main_Calculation_Module->postprocessing(target_Element, params->calculation_Trees[tab_Index]->multilayer, true);
 
 			// fill residual
 			fill_Residual(params, residual_Shift, target_Element, f);

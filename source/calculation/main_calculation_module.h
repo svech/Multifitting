@@ -66,7 +66,7 @@ public:
 					   QString theta_Phi,
 					   bool theta_0_Beam_Profile = false);
 	template <typename Type>
-	void postprocessing(Data_Element<Type>& data_Element, bool fit_Mode = false);
+	void postprocessing(Data_Element<Type>& data_Element, Multilayer* multilayer, bool fit_Mode = false);
 
 	void fitting_and_Confidence();
 	void save_Init_State_Trees();

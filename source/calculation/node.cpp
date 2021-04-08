@@ -1421,7 +1421,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 	} else
 	if(measurement.measurement_Type == measurement_Types[Specular_Scan])
 	{
-		nu_Max = nu_Limit;
+		nu_Max = nu_Limit*(1+addition);
 	} else
 	{
 		if(imperfections_Model.vertical_Correlation == partial_Correlation)
@@ -1827,7 +1827,7 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 
 	// fill nu points for splining
 	int num_Sections = 8; // plus zero point, plus infinite point
-	int points_Per_Section = 500;
+	int points_Per_Section = 100;
 	vector<int> interpoints(num_Sections);
 	int common_Size = 2;
 	for(int i=0; i<num_Sections; i++)
@@ -1882,11 +1882,11 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 	{
 		Q_UNUSED(thread_Index)
 
-		QMultiMap<id_Type, double> id_Val_Map;
+//		QMultiMap<id_Type, double> id_Val_Map;
 
 		for(int i=n_Min; i<n_Max; ++i)
 		{
-			id_Val_Map.clear();
+//			id_Val_Map.clear();
 
 			double nu = nu_Vec[i];
 			double nu2 = nu*nu;
@@ -1904,14 +1904,14 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 
 				double inheritance_Exp = 1;
 				double growth_PSD = 0;
-				if(id_Val_Map.contains(struct_Data->id))
-				// use cash
-				{
-					inheritance_Exp = id_Val_Map.values(struct_Data->id).at(0);
-					growth_PSD      = id_Val_Map.values(struct_Data->id).at(1);
-				} else
-				// calculate
-				{
+//				if(id_Val_Map.contains(struct_Data->id))
+//				// use cash
+//				{
+//					inheritance_Exp = id_Val_Map.values(struct_Data->id).at(0);
+//					growth_PSD      = id_Val_Map.values(struct_Data->id).at(1);
+//				} else
+//				// calculate
+//				{
 					double thickness = struct_Data->thickness.value;
 					double omega = struct_Data->roughness_Model.omega.value;
 					double mu = struct_Data->roughness_Model.mu.value;
@@ -1939,9 +1939,9 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 						growth_PSD = omega*thickness;
 					}
 
-					id_Val_Map.insert(struct_Data->id, inheritance_Exp);
-					id_Val_Map.insert(struct_Data->id, growth_PSD);
-				}
+//					id_Val_Map.insert(struct_Data->id, inheritance_Exp);
+//					id_Val_Map.insert(struct_Data->id, growth_PSD);
+//				}
 
 				// PSD evolution
 				PSD_2D_Values_Vec[i] = PSD_2D_Values_Vec[i]*inheritance_Exp + growth_PSD;

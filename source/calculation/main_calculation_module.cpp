@@ -565,7 +565,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 		for(Data_Element<Independent_Curve>& independent_Data_Element : calculation_Trees[tab_Index]->independent)
 		{
 			calculation_With_Sampling(calculation_Trees[tab_Index], independent_Data_Element);
-			postprocessing(independent_Data_Element);
+			postprocessing(independent_Data_Element, multilayers[tab_Index]);
 			if(lambda_Out_Of_Range) return;
 		}
 		for(Data_Element<Target_Curve>& target_Data_Element : calculation_Trees[tab_Index]->target)
@@ -675,7 +675,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 
 			// usual calculation
 			calculation_With_Sampling(calculation_Trees[tab_Index], target_Data_Element);
-			postprocessing(target_Data_Element);
+			postprocessing(target_Data_Element, multilayers[tab_Index]);
 			if(lambda_Out_Of_Range) return;
 
 			if(show_residuals)
@@ -2074,7 +2074,7 @@ void Main_Calculation_Module::wrap_2D_Curve(const Data& measurement,
 }
 
 template<class Type>
-void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, bool fit_Mode)
+void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, Multilayer* multilayer, bool fit_Mode)
 {
 //	auto start = std::chrono::system_clock::now();
 
@@ -2125,38 +2125,41 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 	if( measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
 		measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
-		/// first of all, remove singularities in specular direction
-		// detector theta
-		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
-			for(size_t point_Index=0; point_Index<working_Curve->size(); ++point_Index)
-			{
-				(*working_Curve)[point_Index] *= measurement.detector_Factor_for_Intensity_Integration[point_Index];
-//				(*working_Curve)[point_Index] *= qDegreesToRadians(measurement.theta_Resolution_FWHM);
-			}
-			*calculated_Curve = *working_Curve;
-		}
-
-		// spectral distribution
-		if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+		if(multilayer->imperfections_Model.use_Roughness)
+		{
+			/// first of all, remove singularities in specular direction
+			// detector theta
+			if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
+				for(size_t point_Index=0; point_Index<working_Curve->size(); ++point_Index)
+				{
+					(*working_Curve)[point_Index] *= measurement.detector_Factor_for_Intensity_Integration[point_Index];
+	//				(*working_Curve)[point_Index] *= qDegreesToRadians(measurement.theta_Resolution_FWHM);
+				}
 				*calculated_Curve = *working_Curve;
 			}
-		}
-		// theta_0 distribution
-		if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec_Rocking_Offset, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
-//				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec,				   working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
-				*calculated_Curve = *working_Curve;
-			}
-		}
-		// no beam spot theta_0 for rocking and offset scans
 
-		// detector theta
-		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution, false, true);
+			// spectral distribution
+			if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+					*calculated_Curve = *working_Curve;
+				}
+			}
+			// theta_0 distribution
+			if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec_Rocking_Offset, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+	//				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec,				   working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+					*calculated_Curve = *working_Curve;
+				}
+			}
+			// no beam spot theta_0 for rocking and offset scans
+
+			// detector theta
+			if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution, false, true);
+				}
 			}
 		}
 		// specular peak
@@ -2171,42 +2174,44 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 	/// Detector_Scan
 	if( measurement.measurement_Type == measurement_Types[Detector_Scan])
 	{
-		/// first of all, remove singularities in specular direction
-		// detector theta
-		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
-			for(size_t point_Index=0; point_Index<working_Curve->size(); ++point_Index)
-			{
-				(*working_Curve)[point_Index] *= measurement.detector_Factor_for_Intensity_Integration[point_Index];
-//				(*working_Curve)[point_Index] *= qDegreesToRadians(measurement.theta_Resolution_FWHM);
-			}
-			*calculated_Curve = *working_Curve;
-		}
-
-		// spectral distribution
-		if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+		if(multilayer->imperfections_Model.use_Roughness)
+		{
+			/// first of all, remove singularities in specular direction
+			// detector theta
+			if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
+				for(size_t point_Index=0; point_Index<working_Curve->size(); ++point_Index)
+				{
+					(*working_Curve)[point_Index] *= measurement.detector_Factor_for_Intensity_Integration[point_Index];
+//					(*working_Curve)[point_Index] *= qDegreesToRadians(measurement.theta_Resolution_FWHM);
+				}
 				*calculated_Curve = *working_Curve;
 			}
-		}
-		// theta_0 distribution
-		if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)	{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
-				*calculated_Curve = *working_Curve;
+			// spectral distribution
+			if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+					*calculated_Curve = *working_Curve;
+				}
 			}
-		}
-		// beam spot theta_0
-		if(measurement.beam_Geometry.size>DBL_EPSILON || (measurement.beam_Geometry.wings_Full_Width>DBL_EPSILON && measurement.beam_Geometry.wings_Intensity>DBL_EPSILON))		{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function, true);
-				*calculated_Curve = *working_Curve;
+			// theta_0 distribution
+			if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)	{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+					*calculated_Curve = *working_Curve;
+				}
 			}
-		}
-		// detector theta
-		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution, false, true);
+			// beam spot theta_0
+			if(measurement.beam_Geometry.size>DBL_EPSILON || (measurement.beam_Geometry.wings_Full_Width>DBL_EPSILON && measurement.beam_Geometry.wings_Intensity>DBL_EPSILON))		{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function, true);
+					*calculated_Curve = *working_Curve;
+				}
+			}
+			// detector theta
+			if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution, false, true);
+				}
 			}
 		}
 		// specular peak
@@ -2222,72 +2227,75 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		bool recalculated = false;
-		// spectral distribution
-		if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_2D_Curve(measurement, calculated_Values, measurement.theta_0_Resolution_From_Spectral_Vec, measurement.spectral_Distribution.distribution_Function, "theta");
-				calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
-				recalculated = true;
+		if(multilayer->imperfections_Model.use_Roughness)
+		{
+			// spectral distribution
+			if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_2D_Curve(measurement, calculated_Values, measurement.theta_0_Resolution_From_Spectral_Vec, measurement.spectral_Distribution.distribution_Function, "theta");
+					calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
+					recalculated = true;
+				}
 			}
-		}
-		// theta_0 distribution
-		if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_2D_Curve(measurement, calculated_Values, measurement.theta_0_Resolution_Vec, measurement.beam_Theta_0_Distribution.distribution_Function, "theta");
-				calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
-				recalculated = true;
+			// theta_0 distribution
+			if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_2D_Curve(measurement, calculated_Values, measurement.theta_0_Resolution_Vec, measurement.beam_Theta_0_Distribution.distribution_Function, "theta");
+					calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
+					recalculated = true;
+				}
 			}
-		}
-		// beam spot theta_0
-		if(measurement.beam_Geometry.size>DBL_EPSILON || (measurement.beam_Geometry.wings_Full_Width>DBL_EPSILON && measurement.beam_Geometry.wings_Intensity>DBL_EPSILON))		{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_2D_Curve(measurement, calculated_Values, measurement.theta_0_Resolution_Vec, measurement.beam_Theta_0_Distribution.distribution_Function, "theta", true);
-				calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
-				recalculated = true;
+			// beam spot theta_0
+			if(measurement.beam_Geometry.size>DBL_EPSILON || (measurement.beam_Geometry.wings_Full_Width>DBL_EPSILON && measurement.beam_Geometry.wings_Intensity>DBL_EPSILON))		{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_2D_Curve(measurement, calculated_Values, measurement.theta_0_Resolution_Vec, measurement.beam_Theta_0_Distribution.distribution_Function, "theta", true);
+					calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
+					recalculated = true;
+				}
 			}
-		}
-		// beam spot phi
-		if(measurement.beam_Geometry.lateral_Width>DBL_EPSILON)	{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, distributions[Gate], "phi");
-				calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
-				recalculated = true;
+			// beam spot phi
+			if(measurement.beam_Geometry.lateral_Width>DBL_EPSILON)	{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, distributions[Gate], "phi");
+					calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
+					recalculated = true;
+				}
 			}
-		}
-		// detector phi
-		if(measurement.phi_Resolution_FWHM>DBL_EPSILON || measurement.beam_Phi_0_Distribution.FWHM_distribution>DBL_EPSILON)		{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Resolution_Vec, measurement.phi_Distribution, "phi");
-				calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
-				recalculated = true;
-			}
-		}
-
-		// detector theta
-		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)	{
-			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-				wrap_2D_Curve(measurement, calculated_Values, measurement.theta_Resolution_Vec, measurement.theta_Distribution, "theta");
+			// detector phi
+			if(measurement.phi_Resolution_FWHM>DBL_EPSILON || measurement.beam_Phi_0_Distribution.FWHM_distribution>DBL_EPSILON)		{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Resolution_Vec, measurement.phi_Distribution, "phi");
+					calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
+					recalculated = true;
+				}
 			}
 
-			// multiply on detector size to get real intensity
-			if(measurement.phi_Resolution_FWHM>DBL_EPSILON)
-			{
-//				Global_Variables::parallel_For(calculated_Values.GISAS_Map.front().size(), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
-//				{
-//					for(int theta_Index=n_Min; theta_Index<n_Max; ++theta_Index)
-					for(size_t theta_Index=0; theta_Index<calculated_Values.GISAS_Map.front().size(); ++theta_Index)
-					{
-						for(size_t phi_Index=0; phi_Index<calculated_Values.GISAS_Map.size(); ++phi_Index)
+			// detector theta
+			if(measurement.theta_Resolution_FWHM>DBL_EPSILON)	{
+				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+					wrap_2D_Curve(measurement, calculated_Values, measurement.theta_Resolution_Vec, measurement.theta_Distribution, "theta");
+				}
+
+				// multiply on detector size to get real intensity
+				if(measurement.phi_Resolution_FWHM>DBL_EPSILON)
+				{
+	//				Global_Variables::parallel_For(calculated_Values.GISAS_Map.front().size(), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
+	//				{
+	//					for(int theta_Index=n_Min; theta_Index<n_Max; ++theta_Index)
+						for(size_t theta_Index=0; theta_Index<calculated_Values.GISAS_Map.front().size(); ++theta_Index)
 						{
-							calculated_Values.GISAS_Instrumental[phi_Index][theta_Index] = calculated_Values.GISAS_Map[phi_Index][theta_Index]*
-																								qDegreesToRadians(measurement.theta_Resolution_FWHM)*
-																								qDegreesToRadians(measurement.phi_Resolution_FWHM)*
-																								measurement.detector_Theta_Cos_Vec[theta_Index];
+							for(size_t phi_Index=0; phi_Index<calculated_Values.GISAS_Map.size(); ++phi_Index)
+							{
+								calculated_Values.GISAS_Instrumental[phi_Index][theta_Index] = calculated_Values.GISAS_Map[phi_Index][theta_Index]*
+																									qDegreesToRadians(measurement.theta_Resolution_FWHM)*
+																									qDegreesToRadians(measurement.phi_Resolution_FWHM)*
+																									measurement.detector_Theta_Cos_Vec[theta_Index];
+							}
 						}
-					}
-//				});
+	//				});
+				}
+				recalculated = true;
 			}
-			recalculated = true;
 		}
 		// specular peak
 		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
@@ -2364,8 +2372,8 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 //	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 //	qInfo() << "postprocessing:    "<< elapsed.count()/1000000. << " seconds" << endl << endl;
 }
-template void Main_Calculation_Module::postprocessing<Independent_Curve>(Data_Element<Independent_Curve>&, bool);
-template void Main_Calculation_Module::postprocessing<Target_Curve>     (Data_Element<Target_Curve>&, bool);
+template void Main_Calculation_Module::postprocessing<Independent_Curve>(Data_Element<Independent_Curve>&, Multilayer*, bool);
+template void Main_Calculation_Module::postprocessing<Target_Curve>     (Data_Element<Target_Curve>&, Multilayer*, bool);
 
 void Main_Calculation_Module::fitting_and_Confidence()
 {
@@ -2404,7 +2412,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 		{
 			calculation_With_Sampling(calculation_Trees[tab_Index], target_Element);
-			postprocessing(target_Element, true);
+			postprocessing(target_Element, multilayers[tab_Index], true);
 			if(lambda_Out_Of_Range)	return;
 		}
 	}

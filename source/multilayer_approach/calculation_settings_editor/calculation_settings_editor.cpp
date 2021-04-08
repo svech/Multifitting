@@ -537,6 +537,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 		QVBoxLayout* box_Layout = new QVBoxLayout(box);
 			box_Layout->setSpacing(5);
 			box_Layout->setContentsMargins(5,10,5,5);
+			box_Layout->setAlignment(Qt::AlignTop);
 
 		// content
 		{			
