@@ -1881,11 +1881,71 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 	Global_Variables::parallel_For(common_Size-2, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 	{
 		Q_UNUSED(thread_Index)
+
+		QMultiMap<id_Type, double> id_Val_Map;
+
 		for(int i=n_Min; i<n_Max; ++i)
 		{
-			PSD_2D_Values_Vec[i] = PSD_Func_from_nu(factor, xi, alpha, nu_Vec[i], spline_PSD_FG_2D, acc_PSD_FG_2D) +
-								   PSD_Peak_Func_from_nu(peak_Factor, peak_Frequency, peak_Frequency_Width, nu_Vec[i], nullptr, nullptr);
+			id_Val_Map.clear();
 
+			double nu = nu_Vec[i];
+			double nu2 = nu*nu;
+			double nu3 = nu2*nu;
+			double nu4 = nu2*nu2;
+
+			double nu_nu_0 = nu/imperfections_Model.vertical_Inheritance_Frequency;
+
+			PSD_2D_Values_Vec[i] = PSD_Func_from_nu(factor, xi, alpha, nu, spline_PSD_FG_2D, acc_PSD_FG_2D) +
+								   PSD_Peak_Func_from_nu(peak_Factor, peak_Frequency, peak_Frequency_Width, nu, nullptr, nullptr);
+
+			for(int bound_Index = media_Data_Map_Vector.size()-2; bound_Index>=1; bound_Index--)
+			{
+				Data* struct_Data = media_Data_Map_Vector[bound_Index];
+
+				double inheritance_Exp = 1;
+				double growth_PSD = 0;
+				if(id_Val_Map.contains(struct_Data->id))
+				// use cash
+				{
+					inheritance_Exp = id_Val_Map.values(struct_Data->id).at(0);
+					growth_PSD      = id_Val_Map.values(struct_Data->id).at(1);
+				} else
+				// calculate
+				{
+					double thickness = struct_Data->thickness.value;
+					double omega = struct_Data->roughness_Model.omega.value;
+					double mu = struct_Data->roughness_Model.mu.value;
+					double alpha = struct_Data->roughness_Model.fractal_alpha.value;
+
+					double a1 = struct_Data->roughness_Model.a1.value;
+					double a2 = struct_Data->roughness_Model.a2.value;
+					double a3 = struct_Data->roughness_Model.a3.value;
+					double a4 = struct_Data->roughness_Model.a4.value;
+
+					double b_Function = 0;
+					if(imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model)	{
+						b_Function = nu*a1 + nu2*a2 + nu3*a3 + nu4*a4;
+					}
+					if(imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model)	{
+						b_Function = pow(nu_nu_0,2*alpha+2)/mu;
+					}
+
+					if(b_Function>DBL_EPSILON) {
+						inheritance_Exp = exp(-b_Function*thickness);
+						growth_PSD = omega*(1.-inheritance_Exp)/b_Function;
+					} else
+					{
+						inheritance_Exp = 1;
+						growth_PSD = omega*thickness;
+					}
+
+					id_Val_Map.insert(struct_Data->id, inheritance_Exp);
+					id_Val_Map.insert(struct_Data->id, growth_PSD);
+				}
+
+				// PSD evolution
+				PSD_2D_Values_Vec[i] = PSD_2D_Values_Vec[i]*inheritance_Exp + growth_PSD;
+			}
 		}
 	});
 	PSD_2D_Values_Vec[common_Size-2] = 0;
