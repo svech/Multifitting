@@ -2146,19 +2146,17 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, b
 		// theta_0 distribution
 		if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
 			if(data_Element.calc_Functions.instrumental_Smoothing)	{
-//				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec_Rocking_Offset, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
-				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec,				   working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec_Rocking_Offset, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+//				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec,				   working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
 				*calculated_Curve = *working_Curve;
 			}
 		}
 		// no beam spot theta_0 for rocking and offset scans
 
 		// detector theta
-		if(measurement.measurement_Type == measurement_Types[Rocking_Curve]){ // no wrapping with detector for offset scans
-			if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
-				if(data_Element.calc_Functions.instrumental_Smoothing)	{
-					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution, false, true);
-				}
+		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
+			if(data_Element.calc_Functions.instrumental_Smoothing)	{
+				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution, false, true);
 			}
 		}
 		// specular peak

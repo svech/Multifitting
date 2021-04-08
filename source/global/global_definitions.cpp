@@ -668,7 +668,7 @@ QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functi
 	return stream << calc_Functions.check_Enabled << calc_Functions.check_Reflectance << calc_Functions.check_Transmittance << calc_Functions.check_Absorptance
 				  << calc_Functions.check_Field	  << calc_Functions.check_Joule << calc_Functions.check_Scattering << calc_Functions.check_GISAS
 				  << calc_Functions.field_Step << calc_Functions.field_Ambient_Distance	<< calc_Functions.field_Substrate_Distance << calc_Functions.show_Surface
-				  << calc_Functions.add_Specular_Peak << calc_Functions.instrumental_Smoothing;
+				  << calc_Functions.add_Specular_Peak << calc_Functions.instrumental_Smoothing << calc_Functions.integrate_PSD_in_Detector;
 }
 QDataStream& operator >>( QDataStream& stream,		 Calc_Functions& calc_Functions )
 {
@@ -695,6 +695,10 @@ QDataStream& operator >>( QDataStream& stream,		 Calc_Functions& calc_Functions 
 
 	if(Global_Variables::check_Loaded_Version(1,11,0))
 	{stream >> calc_Functions.add_Specular_Peak >> calc_Functions.instrumental_Smoothing;}
+
+	if(Global_Variables::check_Loaded_Version(1,11,15))
+	{stream >> calc_Functions.integrate_PSD_in_Detector;}
+
 	return stream;
 }
 

@@ -41,18 +41,18 @@ public:
 	/// ------------------------------------------------
 
 	vector<double> specular_Debye_Waller_Weak_Factor_R;
-	void calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_Model& imperfections_Model);
+	void calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Model, const Data& measurement);
 
-	void calc_Integral_Intensity_Near_Specular(Data& measurement, const Imperfections_Model& imperfections_Model, const vector<Data*>& media_Data_Map_Vector, bool instrumental_Smoothing);
+	void calc_Integral_Intensity_Near_Specular(const Imperfections_Model& imperfections_Model, Data& measurement, const Calc_Functions& calc_Functions);
 	/// ------------------------------------------------
 
-	void create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imperfections_Model& imperfections_Model);
+	void create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model, const Data& measurement);
 	void clear_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model);
 
 	gsl_spline* spline_PSD_FG_1D;
 	gsl_interp_accel* acc_PSD_FG_1D;
 
-	void create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imperfections_Model& imperfections_Model);
+	void create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfections_Model, const Data& measurement);
 	void clear_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfections_Model);
 
 	gsl_spline* spline_PSD_FG_2D;
@@ -70,6 +70,12 @@ public:
 	gsl_spline* spline_PSD_Peak;
 	gsl_interp_accel* acc_PSD_Peak;
 
+	void create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperfections_Model, const vector<Data*>& media_Data_Map_Vector);
+	void clear_Spline_PSD_Linear_Growth_Top (const Imperfections_Model& imperfections_Model);
+
+	gsl_spline* spline_PSD_Linear_Growth_Top;
+	gsl_interp_accel* acc_PSD_Linear_Growth_Top;
+
 	/// ------------------------------------------------
 
 	double G1_Type_Outer();
@@ -78,8 +84,8 @@ public:
 	vector<double(*)(double, double, double, double, double, double)> G2_Type;
 	vector<double(*)(double, double, double, double, double)> G2_Type_q_Zero;
 	vector<double(*)(long double, long double, long double, long double sigma, long double N, long double M)> G2_Type_long;
-	void create_Spline_G2_2D(const Data& measurement, const Imperfections_Model& imperfections_Model);
-	void clear_Spline_G2_2D (const Data& measurement, const Imperfections_Model& imperfections_Model);
+	void create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, const Data& measurement);
+	void clear_Spline_G2_2D (const Imperfections_Model& imperfections_Model, const Data& measurement);
 	gsl_spline* spline_G2;
 	gsl_interp_accel* acc_G2;
 };

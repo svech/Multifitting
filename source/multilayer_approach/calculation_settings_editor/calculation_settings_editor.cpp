@@ -855,6 +855,26 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 					target_Curve->calc_Functions.add_Specular_Peak = add_Specular_Peak->isChecked();
 					global_Multilayer_Approach->global_Recalculate();
 				});
+
+				// -------------------------------------------------------
+
+				QHBoxLayout* row_6_Layout = new QHBoxLayout;
+				box_Layout->addLayout(row_6_Layout);
+
+				// -------------------------------------------------------
+
+				QHBoxLayout* row_6_Left_Layout = new QHBoxLayout;
+					row_6_Left_Layout->setAlignment(Qt::AlignLeft);
+				row_6_Layout->addLayout(row_6_Left_Layout);
+
+				QCheckBox* integrate_PSD_in_Detector_Checkbox = new QCheckBox("Integrate PSD in detector");
+					integrate_PSD_in_Detector_Checkbox->setChecked(target_Curve->calc_Functions.integrate_PSD_in_Detector);
+				row_6_Left_Layout->addWidget(integrate_PSD_in_Detector_Checkbox,0,Qt::AlignLeft);
+				connect(integrate_PSD_in_Detector_Checkbox,&QCheckBox::toggled, this, [=]
+				{
+					target_Curve->calc_Functions.integrate_PSD_in_Detector = integrate_PSD_in_Detector_Checkbox->isChecked();
+					global_Multilayer_Approach->global_Recalculate();
+				});
 			}
 		}
 		target_Index++;
@@ -1152,7 +1172,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 				independent_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
 				independent_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 			{
-				QHBoxLayout* additional_Layout = new QHBoxLayout;
+				QVBoxLayout* additional_Layout = new QVBoxLayout;
 					additional_Layout->setAlignment(Qt::AlignLeft);
 					additional_Layout->setContentsMargins(10,0,0,0);
 				box_Layout->addLayout(additional_Layout);
@@ -1163,6 +1183,16 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 				connect(use_Instrumental_Smoothing,&QCheckBox::toggled, this, [=]
 				{
 					independent_Curve->calc_Functions.instrumental_Smoothing = use_Instrumental_Smoothing->isChecked();
+					global_Multilayer_Approach->global_Recalculate();
+				});
+
+
+				QCheckBox* integrate_PSD_in_Detector_Checkbox = new QCheckBox("Integrate PSD in detector");
+					integrate_PSD_in_Detector_Checkbox->setChecked(independent_Curve->calc_Functions.integrate_PSD_in_Detector);
+				additional_Layout->addWidget(integrate_PSD_in_Detector_Checkbox);
+				connect(integrate_PSD_in_Detector_Checkbox,&QCheckBox::toggled, this, [=]
+				{
+					independent_Curve->calc_Functions.integrate_PSD_in_Detector = integrate_PSD_in_Detector_Checkbox->isChecked();
 					global_Multilayer_Approach->global_Recalculate();
 				});
 			}

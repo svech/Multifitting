@@ -16,7 +16,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 14
+#define VERSION_BUILD 15
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -1007,6 +1007,7 @@ struct Calc_Functions			{bool check_Enabled = true;
 								 bool show_Surface = false;
 								 bool add_Specular_Peak = true;
 								 bool instrumental_Smoothing = true;
+								 bool integrate_PSD_in_Detector = false;
 
 								 bool if_Something_Enabled_1D() const;
 								 bool if_Something_Enabled_2D() const;
