@@ -1816,7 +1816,7 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 	}
 
 	// choosing PSD gauss peak function
-	double (*PSD_Peak_Func_from_nu)(double, double, double, double, gsl_spline*, gsl_interp_accel*);
+	double (*PSD_Peak_Func_from_nu)(double, double, double, double);
 	double peak_Factor = struct_Data.PSD_Gauss_Peak_2D_Factor;
 
 	if(imperfections_Model.add_Gauss_Peak && struct_Data.roughness_Model.peak_Sigma.value>DBL_EPSILON)	{
@@ -1896,7 +1896,7 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 			double nu_nu_0 = nu/imperfections_Model.vertical_Inheritance_Frequency;
 
 			PSD_2D_Values_Vec[i] = PSD_Func_from_nu(factor, xi, alpha, nu, spline_PSD_FG_2D, acc_PSD_FG_2D) +
-								   PSD_Peak_Func_from_nu(peak_Factor, peak_Frequency, peak_Frequency_Width, nu, nullptr, nullptr);
+								   PSD_Peak_Func_from_nu(peak_Factor, peak_Frequency, peak_Frequency_Width, nu);
 
 			for(int bound_Index = media_Data_Map_Vector.size()-2; bound_Index>=1; bound_Index--)
 			{
