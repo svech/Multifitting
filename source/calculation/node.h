@@ -73,8 +73,10 @@ public:
 	void create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperfections_Model, const vector<Data*>& media_Data_Map_Vector);
 	void clear_Spline_PSD_Linear_Growth_Top (const Imperfections_Model& imperfections_Model);
 
-	gsl_spline* spline_PSD_Linear_Growth_Top;
-	gsl_interp_accel* acc_PSD_Linear_Growth_Top;
+	gsl_spline* spline_PSD_Linear_Growth_Top_2D;
+	gsl_interp_accel* acc_PSD_Linear_Growth_Top_2D;
+	gsl_spline* spline_PSD_Linear_Growth_Top_1D;
+	gsl_interp_accel* acc_PSD_Linear_Growth_Top_1D;
 
 	/// ------------------------------------------------
 

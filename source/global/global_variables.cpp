@@ -1356,7 +1356,7 @@ double Global_Variables::PSD_Fractal_Gauss_2D_from_nu(double factor, double xi, 
 	Q_UNUSED(factor)
 	Q_UNUSED(xi)
 	Q_UNUSED(alpha)
-	return gsl_spline_eval(spline, nu, acc);
+	return gsl_spline_eval(spline, 2*M_PI*nu, acc);
 }
 
 double Global_Variables::PSD_Gauss_Peak_1D(double factor, double peak_Frequency, double peak_Width, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc)

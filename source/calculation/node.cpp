@@ -1709,7 +1709,7 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 	double peak_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
 
 	double p_Max = peak_Frequency + peak_Width*peak_Range_Factor;
-	int common_Size = 150;
+	int common_Size = 200;
 
 	QVector<double> interpoints_Argum_Vec(common_Size);
 	QVector<double> interpoints_Value_Vec(common_Size);
@@ -1720,39 +1720,85 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 	double p = 0;
 	if(peak_Frequency>DBL_EPSILON)
 	{	
-		double result, abserr;
-		double epsabs = 0;
-		double epsrel = 1E-7;
-		size_t limit = 1000;
-		gsl_integration_workspace* w = gsl_integration_workspace_alloc(limit);
-
-		Frequency_Params frequency_Params;
-		frequency_Params.pa = &p;
-		frequency_Params.peak_Frequency = peak_Frequency;
-		frequency_Params.peak_Width = peak_Width;
-
-		gsl_function F;
-		F.function = &func;
-		F.params = &frequency_Params;
-
-		size_t npts = 2;
-		vector<double> pts = {p, p_Max};
-
-		// first point
-		interpoints_Argum_Vec[0] = 0;
-		interpoints_Value_Vec[0] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * 0.5*peak_Width*SQRT_PI * (1+erf(peak_Frequency/peak_Width));
+		/// with parallelization (use if many points)
 
 		// intermediate points (excepting point p==p_Max)
-		for(int i=1; i<common_Size-1; i++)
+		for(int i=1; i<common_Size; i++)
 		{
 			p += dp;
 			interpoints_Argum_Vec[i] = p;
-
-			pts[0] = p;
-			gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
-			interpoints_Value_Vec[i] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * result;
 		}
-		gsl_integration_workspace_free (w);
+		Global_Variables::parallel_For(common_Size-1, max(3,QThread::idealThreadCount())/*reflectivity_calc_threads*/, [&](int n_Min, int n_Max, int thread_Index)
+		{
+			Q_UNUSED(thread_Index)
+
+			double result, abserr;
+			double epsabs = 0;
+			double epsrel = 1E-7;
+			size_t limit = 1000;
+			gsl_integration_workspace* w = gsl_integration_workspace_alloc(limit);
+
+			double p_Thread = 0;
+			Frequency_Params frequency_Params;
+			frequency_Params.pa = &p_Thread;
+			frequency_Params.peak_Frequency = peak_Frequency;
+			frequency_Params.peak_Width = peak_Width;
+
+			gsl_function F;
+			F.function = &func;
+			F.params = &frequency_Params;
+
+			size_t npts = 2;
+			vector<double> pts = {p_Thread, p_Max};
+
+			for(int i=n_Min; i<n_Max; ++i)
+			{
+				p_Thread = interpoints_Argum_Vec[i];
+				pts[0] = interpoints_Argum_Vec[i];
+				gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
+				interpoints_Value_Vec[i] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * result;
+			}
+			gsl_integration_workspace_free (w);
+		});
+		// first point
+		interpoints_Value_Vec[0] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * 0.5*peak_Width*SQRT_PI * (1+erf(peak_Frequency/peak_Width));
+
+
+		/// without parallelization
+
+//		double result, abserr;
+//		double epsabs = 0;
+//		double epsrel = 1E-7;
+//		size_t limit = 1000;
+//		gsl_integration_workspace* w = gsl_integration_workspace_alloc(limit);
+
+//		Frequency_Params frequency_Params;
+//		frequency_Params.pa = &p;
+//		frequency_Params.peak_Frequency = peak_Frequency;
+//		frequency_Params.peak_Width = peak_Width;
+
+//		gsl_function F;
+//		F.function = &func;
+//		F.params = &frequency_Params;
+
+//		size_t npts = 2;
+//		vector<double> pts = {p, p_Max};
+
+//		// first point
+//		interpoints_Argum_Vec[0] = 0;
+//		interpoints_Value_Vec[0] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * 0.5*peak_Width*SQRT_PI * (1+erf(peak_Frequency/peak_Width));
+
+//		// intermediate points (excepting point p==p_Max)
+//		for(int i=1; i<common_Size-1; i++)
+//		{
+//			p += dp;
+//			interpoints_Argum_Vec[i] = p;
+
+//			pts[0] = p;
+//			gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
+//			interpoints_Value_Vec[i] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * result;
+//		}
+//		gsl_integration_workspace_free (w);
 	} else
 	// usual gauss
 	{
@@ -1785,6 +1831,20 @@ void Node::clear_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model)
 	gsl_interp_accel_free(acc_PSD_Peak);
 }
 
+struct PSD_2D_Growth_Params
+{
+	double* p;
+	gsl_spline* spline;
+	gsl_interp_accel* acc;
+};
+double splined_PSD_2D_Growth(double nu, void* par)
+{
+	PSD_2D_Growth_Params* params = reinterpret_cast<PSD_2D_Growth_Params*>(par);
+	double& p = *(params->p);
+
+	return gsl_spline_eval(params->spline, nu, params->acc) * nu / sqrt(nu*nu - p*p);
+}
+
 void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperfections_Model, const vector<Data*>& media_Data_Map_Vector)
 {
 	// used for DW sigmas
@@ -1806,6 +1866,7 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 
 		if(abs(alpha-1)>DBL_EPSILON) {
 			PSD_Func_from_nu = &Global_Variables::PSD_Fractal_Gauss_2D_from_nu;
+			factor = 1;
 		} else {
 			PSD_Func_from_nu = &Global_Variables::PSD_Real_Gauss_2D_from_nu;
 			factor = struct_Data.PSD_Real_Gauss_2D_Factor;
@@ -1826,11 +1887,15 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 	}
 
 	// fill nu points for splining
-	int num_Sections = 8; // plus zero point, plus infinite point
+	int num_Sections = 9; // plus zero point, plus infinite point
 	int points_Per_Section = 100;
 	vector<int> interpoints(num_Sections);
 	int common_Size = 2;
-	for(int i=0; i<num_Sections; i++)
+	{
+		interpoints[0] = 200;
+		common_Size+=interpoints[0];
+	}
+	for(int i=1; i<num_Sections; i++)
 	{
 		interpoints[i] = points_Per_Section;
 		common_Size+=interpoints[i];
@@ -1839,13 +1904,14 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 
 	vector<double> starts(num_Sections); // open start
 	starts[0] = 0;
-	starts[1] = nu_Max/200000;
-	starts[2] = nu_Max/50000;
-	starts[3] = nu_Max/10000;
-	starts[4] = nu_Max/1000;
-	starts[5] = nu_Max/100;
-	starts[6] = nu_Max/10;
-	starts[7] = nu_Max/2;
+	starts[1] = nu_Max/1000000;
+	starts[2] = nu_Max/200000;
+	starts[3] = nu_Max/50000;
+	starts[4] = nu_Max/10000;
+	starts[5] = nu_Max/1000;
+	starts[6] = nu_Max/100;
+	starts[7] = nu_Max/10;
+	starts[8] = nu_Max/2;
 
 	vector<double> dnu(num_Sections);
 	for(int i=0; i<num_Sections-1; i++)
@@ -1877,17 +1943,13 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 	const double& peak_Frequency =		struct_Data.roughness_Model.peak_Frequency.value;
 	const double& peak_Frequency_Width =struct_Data.roughness_Model.peak_Frequency_Width.value;
 
+	/// 2D spline
 	vector<double> PSD_2D_Values_Vec(common_Size);
 	Global_Variables::parallel_For(common_Size-2, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 	{
 		Q_UNUSED(thread_Index)
-
-//		QMultiMap<id_Type, double> id_Val_Map;
-
 		for(int i=n_Min; i<n_Max; ++i)
 		{
-//			id_Val_Map.clear();
-
 			double nu = nu_Vec[i];
 			double nu2 = nu*nu;
 			double nu3 = nu2*nu;
@@ -1895,6 +1957,7 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 
 			double nu_nu_0 = nu/imperfections_Model.vertical_Inheritance_Frequency;
 
+//			PSD_2D_Values_Vec[i] = 0;
 			PSD_2D_Values_Vec[i] = PSD_Func_from_nu(factor, xi, alpha, nu, spline_PSD_FG_2D, acc_PSD_FG_2D) +
 								   PSD_Peak_Func_from_nu(peak_Factor, peak_Frequency, peak_Frequency_Width, nu);
 
@@ -1904,47 +1967,36 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 
 				double inheritance_Exp = 1;
 				double growth_PSD = 0;
-//				if(id_Val_Map.contains(struct_Data->id))
-//				// use cash
-//				{
-//					inheritance_Exp = id_Val_Map.values(struct_Data->id).at(0);
-//					growth_PSD      = id_Val_Map.values(struct_Data->id).at(1);
-//				} else
-//				// calculate
-//				{
-					double thickness = struct_Data->thickness.value;
-					double omega = struct_Data->roughness_Model.omega.value;
-					double mu = struct_Data->roughness_Model.mu.value;
-					double alpha = struct_Data->roughness_Model.fractal_alpha.value;
 
-					double a1 = struct_Data->roughness_Model.a1.value;
-					double a2 = struct_Data->roughness_Model.a2.value;
-					double a3 = struct_Data->roughness_Model.a3.value;
-					double a4 = struct_Data->roughness_Model.a4.value;
+				double thickness = struct_Data->thickness.value;
+				double omega = struct_Data->roughness_Model.omega.value;
+				double mu = struct_Data->roughness_Model.mu.value;
+				double alpha = struct_Data->roughness_Model.fractal_alpha.value;
 
-					double b_Function = 0;
-					if(imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model)	{
-						b_Function = nu*a1 + nu2*a2 + nu3*a3 + nu4*a4;
-					}
-					if(imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model)	{
-						b_Function = pow(nu_nu_0,2*alpha+2)/mu;
-					}
+				double a1 = struct_Data->roughness_Model.a1.value;
+				double a2 = struct_Data->roughness_Model.a2.value;
+				double a3 = struct_Data->roughness_Model.a3.value;
+				double a4 = struct_Data->roughness_Model.a4.value;
 
-					if(b_Function>DBL_EPSILON) {
-						inheritance_Exp = exp(-b_Function*thickness);
-						growth_PSD = omega*(1.-inheritance_Exp)/b_Function;
-					} else
-					{
-						inheritance_Exp = 1;
-						growth_PSD = omega*thickness;
-					}
+				double b_Function = 0;
+				if(imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model)	{
+					b_Function = pow(nu_nu_0,2*alpha+2)/mu;
+				}
+				if(imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model)	{
+					b_Function = nu*a1 + nu2*a2 + nu3*a3 + nu4*a4;
+				}
 
-//					id_Val_Map.insert(struct_Data->id, inheritance_Exp);
-//					id_Val_Map.insert(struct_Data->id, growth_PSD);
-//				}
+				if(b_Function*thickness>DBL_EPSILON) {
+					inheritance_Exp = exp(-b_Function*thickness);
+					growth_PSD = omega*(1.-inheritance_Exp)/b_Function;
+				} else
+				{
+					inheritance_Exp = 1;
+					growth_PSD = omega*thickness;
+				}
 
 				// PSD evolution
-				PSD_2D_Values_Vec[i] = PSD_2D_Values_Vec[i]*inheritance_Exp + growth_PSD;
+//				PSD_2D_Values_Vec[i] = PSD_2D_Values_Vec[i]*inheritance_Exp + growth_PSD;
 			}
 		}
 	});
@@ -1952,9 +2004,92 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 	PSD_2D_Values_Vec[common_Size-1] = 0;
 
 	// splining
-	acc_PSD_Linear_Growth_Top = gsl_interp_accel_alloc();
-	spline_PSD_Linear_Growth_Top = gsl_spline_alloc(gsl_interp_steffen, PSD_2D_Values_Vec.size());
-	gsl_spline_init(spline_PSD_Linear_Growth_Top, nu_Vec.data(), PSD_2D_Values_Vec.data(), PSD_2D_Values_Vec.size());
+	acc_PSD_Linear_Growth_Top_2D = gsl_interp_accel_alloc();
+	spline_PSD_Linear_Growth_Top_2D = gsl_spline_alloc(gsl_interp_steffen, PSD_2D_Values_Vec.size());
+	gsl_spline_init(spline_PSD_Linear_Growth_Top_2D, nu_Vec.data(), PSD_2D_Values_Vec.data(), PSD_2D_Values_Vec.size());
+
+	/// 1D spline
+	vector<double> PSD_1D_Values_Vec(common_Size);
+	Global_Variables::parallel_For(common_Size-2, 1/*reflectivity_calc_threads*/, [&](int n_Min, int n_Max, int thread_Index)
+	{
+		Q_UNUSED(thread_Index)
+
+		double result, abserr;
+		double epsabs = 0;
+		double epsrel = 1E-3;
+		size_t limit = 1000;
+		gsl_integration_workspace* w = gsl_integration_workspace_alloc(limit);
+
+		double p_Thread = 0;
+		PSD_2D_Growth_Params psd_2D_Growth_Params;
+		psd_2D_Growth_Params.p = &p_Thread;
+		psd_2D_Growth_Params.spline = spline_PSD_Linear_Growth_Top_2D;
+		psd_2D_Growth_Params.acc = acc_PSD_Linear_Growth_Top_2D;
+
+		gsl_function F;
+		F.function = &splined_PSD_2D_Growth;
+		F.params = &psd_2D_Growth_Params;
+
+		size_t npts = 2;
+		vector<double> pts = {p_Thread, nu_Max};
+
+//		for(int i=n_Min; i<n_Max; ++i)
+//		{
+//			p_Thread = nu_Vec[i];
+//			pts[0] = p_Thread;
+//			gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
+//			PSD_1D_Values_Vec[i] = 4 * result;
+//		}
+		{
+			double sum_Result = 0;
+
+			p_Thread = media_Data_Map_Vector[media_Data_Map_Vector.size()-1]->relative_Density.value;
+			pts[0] = p_Thread;
+//			pts[1] = max(nu_Max/1000,pts[0]);
+//			gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
+//			sum_Result += result;
+
+//			pts[0] = pts[1];
+//			pts[1] = nu_Max/100;
+//			gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
+//			sum_Result += result;
+
+//			pts[0] = pts[1];
+//			pts[1] = nu_Max/10;
+//			gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
+//			sum_Result += result;
+
+//			pts[0] = pts[1];
+			pts[1] = nu_Max;
+//			gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
+//			sum_Result += result;
+
+			tanh_sinh<double> integrator;
+			auto f = [&](double nu) { return gsl_spline_eval(spline_PSD_Linear_Growth_Top_2D, nu, acc_PSD_Linear_Growth_Top_2D) * nu / sqrt(nu*nu - p_Thread*p_Thread); };
+			double result2  = integrator.integrate(f, pts[0], pts[1]);
+
+			double sigma = media_Data_Map_Vector[media_Data_Map_Vector.size()-1]->roughness_Model.sigma.value;
+			double xi = media_Data_Map_Vector[media_Data_Map_Vector.size()-1]->roughness_Model.cor_radius.value;
+			double alpha = media_Data_Map_Vector[media_Data_Map_Vector.size()-1]->roughness_Model.fractal_alpha.value;
+
+			double ABC_p = 4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+pow(2*M_PI*p_Thread*xi,2), alpha+0.5);
+			double FG_p  = gsl_spline_eval(spline_PSD_FG_1D, 2*M_PI*p_Thread, acc_PSD_FG_1D);
+			qInfo()
+//					<< 4 * sum_Result
+					<< 4 * result2
+					<< ABC_p
+					<< FG_p
+					<< endl;
+		}
+		gsl_integration_workspace_free (w);
+	});
+	PSD_1D_Values_Vec[common_Size-2] = 0;
+	PSD_1D_Values_Vec[common_Size-1] = 0;
+
+
+	acc_PSD_Linear_Growth_Top_1D = gsl_interp_accel_alloc();
+	spline_PSD_Linear_Growth_Top_1D = gsl_spline_alloc(gsl_interp_steffen, PSD_1D_Values_Vec.size());
+	gsl_spline_init(spline_PSD_Linear_Growth_Top_1D, nu_Vec.data(), PSD_1D_Values_Vec.data(), PSD_1D_Values_Vec.size());
 }
 
 void Node::clear_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperfections_Model)
@@ -1964,8 +2099,10 @@ void Node::clear_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperfe
 	   imperfections_Model.inheritance_Model != linear_Growth_n_1_4_Inheritance_Model )	return;
 	if(struct_Data.item_Type != item_Type_Substrate ) return;
 
-	gsl_spline_free(spline_PSD_Linear_Growth_Top);
-	gsl_interp_accel_free(acc_PSD_Linear_Growth_Top);
+	gsl_spline_free(spline_PSD_Linear_Growth_Top_2D);
+	gsl_interp_accel_free(acc_PSD_Linear_Growth_Top_2D);
+	gsl_spline_free(spline_PSD_Linear_Growth_Top_1D);
+	gsl_interp_accel_free(acc_PSD_Linear_Growth_Top_1D);
 }
 
 double Node::G1_Type_Outer()
