@@ -1290,6 +1290,14 @@ double Global_Variables::PSD_ABC_1D(double factor, double xi, double alpha, doub
 	return /*4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi*/ factor / pow(1+p*p*xi*xi, alpha+0.5);
 }
 
+double Global_Variables::PSD_ABC_1D_from_nu(double factor, double xi, double alpha, double p, gsl_spline *spline, gsl_interp_accel *acc)
+{
+	Q_UNUSED(spline)
+	Q_UNUSED(acc)
+	double val = 2*M_PI*p*xi;
+	return /*4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi*/ factor / pow(1+val*val, alpha+0.5);
+}
+
 double Global_Variables::PSD_ABC_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(spline)
@@ -1315,6 +1323,15 @@ double Global_Variables::PSD_Real_Gauss_1D(double factor, double xi, double alph
 	return /*2*sqrt(M_PI) * sigma*sigma*xi*/ factor * exp(-p*p*xi*xi);
 }
 
+double Global_Variables::PSD_Real_Gauss_1D_from_nu(double factor, double xi, double alpha, double p, gsl_spline* spline, gsl_interp_accel* acc)
+{
+	Q_UNUSED(alpha)
+	Q_UNUSED(spline)
+	Q_UNUSED(acc)
+	double val = M_PI*p*xi;
+	return /*2*sqrt(M_PI) * sigma*sigma*xi*/ factor * exp(-val*val);
+}
+
 double Global_Variables::PSD_Real_Gauss_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(alpha)
@@ -1324,7 +1341,7 @@ double Global_Variables::PSD_Real_Gauss_2D(double factor, double xi, double alph
 	return /*M_PI * sigma*sigma*xi*xi*/ factor * exp(-nu2*xi*xi);
 }
 
-double Global_Variables::PSD_Real_Gauss_2D_from_nu(double factor, double xi, double alpha, double nu, gsl_spline *spline, gsl_interp_accel *acc)
+double Global_Variables::PSD_Real_Gauss_2D_from_nu(double factor, double xi, double alpha, double nu, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(alpha)
 	Q_UNUSED(spline)
@@ -1342,6 +1359,14 @@ double Global_Variables::PSD_Fractal_Gauss_1D(double factor, double xi, double a
 	return gsl_spline_eval(spline, p, acc);
 }
 
+double Global_Variables::PSD_Fractal_Gauss_1D_from_nu(double factor, double xi, double alpha, double p, gsl_spline* spline, gsl_interp_accel* acc)
+{
+	Q_UNUSED(factor)
+	Q_UNUSED(xi)
+	Q_UNUSED(alpha)
+	return gsl_spline_eval(spline, 2*M_PI*p, acc);
+}
+
 double Global_Variables::PSD_Fractal_Gauss_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(factor)
@@ -1351,7 +1376,7 @@ double Global_Variables::PSD_Fractal_Gauss_2D(double factor, double xi, double a
 	return gsl_spline_eval(spline, nu, acc);
 }
 
-double Global_Variables::PSD_Fractal_Gauss_2D_from_nu(double factor, double xi, double alpha, double nu, gsl_spline *spline, gsl_interp_accel *acc)
+double Global_Variables::PSD_Fractal_Gauss_2D_from_nu(double factor, double xi, double alpha, double nu, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(factor)
 	Q_UNUSED(xi)
@@ -1365,6 +1390,14 @@ double Global_Variables::PSD_Gauss_Peak_1D(double factor, double peak_Frequency,
 	Q_UNUSED(peak_Frequency)
 	Q_UNUSED(peak_Width)
 	double p = k*abs(cos_Theta - cos_Theta_0)/(2*M_PI); // here we need real frequency
+	return gsl_spline_eval(spline, p, acc);
+}
+
+double Global_Variables::PSD_Gauss_Peak_1D_from_nu(double factor, double peak_Frequency, double peak_Width, double p, gsl_spline* spline, gsl_interp_accel* acc)
+{
+	Q_UNUSED(factor)
+	Q_UNUSED(peak_Frequency)
+	Q_UNUSED(peak_Width)
 	return gsl_spline_eval(spline, p, acc);
 }
 
@@ -1426,6 +1459,17 @@ double Global_Variables::zero_PSD_1D(double sigma, double xi, double alpha, doub
 	Q_UNUSED(k)
 	Q_UNUSED(cos_Theta)
 	Q_UNUSED(cos_Theta_0)
+	Q_UNUSED(spline)
+	Q_UNUSED(acc)
+	return 0;
+}
+
+double Global_Variables::zero_PSD_1D_from_nu(double factor, double xi, double alpha, double p, gsl_spline* spline, gsl_interp_accel* acc)
+{
+	Q_UNUSED(factor)
+	Q_UNUSED(xi)
+	Q_UNUSED(alpha)
+	Q_UNUSED(p)
 	Q_UNUSED(spline)
 	Q_UNUSED(acc)
 	return 0;
