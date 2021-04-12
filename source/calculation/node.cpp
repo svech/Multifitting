@@ -672,7 +672,6 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 	if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
 		if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return; // if use_Common_Roughness_Function we calculate DW factor only for substrate
-		if(struct_Data.roughness_Model.sigma.value<DBL_EPSILON && (!imperfections_Model.add_Gauss_Peak || struct_Data.roughness_Model.peak_Sigma.value<DBL_EPSILON)) return;
 	}
 	if(imperfections_Model.PSD_Model == measured_PSD)
 	{
@@ -689,27 +688,28 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 
 	// integration
 	vector<double> sigma_2(num_Points);
-	vector<double> peak_Sigma_2;
-	exp_sinh<double> sigma_Integrator;
-	double termination = sqrt(std::numeric_limits<double>::epsilon()), error, L1;
+	vector<double> peak_Sigma_2(num_Points,0);
+	tanh_sinh<double> sigma_Integrator;
+	double sigma_Integrator_Tolerance = 1E-4;
 
+	auto psd_Peak = [&](double p){return gsl_spline_eval(spline_PSD_Peak, p, acc_PSD_Peak);};
+	double peak_Sigma = 0;
 	if(imperfections_Model.add_Gauss_Peak)
 	{
-		peak_Sigma_2.resize(num_Points);
 		double peak_Range_Factor = 8;
-		double peak_Sigma = struct_Data.roughness_Model.peak_Sigma.value;
+			   peak_Sigma = struct_Data.roughness_Model.peak_Sigma.value;
 		double peak_Frequency = struct_Data.roughness_Model.peak_Frequency.value;
 		double peak_Frequency_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
 		double p_Max = peak_Frequency + peak_Frequency_Width*peak_Range_Factor;
 
-		auto psd_Peak = [&](double p){return gsl_spline_eval(spline_PSD_Peak, p, acc_PSD_Peak);};
 
 		for(size_t i = 0; i<num_Points; ++i)
 		{
 			if(p0[i]>DBL_MIN)
 			{
 				double p_Bound = min(p0[i]/(2*M_PI), p_Max); // real frequency
-				double integral = gauss_kronrod<double,11>::integrate(psd_Peak, 0, p_Bound, 1, 1e-7);
+//				double integral = gauss_kronrod<double,11>::integrate(psd_Peak, 0, p_Bound, 1, 1e-7);
+				double integral = sigma_Integrator.integrate(psd_Peak, 0, p_Bound, sigma_Integrator_Tolerance);
 				if(isnan(integral)) integral = 0;
 				peak_Sigma_2[i] = peak_Sigma*peak_Sigma - integral;
 			} else
@@ -724,41 +724,73 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 		double xi =    struct_Data.roughness_Model.cor_radius.value;
 		double alpha = struct_Data.roughness_Model.fractal_alpha.value;
 
-		double p_Bound = 0;
-		auto f_2 = [&](double p){return 2./sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+(p+p_Bound)*(p+p_Bound)*xi*xi, alpha+0.5);};
-		for(size_t i = 0; i<num_Points; ++i)
+		if(imperfections_Model.vertical_Correlation == partial_Correlation &&
+			(imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model ||
+			 imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model))
 		{
-			double z = -p0[i]*p0[i]*xi*xi; // z is non-negative
-			double zz = z/(z-1);
+			// for total sigma we integrate in whole range
+			auto f_Full_Linear = [&](double nu)	{
+				return 2*M_PI * gsl_spline_eval(spline_PSD_Linear_Growth_Top_2D, nu, acc_PSD_Linear_Growth_Top_2D) * nu;
+			};
+			auto f_Linear_1D = [&](double p)	{
+				return gsl_spline_eval(spline_PSD_Linear_Growth_Top_1D, p, acc_PSD_Linear_Growth_Top_1D);
+			};
+			double total_Sigma_2 = sigma_Integrator.integrate(f_Linear_1D, 0, nu_Limit, sigma_Integrator_Tolerance); // f_Linear_1D is a bit better
+			qInfo() << "ABC: true 2D sigma = "
+					<< sqrt(total_Sigma_2)
+					<< endl;
 
-			if(p0[i]>DBL_MIN)
+			// for points
+			for(size_t i = 0; i<num_Points; ++i)
 			{
-//				if( z >-1)
-//				{
-//					double pFq = boost::math::hypergeometric_pFq({0.5, 0.5+alpha}, {1.5}, z);
-//					sigma_2[i] = sigma*sigma - 2*p0[i]*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
-//				} else
-//				{
+				if(p0[i]>DBL_MIN)
+				{
+					if(p0[i]/(2*M_PI)<nu_Limit) {
+						sigma_2[i] = sigma_Integrator.integrate(f_Linear_1D, p0[i]/(2*M_PI), nu_Limit, sigma_Integrator_Tolerance);
+					} else {
+						sigma_2[i] = 0;
+					}
+				} else
+				{
+					sigma_2[i] = total_Sigma_2;
+				}
+			}
+		} else
+		{
+			// full sigma up to nu_Limit
+			double val = (2*M_PI*nu_Limit*xi);
+			double total_Sigma_2 = sigma*sigma*(1.-pow(1 + val*val,-alpha));
+			qInfo() << "ABC: true 2D sigma = "
+					<< sqrt(total_Sigma_2 + peak_Sigma*peak_Sigma)
+					<< endl;
+
+			auto f_2 = [&](double p){return Global_Variables::PSD_ABC_1D_from_nu(struct_Data.PSD_ABC_1D_Factor, xi, alpha, p, nullptr, nullptr);};
+			for(size_t i = 0; i<num_Points; ++i)
+			{
+				double z = -p0[i]*p0[i]*xi*xi; // z is non-negative
+				double zz = z/(z-1);
+
+				if(p0[i]>DBL_MIN)
+				{
 					if(abs(zz)<1)
 					{
 						double pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
 //						double pFq = 1./sqrt(1-z) * boost::math::hypergeometric_pFq({0.5, 1.-alpha}, {1.5}, zz);
-						sigma_2[i] = sigma*sigma - 2*p0[i]*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
+						sigma_2[i] = total_Sigma_2 - 2*p0[i]*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
 					} else
 					{
-						p_Bound = p0[i];
-						sigma_2[i] = sigma_Integrator.integrate(f_2, termination, &error, &L1);
+						sigma_2[i] = sigma_Integrator.integrate(f_2, p0[i]/(2*M_PI), nu_Limit, sigma_Integrator_Tolerance);
 					}
-//				}
-			} else
-			{
-				sigma_2[i] = sigma*sigma;
+				} else
+				{
+					sigma_2[i] = total_Sigma_2;
+				}
+				if(imperfections_Model.add_Gauss_Peak)
+				{
+					sigma_2[i] += peak_Sigma_2[i];
+				}
 			}
-			if(imperfections_Model.add_Gauss_Peak)
-			{
-				sigma_2[i] += peak_Sigma_2[i];
-			}
-		}		
+		}
 	}
 	if(imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
@@ -766,6 +798,10 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 		double xi =    struct_Data.roughness_Model.cor_radius.value;
 		double alpha = struct_Data.roughness_Model.fractal_alpha.value;
 
+		auto f_Cor_Sigma_1D = [&](double r) {return 1/r * sigma*sigma * exp(-pow(r/xi,2*alpha));};
+		ooura_fourier_sin<double> integrator;
+
+		// splining
 		vector<double> sorted_p0 = p0;
 		std::sort(sorted_p0.begin(), sorted_p0.end());
 		double addition = 1E-10;
@@ -798,10 +834,7 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 
 		double p = p_Min, result = 0;
 		int counter = 1;
-		// boost integrator
-		auto f = [&](double r) {return 1/r * sigma*sigma * exp(-pow(r/xi,2*alpha));};
 
-		ooura_fourier_sin<double> integrator;
 		for(int sec=0; sec<num_Sections; sec++)
 		{
 			for(int i=0; i<interpoints[sec]; i++)
@@ -809,7 +842,7 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 				p += dp[sec];
 
 				// second part
-				std::pair<double, double> result_Boost = integrator.integrate(f, p);
+				std::pair<double, double> result_Boost = integrator.integrate(f_Cor_Sigma_1D, p);
 				result = result_Boost.first;
 
 				interpoints_Sum_Argum_Vec[counter] = p;
@@ -817,24 +850,79 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 				counter++;
 			}
 		}
-
 		gsl_interp_accel* acc_Delta_Sigma_2 = gsl_interp_accel_alloc();
 		gsl_spline* spline_Delta_Sigma_2 = gsl_spline_alloc(gsl_interp_steffen, interpoints_Sum_Value_Vec.size());
 		gsl_spline_init(spline_Delta_Sigma_2, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 
-		// "integration"
-		for(size_t i = 0; i<num_Points; ++i)
+
+		if(imperfections_Model.vertical_Correlation == partial_Correlation &&
+			(imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model ||
+			 imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model))
 		{
-			if(p0[i]>0)
-			{
-				sigma_2[i] = sigma*sigma - gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2);
-			} else
-			{
-				sigma_2[i] = sigma*sigma;
-			}
+			// for total sigma we integrate in whole range
+			auto f_Linear_1D = [&](double p)	{
+				return gsl_spline_eval(spline_PSD_Linear_Growth_Top_1D, p, acc_PSD_Linear_Growth_Top_1D);
+			};
+
+			double nu_a = 1E-6;
+			std::pair<double, double> result_Boost = integrator.integrate(f_Cor_Sigma_1D, 2*M_PI*nu_a);
+			double sigma2_0_nu_a = M_2_PI*result_Boost.first;
+			double total_Sigma_2 = sigma2_0_nu_a + sigma_Integrator.integrate(f_Linear_1D, nu_a, nu_Limit, sigma_Integrator_Tolerance);
+
+			// peak from 0 to nu_a
+			double peak_0_nu_a = 0;
 			if(imperfections_Model.add_Gauss_Peak)
 			{
-				sigma_2[i] += peak_Sigma_2[i];
+				peak_0_nu_a = sigma_Integrator.integrate(psd_Peak, 0, nu_a, sigma_Integrator_Tolerance);
+				total_Sigma_2 += peak_0_nu_a;
+			}
+			qInfo() << "FG:  true 2D sigma = "
+					<< sqrt(total_Sigma_2)
+					<< endl;
+
+			// for points
+			for(size_t i = 0; i<num_Points; ++i)
+			{
+				if(p0[i]>DBL_MIN)
+				{
+					if(p0[i]/(2*M_PI)<nu_Limit) {
+						if(p0[i]/(2*M_PI) < nu_a)
+						{
+							sigma_2[i] = total_Sigma_2 - gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2) - (peak_Sigma*peak_Sigma - peak_Sigma_2[i]);
+						} else
+						{
+							sigma_2[i] = total_Sigma_2 - sigma2_0_nu_a - peak_0_nu_a - sigma_Integrator.integrate(f_Linear_1D, nu_a, p0[i]/(2*M_PI), sigma_Integrator_Tolerance);
+						}
+					} else {
+						sigma_2[i] = 0;
+					}
+				} else
+				{
+					sigma_2[i] = total_Sigma_2;
+				}
+			}
+		} else
+		{
+			std::pair<double, double> result_Boost = integrator.integrate(f_Cor_Sigma_1D, 2*M_PI*nu_Limit);
+			double total_Sigma_2 = M_2_PI*result_Boost.first;
+
+			qInfo() << "FG:  true 2D sigma = "
+					<< sqrt(total_Sigma_2 + peak_Sigma*peak_Sigma)
+					<< endl;
+
+			for(size_t i = 0; i<num_Points; ++i)
+			{
+				if(p0[i]>0)
+				{
+					sigma_2[i] = total_Sigma_2 - gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2);
+				} else
+				{
+					sigma_2[i] = total_Sigma_2;
+				}
+				if(imperfections_Model.add_Gauss_Peak)
+				{
+					sigma_2[i] += peak_Sigma_2[i];
+				}
 			}
 		}
 		gsl_spline_free(spline_Delta_Sigma_2);
@@ -1878,7 +1966,7 @@ void Node::clear_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model)
 	gsl_interp_accel_free(acc_PSD_Peak);
 }
 
-void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperfections_Model, const vector<Data*>& media_Data_Map_Vector)
+void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperfections_Model, const Data& measurement, const vector<Data*>& media_Data_Map_Vector)
 {
 	// used for DW sigmas
 	if(imperfections_Model.vertical_Correlation != partial_Correlation) return;
@@ -2059,24 +2147,14 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 	spline_PSD_Linear_Growth_Top_2D = gsl_spline_alloc(gsl_interp_steffen, PSD_2D_Values_Vec.size());
 	gsl_spline_init(spline_PSD_Linear_Growth_Top_2D, nu_Vec.data(), PSD_2D_Values_Vec.data(), PSD_2D_Values_Vec.size());
 
-	// local splines
-	gsl_spline* spline_Pure_Growth = gsl_spline_alloc(gsl_interp_steffen, growth_PSD_Vec.size());
-	gsl_interp_accel* acc_Pure_Growth = gsl_interp_accel_alloc();
-	gsl_spline_init(spline_Pure_Growth, nu_Vec.data(), growth_PSD_Vec.data(), growth_PSD_Vec.size());
-
-
-	/// integral sigma
-	tanh_sinh<double> total_Sigma_Integrator;
-	double sigma_Integrator_Tolerance = 1E-4;
-	auto f_Sigma = [&](double nu)	{
-		return 2*M_PI * gsl_spline_eval(spline_PSD_Linear_Growth_Top_2D, nu, acc_PSD_Linear_Growth_Top_2D) * nu;
-	};
-	qInfo() << "sigma = "
-			<< sqrt(total_Sigma_Integrator.integrate(f_Sigma, 0, nu_Limit, sigma_Integrator_Tolerance))
-			<< endl;
+	// pure growth
+	spline_PSD_Linear_Pure_Growth_Top_2D = gsl_spline_alloc(gsl_interp_steffen, growth_PSD_Vec.size());
+	acc_PSD_Linear_Pure_Growth_Top_2D = gsl_interp_accel_alloc();
+	gsl_spline_init(spline_PSD_Linear_Pure_Growth_Top_2D, nu_Vec.data(), growth_PSD_Vec.data(), growth_PSD_Vec.size());
 
 	/// 1D spline
-	double nu_Limit_Base_PSD_1D = 0.000001; // empirical
+
+	double nu_a = 1E-6; // empirical
 
 	vector<double> PSD_1D_Values_Vec(common_Size);
 //	auto start = std::chrono::system_clock::now();
@@ -2101,7 +2179,7 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 		};
 		auto f_Pure = [&](double nu)
 		{
-			return 4 * gsl_spline_eval(spline_Pure_Growth, nu, acc_Pure_Growth) * nu / sqrt(nu*nu - p*p);
+			return 4 * gsl_spline_eval(spline_PSD_Linear_Pure_Growth_Top_2D, nu, acc_PSD_Linear_Pure_Growth_Top_2D) * nu / sqrt(nu*nu - p*p);
 		};
 
 		for(int i=n_Min; i<n_Max; ++i)
@@ -2109,15 +2187,15 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 			double result = 0;
 			p = nu_Vec[i];
 //			p = media_Data_Map_Vector[media_Data_Map_Vector.size()-1]->relative_Density.value;
-			dp = p*1E-5;
+			dp = p*1E-6;
 
 			double pdp = p+dp;
-			if(p<nu_Limit_Base_PSD_1D)
+			if(p<nu_a)
 			{
 				result =
 						 PSD_1D_Func_from_nu(factor_1D, xi, alpha, p, spline_PSD_FG_1D, acc_PSD_FG_1D) +
-						 PSD_1D_Peak_Func_from_nu(peak_Factor_2D, peak_Frequency, peak_Frequency_Width, p, spline_PSD_Peak, acc_PSD_Peak) +
-						 integrator.integrate(f_Pure, nu_Limit_Base_PSD_1D, nu_Max, integrator_tolerance);
+//						 PSD_1D_Peak_Func_from_nu(peak_Factor_2D, peak_Frequency, peak_Frequency_Width, p, spline_PSD_Peak, acc_PSD_Peak) + // do not include
+						 integrator.integrate(f_Pure, nu_a, nu_Max, integrator_tolerance);
 			} else
 			if(p<nu_Max)
 			{
@@ -2153,11 +2231,8 @@ void Node::create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperf
 //	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 //	qInfo() << "\nintegrate :   "<< elapsed.count()/1000000. << " seconds" << endl;
 
-	gsl_spline_free(spline_Pure_Growth);
-	gsl_interp_accel_free(acc_Pure_Growth);
 }
-
-void Node::clear_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperfections_Model)
+void Node::clear_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperfections_Model, const Data& measurement)
 {
 	if(imperfections_Model.vertical_Correlation != partial_Correlation) return;
 	if(imperfections_Model.inheritance_Model != linear_Growth_Alpha_Inheritance_Model &&
@@ -2166,6 +2241,12 @@ void Node::clear_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperfe
 
 	gsl_spline_free(spline_PSD_Linear_Growth_Top_2D);
 	gsl_interp_accel_free(acc_PSD_Linear_Growth_Top_2D);
+
+	gsl_spline_free(spline_PSD_Linear_Pure_Growth_Top_2D);
+	gsl_interp_accel_free(acc_PSD_Linear_Pure_Growth_Top_2D);
+
+	if(measurement.measurement_Type != measurement_Types[Specular_Scan]) return;
+
 	gsl_spline_free(spline_PSD_Linear_Growth_Top_1D);
 	gsl_interp_accel_free(acc_PSD_Linear_Growth_Top_1D);
 }

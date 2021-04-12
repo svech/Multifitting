@@ -594,9 +594,9 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 		{
 			if(multilayer->imperfections_Model.use_Roughness)
 			{
-				if((measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
 					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-					measurement.measurement_Type == measurement_Types[Offset_Scan]))
+					measurement.measurement_Type == measurement_Types[Offset_Scan] )
 				{
 					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Peak(multilayer->imperfections_Model);
 					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, measurement);
@@ -610,7 +610,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 					{
 						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_2D (multilayer->imperfections_Model, measurement);
 						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Measured		 (multilayer->imperfections_Model, PSD_Type_2D);
-						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model, media_Data_Map_Vector);
+						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model, measurement, media_Data_Map_Vector);
 					}
 					short_Flat_Calc_Tree[node_Index]->calc_Integral_Intensity_Near_Specular	 (multilayer->imperfections_Model, measurement, calc_Functions);
 				}
@@ -618,10 +618,10 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 				{
 					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model, measurement);
 					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Measured		(multilayer->imperfections_Model, PSD_Type_2D);
-//					if(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
-//					{
-//						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model, media_Data_Map_Vector);
-//					}
+					if(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
+					{
+						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model, measurement, media_Data_Map_Vector);
+					}
 				}
 			}
 			if(multilayer->imperfections_Model.use_Fluctuations)
@@ -629,6 +629,28 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 				// TODO when 2D, when 1D
 				short_Flat_Calc_Tree[node_Index]->create_Spline_G2_2D(multilayer->imperfections_Model, measurement);
 			}
+		} else
+		// here we calculate total sigma for specular direction
+		{
+//			if(multilayer->imperfections_Model.use_Roughness)
+//			{
+//				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+//					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+//					measurement.measurement_Type == measurement_Types[Offset_Scan] ||
+//					measurement.measurement_Type == measurement_Types[GISAS_Map])
+//				{
+//					if(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation &&
+//					   (multilayer->imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model ||
+//						multilayer->imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model))
+//					{
+//						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, measurement);
+//						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_2D (multilayer->imperfections_Model, measurement);
+//						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Measured		 (multilayer->imperfections_Model, PSD_Type_2D);
+//						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model, measurement, media_Data_Map_Vector);
+//					}
+//					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Peak (multilayer->imperfections_Model);
+//				}
+//			}
 		}
 	}
 	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
@@ -644,7 +666,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, measurement);
 					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_2D (multilayer->imperfections_Model, measurement);
 					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Measured		 (multilayer->imperfections_Model, PSD_Type_2D);
-					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model, media_Data_Map_Vector);
+					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model, measurement, media_Data_Map_Vector);
 				}
 				short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Peak (multilayer->imperfections_Model);
 			}
@@ -660,10 +682,10 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 		{
 			if(multilayer->imperfections_Model.use_Roughness)
 			{
-				if(measurement.measurement_Type == measurement_Types[Specular_Scan])
-				{
-					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Peak(multilayer->imperfections_Model);
-				}
+//				if(measurement.measurement_Type == measurement_Types[Specular_Scan])
+//				{
+//					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Peak(multilayer->imperfections_Model);
+//				}
 				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
 					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 					measurement.measurement_Type == measurement_Types[Offset_Scan])
@@ -674,17 +696,17 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 					if(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
 					{
 						short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
-						short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model);
+						short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model, measurement);
 					}
 				}
 				if(measurement.measurement_Type == measurement_Types[GISAS_Map])
 				{
 					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
 					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Measured			(multilayer->imperfections_Model);
-//					if(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
-//					{
-//						short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model);
-//					}
+					if(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
+					{
+						short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model, measurement);
+					}
 				}
 			}
 			if(multilayer->imperfections_Model.use_Fluctuations)
@@ -692,6 +714,28 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 				// TODO when 2D, when 1D
 				short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D(multilayer->imperfections_Model, measurement);
 			}
+		} else
+		// here we calculated total sigma for specular direction
+		{
+//			if(multilayer->imperfections_Model.use_Roughness)
+//			{
+//				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+//					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+//					measurement.measurement_Type == measurement_Types[Offset_Scan] ||
+//					measurement.measurement_Type == measurement_Types[GISAS_Map])
+//				{
+//					if(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation &&
+//					   (multilayer->imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model ||
+//						multilayer->imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model))
+//					{
+//						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, measurement);
+//						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_2D (multilayer->imperfections_Model, measurement);
+//						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Measured		 (multilayer->imperfections_Model, PSD_Type_2D);
+//						short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model, measurement, media_Data_Map_Vector);
+//					}
+//					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Peak (multilayer->imperfections_Model);
+//				}
+//			}
 		}
 	}
 	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
@@ -707,7 +751,7 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Fractal_Gauss_1D	(multilayer->imperfections_Model);
 					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
 					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Measured			(multilayer->imperfections_Model);
-					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model);
+					short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Linear_Growth_Top(multilayer->imperfections_Model, measurement);
 				}
 				short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Peak(multilayer->imperfections_Model);
 			}
