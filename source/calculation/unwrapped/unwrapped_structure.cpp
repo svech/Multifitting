@@ -234,13 +234,16 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 		int media_Index = layer_Index+1;
 		if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
 		{
-			double s = media_Data_Map_Vector[media_Index]->roughness_Model.sigma.value;
+//			double s = media_Data_Map_Vector[media_Index]->roughness_Model.sigma.value;
+			double s =  media_Node_Map_Vector[media_Index]->specular_Debye_Waller_Total_Sigma;
+
+//			qInfo() << "lay s" << s << endl;
 			sigma_Roughness [layer_Index] = s;
-			if(imperfections_Model.add_Gauss_Peak)
-			{
-				double p = media_Data_Map_Vector[media_Index]->roughness_Model.peak_Sigma.value;
-				sigma_Roughness [layer_Index] = sqrt(s*s + p*p);
-			}
+//			if(imperfections_Model.add_Gauss_Peak)
+//			{
+//				double p = media_Data_Map_Vector[media_Index]->roughness_Model.peak_Sigma.value;
+//				sigma_Roughness [layer_Index] = sqrt(s*s + p*p);
+//			}
 		}
 		mu			[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.mu.value;
 		omega		[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.omega.value;
@@ -256,13 +259,16 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 	// substrate
 	if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
-		double s = media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma.value;
+//		double s = media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma.value;
+		double s =  media_Node_Map_Vector[num_Layers+1]->specular_Debye_Waller_Total_Sigma;
+//		qInfo() << "sub s" << s << endl;
+
 		sigma_Roughness[num_Layers] = s;
-		if(imperfections_Model.add_Gauss_Peak)
-		{
-			double p = media_Data_Map_Vector[num_Layers+1]->roughness_Model.peak_Sigma.value;
-			sigma_Roughness[num_Layers] = sqrt(s*s + p*p);
-		}
+//		if(imperfections_Model.add_Gauss_Peak)
+//		{
+//			double p = media_Data_Map_Vector[num_Layers+1]->roughness_Model.peak_Sigma.value;
+//			sigma_Roughness[num_Layers] = sqrt(s*s + p*p);
+//		}
 	}
 	if(imperfections_Model.PSD_Model == measured_PSD)
 	{

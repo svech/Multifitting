@@ -42,6 +42,8 @@ public:
 
 	vector<double> specular_Debye_Waller_Weak_Factor_R;
 	void calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Model, const Data& measurement);
+
+	double specular_Debye_Waller_Total_Sigma = 0;
 	void calc_Debye_Waller_Total_Sigma(const Imperfections_Model& imperfections_Model);
 
 	void calc_Integral_Intensity_Near_Specular(const Imperfections_Model& imperfections_Model, Data& measurement, const Calc_Functions& calc_Functions);
@@ -71,13 +73,18 @@ public:
 	gsl_spline* spline_PSD_Peak;
 	gsl_interp_accel* acc_PSD_Peak;
 
-	void create_Spline_PSD_Linear_Growth_Top(const Imperfections_Model& imperfections_Model, const Data& measurement, const vector<Data*>& media_Data_Map_Vector);
-	void clear_Spline_PSD_Linear_Growth_Top (const Imperfections_Model& imperfections_Model, const Data& measurement);
+	void create_Spline_PSD_Linear_Growth_Top_2D(const Imperfections_Model& imperfections_Model, const Data& measurement, const vector<Data*>& media_Data_Map_Vector);
+	void clear_Spline_PSD_Linear_Growth_Top_2D (const Imperfections_Model& imperfections_Model, const Data& measurement);
 
 	gsl_spline* spline_PSD_Linear_Growth_Top_2D;
 	gsl_interp_accel* acc_PSD_Linear_Growth_Top_2D;
 	gsl_spline* spline_PSD_Linear_Pure_Growth_Top_2D;
 	gsl_interp_accel* acc_PSD_Linear_Pure_Growth_Top_2D;
+	gsl_spline* spline_PSD_Linear_Inheritance_Top_2D;
+	gsl_interp_accel* acc_PSD_Linear_Inheritance_Top_2D;
+
+	void create_Spline_PSD_Linear_Growth_Top_1D(const Imperfections_Model& imperfections_Model, const Data& measurement, const vector<Data*>& media_Data_Map_Vector);
+	void clear_Spline_PSD_Linear_Growth_Top_1D (const Imperfections_Model& imperfections_Model, const Data& measurement);
 
 	gsl_spline* spline_PSD_Linear_Growth_Top_1D;
 	gsl_interp_accel* acc_PSD_Linear_Growth_Top_1D;
