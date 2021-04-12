@@ -42,6 +42,7 @@ public:
 
 	vector<double> specular_Debye_Waller_Weak_Factor_R;
 	void calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Model, const Data& measurement);
+	void calc_Debye_Waller_Total_Sigma(const Imperfections_Model& imperfections_Model);
 
 	void calc_Integral_Intensity_Near_Specular(const Imperfections_Model& imperfections_Model, Data& measurement, const Calc_Functions& calc_Functions);
 	/// ------------------------------------------------

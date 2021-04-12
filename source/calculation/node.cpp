@@ -998,6 +998,121 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 	}
 }
 
+void Node::calc_Debye_Waller_Total_Sigma(const Imperfections_Model& imperfections_Model)
+{
+	// case check
+	if(!imperfections_Model.use_Roughness) return;
+	if(struct_Data.item_Type == item_Type_Ambient ) return;
+	if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
+	{
+		if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return; // if use_Common_Roughness_Function we calculate DW factor only for substrate
+	}
+	if(imperfections_Model.PSD_Model == measured_PSD)
+	{
+		if(struct_Data.item_Type != item_Type_Substrate) return;
+		if(imperfections_Model.PSD_1D.argument.size()<2) return; // if PSD_1D not loaded
+	}
+
+	// integration
+	double total_Sigma_2 = 0;
+
+	tanh_sinh<double> sigma_Integrator;
+	double sigma_Integrator_Tolerance = 1E-4;
+	auto psd_Peak = [&](double p){return gsl_spline_eval(spline_PSD_Peak, p, acc_PSD_Peak);};
+
+	double peak_Sigma = 0;
+	if(imperfections_Model.add_Gauss_Peak)	{
+		peak_Sigma = struct_Data.roughness_Model.peak_Sigma.value;
+	}
+
+
+	if(imperfections_Model.PSD_Model == ABC_Model)
+	{
+		double sigma = struct_Data.roughness_Model.sigma.value;
+		double xi =    struct_Data.roughness_Model.cor_radius.value;
+		double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+		if(imperfections_Model.vertical_Correlation == partial_Correlation &&
+			(imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model ||
+			 imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model))
+		{
+			// for total sigma we integrate in whole range
+			auto f_Linear_1D = [&](double p)	{
+				return gsl_spline_eval(spline_PSD_Linear_Growth_Top_1D, p, acc_PSD_Linear_Growth_Top_1D);
+			};
+			total_Sigma_2 = sigma_Integrator.integrate(f_Linear_1D, 0, nu_Limit, sigma_Integrator_Tolerance); // f_Linear_1D is a bit better
+		} else
+		{
+			// full sigma up to nu_Limit
+			double val = (2*M_PI*nu_Limit*xi);
+			total_Sigma_2 = sigma*sigma*(1.-pow(1 + val*val,-alpha)) + peak_Sigma*peak_Sigma;
+
+		}
+		qInfo() << "ABC: true 2D sigma = "
+				<< sqrt(total_Sigma_2)
+				<< endl;
+	}
+	if(imperfections_Model.PSD_Model == fractal_Gauss_Model)
+	{
+		double sigma = struct_Data.roughness_Model.sigma.value;
+		double xi =    struct_Data.roughness_Model.cor_radius.value;
+		double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+		auto f_Cor_Sigma_1D = [&](double r) {return 1/r * sigma*sigma * exp(-pow(r/xi,2*alpha));};
+		ooura_fourier_sin<double> integrator;
+
+		if(imperfections_Model.vertical_Correlation == partial_Correlation &&
+			(imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model ||
+			 imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model))
+		{
+			// for total sigma we integrate in whole range
+			auto f_Linear_1D = [&](double p)	{
+				return gsl_spline_eval(spline_PSD_Linear_Growth_Top_1D, p, acc_PSD_Linear_Growth_Top_1D);
+			};
+
+			double nu_a = 1E-6;
+			std::pair<double, double> result_Boost = integrator.integrate(f_Cor_Sigma_1D, 2*M_PI*nu_a);
+			double sigma2_0_nu_a = M_2_PI*result_Boost.first;
+			double total_Sigma_2 = sigma2_0_nu_a + sigma_Integrator.integrate(f_Linear_1D, nu_a, nu_Limit, sigma_Integrator_Tolerance);
+
+			// peak from 0 to nu_a
+			double peak_0_nu_a = 0;
+			if(imperfections_Model.add_Gauss_Peak)
+			{
+				peak_0_nu_a = sigma_Integrator.integrate(psd_Peak, 0, nu_a, sigma_Integrator_Tolerance);
+				total_Sigma_2 += peak_0_nu_a;
+			}
+		} else
+		{
+			std::pair<double, double> result_Boost = integrator.integrate(f_Cor_Sigma_1D, 2*M_PI*nu_Limit);
+			total_Sigma_2 = M_2_PI*result_Boost.first + peak_Sigma*peak_Sigma;
+		}
+		qInfo() << "FG:  true 2D sigma = "
+				<< sqrt(total_Sigma_2)
+				<< endl;
+	}
+	if(imperfections_Model.PSD_Model == measured_PSD)
+	{
+		// PSD_2D should be loaded if partial correlation, otherwise PSD_1D
+		PSD_Data psd_Data = imperfections_Model.vertical_Correlation == partial_Correlation ? imperfections_Model.PSD_2D : imperfections_Model.PSD_1D;
+		double sigma_Factor = imperfections_Model.vertical_Correlation == partial_Correlation ? struct_Data.roughness_Model.sigma_Factor_PSD_2D.value : struct_Data.roughness_Model.sigma_Factor_PSD_1D.value;
+		QVector<double> pi_nu(psd_Data.argument.size(),1);
+		if(imperfections_Model.vertical_Correlation == partial_Correlation)
+		{
+			for(int i=0; i<psd_Data.argument.size(); i++)
+			{
+				pi_nu[i] = 2*M_PI*psd_Data.value[i];
+			}
+		}
+
+		double min_Meas_p = psd_Data.argument.front();
+		double max_Meas_p = psd_Data.argument.back();
+		double full_Sigma2 = pow(psd_Data.calc_Sigma_Effective(),2);
+
+		total_Sigma_2 = full_Sigma2*sigma_Factor*sigma_Factor;
+	}
+}
+
 struct Params
 {
 	double lambda;
