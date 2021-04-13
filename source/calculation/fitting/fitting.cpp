@@ -821,8 +821,8 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 			qInfo() << confidentials.param_Pointers[i]->value << endl;
 		}qInfo() << "" << endl;
 
-		qInfo() << "fitables.param_Pointers.size()"<<fitables.param_Pointers.size() << endl;
-		qInfo() << "fitables.param_Names"<<fitables.param_Names << endl;
+//		qInfo() << "fitables.param_Pointers.size()"<<fitables.param_Pointers.size() << endl;
+//		qInfo() << "fitables.param_Names"<<fitables.param_Names << endl;
 		// single fit
 		if(fitables.param_Pointers.size()>0)
 		{
@@ -871,7 +871,7 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 			params.final_Residual = params.init_Residual;
 			add_Confidence_Distribution_To_File(real_Conf_Value, default_Confidence_Distribution_File, confidence_Index, point_Index, params.final_Residual, nullptr);
 		}
-		qInfo() << "real_Conf_Value = " << real_Conf_Value << "~ final_Residual =" << params.final_Residual << endl;
+		qInfo() << "parameter value = " << real_Conf_Value << "~ final residual =" << params.final_Residual << endl;
 		++point_Index;
 	}
 	// restore current confidential to init value
@@ -1030,7 +1030,7 @@ void Fitting::add_Confidence_Distribution_To_File(double real_Conf_Value, QStrin
 		out << qSetFieldWidth(widths[index]) << current_String;
 		index++;
 
-		current_String = Locale.toString(residual,'e',3);
+		current_String = Locale.toString(residual,'e',5);
 		out << qSetFieldWidth(widths[index]) << current_String;
 		index++;
 		//------------------------------------------------------
