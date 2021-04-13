@@ -4,7 +4,7 @@ Confidence_Interval_Editor::Confidence_Interval_Editor(Coupling_Editor* coupling
 	coupling_Editor(coupling_Editor),
 	QGroupBox(parent)
 {
-	setTitle("Calculate Confidence Interval");
+	setTitle("Calculate confidence interval");
 	setCheckable(true);
 	setObjectName("global_Group_Box");
 	setStyleSheet("QGroupBox#global_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"

@@ -757,9 +757,6 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 			// full sigma up to nu_Limit
 			double val = (2*M_PI*nu_Limit*xi);
 			double total_Sigma_2 = sigma*sigma*(1.-pow(1 + val*val,-alpha));
-			qInfo() << "ABC: true 2D sigma = "
-					<< sqrt(total_Sigma_2 + peak_Sigma*peak_Sigma)
-					<< endl;
 
 			auto f_2 = [&](double p){return Global_Variables::PSD_ABC_1D_from_nu(struct_Data.PSD_ABC_1D_Factor, xi, alpha, p, nullptr, nullptr);};
 			for(size_t i = 0; i<num_Points; ++i)

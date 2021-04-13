@@ -1014,7 +1014,7 @@ void Fitting::add_Confidence_Distribution_To_File(double real_Conf_Value, QStrin
 			out << qSetFieldWidth(widths[index]) << current_String;
 			index++;
 
-			current_String = "likehood";
+			current_String = "residual";
 			widths.append(current_String.length()+spacer);
 			out << qSetFieldWidth(widths[index]) << current_String;
 			index++;
