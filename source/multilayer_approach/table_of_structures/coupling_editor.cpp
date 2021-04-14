@@ -455,6 +455,7 @@ void Coupling_Editor::clear_Nonexisting_Slaves()
 		if(!coupled_Parameter->coupled.slaves[i].exist)
 		{
 			index_To_Remove=i;
+			qInfo() << coupled_Parameter->indicator.full_Name << ":  slave" << i << "does not exist:" << coupled_Parameter->coupled.slaves[i].full_Name << endl;
 			break;
 		}
 	}
