@@ -447,30 +447,41 @@ void Coupling_Editor::save_External_Slaves()
 
 void Coupling_Editor::clear_Nonexisting_Slaves()
 {
-	int index_To_Remove = -2018;
-
-	// remove empty parameter indicators from the list
-	for(int i=0; i<coupled_Parameter->coupled.slaves.size(); ++i)
+	for(int i=coupled_Parameter->coupled.slaves.size()-1; i>=0; i--)
 	{
 		if(!coupled_Parameter->coupled.slaves[i].exist)
 		{
-			index_To_Remove=i;
-			qInfo() << coupled_Parameter->indicator.full_Name << ":  slave" << i << "does not exist:" << coupled_Parameter->coupled.slaves[i].full_Name << endl;
-			break;
+			coupled_Parameter->coupled.slaves.remove(i);
+			slave_Widget_Vec.remove(i);
+			slave_Label_Vec.remove(i);
+			slave_Line_Edit_Vec.remove(i);
 		}
 	}
 
-	if(index_To_Remove<0)
-	{
-		return;
-	} else
-	{
-		coupled_Parameter->coupled.slaves.remove(index_To_Remove);
-		slave_Widget_Vec.remove(index_To_Remove);
-		slave_Label_Vec.remove(index_To_Remove);
-		slave_Line_Edit_Vec.remove(index_To_Remove);
-		clear_Nonexisting_Slaves();
-	}
+	// old realization
+//	int index_To_Remove = -2018;
+
+//	// remove empty parameter indicators from the list
+//	for(int i=0; i<coupled_Parameter->coupled.slaves.size(); ++i)
+//	{
+//		if(!coupled_Parameter->coupled.slaves[i].exist)
+//		{
+//			index_To_Remove=i;
+//			break;
+//		}
+//	}
+
+//	if(index_To_Remove<0)
+//	{
+//		return;
+//	} else
+//	{
+//		coupled_Parameter->coupled.slaves.remove(index_To_Remove);
+//		slave_Widget_Vec.remove(index_To_Remove);
+//		slave_Label_Vec.remove(index_To_Remove);
+//		slave_Line_Edit_Vec.remove(index_To_Remove);
+//		clear_Nonexisting_Slaves();
+//	}
 }
 
 void Coupling_Editor::check_Expression()
@@ -538,6 +549,11 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 			// slave's side (ME)
 			QString expression = coupled_Parameter->coupled.master.expression;
 			coupled_Parameter->coupled.master = widget_Parameter->indicator;
+
+			/// --- crutch for newly added parameters in new versions --- (doesn't work?)
+			coupled_Parameter->coupled.master.item_Id = widget_Struct_Data.id;
+			/// ---------------------------------------------------------
+
 			coupled_Parameter->coupled.master.exist = true;
 			coupled_Parameter->coupled.master.expression = expression;
 			coupled_Parameter->confidence.calc_Conf_Interval = false;
@@ -569,6 +585,11 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 				// master's side (ME)
 				QString expression = coupled_Parameter->coupled.slaves[index].expression;
 				coupled_Parameter->coupled.slaves[index] = widget_Parameter->indicator;
+
+				/// --- crutch for newly added parameters in new versions --- (doesn't work?)
+				coupled_Parameter->coupled.slaves[index].item_Id = widget_Struct_Data.id;
+				/// ---------------------------------------------------------
+
 				coupled_Parameter->coupled.slaves[index].exist = true;
 				coupled_Parameter->coupled.slaves[index].expression = expression;
 

@@ -2762,12 +2762,6 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 				if(!parent_Data.regular_Components[child_Index].is_Common_Sigma     && parameter->indicator.whats_This == whats_This_Sigma_Diffuse) { go = false; }
 			}
 
-//			qInfo() << parameter->indicator.full_Name << "is fitable:" << parameter->fit.is_Fitable << "and has" << parameter->coupled.slaves.size() << "slaves" << endl;
-//			for(int i=0; i<parameter->coupled.slaves.size(); i++)
-//			{
-//				qInfo() << parameter->coupled.slaves[i].full_Name << parameter->coupled.slave_Pointers[i] << parameter->coupled.slaves[i].id << endl;
-//			}
-
 			if(go)
 			{
 				// fixed

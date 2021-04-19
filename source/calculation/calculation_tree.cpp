@@ -240,6 +240,7 @@ void Calculation_Tree::renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator
 
 			// refesh my_Sigma and interlayers
 			Data& struct_Data = child.node->data.struct_Data;
+
 			if(struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate)
 			{
 				Global_Variables::normalize_Interlayer(struct_Data);
