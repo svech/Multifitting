@@ -2741,6 +2741,7 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_Data, const Data& parent_Data, const tree<Node>::iterator& current, int child_Index, int tab_Index, bool fitables_Period_Gamma, bool confidentials_Period_Gamma)
 {
 	struct_Data.fill_Potentially_Fitable_Parameters_Vector(multilayers[tab_Index]->imperfections_Model);
+
 	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
 	{
 		// for my_Sigmas
@@ -2750,7 +2751,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 		QString total_Name = "  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name;
 
 		// fitable and has no master
-		if(parameter->fit.is_Fitable && !parameter->coupled.master.exist)
+		if(parameter->fit.is_Fitable && (!parameter->coupled.master.exist))
 //		if(calc_Mode != CONFIDENCE || !parameter->confidence.calc_Conf_Interval) // only 1 confidential should be treated as non-fitable in CONFIDENCE mode at the same time
 		{
 			bool go = true;
@@ -2758,7 +2759,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 			// for regular aperiodic: don't fit thickness/sigma of item-layer if not common thickness/sigma
 			if(parent_Data.item_Type == item_Type_Regular_Aperiodic)
 			{
-				if(!parent_Data.regular_Components[child_Index].is_Common_Thickness && parameter->indicator.whats_This == whats_This_Thickness) 	{ go = false; }
+				if(!parent_Data.regular_Components[child_Index].is_Common_Thickness && parameter->indicator.whats_This == whats_This_Thickness)		{ go = false; }
 				if(!parent_Data.regular_Components[child_Index].is_Common_Sigma     && parameter->indicator.whats_This == whats_This_Sigma_Diffuse) { go = false; }
 			}
 

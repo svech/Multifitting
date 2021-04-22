@@ -199,9 +199,11 @@ void Fitting::slaves_Recalculation(Parameter* master, Fitting_Params* params)
 
 void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vector* f)
 {
+	qInfo() << 1 << endl;
 	// make gui responsive
 	QCoreApplication::processEvents();
 
+	qInfo() << 2 << endl;
 	// change value of real fitables
 	for(size_t i=0; i<params->fitables.param_Pointers.size(); ++i)
 	{
@@ -215,6 +217,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 		change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, FITTING);
 	}
 
+	qInfo() << 3 << endl;
 	// change value of slaves of ACTIVE confidentials
 	if(params->calc_Mode == CONFIDENCE )
 	{
@@ -235,6 +238,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 	/// now all real_Calc_Tree are changed; we can replicate and stratify them
 	int residual_Shift=0;
 
+	qInfo() << 4 << endl;
 	// iterate over structures
 	for(int tab_Index=0; tab_Index<params->calculation_Trees.size(); ++tab_Index)
 	{
@@ -269,6 +273,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 		}
 	}
 
+	qInfo() << 5 << endl;
 	/// addition to residual from restrictions of regular aperiodics
 	size_t counter = 0;
 	for(int tab_Index=0; tab_Index<params->main_Calculation_Module->multilayers.size(); ++tab_Index)
@@ -276,6 +281,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 		regular_Restriction_Tree_Iteration(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin(), params, f, counter);
 	}
 
+	qInfo() << 6 << endl;
 	// replot
 	// 1D
 	if(replot_graphs_during_fitting_1D && global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
@@ -313,6 +319,8 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 //			}
 //		}
 //	}
+	qInfo() << 7 << endl;
+	qInfo() << endl;
 }
 
 void Fitting::regular_Restriction_Tree_Iteration(const tree<Node>::iterator& parent, Fitting_Params* params, gsl_vector* f, size_t& counter)

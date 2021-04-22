@@ -1415,7 +1415,7 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 	// Layer
 	//---------------------------------------------
 	if( item_Type == item_Type_Layer )
-	{
+	{		
 		potentially_Fitable_Parameters.push_back(&thickness);
 
 		if(imperfections_Model.use_Fluctuations && fluctuations_Model.is_Enabled && fluctuations_Model.is_Used)	 // automatically imperfections_Model.use_Fluctuations == fluctuations_Model.is_Enabled
@@ -1487,8 +1487,8 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 			for(int n=0; n<num_Repetition.value(); n++)
 			{
 				Data& regular_Data = regular_Components[i].components[n];
-				if(!regular_Components[i].is_Common_Thickness) {potentially_Fitable_Parameters.push_back(&regular_Data.thickness);}
-				if(!regular_Components[i].is_Common_Sigma)	   {potentially_Fitable_Parameters.push_back(&regular_Data.sigma_Diffuse);}
+				if(!regular_Components[i].is_Common_Thickness) {potentially_Fitable_Parameters.push_back(&regular_Data.thickness);		}
+				if(!regular_Components[i].is_Common_Sigma)	   {potentially_Fitable_Parameters.push_back(&regular_Data.sigma_Diffuse);	}
 			}
 		}
 	}
@@ -1785,7 +1785,7 @@ void Data::prepare_Layer_For_Regular_Component()
 	make_Free(gamma);
 }
 
-void Data::make_Free(Parameter &parameter)
+void Data::make_Free(Parameter& parameter)
 {
 	parameter.fit.is_Fitable = false;
 	parameter.confidence.calc_Conf_Interval = false;

@@ -792,8 +792,8 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 
 void Item_Editor::check_Item_Common_Thickness_Sigma(QCheckBox* common_CheckBox, QString whats_This, int i)
 {
-	if(whats_This == whats_This_Thickness) struct_Data.regular_Components[i].is_Common_Thickness = common_CheckBox->isChecked();
-	if(whats_This == whats_This_Sigma_Diffuse)     struct_Data.regular_Components[i].is_Common_Sigma     = common_CheckBox->isChecked();
+	if(whats_This == whats_This_Thickness)		struct_Data.regular_Components[i].is_Common_Thickness = common_CheckBox->isChecked();
+	if(whats_This == whats_This_Sigma_Diffuse)  struct_Data.regular_Components[i].is_Common_Sigma     = common_CheckBox->isChecked();
 
 	// set master/slaves thickness
 	{
@@ -813,11 +813,11 @@ void Item_Editor::check_Item_Common_Thickness_Sigma(QCheckBox* common_CheckBox, 
 					if(!current_Child_Data.thickness.coupled.slaves.contains(regular_Data.thickness.indicator)) {
 						current_Child_Data.thickness.coupled.slaves.append  (regular_Data.thickness.indicator);
 					}
-					// set as master (if still not)
-					if(!(regular_Data.thickness.coupled.master == current_Child_Data.thickness.indicator)) {
+					// set as master anyway //(if still not)
+//					if(!(regular_Data.thickness.coupled.master == current_Child_Data.thickness.indicator)) {
 						 regular_Data.thickness.coupled.master =  current_Child_Data.thickness.indicator;
 						 regular_Data.thickness.coupled.master.exist = true;
-					}
+//					}
 				} else
 				// remove slaves and master
 				{
@@ -825,11 +825,11 @@ void Item_Editor::check_Item_Common_Thickness_Sigma(QCheckBox* common_CheckBox, 
 					if( current_Child_Data.thickness.coupled.slaves.contains (regular_Data.thickness.indicator)) {
 						current_Child_Data.thickness.coupled.slaves.removeOne(regular_Data.thickness.indicator);
 					}
-					// remove master (if still there)
-					if( regular_Data.thickness.coupled.master == current_Child_Data.thickness.indicator) {
+					// remove master anyway //(if still there)
+//					if( regular_Data.thickness.coupled.master == current_Child_Data.thickness.indicator) {
 						regular_Data.thickness.coupled.master.id = 0;
 						regular_Data.thickness.coupled.master.exist = false;
-					}
+//					}
 				}
 			}
 			if(whats_This == whats_This_Sigma_Diffuse)
@@ -841,11 +841,11 @@ void Item_Editor::check_Item_Common_Thickness_Sigma(QCheckBox* common_CheckBox, 
 					if(!current_Child_Data.sigma_Diffuse.coupled.slaves.contains(regular_Data.sigma_Diffuse.indicator)) {
 						current_Child_Data.sigma_Diffuse.coupled.slaves.append  (regular_Data.sigma_Diffuse.indicator);
 					}
-					// set as master (if still not)
-					if(!(regular_Data.sigma_Diffuse.coupled.master == current_Child_Data.sigma_Diffuse.indicator)) {
+					// set as master anyway // (if still not)
+//					if(!(regular_Data.sigma_Diffuse.coupled.master == current_Child_Data.sigma_Diffuse.indicator)) {
 						 regular_Data.sigma_Diffuse.coupled.master =  current_Child_Data.sigma_Diffuse.indicator;
-						 regular_Data.thickness.coupled.master.exist = true;
-					}
+						 regular_Data.sigma_Diffuse.coupled.master.exist = true;
+//					}
 				} else
 				// remove slaves and master
 				{
@@ -853,11 +853,11 @@ void Item_Editor::check_Item_Common_Thickness_Sigma(QCheckBox* common_CheckBox, 
 					if( current_Child_Data.sigma_Diffuse.coupled.slaves.contains (regular_Data.sigma_Diffuse.indicator)) {
 						current_Child_Data.sigma_Diffuse.coupled.slaves.removeOne(regular_Data.sigma_Diffuse.indicator);
 					}
-					// remove master (if still there)
-					if( regular_Data.sigma_Diffuse.coupled.master == current_Child_Data.sigma_Diffuse.indicator) {
+					// remove master anyway // (if still there)
+//					if( regular_Data.sigma_Diffuse.coupled.master == current_Child_Data.sigma_Diffuse.indicator) {
 						regular_Data.sigma_Diffuse.coupled.master.id = 0;
 						regular_Data.sigma_Diffuse.coupled.master.exist = false;
-					}
+//					}
 				}
 			}
 		}
@@ -871,8 +871,8 @@ void Item_Editor::check_Item_Common_Thickness_Sigma(QCheckBox* common_CheckBox, 
 	{
 		Regular_Aperiodic_Table* regular_Aperiodic_Table = global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id);
 			regular_Aperiodic_Table->colorize_Material();
-		if(whats_This == whats_This_Thickness) regular_Aperiodic_Table->thickness_Spinboxes_List[i]->valueChanged(regular_Aperiodic_Table->thickness_Spinboxes_List[i]->value());
-		if(whats_This == whats_This_Sigma_Diffuse)     regular_Aperiodic_Table->sigma_Spinboxes_List    [i]->valueChanged(regular_Aperiodic_Table->sigma_Spinboxes_List    [i]->value());
+		if(whats_This == whats_This_Thickness)		regular_Aperiodic_Table->thickness_Spinboxes_List[i]->valueChanged(regular_Aperiodic_Table->thickness_Spinboxes_List[i]->value());
+		if(whats_This == whats_This_Sigma_Diffuse)  regular_Aperiodic_Table->sigma_Spinboxes_List    [i]->valueChanged(regular_Aperiodic_Table->sigma_Spinboxes_List    [i]->value());
 	}
 }
 
@@ -2009,7 +2009,7 @@ void Item_Editor::to_Regular_Aperiodic_Subfunction()
 			new_Regular_Component.components.fill(child);
 			new_Regular_Component.top_Id = child.id;
 			new_Regular_Component.find_Min_Max_Values();
-		for(Data& inserted_Child : new_Regular_Component.components) { inserted_Child.reset_All_IDs(); }
+		for(Data& inserted_Child : new_Regular_Component.components)	{inserted_Child.reset_All_IDs();}
 		struct_Data.regular_Components.append(new_Regular_Component);
 
 		// save changes in children

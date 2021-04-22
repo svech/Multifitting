@@ -411,6 +411,7 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item, int i)
 				}
 				if(item->parent() && parent_Data.item_Type == item_Type_Regular_Aperiodic)
 				{
+					parent_Data.regular_Components[i].find_Min_Max_Values();
 					thickness_Text = ", z=<" + Locale.toString(parent_Data.regular_Components[i].min_Max_Values.thickness_Min/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision)
 									   + "-" + Locale.toString(parent_Data.regular_Components[i].min_Max_Values.thickness_Max/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision)
 									   + ">" + length_units;
