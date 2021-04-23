@@ -16,7 +16,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 15
+#define VERSION_BUILD 16
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -968,6 +968,8 @@ struct Imperfections_Model		{
 								QString PSD_Model = ABC_Model;
 								QString vertical_Correlation = full_Correlation;
 								double vertical_Inheritance_Frequency = 0.001; // A^-1
+								bool add_Measured_PSD_1D = false;
+								bool add_Measured_PSD_2D = false;
 								bool add_Gauss_Peak = false;
 								bool use_Common_Roughness_Function = true;
 								QString inheritance_Model = replication_Factor_Inheritance_Model;

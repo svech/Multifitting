@@ -1456,7 +1456,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				//-----------------------------------
 
 				whats_This = whats_This_Linear_A4;
-				add_Columns			(new_Table, current_Column+1);
+				add_Columns			(new_Table, current_Column+additional_Column);
 				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "a"+Subscript_4_Sym+" ["+linear_a4_units+"]");
 				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
@@ -1472,7 +1472,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// sigma-scaling for loaded 1D PSD
 			bool show_Sigma_Factor_PSD_1D = false;
-			if(	struct_Data.roughness_Model.is_Enabled && multilayer->imperfections_Model.PSD_Model == measured_PSD)
+			if(	struct_Data.roughness_Model.is_Enabled && multilayer->imperfections_Model.add_Measured_PSD_1D)
 			{
 				if( struct_Data.item_Type == item_Type_Substrate)
 				{
@@ -1482,7 +1482,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(show_Sigma_Factor_PSD_1D)
 			{
 				QString whats_This = whats_This_Sigma_Factor_PSD_1D;
-				add_Columns				 (new_Table, current_Column+1);
+				add_Columns				 (new_Table, current_Column+additional_Column);
 				// first
 				MyDoubleSpinBox* PSD_Sigma_Lineedit = create_PSD_Sigma_Lineedit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, multilayer, PSD_Type_1D);
 				create_PSD_Load_Button	 (new_Table,			current_Row,   current_Column, multilayer, PSD_Type_1D, PSD_Sigma_Lineedit);
@@ -1508,7 +1508,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// sigma-scaling for loaded 2D PSD
 			bool show_Sigma_Factor_PSD_2D = false;
-			if(	struct_Data.roughness_Model.is_Enabled && multilayer->imperfections_Model.PSD_Model == measured_PSD)
+			if(	struct_Data.roughness_Model.is_Enabled && multilayer->imperfections_Model.add_Measured_PSD_2D)
 			{
 				if( struct_Data.item_Type == item_Type_Substrate)
 				{
@@ -1531,14 +1531,13 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				// last
 //				create_Check_Box_Fit	 (new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 0, 0, 0, 0);
 
-				/// already done for 1D PSD
 				// PSD sigma factor step
-//				if(!steps_Are_Done_Sigma_Factor_PSD)
-//				{
-//					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "rf");
-//					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
-//					steps_Are_Done_Sigma_Factor_PSD = true;
-//				}
+				if(!steps_Are_Done_Sigma_Factor_PSD)
+				{
+					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "rf");
+					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+					steps_Are_Done_Sigma_Factor_PSD = true;
+				}
 				last_Roughness_Column = max(current_Column,last_Roughness_Column);
 				current_Column+=2;
 			}
@@ -1677,10 +1676,15 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 							current_Column+=5+additional_Column;
 						}
 					}
-					if( multilayer->imperfections_Model.PSD_Model == measured_PSD )
+					if( multilayer->imperfections_Model.add_Measured_PSD_1D)
 					{
-						add_Columns	(new_Table, current_Column+2+additional_Column);
-						current_Column+=3+additional_Column;
+						add_Columns	(new_Table, current_Column+1+additional_Column);
+						current_Column+=1+additional_Column;
+					}
+					if( multilayer->imperfections_Model.add_Measured_PSD_2D)
+					{
+						add_Columns	(new_Table, current_Column+1+additional_Column);
+						current_Column+=1+additional_Column;
 					}
 					if( multilayer->imperfections_Model.add_Gauss_Peak &&
 						multilayer->imperfections_Model.use_Common_Roughness_Function == true)
@@ -2043,9 +2047,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		if(multilayer->imperfections_Model.use_Roughness)
 		{
 			int broadening = 0;
-			if(multilayer->imperfections_Model.PSD_Model == measured_PSD) broadening = 1;
+//			if(multilayer->imperfections_Model.PSD_Model == measured_PSD) broadening = 1;
 			int right_Broadening_Factor = show_Right_Column || (multilayer->imperfections_Model.use_Fluctuations && has_Layers) ? 2 : 1;
-
 
 			// row 1
 			QLabel* approximation_Label = new QLabel(multilayer->imperfections_Model.approximation);
@@ -2061,6 +2064,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			new_Table->setSpan(first_Row+1,first_Roughness_Column-broadening,1,last_Roughness_Column-first_Roughness_Column+1+right_Broadening_Factor*broadening);
 			new_Table->setCellWidget(first_Row+1, first_Roughness_Column, model_Label);
 
+			if(multilayer->imperfections_Model.add_Measured_PSD_1D || multilayer->imperfections_Model.add_Measured_PSD_2D)
+			{
+				model_Label->setText(model_Label->text() + " + external PSD");
+			}
 			if(multilayer->imperfections_Model.add_Gauss_Peak)
 			{
 				model_Label->setText(model_Label->text() + " + Gauss peak");

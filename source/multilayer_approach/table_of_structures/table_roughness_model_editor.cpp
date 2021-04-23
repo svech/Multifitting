@@ -449,29 +449,38 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			fractal_Gauss_Radiobutton->setChecked(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model);
 		PSD_Model_Layout->addWidget(fractal_Gauss_Radiobutton);
 
-		QRadioButton* measured_PSD_Radiobutton = new QRadioButton("Measured PSD");
-			measured_PSD_Radiobutton->setChecked(multilayer->imperfections_Model.PSD_Model == measured_PSD);
-			measured_PSD_Radiobutton->setDisabled(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation ||
-												  multilayer->imperfections_Model.approximation == DWBA_approximation ||
-												  multilayer->imperfections_Model.approximation == SA_approximation ||
-												  multilayer->imperfections_Model.approximation == CSA_approximation);
-		PSD_Model_Layout->addWidget(measured_PSD_Radiobutton);
-
 		QButtonGroup* use_Model_Group = new QButtonGroup;
 			use_Model_Group->addButton(ABC_Radiobutton);
 			use_Model_Group->addButton(fractal_Gauss_Radiobutton);
-			use_Model_Group->addButton(measured_PSD_Radiobutton);
+
+
+		QCheckBox* measured_PSD_1D_Checkbox = new QCheckBox("External PSD 1D");
+			measured_PSD_1D_Checkbox->setChecked (multilayer->imperfections_Model.add_Measured_PSD_1D);
+			measured_PSD_1D_Checkbox->setDisabled(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation ||
+												  multilayer->imperfections_Model.approximation == DWBA_approximation ||
+												  multilayer->imperfections_Model.approximation == SA_approximation ||
+												  multilayer->imperfections_Model.approximation == CSA_approximation);
+		PSD_Model_Layout->addWidget(measured_PSD_1D_Checkbox);
+
+		QCheckBox* measured_PSD_2D_Checkbox = new QCheckBox("External PSD 2D");
+			measured_PSD_2D_Checkbox->setChecked (multilayer->imperfections_Model.add_Measured_PSD_2D);
+			measured_PSD_2D_Checkbox->setDisabled(multilayer->imperfections_Model.approximation == DWBA_approximation ||
+												  multilayer->imperfections_Model.approximation == SA_approximation ||
+												  multilayer->imperfections_Model.approximation == CSA_approximation);
+		PSD_Model_Layout->addWidget(measured_PSD_2D_Checkbox);
 
 		// gauss peak
 		QCheckBox* gauss_Peak_Checkbox = new QCheckBox("Add Gauss peak");
-			gauss_Peak_Checkbox->setChecked(multilayer->imperfections_Model.add_Gauss_Peak);
-			gauss_Peak_Checkbox->setDisabled(multilayer->imperfections_Model.PSD_Model == measured_PSD);
+			gauss_Peak_Checkbox->setChecked (multilayer->imperfections_Model.add_Gauss_Peak);
 		PSD_Model_Layout->addWidget(gauss_Peak_Checkbox);
 
 		// common PSD
 		QCheckBox* common_Checkbox = new QCheckBox("Common PSD");
-			common_Checkbox->setChecked(multilayer->imperfections_Model.use_Common_Roughness_Function);
-			common_Checkbox->setDisabled(full_Radiobutton->isChecked() || partial_Radiobutton->isChecked());
+			common_Checkbox->setChecked (multilayer->imperfections_Model.use_Common_Roughness_Function);
+			common_Checkbox->setDisabled(multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
+										 multilayer->imperfections_Model.vertical_Correlation == partial_Correlation ||
+										 multilayer->imperfections_Model.add_Measured_PSD_1D ||
+										 multilayer->imperfections_Model.add_Measured_PSD_2D);
 		PSD_Model_Layout->addWidget(common_Checkbox);
 
 	// --------------------------------------------
@@ -515,7 +524,11 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			// unlock Gauss peak
 			gauss_Peak_Checkbox->setEnabled(true);
 			// unlock measured PSD
-			measured_PSD_Radiobutton->setEnabled(true);
+			measured_PSD_1D_Checkbox->setEnabled(multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
+			measured_PSD_1D_Checkbox->setEnabled(true);
+			measured_PSD_2D_Checkbox->setEnabled(true);
+			measured_PSD_2D_Checkbox->setEnabled(true);
+
 			// unlock partial correlation
 			partial_Radiobutton->setEnabled(true);
 			if(partial_Radiobutton->isChecked())
@@ -542,13 +555,10 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			partial_Radiobutton->setEnabled(false);
 
 			// lock measured PSD
-			if(measured_PSD_Radiobutton->isChecked())
-			{
-				measured_PSD_Radiobutton->setChecked(false);
-				ABC_Radiobutton->setChecked(true);
-				ABC_Radiobutton->toggled(true);
-			}
-			measured_PSD_Radiobutton->setEnabled(false);
+			if(measured_PSD_1D_Checkbox->isChecked())	measured_PSD_1D_Checkbox->setChecked(false);
+			measured_PSD_1D_Checkbox->setEnabled(false);
+			if(measured_PSD_2D_Checkbox->isChecked())	measured_PSD_2D_Checkbox->setChecked(false);
+			measured_PSD_2D_Checkbox->setEnabled(false);
 
 			// lock Gauss peak
 			gauss_Peak_Checkbox->setChecked(false);
@@ -572,13 +582,10 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			partial_Radiobutton->setEnabled(false);
 
 			// lock measured PSD
-			if(measured_PSD_Radiobutton->isChecked())
-			{
-				measured_PSD_Radiobutton->setChecked(false);
-				ABC_Radiobutton->setChecked(true);
-				ABC_Radiobutton->toggled(true);
-			}
-			measured_PSD_Radiobutton->setEnabled(false);
+			if(measured_PSD_1D_Checkbox->isChecked())	measured_PSD_1D_Checkbox->setChecked(false);
+			measured_PSD_1D_Checkbox->setEnabled(false);
+			if(measured_PSD_2D_Checkbox->isChecked())	measured_PSD_2D_Checkbox->setChecked(false);
+			measured_PSD_2D_Checkbox->setEnabled(false);
 
 			// lock Gauss peak
 			gauss_Peak_Checkbox->setChecked(false);
@@ -602,13 +609,10 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			partial_Radiobutton->setEnabled(false);
 
 			// lock measured PSD
-			if(measured_PSD_Radiobutton->isChecked())
-			{
-				measured_PSD_Radiobutton->setChecked(false);
-				ABC_Radiobutton->setChecked(true);
-				ABC_Radiobutton->toggled(true);
-			}
-			measured_PSD_Radiobutton->setEnabled(false);
+			if(measured_PSD_1D_Checkbox->isChecked())	measured_PSD_1D_Checkbox->setChecked(false);
+			measured_PSD_1D_Checkbox->setEnabled(false);
+			if(measured_PSD_2D_Checkbox->isChecked())	measured_PSD_2D_Checkbox->setChecked(false);
+			measured_PSD_2D_Checkbox->setEnabled(false);
 
 			// lock Gauss peak
 			gauss_Peak_Checkbox->setChecked(false);
@@ -633,7 +637,8 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			common_Checkbox->setDisabled(true);
 
 			// unlock measured PSD
-			measured_PSD_Radiobutton->setEnabled(true);
+			measured_PSD_1D_Checkbox->setEnabled(true);
+			measured_PSD_2D_Checkbox->setEnabled(true);
 
 			refresh_Tree_Roughness();
 		}
@@ -652,14 +657,10 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			common_Checkbox->toggled(true);
 			common_Checkbox->setDisabled(true);
 
-			// lock measured PSD
-			if(measured_PSD_Radiobutton->isChecked())
-			{
-				measured_PSD_Radiobutton->setChecked(false);
-				ABC_Radiobutton->setChecked(true);
-				ABC_Radiobutton->toggled(true);
-			}
-			measured_PSD_Radiobutton->setEnabled(false);
+			// lock measured PSD 1D
+			if(measured_PSD_1D_Checkbox->isChecked())	  measured_PSD_1D_Checkbox->setChecked(false);
+			measured_PSD_1D_Checkbox->setEnabled(false);
+			measured_PSD_2D_Checkbox->setEnabled(true);
 
 			refresh_Tree_Roughness();
 		}
@@ -674,10 +675,11 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			linear_Growth_Alpha_Radiobutton->setDisabled(true);
 			linear_Growth_n_1_4_Radiobutton->setDisabled(true);
 
-			if(multilayer->imperfections_Model.PSD_Model != measured_PSD) common_Checkbox->setDisabled(false);
+			common_Checkbox->setDisabled(multilayer->imperfections_Model.add_Measured_PSD_1D || multilayer->imperfections_Model.add_Measured_PSD_2D);
 
 			// unlock measured PSD
-			measured_PSD_Radiobutton->setEnabled(true);
+			measured_PSD_1D_Checkbox->setEnabled(true);
+			measured_PSD_2D_Checkbox->setEnabled(true);
 
 			refresh_Tree_Roughness();
 		}
@@ -689,8 +691,6 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(ABC_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.PSD_Model = ABC_Model;
-			if(multilayer->imperfections_Model.approximation == PT_approximation) gauss_Peak_Checkbox->setDisabled(false);
-			if(multilayer->imperfections_Model.vertical_Correlation == zero_Correlation) common_Checkbox->setDisabled(false);
 			refresh_Tree_Roughness();
 		}
 	});
@@ -699,26 +699,43 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(fractal_Gauss_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.PSD_Model = fractal_Gauss_Model;
-			if(multilayer->imperfections_Model.approximation == PT_approximation) gauss_Peak_Checkbox->setDisabled(false);
-			if(multilayer->imperfections_Model.vertical_Correlation == zero_Correlation) common_Checkbox->setDisabled(false);
 			refresh_Tree_Roughness();
 		}
 	});
-	connect(measured_PSD_Radiobutton, &QRadioButton::toggled, this, [=]
+	connect(measured_PSD_1D_Checkbox, &QCheckBox::toggled, this, [=]
 	{
-		if(measured_PSD_Radiobutton->isChecked())
+		multilayer->imperfections_Model.add_Measured_PSD_1D = measured_PSD_1D_Checkbox->isChecked();
+
+		if( multilayer->imperfections_Model.add_Measured_PSD_1D ||
+			multilayer->imperfections_Model.add_Measured_PSD_2D ||
+			multilayer->imperfections_Model.vertical_Correlation != zero_Correlation)
 		{
-			multilayer->imperfections_Model.PSD_Model = measured_PSD;
-
-			gauss_Peak_Checkbox->setChecked(false);
-			gauss_Peak_Checkbox->toggled(false);
-			gauss_Peak_Checkbox->setDisabled(true);
-
 			common_Checkbox->setChecked(true);
 			common_Checkbox->toggled(true);
 			common_Checkbox->setDisabled(true);
 
 			refresh_Tree_Roughness();
+		} else
+		{
+			common_Checkbox->setEnabled(true);
+		}
+	});
+	connect(measured_PSD_2D_Checkbox, &QCheckBox::toggled, this, [=]
+	{
+		multilayer->imperfections_Model.add_Measured_PSD_2D = measured_PSD_2D_Checkbox->isChecked();
+
+		if( multilayer->imperfections_Model.add_Measured_PSD_1D ||
+			multilayer->imperfections_Model.add_Measured_PSD_2D ||
+			multilayer->imperfections_Model.vertical_Correlation != zero_Correlation)
+		{
+			common_Checkbox->setChecked(true);
+			common_Checkbox->toggled(true);
+			common_Checkbox->setDisabled(true);
+
+			refresh_Tree_Roughness();
+		} else
+		{
+			common_Checkbox->setEnabled(true);
 		}
 	});
 	connect(gauss_Peak_Checkbox, &QCheckBox::toggled, this, [=]

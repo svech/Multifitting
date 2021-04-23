@@ -612,6 +612,8 @@ QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperf
 
 				  << imperfections_Model.use_Roughness << imperfections_Model.approximation << imperfections_Model.PSD_Model
 				  << imperfections_Model.vertical_Correlation << imperfections_Model.vertical_Inheritance_Frequency
+
+				  << imperfections_Model.add_Measured_PSD_1D << imperfections_Model.add_Measured_PSD_2D
 				  << imperfections_Model.add_Gauss_Peak << imperfections_Model.use_Common_Roughness_Function
 				  << imperfections_Model.inheritance_Model << imperfections_Model.reflectivity_With_Roughness << imperfections_Model.DWBA_n_Max_Series
 
@@ -634,6 +636,9 @@ QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfecti
 
 	if(Global_Variables::check_Loaded_Version(1,11,9))
 	{stream >> imperfections_Model.vertical_Inheritance_Frequency;}
+
+	if(Global_Variables::check_Loaded_Version(1,11,16))
+	{stream >> imperfections_Model.add_Measured_PSD_1D >> imperfections_Model.add_Measured_PSD_2D;}
 
 	if(Global_Variables::check_Loaded_Version(1,11,7))
 	{stream >> imperfections_Model.add_Gauss_Peak;}

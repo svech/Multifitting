@@ -1396,9 +1396,11 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 					potentially_Fitable_Parameters.push_back(&roughness_Model.sigma);
 					potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
 				}
-				// measured model
-				if(imperfections_Model.PSD_Model == measured_PSD)				{
+				// measured PSD
+				if(imperfections_Model.add_Measured_PSD_1D)				{
 					potentially_Fitable_Parameters.push_back(&roughness_Model.sigma_Factor_PSD_1D);
+				}
+				if(imperfections_Model.add_Measured_PSD_2D)				{
 					potentially_Fitable_Parameters.push_back(&roughness_Model.sigma_Factor_PSD_2D);
 				}
 				// gauss peak
@@ -1613,9 +1615,11 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 					table_Showed_Parameters.push_back(&roughness_Model.sigma);
 					table_Showed_Parameters.push_back(&roughness_Model.fractal_alpha);
 				}
-				// measured model
-				if(imperfections_Model.PSD_Model == measured_PSD)				{
+				// measured PSD
+				if(imperfections_Model.add_Measured_PSD_1D)				{
 					table_Showed_Parameters.push_back(&roughness_Model.sigma_Factor_PSD_1D);
+				}
+				if(imperfections_Model.add_Measured_PSD_2D)				{
 					table_Showed_Parameters.push_back(&roughness_Model.sigma_Factor_PSD_2D);
 				}
 				// gauss peak
