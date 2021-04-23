@@ -2742,6 +2742,8 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 {
 	struct_Data.fill_Potentially_Fitable_Parameters_Vector(multilayers[tab_Index]->imperfections_Model);
 
+//	qInfo() << struct_Data.item_Type << "init size" << fitables.param_Pointers.size() << endl;
+
 	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
 	{
 		// for my_Sigmas
@@ -2751,7 +2753,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 		QString total_Name = "  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name;
 
 		// fitable and has no master
-		if(parameter->fit.is_Fitable && (!parameter->coupled.master.exist))
+		if(parameter->fit.is_Fitable && !parameter->coupled.master.exist)
 //		if(calc_Mode != CONFIDENCE || !parameter->confidence.calc_Conf_Interval) // only 1 confidential should be treated as non-fitable in CONFIDENCE mode at the same time
 		{
 			bool go = true;
@@ -2765,6 +2767,8 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 
 			if(go)
 			{
+//				qInfo() << "one check" << parameter->indicator.id << parameter->indicator.whats_This << endl;
+
 				// fixed
 				fitables.struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
 				fitables.param_Names		.push_back(parameter->indicator.full_Name);
@@ -2852,7 +2856,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 				confidentials_Rejected_Periods.param_Names.push_back(total_Name);
 			}
 		}
-	}
+	}	
 }
 
 void Main_Calculation_Module::slaves_Pointer_Iteration(Parameter* master)

@@ -199,11 +199,9 @@ void Fitting::slaves_Recalculation(Parameter* master, Fitting_Params* params)
 
 void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vector* f)
 {
-	qInfo() << 1 << endl;
 	// make gui responsive
 	QCoreApplication::processEvents();
 
-	qInfo() << 2 << endl;
 	// change value of real fitables
 	for(size_t i=0; i<params->fitables.param_Pointers.size(); ++i)
 	{
@@ -214,10 +212,12 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 																									params->fitables.param_Pointers[i]->fit.min,
 																									params->fitables.param_Pointers[i]->fit.max);
 		double new_Value = params->fitables.param_Pointers[i]->value;
+		qInfo() << 2.3 << i << old_Value << new_Value << endl;
 		change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, FITTING);
+		qInfo() << 2.4 << i << endl;
 	}
+	qInfo() << endl;
 
-	qInfo() << 3 << endl;
 	// change value of slaves of ACTIVE confidentials
 	if(params->calc_Mode == CONFIDENCE )
 	{
@@ -236,9 +236,8 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 	}
 
 	/// now all real_Calc_Tree are changed; we can replicate and stratify them
-	int residual_Shift=0;
+	int residual_Shift = 0;
 
-	qInfo() << 4 << endl;
 	// iterate over structures
 	for(int tab_Index=0; tab_Index<params->calculation_Trees.size(); ++tab_Index)
 	{
@@ -273,7 +272,6 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 		}
 	}
 
-	qInfo() << 5 << endl;
 	/// addition to residual from restrictions of regular aperiodics
 	size_t counter = 0;
 	for(int tab_Index=0; tab_Index<params->main_Calculation_Module->multilayers.size(); ++tab_Index)
@@ -281,7 +279,6 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 		regular_Restriction_Tree_Iteration(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin(), params, f, counter);
 	}
 
-	qInfo() << 6 << endl;
 	// replot
 	// 1D
 	if(replot_graphs_during_fitting_1D && global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
@@ -319,8 +316,6 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 //			}
 //		}
 //	}
-	qInfo() << 7 << endl;
-	qInfo() << endl;
 }
 
 void Fitting::regular_Restriction_Tree_Iteration(const tree<Node>::iterator& parent, Fitting_Params* params, gsl_vector* f, size_t& counter)
@@ -370,26 +365,30 @@ void Fitting::regular_Restriction_Tree_Iteration(const tree<Node>::iterator& par
 
 void Fitting::change_Real_Fitables_and_Dependent(Fitting_Params* params, double old_Value, double new_Value, size_t i, QString fit_Conf)
 {
-	double coeff = new_Value/old_Value;
+	qInfo() << 2.301 << i << new_Value << old_Value << params->fitables.param_Pointers.size() << params->fitables.param_Pointers[i] << endl;
+	qInfo() << 2.31 << i << params->fitables.param_Pointers[i]->indicator.id << params->fitables.param_Pointers[i]->indicator.whats_This << endl;
+
+	double coeff = 1;
+	if(old_Value>1E-100 && new_Value<1E100) {coeff = new_Value/old_Value;}
 
 	if(fit_Conf == FITTING)
 	{
 		// recalculate underlying tree if period or gamma is fitable
 		if(params->fitables.param_Pointers[i]->indicator.whats_This == whats_This_Period)		{
 			Fitting::period_Subtree_Iteration(params->fitables.parent_Iterators[i], coeff);
-		} else
+		}
 		if(params->fitables.param_Pointers[i]->indicator.whats_This == whats_This_Gamma)		{
 			Fitting::gamma_Subtree_Iteration(params->fitables.parent_Iterators[i], old_Value);
 		}
 		// recalculate underlying slaves
 		Fitting::slaves_Recalculation(params->fitables.param_Pointers[i], params);
-	} else
+	}
 	if(fit_Conf == CONFIDENCE)
 	{
 		// recalculate underlying tree if period or gamma is confidential
 		if(params->confidentials.param_Pointers[i]->indicator.whats_This == whats_This_Period)		{
 			Fitting::period_Subtree_Iteration(params->confidentials.parent_Iterators[i], coeff);
-		} else
+		}
 		if(params->confidentials.param_Pointers[i]->indicator.whats_This == whats_This_Gamma)		{
 			Fitting::gamma_Subtree_Iteration(params->confidentials.parent_Iterators[i], old_Value);
 		}

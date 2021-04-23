@@ -18,7 +18,6 @@ public:
 
 	Main_Calculation_Module* main_Calculation_Module;
 	QVector<Calculation_Tree*>& calculation_Trees;
-	Fitables& fitables;
 	Fitting* fitting;
 	Fitting_Params* params;
 
