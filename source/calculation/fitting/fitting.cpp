@@ -212,11 +212,8 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 																									params->fitables.param_Pointers[i]->fit.min,
 																									params->fitables.param_Pointers[i]->fit.max);
 		double new_Value = params->fitables.param_Pointers[i]->value;
-		qInfo() << 2.3 << i << old_Value << new_Value << endl;
 		change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, FITTING);
-		qInfo() << 2.4 << i << endl;
 	}
-	qInfo() << endl;
 
 	// change value of slaves of ACTIVE confidentials
 	if(params->calc_Mode == CONFIDENCE )
@@ -252,7 +249,8 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 			// unstratified
 			target_Element.media_Data_Map_Vector.resize(params->calculation_Trees[tab_Index]->num_Media_Sharp);
 			target_Element.media_Period_Index_Map_Vector.resize(params->calculation_Trees[tab_Index]->num_Media_Sharp);
-			params->calculation_Trees[tab_Index]->unwrap_Calc_Tree_Data(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin(), target_Element.media_Data_Map_Vector, target_Element.media_Period_Index_Map_Vector);
+//	WRONG	params->calculation_Trees[tab_Index]->unwrap_Calc_Tree_Data(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin(), target_Element.media_Data_Map_Vector, target_Element.media_Period_Index_Map_Vector);
+			params->calculation_Trees[tab_Index]->unwrap_Calc_Tree_Data(target_Element.calc_Tree.begin(), target_Element.media_Data_Map_Vector, target_Element.media_Period_Index_Map_Vector);
 
 			params->calculation_Trees[tab_Index]->stratify_Calc_Tree(target_Element.calc_Tree);
 
@@ -365,9 +363,6 @@ void Fitting::regular_Restriction_Tree_Iteration(const tree<Node>::iterator& par
 
 void Fitting::change_Real_Fitables_and_Dependent(Fitting_Params* params, double old_Value, double new_Value, size_t i, QString fit_Conf)
 {
-	qInfo() << 2.301 << i << new_Value << old_Value << params->fitables.param_Pointers.size() << params->fitables.param_Pointers[i] << endl;
-	qInfo() << 2.31 << i << params->fitables.param_Pointers[i]->indicator.id << params->fitables.param_Pointers[i]->indicator.whats_This << endl;
-
 	double coeff = 1;
 	if(old_Value>1E-100 && new_Value<1E100) {coeff = new_Value/old_Value;}
 

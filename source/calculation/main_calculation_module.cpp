@@ -2742,8 +2742,6 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 {
 	struct_Data.fill_Potentially_Fitable_Parameters_Vector(multilayers[tab_Index]->imperfections_Model);
 
-//	qInfo() << struct_Data.item_Type << "init size" << fitables.param_Pointers.size() << endl;
-
 	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
 	{
 		// for my_Sigmas
@@ -2767,8 +2765,6 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 
 			if(go)
 			{
-//				qInfo() << "one check" << parameter->indicator.id << parameter->indicator.whats_This << endl;
-
 				// fixed
 				fitables.struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
 				fitables.param_Names		.push_back(parameter->indicator.full_Name);

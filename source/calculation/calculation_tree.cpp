@@ -196,7 +196,8 @@ void Calculation_Tree::fill_Calc_Trees()
 			// unstratified
 			target_Data_Element.media_Data_Map_Vector.resize(num_Media_Sharp);
 			target_Data_Element.media_Period_Index_Map_Vector.resize(num_Media_Sharp);
-			unwrap_Calc_Tree_Data(real_Calc_Tree.begin(), target_Data_Element.media_Data_Map_Vector, target_Data_Element.media_Period_Index_Map_Vector);
+//	WRONG	unwrap_Calc_Tree_Data(real_Calc_Tree.begin(), target_Data_Element.media_Data_Map_Vector, target_Data_Element.media_Period_Index_Map_Vector);
+			unwrap_Calc_Tree_Data(target_Data_Element.calc_Tree.begin(), target_Data_Element.media_Data_Map_Vector, target_Data_Element.media_Period_Index_Map_Vector);
 
 			stratify_Calc_Tree(target_Data_Element.calc_Tree);
 
@@ -214,7 +215,8 @@ void Calculation_Tree::fill_Calc_Trees()
 			// unstratified
 			independent_Data_Element.media_Data_Map_Vector.resize(num_Media_Sharp);
 			independent_Data_Element.media_Period_Index_Map_Vector.resize(num_Media_Sharp);
-			unwrap_Calc_Tree_Data(real_Calc_Tree.begin(), independent_Data_Element.media_Data_Map_Vector, independent_Data_Element.media_Period_Index_Map_Vector);
+//	WRONG   unwrap_Calc_Tree_Data(real_Calc_Tree.begin(), independent_Data_Element.media_Data_Map_Vector, independent_Data_Element.media_Period_Index_Map_Vector);
+			unwrap_Calc_Tree_Data(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.media_Data_Map_Vector, independent_Data_Element.media_Period_Index_Map_Vector);
 
 			stratify_Calc_Tree(independent_Data_Element.calc_Tree);
 

@@ -120,13 +120,7 @@ bool Fitting_SwarmOps::fit()
 	vector<SO_TElm> upperBound(kDim, 1);
 
 	// calc init residual
-	qInfo() << "test 1" << params->fitables.param_Pointers.front()->indicator.id << params->fitables.param_Pointers.front()->indicator.whats_This << params->fitables.param_Pointers.front()->indicator.item_Id << endl;
-	qInfo() << "initialization started" << endl;
 	Fitting::calc_Residual(params->x, params, params->f);
-	qInfo() << "initialization continued" << endl;
-	Fitting::calc_Residual(params->x, params, params->f);
-	qInfo() << "initialization finished" << endl;
-	qInfo() << "test 2" << params->fitables.param_Pointers.front()->indicator.id << params->fitables.param_Pointers.front()->indicator.whats_This << params->fitables.param_Pointers.front()->indicator.item_Id << endl;
 	gsl_blas_ddot(params->f, params->f, &params->init_Residual);
 
 
