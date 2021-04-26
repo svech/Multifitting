@@ -932,7 +932,8 @@ struct PSD_Data					{QVector<double> raw_Argument;
 								 QString value_Units;
 								 QString filepath;
 
-								 double calc_Sigma_Effective() const;
+								 double calc_Sigma_Full() const;
+								 double calc_Sigma_Effective(double nu_Min, double nu_Max) const;
 								};
 struct Imperfections_Model		{
 								// interlayer

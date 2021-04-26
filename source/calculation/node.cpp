@@ -931,7 +931,7 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 
 		double min_Meas_p = psd_Data.argument.front();
 		double max_Meas_p = psd_Data.argument.back();
-		double full_Sigma2 = pow(psd_Data.calc_Sigma_Effective(),2);
+		double full_Sigma2 = pow(psd_Data.calc_Sigma_Full(),2);
 
 		for(size_t i = 0; i<num_Points; ++i)
 		{
@@ -1084,7 +1084,7 @@ void Node::calc_Debye_Waller_Total_Sigma(const Imperfections_Model& imperfection
 				pi_nu[i] = 2*M_PI*psd_Data.value[i];
 			}
 		}
-		double full_Sigma2 = pow(psd_Data.calc_Sigma_Effective(),2);
+		double full_Sigma2 = pow(psd_Data.calc_Sigma_Full(),2);
 
 		specular_Debye_Waller_Total_Sigma = full_Sigma2*sigma_Factor*sigma_Factor;
 	}

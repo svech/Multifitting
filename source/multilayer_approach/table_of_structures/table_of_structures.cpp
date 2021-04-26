@@ -1521,8 +1521,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				add_Columns				 (new_Table, current_Column + additional_Column);
 				// first
 				MyDoubleSpinBox* PSD_Sigma_Lineedit = create_PSD_Sigma_Lineedit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, multilayer, PSD_Type_2D);
-				create_PSD_Load_Button	 (new_Table,			   current_Row,   current_Column, multilayer, PSD_Type_2D, PSD_Sigma_Lineedit);
-				create_Simple_Label		 (new_Table,	tab_Index, current_Row+1, current_Column, whats_This_Sigma_Eff_PSD, Sigma_Sym+Subscript_e_Sym+" ["+length_units+"]");
+				create_PSD_Load_Button	 (new_Table,		    current_Row,   current_Column, multilayer, PSD_Type_2D, PSD_Sigma_Lineedit);
+				create_Simple_Label		 (new_Table, tab_Index, current_Row+1, current_Column, whats_This_Sigma_Eff_PSD, Sigma_Sym+Subscript_e_Sym+" ["+length_units+"]");
 				create_Label			 (new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, "rf 2D");
 				create_Line_Edit		 (new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, VAL, PSD_Sigma_Lineedit);
 
@@ -3370,7 +3370,7 @@ MyDoubleSpinBox* Table_Of_Structures::create_PSD_Sigma_Lineedit(My_Table_Widget*
 
 	double coeff(length_Coefficients_Map.value(length_units));
 
-	spin_Box->setValue(psd_Data.calc_Sigma_Effective()*sigma_Factor.value/coeff);
+	spin_Box->setValue(psd_Data.calc_Sigma_Full()*sigma_Factor.value/coeff);
 	spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 
 	spin_Box->setProperty(min_Size_Property, spin_Box->width());
@@ -3391,7 +3391,7 @@ MyDoubleSpinBox* Table_Of_Structures::create_PSD_Sigma_Lineedit(My_Table_Widget*
 		PSD_Data psd_Data	  (PSD_Type == PSD_Type_1D ? multilayer->imperfections_Model.PSD_1D : multilayer->imperfections_Model.PSD_2D);
 		Parameter sigma_Factor(PSD_Type == PSD_Type_1D ? substrate_Data.roughness_Model.sigma_Factor_PSD_1D : substrate_Data.roughness_Model.sigma_Factor_PSD_2D);
 
-		spin_Box->setValue(psd_Data.calc_Sigma_Effective()*sigma_Factor.value/coeff);
+		spin_Box->setValue(psd_Data.calc_Sigma_Full()*sigma_Factor.value/coeff);
 		resize_Line_Edit (table,spin_Box);
 	});
 

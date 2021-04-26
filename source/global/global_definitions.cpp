@@ -879,7 +879,7 @@ void Element_Data::read_Element(QString& filename)
 	file.close();
 }
 
-double PSD_Data::calc_Sigma_Effective() const
+double PSD_Data::calc_Sigma_Full() const
 {
 	if(argument.size()>2)
 	{
@@ -936,6 +936,90 @@ double PSD_Data::calc_Sigma_Effective() const
 			}
 		}
 		return sqrt(sigma2);
+	} else
+	{
+		return 0;
+	}
+}
+
+double PSD_Data::calc_Sigma_Effective(double nu_Min, double nu_Max) const
+{
+	if(argument.size()>2)
+	{
+		double arg_Min = argument.front();
+		double arg_Max = argument.back();
+
+		int i_Min = 0;
+		int i_Max = argument.size()-1;
+
+		// nu_Min < arg_Min < arg_Max < nu_Max
+		if(nu_Min < arg_Min && arg_Max < nu_Max)
+		{
+			return calc_Sigma_Full();
+		} else
+		// arg_Min < arg_Max < nu_Min < nu_Max
+		if(arg_Min < nu_Min && arg_Max < nu_Min)
+		{
+			return 0.;
+		} else
+		// nu_Min < nu_Max < arg_Min < arg_Max
+		if(arg_Max < nu_Min && arg_Max < nu_Max)
+		{
+			return 0.;
+		} else
+		// other cases
+		{
+			// first point
+			for(i_Min = 0; i_Min<argument.size(); i_Min++) {
+				if(argument[i_Min] > nu_Min) break;
+			}
+			// last point
+			for(i_Max = argument.size()-1; i_Max>=0; i_Max--) {
+				if(argument[i_Max] < nu_Max) break;
+			}
+
+			double sigma2 = 0;
+			double dnu;
+			if(PSD_Type == PSD_Type_1D)
+			{
+				/// integrating by trapezoids
+				for(int i=i_Min; i<i_Max; i++)
+				{
+					dnu = argument[i+1] - argument[i];
+					sigma2 += (value[i] + value[i+1])/2 * dnu;
+				}
+				// first point, if necessary
+				if(i_Min>0) {
+					double value_At_Nu_Min = value[i_Min] + (value[i_Min-1] - value[i_Min]) * (argument[i_Min] - nu_Min)/(argument[i_Min] - argument[i_Min-1]);
+					sigma2 += (value_At_Nu_Min + value[i_Min])/2 * (argument[i_Min] - nu_Min);
+				}
+				// last point, if necessary
+				if(i_Max<argument.size()-1) {
+					double value_At_Nu_Max = value[i_Max] + (value[i_Max+1] - value[i_Max]) * (nu_Max - argument[i_Max])/(argument[i_Max+1] - argument[i_Max]);
+					sigma2 += (value[i_Max] + value_At_Nu_Max)/2 * (nu_Max - argument[i_Max]);
+				}
+			}
+			if(PSD_Type == PSD_Type_2D)
+			{
+				/// integrating by trapezoids
+				for(int i=i_Min; i<i_Max; i++)
+				{
+					dnu = argument[i+1] - argument[i];
+					sigma2 += M_PI*(value[i]*argument[i] + value[i+1]*argument[i+1]) * dnu;
+				}
+				// first point, if necessary
+				if(i_Min>0) {
+					double value_At_Nu_Min = value[i_Min] + (value[i_Min-1] - value[i_Min]) * (argument[i_Min] - nu_Min)/(argument[i_Min] - argument[i_Min-1]);
+					sigma2 +=  M_PI*(value_At_Nu_Min*nu_Min + value[i_Min]*argument[i_Min]) * (argument[i_Min] - nu_Min);
+				}
+				// last point, if necessary
+				if(i_Max<argument.size()-1) {
+					double value_At_Nu_Max = value[i_Max] + (value[i_Max+1] - value[i_Max]) * (nu_Max - argument[i_Max])/(argument[i_Max+1] - argument[i_Max]);
+					sigma2 +=  M_PI*(value[i_Max]*argument[i_Max] + value_At_Nu_Max*nu_Max) * (nu_Max - argument[i_Max]);
+				}
+			}
+			return sqrt(sigma2);
+		}
 	} else
 	{
 		return 0;
