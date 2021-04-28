@@ -356,58 +356,100 @@ void Calculation_Settings_Editor::load_Roughness_Parameters(int tab_Index)
 		roughness_Layout->setAlignment(Qt::AlignLeft);
 	roughness_Layout->setContentsMargins(7,12,7,7);
 
-	QVBoxLayout* radiobutton_Layout = new QVBoxLayout;
-		radiobutton_Layout->setSpacing(0);
-		radiobutton_Layout->setAlignment(Qt::AlignLeft);
-		radiobutton_Layout->setContentsMargins(0,0,0,0);
-	roughness_Layout->addLayout(radiobutton_Layout);
-
-	QRadioButton* DW_Radiobutton = new QRadioButton("Debye-Waller R");
-		DW_Radiobutton->setChecked(multilayer->imperfections_Model.reflectivity_With_Roughness == Debye_Waller_R);
-		DW_Radiobutton->setDisabled(true);
-	radiobutton_Layout->addWidget(DW_Radiobutton);
-	connect(DW_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(DW_Radiobutton->isChecked())		{
-			multilayer->imperfections_Model.reflectivity_With_Roughness = Debye_Waller_R;
+		QVBoxLayout* radiobutton_Layout = new QVBoxLayout;
+			radiobutton_Layout->setSpacing(1);
+			radiobutton_Layout->setAlignment(Qt::AlignLeft);
+			radiobutton_Layout->setContentsMargins(0,0,0,0);
+		roughness_Layout->addLayout(radiobutton_Layout);
+
+		QRadioButton* DW_Radiobutton = new QRadioButton("Debye-Waller R");
+			DW_Radiobutton->setChecked(multilayer->imperfections_Model.reflectivity_With_Roughness == Debye_Waller_R);
+			DW_Radiobutton->setDisabled(true);
+		radiobutton_Layout->addWidget(DW_Radiobutton);
+		connect(DW_Radiobutton, &QRadioButton::toggled, this, [=]
+		{
+			if(DW_Radiobutton->isChecked())		{
+				multilayer->imperfections_Model.reflectivity_With_Roughness = Debye_Waller_R;
+				global_Multilayer_Approach->global_Recalculate();
+			}
+		});
+		QRadioButton* perturbative_Radiobutton = new QRadioButton("Perturbative R");
+			perturbative_Radiobutton->setChecked(multilayer->imperfections_Model.reflectivity_With_Roughness == perturbative_R);
+			perturbative_Radiobutton->setDisabled(true);
+		radiobutton_Layout->addWidget(perturbative_Radiobutton);
+		connect(perturbative_Radiobutton, &QRadioButton::toggled, this, [=]
+		{
+			if(perturbative_Radiobutton->isChecked())		{
+				multilayer->imperfections_Model.reflectivity_With_Roughness = perturbative_R;
+				global_Multilayer_Approach->global_Recalculate();
+			}
+		});
+		QButtonGroup* reflectivity_Roughness_Group = new QButtonGroup;
+			reflectivity_Roughness_Group->addButton(perturbative_Radiobutton);
+			reflectivity_Roughness_Group->addButton(DW_Radiobutton);
+	}
+	{
+		QVBoxLayout* second_Layout = new QVBoxLayout;
+			second_Layout->setSpacing(1);
+			second_Layout->setAlignment(Qt::AlignLeft);
+		roughness_Layout->addLayout(second_Layout);
+
+		//-------------------------------------------------------------------------------------
+
+		QHBoxLayout* nu_Limit_Layout = new QHBoxLayout;
+		second_Layout->addLayout(nu_Limit_Layout);
+
+		QLabel* nu_Limit_Label = new QLabel("Max spatial frequency ");
+		nu_Limit_Layout->addWidget(nu_Limit_Label);
+
+		QString units = spatial_Frequency_Units_List[inv_nm];
+		double coeff = spatial_Frequency_Coefficients_Map.value(units);
+		MyDoubleSpinBox* nu_Limit_Spinbox = new MyDoubleSpinBox(nullptr, false);
+			nu_Limit_Spinbox->setAccelerated(true);
+			nu_Limit_Spinbox->setRange(0.01, 999.99);
+			nu_Limit_Spinbox->setDecimals(2);
+			nu_Limit_Spinbox->setValue(multilayer->imperfections_Model.nu_Limit/coeff);
+			nu_Limit_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			nu_Limit_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			nu_Limit_Spinbox->setFixedWidth(40);
+		nu_Limit_Layout->addWidget(nu_Limit_Spinbox);
+		connect(nu_Limit_Spinbox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			multilayer->imperfections_Model.nu_Limit = nu_Limit_Spinbox->value()*coeff;
 			global_Multilayer_Approach->global_Recalculate();
-		}
-	});
-	QRadioButton* perturbative_Radiobutton = new QRadioButton("Perturbative R");
-		perturbative_Radiobutton->setChecked(multilayer->imperfections_Model.reflectivity_With_Roughness == perturbative_R);
-		perturbative_Radiobutton->setDisabled(true);
-	radiobutton_Layout->addWidget(perturbative_Radiobutton);
-	connect(perturbative_Radiobutton, &QRadioButton::toggled, this, [=]
-	{
-		if(perturbative_Radiobutton->isChecked())		{
-			multilayer->imperfections_Model.reflectivity_With_Roughness = perturbative_R;
+		});
+
+		QLabel* nu_Limit_Units_Label = new QLabel(" "+units);
+		nu_Limit_Layout->addWidget(nu_Limit_Units_Label);
+
+		//-------------------------------------------------------------------------------------
+
+		bool disable_DWBA_SA_CSA =	multilayer->imperfections_Model.approximation != DWBA_approximation &&
+									multilayer->imperfections_Model.approximation != SA_approximation &&
+									multilayer->imperfections_Model.approximation != CSA_approximation;
+		QHBoxLayout* n_Max_Series_Layout = new QHBoxLayout;
+		second_Layout->addLayout(n_Max_Series_Layout);
+
+//		QLabel* n_Max_Series_Label = new QLabel("Number of terms for\nDWBA, SA, CSA scattering");
+		QLabel* n_Max_Series_Label = new QLabel("Num terms for DWBA/SA/CSA ");
+			n_Max_Series_Label->setDisabled(disable_DWBA_SA_CSA);
+		n_Max_Series_Layout->addWidget(n_Max_Series_Label);
+
+		QSpinBox* n_Max_Series_Spinbox = new QSpinBox;
+			n_Max_Series_Spinbox->setRange(1, 150);
+			n_Max_Series_Spinbox->setSingleStep(1);
+			n_Max_Series_Spinbox->setValue(multilayer->imperfections_Model.DWBA_n_Max_Series);
+			n_Max_Series_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			n_Max_Series_Spinbox->setFixedWidth(30);
+			n_Max_Series_Spinbox->setDisabled(disable_DWBA_SA_CSA);
+		n_Max_Series_Layout->addWidget(n_Max_Series_Spinbox);
+		connect(n_Max_Series_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+		{
+			multilayer->imperfections_Model.DWBA_n_Max_Series = n_Max_Series_Spinbox->value();
 			global_Multilayer_Approach->global_Recalculate();
-		}
-	});
-	QButtonGroup* reflectivity_Roughness_Group = new QButtonGroup;
-		reflectivity_Roughness_Group->addButton(perturbative_Radiobutton);
-		reflectivity_Roughness_Group->addButton(DW_Radiobutton);
-
-	bool disable_DWBA_SA_CSA =	multilayer->imperfections_Model.approximation != DWBA_approximation &&
-								multilayer->imperfections_Model.approximation != SA_approximation &&
-								multilayer->imperfections_Model.approximation != CSA_approximation;
-	QLabel* n_Max_Series_Label = new QLabel("Number of terms for\nDWBA, SA, CSA scattering");
-		n_Max_Series_Label->setDisabled(disable_DWBA_SA_CSA);
-	roughness_Layout->addWidget(n_Max_Series_Label);
-
-	QSpinBox* n_Max_Series_Spinbox = new QSpinBox;
-		n_Max_Series_Spinbox->setRange(1, 150);
-		n_Max_Series_Spinbox->setSingleStep(1);
-		n_Max_Series_Spinbox->setValue(multilayer->imperfections_Model.DWBA_n_Max_Series);
-		n_Max_Series_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		n_Max_Series_Spinbox->setFixedWidth(40);
-		n_Max_Series_Spinbox->setDisabled(disable_DWBA_SA_CSA);
-	roughness_Layout->addWidget(n_Max_Series_Spinbox);
-	connect(n_Max_Series_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
-	{
-		multilayer->imperfections_Model.DWBA_n_Max_Series = n_Max_Series_Spinbox->value();
-		global_Multilayer_Approach->global_Recalculate();
-	});
+		});
+	}
 }
 
 void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)

@@ -969,8 +969,8 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		linear_a2_units					= structure_Default_Values.value( "linear_a2_units",				linear_a2_Units_List[1]					).toString();
 		linear_a3_units					= structure_Default_Values.value( "linear_a3_units",				linear_a3_Units_List[1]					).toString();
 		linear_a4_units					= structure_Default_Values.value( "linear_a4_units",				linear_a4_Units_List[1]					).toString();
-		spatial_frequency_units			= structure_Default_Values.value( "spatial_frequency_units",		spatial_Frequency_Units_List[angstrom]	).toString();
-		spatial_frequency_units_export	= structure_Default_Values.value( "spatial_frequency_units_export",	spatial_Frequency_Units_List[angstrom]	).toString();
+		spatial_frequency_units			= structure_Default_Values.value( "spatial_frequency_units",		spatial_Frequency_Units_List[inv_mcm]	).toString();
+		spatial_frequency_units_export	= structure_Default_Values.value( "spatial_frequency_units_export",	spatial_Frequency_Units_List[inv_mcm]	).toString();
 		PSD_1D_value_units				= structure_Default_Values.value( "PSD_1D_value_units",				PSD_1D_Value_Units_List[nm_3]			).toString();
 		PSD_2D_value_units				= structure_Default_Values.value( "PSD_2D_value_units",				PSD_2D_Value_Units_List[nm_4]			).toString();
 	structure_Default_Values.endGroup();

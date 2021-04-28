@@ -33,7 +33,6 @@ vector<double> sin_a_Coeff_For_BesselJ0 = {+0.125,				// +a(1)
 										  };
 int coeff_For_BesselJ0_Size = cos_a_Coeff_For_BesselJ0.size();
 double max_Phi_Azimuthal_Integration = 90;
-double nu_Limit = 0.1; 	// in Angstrom^-1
 
 // locale
 QLocale Locale;

@@ -16,7 +16,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 16
+#define VERSION_BUILD 17
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -176,6 +176,9 @@ class Node;
 #define Subscript_p_Sym			QString(QChar(0x209A))
 #define Subscript_v_Sym			QString(QChar(0x1d65))
 #define Subscript_e_Sym			QString(QChar(0x2091))
+#define Subscript_l_Sym			QString(QChar(0x2097))
+#define Subscript_i_Sym			QString(QChar(0x1D62))
+#define Subscript_m_Sym			QString(QChar(0x2098))
 #define Subscript_0_Sym			QString(QChar(0x2080))
 #define Subscript_1_Sym			QString(QChar(0x2081))
 #define Subscript_2_Sym			QString(QChar(0x2082))
@@ -932,6 +935,7 @@ struct PSD_Data					{QVector<double> raw_Argument;
 								 QString value_Units;
 								 QString filepath;
 
+								 bool is_Loaded();
 								 double calc_Sigma_Full() const;
 								 double calc_Sigma_Effective(double nu_Min, double nu_Max) const;
 								};
@@ -976,6 +980,7 @@ struct Imperfections_Model		{
 								QString inheritance_Model = replication_Factor_Inheritance_Model;
 								QString reflectivity_With_Roughness = Debye_Waller_R;
 								int DWBA_n_Max_Series = 5;
+								double nu_Limit = 0.1; // A^-1
 
 								PSD_Data PSD_1D;
 								PSD_Data PSD_2D;

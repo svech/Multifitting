@@ -28,8 +28,6 @@ extern vector<double> cos_a_Coeff_For_BesselJ0;
 extern vector<double> sin_a_Coeff_For_BesselJ0;
 extern int coeff_For_BesselJ0_Size;
 extern double max_Phi_Azimuthal_Integration;
-extern double nu_Limit;
-
 
 // locale
 extern QLocale Locale;

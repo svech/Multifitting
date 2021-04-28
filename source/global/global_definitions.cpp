@@ -615,7 +615,7 @@ QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperf
 
 				  << imperfections_Model.add_Measured_PSD_1D << imperfections_Model.add_Measured_PSD_2D
 				  << imperfections_Model.add_Gauss_Peak << imperfections_Model.use_Common_Roughness_Function
-				  << imperfections_Model.inheritance_Model << imperfections_Model.reflectivity_With_Roughness << imperfections_Model.DWBA_n_Max_Series
+				  << imperfections_Model.inheritance_Model << imperfections_Model.reflectivity_With_Roughness << imperfections_Model.DWBA_n_Max_Series << imperfections_Model.nu_Limit
 
 
 				  << imperfections_Model.PSD_1D << imperfections_Model.PSD_2D
@@ -658,6 +658,9 @@ QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfecti
 
 	if(Global_Variables::check_Loaded_Version(1,11,12))
 	{stream >> imperfections_Model.reflectivity_With_Roughness >> imperfections_Model.DWBA_n_Max_Series;}
+
+	if(Global_Variables::check_Loaded_Version(1,11,17))
+	{stream >> imperfections_Model.nu_Limit;}
 
 	if(Global_Variables::check_Loaded_Version(1,11,10))
 	{stream >> imperfections_Model.PSD_1D >> imperfections_Model.PSD_2D;}
@@ -879,9 +882,17 @@ void Element_Data::read_Element(QString& filename)
 	file.close();
 }
 
-double PSD_Data::calc_Sigma_Full() const
+bool PSD_Data::is_Loaded()
 {
 	if(argument.size()>2)
+		return true;
+	else
+		return false;
+}
+
+double PSD_Data::calc_Sigma_Full() const
+{
+	if(is_Loaded())
 	{
 		double sigma2 = 0;
 		double dnu;
@@ -944,7 +955,7 @@ double PSD_Data::calc_Sigma_Full() const
 
 double PSD_Data::calc_Sigma_Effective(double nu_Min, double nu_Max) const
 {
-	if(argument.size()>2)
+	if(is_Loaded())
 	{
 		double arg_Min = argument.front();
 		double arg_Max = argument.back();
