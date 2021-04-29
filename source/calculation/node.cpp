@@ -751,19 +751,71 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 			}
 		} else
 		{
+			auto f_2 = [&](double p){return Global_Variables::PSD_ABC_1D_from_nu(struct_Data.PSD_ABC_1D_Factor, xi, alpha, p, nullptr, nullptr);};
+
 			/// here we integrate PSD before and after measured PSD
 
 			// full sigma up to nu_Limit
 			double val = (2*M_PI*imperfections_Model.nu_Limit*xi);
 			double total_Sigma_2 = sigma*sigma*(1.-pow(1 + val*val,-alpha));
 
-			// measured PSD 2D does not affect on specular
+			// measured PSD 1D is accounted first
 			if(imperfections_Model.add_Measured_PSD_1D && imperfections_Model.PSD_1D.is_Loaded())
 			{
+				qInfo() << "PSD 1D measured is accounted" << endl;
+				// ABC first part
+				double nu1 = min(imperfections_Model.nu_Limit, imperfections_Model.PSD_1D.argument.front());
+				double z = -pow(2*M_PI*nu1*xi,2); // z is non-negative
+				double zz = z/(z-1);
+				if(abs(zz)>=1) {qInfo() << "Node::calc_Debye_Waller_Sigma  : a :  abs(zz)>=1, nu =" << nu1 << endl;}
+				double pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
+				total_Sigma_2 = 2*(2*M_PI*nu1)*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
 
+				// measured part
+				total_Sigma_2 += pow(imperfections_Model.PSD_1D.calc_Sigma_Full()*struct_Data.roughness_Model.sigma_Factor_PSD_1D.value,2);
+
+				// ABC second part
+				double nu2 = imperfections_Model.PSD_1D.argument.back();
+				if(nu2 < imperfections_Model.nu_Limit)
+				{
+					z = -pow(2*M_PI*imperfections_Model.nu_Limit*xi,2); // z is non-negative
+					zz = z/(z-1);
+					if(abs(zz)>=1) {qInfo() << "Node::calc_Debye_Waller_Sigma  : b :  abs(zz)>=1, nu =" << imperfections_Model.nu_Limit << endl;}
+					pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
+					total_Sigma_2 += 2*(2*M_PI*imperfections_Model.nu_Limit)*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
+
+					z = -pow(2*M_PI*nu2*xi,2); // z is non-negative
+					zz = z/(z-1);
+					if(abs(zz)>=1) {qInfo() << "Node::calc_Debye_Waller_Sigma  : c :  abs(zz)>=1, nu =" << nu2 << endl;}
+					pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
+					total_Sigma_2 -= 2*(2*M_PI*nu2)*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
+				}
+			} else
+			// if no PSD 1D we use PSD 2D
+			if(imperfections_Model.add_Measured_PSD_2D && imperfections_Model.PSD_2D.is_Loaded())
+			{
+				qInfo() << "PSD 2D measured is accounted" << endl;
+				// ABC first part
+				double nu1 = min(imperfections_Model.nu_Limit, imperfections_Model.PSD_2D.argument.front());
+				val = (2*M_PI*nu1*xi);
+				total_Sigma_2 = sigma*sigma*(1.-pow(1 + val*val,-alpha));
+
+				// measured part
+				total_Sigma_2 += pow(imperfections_Model.PSD_2D.calc_Sigma_Full()*struct_Data.roughness_Model.sigma_Factor_PSD_2D.value,2);
+
+				// ABC second part
+				double nu2 = imperfections_Model.PSD_2D.argument.back();
+				if(nu2 < imperfections_Model.nu_Limit)
+				{
+					val = (2*M_PI*nu2*xi);
+					total_Sigma_2 += sigma*sigma*(pow(1 + val*val,-alpha));
+
+					val = (2*M_PI*imperfections_Model.nu_Limit*xi);
+					total_Sigma_2 -= sigma*sigma*(pow(1 + val*val,-alpha));
+				}
 			}
+			qInfo() << "total s =" << sqrt(total_Sigma_2) << endl;
 
-			auto f_2 = [&](double p){return Global_Variables::PSD_ABC_1D_from_nu(struct_Data.PSD_ABC_1D_Factor, xi, alpha, p, nullptr, nullptr);};
 			for(size_t i = 0; i<num_Points; ++i)
 			{
 				double z = -p0[i]*p0[i]*xi*xi; // z is non-negative

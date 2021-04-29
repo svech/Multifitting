@@ -882,7 +882,7 @@ void Element_Data::read_Element(QString& filename)
 	file.close();
 }
 
-bool PSD_Data::is_Loaded()
+bool PSD_Data::is_Loaded() const
 {
 	if(argument.size()>2)
 		return true;
