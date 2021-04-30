@@ -41,6 +41,9 @@ public:
 	/// ------------------------------------------------
 
 	vector<double> specular_Debye_Waller_Weak_Factor_R;
+	double ABC_Combined_Total_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha);
+	double FG_Combined_Total_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha);
+
 	void calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Model, const Data& measurement);
 
 	double specular_Debye_Waller_Total_Sigma = 0;
@@ -61,11 +64,19 @@ public:
 	gsl_spline* spline_PSD_FG_2D;
 	gsl_interp_accel* acc_PSD_FG_2D;
 
-	void create_Spline_PSD_Measured(const Imperfections_Model& imperfections_Model, QString PSD_Type);
+	void create_Spline_PSD_Measured(const Imperfections_Model& imperfections_Model);
 	void clear_Spline_PSD_Measured (const Imperfections_Model& imperfections_Model);
 
-	gsl_spline* spline_PSD_Meas;
-	gsl_interp_accel* acc_PSD_Meas;
+	gsl_spline* spline_PSD_Meas_1D;
+	gsl_interp_accel* acc_PSD_Meas_1D;
+	gsl_spline* spline_PSD_Meas_2D;
+	gsl_interp_accel* acc_PSD_Meas_2D;
+
+	void create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfections_Model);
+	void clear_Spline_PSD_Combined_1D (const Imperfections_Model& imperfections_Model);
+
+	gsl_spline* spline_PSD_Combined_1D;
+	gsl_interp_accel* acc_PSD_Combined_1D;
 
 	void create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model);
 	void clear_Spline_PSD_Peak (const Imperfections_Model& imperfections_Model);
