@@ -692,8 +692,6 @@ double Node::ABC_Combined_Total_Sigma_2(const Imperfections_Model &imperfections
 
 double Node::FG_Combined_Total_Sigma_2(const Imperfections_Model &imperfections_Model, double sigma, double xi, double alpha)
 {
-	auto f_Cor_Sigma_1D = [&](double r) {return 1/r * sigma*sigma * exp(-pow(r/xi,2*alpha));};
-	ooura_fourier_sin<double> integrator;
 	std::pair<double, double> result_Boost;
 
 	double total_Sigma_2 = 0;
@@ -701,6 +699,9 @@ double Node::FG_Combined_Total_Sigma_2(const Imperfections_Model &imperfections_
 	// measured PSD 1D is accounted first
 	if(imperfections_Model.add_Measured_PSD_1D && imperfections_Model.PSD_1D.is_Loaded())
 	{
+		auto f_Cor_Sigma_1D = [&](double r) {return 1/r * sigma*sigma * exp(-pow(r/xi,2*alpha));};
+		ooura_fourier_sin<double> integrator;
+
 		// FG first part
 		double nu1 = min(imperfections_Model.nu_Limit, imperfections_Model.PSD_1D.argument.front());
 		result_Boost = integrator.integrate(f_Cor_Sigma_1D, 2*M_PI*nu1);
@@ -723,27 +724,84 @@ double Node::FG_Combined_Total_Sigma_2(const Imperfections_Model &imperfections_
 	// if no PSD 1D we use PSD 2D
 	if(imperfections_Model.add_Measured_PSD_2D && imperfections_Model.PSD_2D.is_Loaded())
 	{
-//		// FG first part
-//		double nu1 = min(imperfections_Model.nu_Limit, imperfections_Model.PSD_2D.argument.front());
-//		double val = (2*M_PI*nu1*xi);
-//		total_Sigma_2 = sigma*sigma*(1.-pow(1 + val*val,-alpha));
+		// FG first part
+		double nu1 = min(imperfections_Model.nu_Limit, imperfections_Model.PSD_2D.argument.front());
+
+		if(abs(1-alpha)>DBL_EPSILON)
+		{
+			total_Sigma_2 = integrate_FG_from_0_to_nu(nu1, sigma, xi, alpha);
+		} else
+		// if gaussian correlation function
+		{
+			double val = (M_PI*nu1*xi);
+			total_Sigma_2 = sigma*sigma*(1.-exp(-val*val));
+		}
 
 		// measured part
 		total_Sigma_2 += pow(imperfections_Model.PSD_2D.calc_Sigma_Full()*struct_Data.roughness_Model.sigma_Factor_PSD_2D.value,2);
 
-//		// FG second part
-//		double nu2 = imperfections_Model.PSD_2D.argument.back();
-//		if(nu2 < imperfections_Model.nu_Limit)
-//		{
-//			val = (2*M_PI*nu2*xi);
-//			total_Sigma_2 += sigma*sigma*(pow(1 + val*val,-alpha));
-
-//			val = (2*M_PI*imperfections_Model.nu_Limit*xi);
-//			total_Sigma_2 -= sigma*sigma*(pow(1 + val*val,-alpha));
-//		}
+		// FG second part
+		double nu2 = imperfections_Model.PSD_2D.argument.back();
+		if(nu2 < imperfections_Model.nu_Limit)
+		{
+			if(abs(1-alpha)>DBL_EPSILON)
+			{
+				total_Sigma_2 += (integrate_FG_from_0_to_nu(imperfections_Model.nu_Limit, sigma, xi, alpha) -
+				                  integrate_FG_from_0_to_nu(nu2, sigma, xi, alpha));
+			} else
+			// if gaussian correlation function
+			{
+				double val2 = (M_PI*nu2*xi);
+				double val_Lim = (M_PI*imperfections_Model.nu_Limit*xi);
+				total_Sigma_2 += sigma*sigma*( exp(-val2*val2) - exp(-val_Lim*val_Lim) );
+			}
+		}
 	}
 	return total_Sigma_2;
+}
 
+double Node::integrate_FG_from_0_to_nu(double nu, double sigma, double xi, double alpha)
+{
+	double w = 2*M_PI*nu;
+
+	double integral = 0;
+	double n = 2;
+	double shift = M_PI*(2*n+0.75); // for Bessel order == 1
+	double division_Point = shift/w;
+
+	// first part
+	tanh_sinh<double> sigma_Integrator;
+	double sigma_Integrator_Tolerance = 1E-4;
+	auto f_1 = [&](double r) {
+		return exp(-pow(r/xi,2*alpha)) * cyl_bessel_j(1, w*r);
+	};
+	integral = w * sigma_Integrator.integrate(f_1, 0, division_Point, sigma_Integrator_Tolerance);
+
+	// second part
+	const double tol = 1E-7;
+	int depth = 4;
+	ooura_fourier_cos<double> integrator_Cos(tol, depth);
+	ooura_fourier_sin<double> integrator_Sin(tol, depth);
+	auto f_2_cos = [&](double r)
+	{
+		double r_Sh = r + shift/w;
+		double r_Sh_W = w*r + shift;
+		double cos_Val = Global_Variables::val_Cos_Expansion(r_Sh_W, cos_a_Coeff_For_BesselJ1);
+		return exp(-pow(r_Sh/xi,2*alpha)) * cos_Val / sqrt(r_Sh_W);
+	};
+	auto f_2_sin = [&](double r)
+	{
+		double r_Sh = r + shift/w;
+		double r_Sh_W = w*r + shift;
+		double sin_Val = Global_Variables::val_Sin_Expansion(r_Sh_W, sin_a_Coeff_For_BesselJ1);
+		return exp(-pow(r_Sh/xi,2*alpha)) * sin_Val / sqrt(r_Sh_W);
+	};
+	std::pair<double, double> cos_Integral = integrator_Cos.integrate(f_2_cos, w);
+	integral += w*sqrt(M_2_PI)*cos_Integral.first;
+	std::pair<double, double> sin_Integral = integrator_Sin.integrate(f_2_sin, w);
+	integral += w*sqrt(M_2_PI)*sin_Integral.first;
+
+	return sigma*sigma*integral;
 }
 
 void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Model, const Data& measurement)
@@ -807,6 +865,7 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 	double peak_Sigma = 0;
 	if(imperfections_Model.add_Gauss_Peak)
 	{
+		/// requires spline_PSD_Peak
 		double peak_Range_Factor = 8;
 			   peak_Sigma = struct_Data.roughness_Model.peak_Sigma.value;
 		double peak_Frequency = struct_Data.roughness_Model.peak_Frequency.value;
@@ -865,7 +924,7 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 			}
 		} else
 		{
-			// full sigma up to nu_Limit
+			// by default full sigma up to nu_Limit
 			double val = (2*M_PI*imperfections_Model.nu_Limit*xi);
 			double total_Sigma_2 = sigma*sigma*(1.-pow(1 + val*val,-alpha));
 
@@ -1012,6 +1071,7 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 			}
 		} else
 		{
+			// by default full sigma up to nu_Limit
 			std::pair<double, double> result_Boost = integrator.integrate(f_Cor_Sigma_1D, 2*M_PI*imperfections_Model.nu_Limit);
 			double total_Sigma_2 = M_2_PI*result_Boost.first;
 
@@ -1040,68 +1100,6 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 		gsl_spline_free(spline_Delta_Sigma_2);
 		gsl_interp_accel_free(acc_Delta_Sigma_2);
 	}
-	if(imperfections_Model.PSD_Model == measured_PSD)
-	{
-		// PSD_2D should be loaded if partial correlation, otherwise PSD_1D
-		PSD_Data psd_Data = imperfections_Model.vertical_Correlation == partial_Correlation ? imperfections_Model.PSD_2D : imperfections_Model.PSD_1D;
-		double sigma_Factor = imperfections_Model.vertical_Correlation == partial_Correlation ? struct_Data.roughness_Model.sigma_Factor_PSD_2D.value : struct_Data.roughness_Model.sigma_Factor_PSD_1D.value;
-		QVector<double> pi_nu(psd_Data.argument.size(),1);
-		if(imperfections_Model.vertical_Correlation == partial_Correlation)
-		{
-			for(int i=0; i<psd_Data.argument.size(); i++)
-			{
-				pi_nu[i] = 2*M_PI*psd_Data.value[i];
-			}
-		}
-
-		double min_Meas_p = psd_Data.argument.front();
-		double max_Meas_p = psd_Data.argument.back();
-		double full_Sigma2 = pow(psd_Data.calc_Sigma_Full(),2);
-
-		for(size_t i = 0; i<num_Points; ++i)
-		{
-			// real frequency
-			p0[i] = p0[i]/(2*M_PI);
-
-			if(p0[i]<=min_Meas_p)
-			{
-				sigma_2[i] = full_Sigma2;
-			} else
-			if(p0[i]>min_Meas_p && p0[i]<max_Meas_p)
-			{
-				// get psd_Index
-				int psd_Index = 1;
-				for(psd_Index = 1; psd_Index<psd_Data.argument.size(); psd_Index++)
-				{
-					if(p0[i]> psd_Data.argument[psd_Index-1] &&
-					   p0[i]<=psd_Data.argument[psd_Index]) break;
-				}
-
-				// first point
-				double dnu = psd_Data.argument[psd_Index] - p0[i] + (psd_Data.argument[psd_Index+1] - psd_Data.argument[psd_Index-1])/4;
-				sigma_2[i] += psd_Data.value[psd_Index]*dnu*pi_nu[psd_Index];
-
-				// intermediate points
-				for(int integration_index = psd_Index+1; integration_index<psd_Data.argument.size()-1; integration_index++)
-				{
-					dnu = (psd_Data.argument[integration_index+1] - psd_Data.argument[integration_index-1])/2;
-					sigma_2[i] += psd_Data.value[integration_index]*dnu*pi_nu[integration_index];
-				}
-
-				// last point
-				dnu = psd_Data.argument[psd_Data.argument.size()-1] - psd_Data.argument[psd_Data.argument.size()-2];
-				sigma_2[i] += psd_Data.value[psd_Data.argument.size()-1]*dnu*pi_nu[psd_Data.argument.size()-1];
-			} else
-			// p0[i]>max_Meas_p
-			{
-				sigma_2[i] = 0;
-			}
-
-			// multiply by factor
-			sigma_2[i] *= sigma_Factor*sigma_Factor;
-		}
-	}
-
 
 	for(size_t i = 0; i<num_Points; ++i)
 	{
@@ -1193,24 +1191,14 @@ void Node::calc_Debye_Waller_Total_Sigma(const Imperfections_Model& imperfection
 		{
 			std::pair<double, double> result_Boost = integrator.integrate(f_Cor_Sigma_1D, 2*M_PI*imperfections_Model.nu_Limit);
 			specular_Debye_Waller_Total_Sigma = M_2_PI*result_Boost.first + peak_Sigma*peak_Sigma;
-		}
-	}
-	if(imperfections_Model.PSD_Model == measured_PSD)
-	{
-		// PSD_2D should be loaded if partial correlation, otherwise PSD_1D
-		PSD_Data psd_Data = imperfections_Model.vertical_Correlation == partial_Correlation ? imperfections_Model.PSD_2D : imperfections_Model.PSD_1D;
-		double sigma_Factor = imperfections_Model.vertical_Correlation == partial_Correlation ? struct_Data.roughness_Model.sigma_Factor_PSD_2D.value : struct_Data.roughness_Model.sigma_Factor_PSD_1D.value;
-		QVector<double> pi_nu(psd_Data.argument.size(),1);
-		if(imperfections_Model.vertical_Correlation == partial_Correlation)
-		{
-			for(int i=0; i<psd_Data.argument.size(); i++)
+
+			// if have measured PSD
+			if( (imperfections_Model.add_Measured_PSD_1D && imperfections_Model.PSD_1D.is_Loaded()) ||
+			    (imperfections_Model.add_Measured_PSD_2D && imperfections_Model.PSD_2D.is_Loaded()) )
 			{
-				pi_nu[i] = 2*M_PI*psd_Data.value[i];
+				specular_Debye_Waller_Total_Sigma = FG_Combined_Total_Sigma_2(imperfections_Model, sigma, xi, alpha);
 			}
 		}
-		double full_Sigma2 = pow(psd_Data.calc_Sigma_Full(),2);
-
-		specular_Debye_Waller_Total_Sigma = full_Sigma2*sigma_Factor*sigma_Factor;
 	}
 	specular_Debye_Waller_Total_Sigma = sqrt(specular_Debye_Waller_Total_Sigma);
 }
@@ -1875,14 +1863,14 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 				{
 					double r_Sh = r + shift/nu;
 					double r_Sh_W = nu*r + shift;
-					double cos_Val = Global_Variables::val_Cos_Expansion(r_Sh_W);
+					double cos_Val = Global_Variables::val_Cos_Expansion(r_Sh_W, cos_a_Coeff_For_BesselJ0);
 					return exp(-pow(r_Sh/xi,2*alpha)) * cos_Val * sqrt(r_Sh/nu);
 				};
 				auto f_2_sin = [&](double r)
 				{
 					double r_Sh = r + shift/nu;
 					double r_Sh_W = nu*r + shift;
-					double sin_Val = Global_Variables::val_Sin_Expansion(r_Sh_W);
+					double sin_Val = Global_Variables::val_Sin_Expansion(r_Sh_W, sin_a_Coeff_For_BesselJ0);
 					return exp(-pow(r_Sh/xi,2*alpha)) * sin_Val * sqrt(r_Sh/nu);
 				};
 				std::pair<double, double> cos_Integral = integrator_Cos.integrate(f_2_cos, nu);
@@ -2086,12 +2074,18 @@ void Node::clear_Spline_PSD_Measured(const Imperfections_Model& imperfections_Mo
 	gsl_interp_accel_free(acc_PSD_Meas_2D);
 }
 
+bool Node::spline_PSD_Combined_1D_Condition(const Imperfections_Model &imperfections_Model)
+{
+	if(imperfections_Model.PSD_1D.is_Loaded() && imperfections_Model.add_Measured_PSD_1D) return false; // we can use PSD 1D
+	if(!imperfections_Model.PSD_2D.is_Loaded() || !imperfections_Model.add_Measured_PSD_2D) return false; // we can't use PSD 2D
+	if(struct_Data.item_Type != item_Type_Substrate ) return false;
+
+	return true;
+}
+
 void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfections_Model)
 {
-	if(imperfections_Model.PSD_1D.is_Loaded() && imperfections_Model.add_Measured_PSD_1D) return; // we can use PSD 1D
-	if(!imperfections_Model.add_Measured_PSD_2D) return; // we can't use PSD 2D
-	if(!imperfections_Model.PSD_2D.is_Loaded()) return;  // we can't use PSD 2D
-	if(struct_Data.item_Type != item_Type_Substrate ) return;
+	if(!spline_PSD_Combined_1D_Condition(imperfections_Model)) return;
 
 	/// no gauss peak here, because it can be calculated separately
 
@@ -2205,7 +2199,7 @@ void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfection
 		// piece function
 		auto PSD_2D_Func = [&](double nu)		{
 			if((nu<=nu1 && nu<=nu_Limit) || (nu>=nu2 && nu<=nu_Limit))	{
-				return PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, nullptr, nullptr);
+				return PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, spline_PSD_FG_2D, acc_PSD_FG_2D);
 			} else
 			if(nu1<nu && nu<nu2 && nu<nu_Limit)	{
 				return gsl_spline_eval(spline_PSD_Meas_2D, nu, acc_PSD_Meas_2D);
@@ -2214,9 +2208,9 @@ void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfection
 			}
 		};
 		auto f_Model = [&](double nu)		{
-			return 4 * PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, nullptr, nullptr) * nu / sqrt(nu*nu - p*p);
+			return 4 * PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, spline_PSD_FG_2D, acc_PSD_FG_2D) * nu / sqrt(nu*nu - p*p);
 		};
-		auto f_Measured = [&](double nu)		{
+		auto f_Measured = [&](double nu)	{
 			return 4 * gsl_spline_eval(spline_PSD_Meas_2D, nu, acc_PSD_Meas_2D) * nu / sqrt(nu*nu - p*p);
 		};
 		auto f = [&](double nu)		{
@@ -2269,7 +2263,7 @@ void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfection
 						if(nu2<nu_Max)
 						{
 							result += integrator.integrate(f_Measured, pdp, nu2, integrator_tolerance);
-							result += integrator.integrate(f_Model,    nu2, nu_Max, integrator_tolerance);
+							result += integrator.integrate(f_Model,    nu2, nu_Max, 0.1*integrator_tolerance);
 						} else
 						{
 							result += integrator.integrate(f_Measured, pdp, nu_Max, integrator_tolerance);
@@ -2284,12 +2278,14 @@ void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfection
 					result  = integral_p_nu(nu_Max);
 				}
 			} else
-			if(p<nu_Max && p>=nu2) // pure model 1D case
 			{
-				result = PSD_1D_Func_from_nu(factor_1D, xi, alpha, p, spline_PSD_FG_1D, acc_PSD_FG_1D);
-			} else
-			{
-				result = 0;
+				if(p<nu_Max && p>=nu2) // pure model 1D case
+				{
+					result = PSD_1D_Func_from_nu(factor_1D, xi, alpha, p, spline_PSD_FG_1D, acc_PSD_FG_1D);
+				} else
+				{
+					result = 0;
+				}
 			}
 
 			PSD_1D_Values_Vec[i] = result;
@@ -2308,10 +2304,7 @@ void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfection
 }
 void Node::clear_Spline_PSD_Combined_1D(const Imperfections_Model& imperfections_Model)
 {
-	if(imperfections_Model.PSD_1D.is_Loaded() && imperfections_Model.add_Measured_PSD_1D) return; // we can use PSD 1D
-	if(!imperfections_Model.add_Measured_PSD_2D) return; // we can't use PSD 2D
-	if(!imperfections_Model.PSD_2D.is_Loaded()) return;  // we can't use PSD 2D
-	if(struct_Data.item_Type != item_Type_Substrate ) return;
+	if(!spline_PSD_Combined_1D_Condition(imperfections_Model)) return;
 
 	gsl_spline_free(spline_PSD_Combined_1D);
 	gsl_interp_accel_free(acc_PSD_Combined_1D);

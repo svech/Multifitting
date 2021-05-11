@@ -31,7 +31,20 @@ vector<double> sin_a_Coeff_For_BesselJ0 = {+0.125,				// +a(1)
 										   -1.727727502584457,	// -a(7)
 										   +24.38052969955606	// +a(9)
 										  };
-int coeff_For_BesselJ0_Size = cos_a_Coeff_For_BesselJ0.size();
+vector<double> cos_a_Coeff_For_BesselJ1 = {+1.,					// +a(0)
+										   +0.1171875,			// -a(2)
+										   -0.144195556640625,	// +a(4)
+										   +0.6765925884246826,	// -a(6)
+										   -6.883914268109947	// +a(8)
+										  };
+
+vector<double> sin_a_Coeff_For_BesselJ1 = {-0.375,				// +a(1)
+										   +0.1025390625,		// -a(3)
+										   -0.2775764465332031,	// +a(5)
+										   +1.993531733751297,	// -a(7)
+										   -27.24882731126854	// +a(9)
+										  };
+int coeff_For_Bessel_Size = cos_a_Coeff_For_BesselJ0.size(); // common for all orders!
 double max_Phi_Azimuthal_Integration = 90;
 
 // locale
@@ -1555,34 +1568,33 @@ double Global_Variables::PSD_Linear_Growth_2D(double exponent, double nu2_mu_Alp
 	}
 }
 
-double Global_Variables::val_Cos_Expansion(double arg)
+double Global_Variables::val_Cos_Expansion(double arg, const vector<double>& cos_a_Coeff)
 {
 	// arg > 0
 	double cos_Val = 0;
 	double arg2 = arg*arg;
 	double arg_Power = 1;
-	for(int i=0; i<coeff_For_BesselJ0_Size; i++)
+	for(int i=0; i<coeff_For_Bessel_Size; i++)
 	{
-		cos_Val += cos_a_Coeff_For_BesselJ0[i]*arg_Power;
+		cos_Val += cos_a_Coeff[i]*arg_Power;
 		arg_Power /= arg2;
 	}
 	return cos_Val;
 }
 
-double Global_Variables::val_Sin_Expansion(double arg)
+double Global_Variables::val_Sin_Expansion(double arg, const vector<double>& sin_a_Coeff)
 {
 	// arg > 0
 	double sin_Val = 0;
 	double arg2 = arg*arg;
 	double arg_Power = 1/arg;
-	for(int i=0; i<coeff_For_BesselJ0_Size; i++)
+	for(int i=0; i<coeff_For_Bessel_Size; i++)
 	{
-		sin_Val += sin_a_Coeff_For_BesselJ0[i]*arg_Power;
+		sin_Val += sin_a_Coeff[i]*arg_Power;
 		arg_Power /= arg2;
 	}
 	return sin_Val;
 }
-
 
 double Global_Variables::G1_Square(double a)
 {

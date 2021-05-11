@@ -26,7 +26,10 @@ extern Multilayer_Approach* global_Multilayer_Approach;
 extern std::vector<std::thread> global_Workers;
 extern vector<double> cos_a_Coeff_For_BesselJ0;
 extern vector<double> sin_a_Coeff_For_BesselJ0;
-extern int coeff_For_BesselJ0_Size;
+extern vector<double> cos_a_Coeff_For_BesselJ1;
+extern vector<double> sin_a_Coeff_For_BesselJ1;
+extern int coeff_For_Bessel_Size;
+
 extern double max_Phi_Azimuthal_Integration;
 
 // locale
@@ -401,8 +404,8 @@ public:
 	static double nu2							(                                        double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
 	static double PSD_Linear_Growth_2D (double exponent, double nu2_mu_Alpha_2, double omega, double thickness);
 
-	static double val_Cos_Expansion	 (double arg);
-	static double val_Sin_Expansion	 (double arg);
+	static double val_Cos_Expansion (double arg, const vector<double>& cos_a_Coeff);
+	static double val_Sin_Expansion (double arg, const vector<double>& sin_a_Coeff);
 
 	// density fluctuations
 	static double G1_Square			(double a);
