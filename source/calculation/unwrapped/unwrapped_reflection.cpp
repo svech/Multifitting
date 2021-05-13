@@ -1,4 +1,5 @@
 #include "unwrapped_reflection.h"
+#include <boost/math/quadrature/tanh_sinh.hpp>
 #include "multilayer_approach/multilayer/multilayer.h"
 
 struct Params
@@ -2827,7 +2828,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, incoherent_Sum_s, 0, true };
 									gsl_function F = { &function_Scattering_Replication_Factor_2D_s, &params };
 
-									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, cos_Theta_0, point_Index);
 								} else
 								// pure p-polarization
 								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
@@ -2836,7 +2837,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, incoherent_Sum_p, true };
 									gsl_function F = { &function_Scattering_Replication_Factor_2D_p, &params };
 
-									calculated_Values.S_p[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+									calculated_Values.S_p[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, cos_Theta_0, point_Index);
 								} else
 								// mixed sp-polarization
 								{
@@ -2846,7 +2847,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									gsl_function F = { &function_Scattering_Replication_Factor_2D_sp, &params };
 
 									// crutch: s and p only on mixed state. no different s and p calculations
-									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, cos_Theta_0, point_Index);
 									calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
 								}
 							} else
@@ -2860,14 +2861,14 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									calc_Field_Term_Sum("s", point_Index, thread_Index);
 									gsl_function F = { function_Scattering_Linear_Growth_s, &params };
-									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, cos_Theta_0, point_Index);
 								} else
 								// pure p-polarization
 								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
 								{
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
 									gsl_function F = { function_Scattering_Linear_Growth_p, &params };
-									calculated_Values.S_p[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+									calculated_Values.S_p[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, cos_Theta_0, point_Index);
 								} else
 								// mixed sp-polarization
 								{
@@ -2876,7 +2877,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									gsl_function F = { function_Scattering_Linear_Growth_sp, &params };
 
 									// crutch: s and p only on mixed state. no different s and p calculations
-									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, cos_Theta_0, point_Index);
 									calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
 								}
 							}
@@ -3622,43 +3623,90 @@ double Unwrapped_Reflection::calc_G2_Field_Sum(QString polarization, int thread_
 	return norm(return_Sum);
 }
 
-double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, double delta)
+double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, double cos_Theta_0, int point_Index)
 {
+	double delta = abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0);
 	double phi_Min = 0, phi_Max = max_Phi_Azimuthal_Integration;
-
+	double result = 0;
 	/// ----------------------------------------------------------------------------------------------------------------------
 
-	auto f = [&](double phi){return function->function(phi, function->params);};
-	double result = 0, error;
-	if(delta<1e-4)
+	if(multilayer->imperfections_Model.add_Gauss_Peak && !set_PSD_to_1)
 	{
-		double phi_Inter_1 = 0.002, phi_Inter_2 = 0.01, phi_Inter_3 = 0.1, phi_Inter_4 = 1, phi_Inter_5 = 5, phi_Inter_6 = 20;
-		result += gauss_kronrod<double,15>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Inter_6, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_6, phi_Max,	   0, 1e-7, &error);
+		double max_Peak_Frequency =     substrate.roughness_Model.peak_Frequency.value + 2*substrate.roughness_Model.peak_Frequency_Width.value;
+		double min_Peak_Frequency = max(substrate.roughness_Model.peak_Frequency.value - 2*substrate.roughness_Model.peak_Frequency_Width.value, 0.);
+
+		double cos_Phi_Max_Peak = (cos_Theta_0*cos_Theta_0 + measurement.detector_Theta_Cos2_Vec[point_Index] - pow(measurement.lambda_Value*max_Peak_Frequency,2))/
+								  (2*cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]);
+		double cos_Phi_Min_Peak = (cos_Theta_0*cos_Theta_0 + measurement.detector_Theta_Cos2_Vec[point_Index] - pow(measurement.lambda_Value*min_Peak_Frequency,2))/
+								  (2*cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]);
+
+		cos_Phi_Max_Peak = min(cos_Phi_Max_Peak, 1.);
+		cos_Phi_Min_Peak = min(cos_Phi_Min_Peak, 1.);
+
+		cos_Phi_Max_Peak = max(cos_Phi_Max_Peak, 0.);
+		cos_Phi_Min_Peak = max(cos_Phi_Min_Peak, 0.);
+
+		double phi_Max_Peak = qRadiansToDegrees(acos(cos_Phi_Max_Peak));
+		double phi_Min_Peak = qRadiansToDegrees(acos(cos_Phi_Min_Peak));
+
+		auto f = [&](double phi){return function->function(phi, function->params);};
+		tanh_sinh<double> integrator;
+		double integrator_Tolerance = 1E-3;
+
+		vector<double> phi_Inter_1 = {phi_Min, phi_Min_Peak, phi_Max_Peak, 0.002, 0.01, 0.1, 1, 5, 10, 20, phi_Max};
+		vector<double> phi_Inter_2 = {phi_Min, phi_Min_Peak, phi_Max_Peak, 0.05,  0.3,       2, 7,     20, phi_Max};
+
+		// choose and sort points
+		vector<double> phi_Inter;
+		if(delta<1e-4) {
+			phi_Inter = phi_Inter_1;
+		} else {
+			phi_Inter = phi_Inter_2;
+		}
+		std::sort(phi_Inter.begin(), phi_Inter.end());
+
+		// integration
+		for(size_t i=0; i<phi_Inter.size()-1; i++)
+		{
+			if(phi_Inter[i]<phi_Inter[i+1])
+			{
+				result += integrator.integrate(f, phi_Inter[i],	phi_Inter[i+1], integrator_Tolerance);
+			}
+		}
 	} else
-	if(delta<5e-4)
 	{
-		double phi_Inter_1 = 0.05, phi_Inter_2 = 0.3, phi_Inter_3 = 2, phi_Inter_4 = 7, phi_Inter_5 = 20;
-		result += gauss_kronrod<double,11>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Max,	   0, 1e-7, &error);
-	} else
-	{
-		double phi_Inter_1 = 0.05, phi_Inter_2 = 0.2, phi_Inter_3 = 1, phi_Inter_4 = 10, phi_Inter_5 = 20;
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
-		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Max,	   0, 1e-7, &error);
+		auto f = [&](double phi){return function->function(phi, function->params);};
+		double error;
+		if(delta<1e-4)
+		{
+			double phi_Inter_1 = 0.002, phi_Inter_2 = 0.01, phi_Inter_3 = 0.1, phi_Inter_4 = 1, phi_Inter_5 = 5, phi_Inter_6 = 20;
+			result += gauss_kronrod<double,15>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Inter_6, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_6, phi_Max,	   0, 1e-7, &error);
+		} else
+		if(delta<5e-4)
+		{
+			double phi_Inter_1 = 0.05, phi_Inter_2 = 0.3, phi_Inter_3 = 2, phi_Inter_4 = 7, phi_Inter_5 = 20;
+			result += gauss_kronrod<double,11>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Max,	   0, 1e-7, &error);
+		} else
+		{
+			double phi_Inter_1 = 0.05, phi_Inter_2 = 0.2, phi_Inter_3 = 1, phi_Inter_4 = 10, phi_Inter_5 = 20;
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
+			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Max,	   0, 1e-7, &error);
+		}
 	}
 	/// ----------------------------------------------------------------------------------------------------------------------
 
@@ -3696,6 +3744,7 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 	/// ----------------------------------------------------------------------------------------------------------------------
 
 	// the slowest
+//	double abserr, result, epsabs = 1e0, epsrel = 1e0;
 //	gsl_integration_workspace* w = gsl_integration_workspace_alloc(100);
 //	gsl_integration_qag(function, phi_Min, phi_Max, epsabs, epsrel, w->limit, GSL_INTEG_GAUSS61, w, &result, &abserr);
 //	gsl_integration_workspace_free(w);

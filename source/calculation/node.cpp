@@ -1201,6 +1201,7 @@ void Node::calc_Debye_Waller_Total_Sigma(const Imperfections_Model& imperfection
 		}
 	}
 	specular_Debye_Waller_Total_Sigma = sqrt(specular_Debye_Waller_Total_Sigma);
+	qInfo() << "total sigma =" << specular_Debye_Waller_Total_Sigma << endl;
 }
 
 struct Params
@@ -1392,9 +1393,6 @@ void Node::calc_Integral_Intensity_Near_Specular(const Imperfections_Model& impe
 			PSD_Func = &Global_Variables::PSD_Real_Gauss_1D;
 			factor = struct_Data.PSD_Real_Gauss_1D_Factor;
 		}
-	}
-	if(imperfections_Model.PSD_Model == measured_PSD)	{
-		// TODO remove!
 	}
 
 	// add near-specular gauss peak intensity
@@ -2332,7 +2330,7 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 	if(struct_Data.item_Type == item_Type_Ambient) return;
 	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
 
-	double peak_Range_Factor = 5;
+	double peak_Range_Factor = 3;
 	double peak_Frequency = struct_Data.roughness_Model.peak_Frequency.value;
 	double peak_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
 
@@ -2358,12 +2356,12 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 			interpoints_Argum_Vec[i] = p;
 			p += dp;
 		}
-		Global_Variables::parallel_For(common_Size, max(3,QThread::idealThreadCount())/*reflectivity_calc_threads*/, [&](int n_Min, int n_Max, int thread_Index)
+		Global_Variables::parallel_For(common_Size, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 		{
 			Q_UNUSED(thread_Index)
 
-			double result, abserr;
-			double epsabs = 0;
+			double result;
+			double epsabs = 0, abserr;
 			double epsrel = 1E-6;
 			size_t limit = 1000;
 			gsl_integration_workspace* w = gsl_integration_workspace_alloc(limit);
@@ -2381,6 +2379,16 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 			size_t npts = 2;
 			vector<double> pts = {p_Thread, p_Max*(1.+1E-5)};
 
+			/// -----------------------------------
+			// for tanh_sinh integration
+			/// -----------------------------------
+			tanh_sinh<double> integrator;
+			double integrator_Tolerance = 1E-4;
+			auto f = [&](double nu) {
+				return exp(-pow((nu-peak_Frequency)/peak_Width,2)) * nu / sqrt(nu*nu - p_Thread*p_Thread);
+			};
+			/// -----------------------------------
+
 			for(int i=n_Min; i<n_Max; ++i)
 			{
 				p_Thread = interpoints_Argum_Vec[i];
@@ -2391,7 +2399,11 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 				{
 					pts[0] = p_Min_Integration;
 				}
-				gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
+				if(peak_Width < 1E-7 && peak_Frequency > 1E-7) {
+					result = integrator.integrate(f, pts.front(), pts.back(), integrator_Tolerance);
+				} else {
+					gsl_integration_qagp(&F, pts.data(), npts, epsabs, epsrel, limit, w, &result, &abserr);
+				}
 				interpoints_Value_Vec[i] = 4*struct_Data.PSD_Gauss_Peak_2D_Factor * result;
 			}
 			gsl_integration_workspace_free (w);
@@ -2501,13 +2513,12 @@ void Node::create_Spline_PSD_Linear_Growth_Top_2D(const Imperfections_Model& imp
 			factor_2D = struct_Data.PSD_Real_Gauss_2D_Factor;
 		}
 	}
-	if(imperfections_Model.PSD_Model == measured_PSD)	{
-		// TODO remove!
-	}
 
 	// choosing PSD gauss peak function
 	double (*PSD_2D_Peak_Func_from_nu)(double, double, double, double);
 	double peak_Factor_2D = struct_Data.PSD_Gauss_Peak_2D_Factor;
+	double max_Peak_Frequency =     struct_Data.roughness_Model.peak_Frequency.value + 2*struct_Data.roughness_Model.peak_Frequency_Width.value;
+	double min_Peak_Frequency = max(struct_Data.roughness_Model.peak_Frequency.value - 2*struct_Data.roughness_Model.peak_Frequency_Width.value, 0.);
 
 	if(imperfections_Model.add_Gauss_Peak && struct_Data.roughness_Model.peak_Sigma.value>DBL_EPSILON)	{
 		PSD_2D_Peak_Func_from_nu = &Global_Variables::PSD_Gauss_Peak_2D_from_nu;
@@ -2516,20 +2527,11 @@ void Node::create_Spline_PSD_Linear_Growth_Top_2D(const Imperfections_Model& imp
 	}
 
 	// fill nu points for splining
-	int num_Sections = 9; // plus zero point, plus max point, plus infinite point
-	int points_Per_Section = 60;
-	vector<int> interpoints(num_Sections);
-	int common_Size = 3;
-	{
-		interpoints[0] = 100;
-		common_Size+=interpoints[0];
-	}
-	for(int i=1; i<num_Sections; i++)
-	{
-		interpoints[i] = points_Per_Section;
-		common_Size+=interpoints[i];
-	}
+	size_t num_Sections = 11; // plus zero point, plus max point, plus infinite point
+
 	double nu_Max = imperfections_Model.nu_Limit*10;
+	max_Peak_Frequency = min(max_Peak_Frequency, nu_Max*0.9);
+	min_Peak_Frequency = min(min_Peak_Frequency, nu_Max*0.9);
 
 	vector<double> starts(num_Sections); // open start
 	starts[0] = 0;
@@ -2541,6 +2543,32 @@ void Node::create_Spline_PSD_Linear_Growth_Top_2D(const Imperfections_Model& imp
 	starts[6] = nu_Max/100;
 	starts[7] = nu_Max/10;
 	starts[8] = nu_Max/2;
+	// for describing peak
+	starts[9] = min_Peak_Frequency;
+	starts[10] = max_Peak_Frequency;
+
+	// sort out
+	std::sort(starts.begin(), starts.end());
+	for(int i=num_Sections-1; i>0; i--)	{
+		if(starts[i]-starts[i-1]<DBL_EPSILON)	{
+			starts.erase(starts.begin()+i);
+		}
+	}
+	num_Sections = starts.size();
+
+	// interpoints
+	int points_Per_Section = 50;
+	vector<int> interpoints(num_Sections);
+	int common_Size = 3;
+	{
+		interpoints[0] = 100;
+		common_Size+=interpoints[0];
+	}
+	for(int i=1; i<num_Sections; i++)
+	{
+		interpoints[i] = points_Per_Section;
+		common_Size+=interpoints[i];
+	}
 
 	vector<double> dnu(num_Sections);
 	for(int i=0; i<num_Sections-1; i++)
@@ -2592,8 +2620,20 @@ void Node::create_Spline_PSD_Linear_Growth_Top_2D(const Imperfections_Model& imp
 
 			growth_PSD_Vec[i] = 0;
 			inheritance_Vec[i] = 1;
-			PSD_2D_Values_Vec[i] = PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, spline_PSD_FG_2D, acc_PSD_FG_2D)/* +
-								   PSD_2D_Peak_Func_from_nu(peak_Factor_2D, peak_Frequency, peak_Frequency_Width, nu)*/;
+			PSD_2D_Values_Vec[i] = PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, spline_PSD_FG_2D, acc_PSD_FG_2D)
+			                     + PSD_2D_Peak_Func_from_nu(peak_Factor_2D, peak_Frequency, peak_Frequency_Width, nu)
+			                       ;
+
+//			auto PSD_2D_Func = [&](double nu)		{
+//				if((nu<=nu1 && nu<=nu_Limit) || (nu>=nu2 && nu<=nu_Limit))	{
+//					return PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, spline_PSD_FG_2D, acc_PSD_FG_2D);
+//				} else
+//				if(nu1<nu && nu<nu2 && nu<nu_Limit)	{
+//					return gsl_spline_eval(spline_PSD_Meas_2D, nu, acc_PSD_Meas_2D);
+//				} else	{
+//					return 0.;
+//				}
+//			};
 
 			for(int bound_Index = media_Data_Map_Vector.size()-2; bound_Index>=1; bound_Index--)
 			{
@@ -2630,7 +2670,7 @@ void Node::create_Spline_PSD_Linear_Growth_Top_2D(const Imperfections_Model& imp
 				}
 
 				// PSD evolution
-				inheritance_Vec[i]   = inheritance_Vec[i]*inheritance_Exp;
+				inheritance_Vec[i]   = inheritance_Vec  [i]*inheritance_Exp;
 				growth_PSD_Vec[i]    = growth_PSD_Vec   [i]*inheritance_Exp + growth_PSD; // pure growth
 				PSD_2D_Values_Vec[i] = PSD_2D_Values_Vec[i]*inheritance_Exp + growth_PSD; // summary growth
 			}
@@ -2701,9 +2741,6 @@ void Node::create_Spline_PSD_Linear_Growth_Top_1D(const Imperfections_Model &imp
 			factor_1D = struct_Data.PSD_Real_Gauss_1D_Factor;
 		}
 	}
-	if(imperfections_Model.PSD_Model == measured_PSD)	{
-		// TODO remove!
-	}
 
 	// choosing PSD gauss peak function
 	double (*PSD_1D_Peak_Func_from_nu)(double, double, double, double, gsl_spline*, gsl_interp_accel*);
@@ -2719,8 +2756,46 @@ void Node::create_Spline_PSD_Linear_Growth_Top_1D(const Imperfections_Model &imp
 		PSD_2D_Peak_Func_from_nu = &Global_Variables::zero_PSD_2D_from_nu;
 	}
 
+	const double& xi =					struct_Data.roughness_Model.cor_radius.value;
+	const double& alpha =				struct_Data.roughness_Model.fractal_alpha.value;
+	const double& peak_Frequency =		struct_Data.roughness_Model.peak_Frequency.value;
+	const double& peak_Frequency_Width =struct_Data.roughness_Model.peak_Frequency_Width.value;
+
+	double max_Peak_Frequency =     struct_Data.roughness_Model.peak_Frequency.value + 2*struct_Data.roughness_Model.peak_Frequency_Width.value;
+	double min_Peak_Frequency = max(struct_Data.roughness_Model.peak_Frequency.value - 2*struct_Data.roughness_Model.peak_Frequency_Width.value, 0.);
+
 	// fill nu points for splining
-	int num_Sections = 9; // plus zero point, plus max point, plus infinite point
+	int num_Sections = 11; // plus zero point, plus max point, plus infinite point
+
+	double nu_Max = imperfections_Model.nu_Limit;
+	max_Peak_Frequency = min(max_Peak_Frequency, nu_Max*0.9);
+	min_Peak_Frequency = min(min_Peak_Frequency, nu_Max*0.9);
+	max_Peak_Frequency += DBL_EPSILON;
+
+	vector<double> starts(num_Sections); // open start
+	starts[0] = 0;
+	starts[1] = nu_Max/500000;
+	starts[2] = nu_Max/20000;
+	starts[3] = nu_Max/5000;
+	starts[4] = nu_Max/2000;
+	starts[5] = nu_Max/500;
+	starts[6] = nu_Max/20;
+	starts[7] = nu_Max/5;
+	starts[8] = nu_Max/2;
+	// for describing peak
+	starts[9] = min_Peak_Frequency;
+	starts[10] = max_Peak_Frequency;
+
+	// sort out
+	std::sort(starts.begin(), starts.end());
+	for(int i=num_Sections-1; i>0; i--)	{
+		if(starts[i]-starts[i-1]<DBL_EPSILON)	{
+			starts.erase(starts.begin()+i);
+		}
+	}
+	num_Sections = starts.size();
+
+
 	int points_Per_Section = 30;
 	vector<int> interpoints(num_Sections);
 	int common_Size = 3;
@@ -2733,18 +2808,6 @@ void Node::create_Spline_PSD_Linear_Growth_Top_1D(const Imperfections_Model &imp
 		interpoints[i] = points_Per_Section;
 		common_Size+=interpoints[i];
 	}
-	double nu_Max = imperfections_Model.nu_Limit;
-
-	vector<double> starts(num_Sections); // open start
-	starts[0] = 0;
-	starts[1] = nu_Max/500000;
-	starts[2] = nu_Max/20000;
-	starts[3] = nu_Max/5000;
-	starts[4] = nu_Max/2000;
-	starts[5] = nu_Max/500;
-	starts[6] = nu_Max/20;
-	starts[7] = nu_Max/5;
-	starts[8] = nu_Max/2;
 
 	vector<double> dnu(num_Sections);
 	for(int i=0; i<num_Sections-1; i++)
@@ -2772,10 +2835,6 @@ void Node::create_Spline_PSD_Linear_Growth_Top_1D(const Imperfections_Model &imp
 	nu_Vec[common_Size-1] = DBL_MAX;
 
 	// calculating values
-	const double& xi =					struct_Data.roughness_Model.cor_radius.value;
-	const double& alpha =				struct_Data.roughness_Model.fractal_alpha.value;
-	const double& peak_Frequency =		struct_Data.roughness_Model.peak_Frequency.value;
-	const double& peak_Frequency_Width =struct_Data.roughness_Model.peak_Frequency_Width.value;
 
 	/// 1D spline
 
@@ -2819,16 +2878,50 @@ void Node::create_Spline_PSD_Linear_Growth_Top_1D(const Imperfections_Model &imp
 			if(p<nu_a)
 			{
 				result =
-						 PSD_1D_Func_from_nu(factor_1D, xi, alpha, p, spline_PSD_FG_1D, acc_PSD_FG_1D) +
-						 PSD_1D_Peak_Func_from_nu(1, peak_Frequency, peak_Frequency_Width, p, spline_PSD_Peak, acc_PSD_Peak) +
-						 integrator.integrate(f_Pure, nu_a, nu_Max, integrator_tolerance);
+				         PSD_1D_Func_from_nu(factor_1D, xi, alpha, p, spline_PSD_FG_1D, acc_PSD_FG_1D) +
+				         PSD_1D_Peak_Func_from_nu(1, peak_Frequency, peak_Frequency_Width, p, spline_PSD_Peak, acc_PSD_Peak);
+				//result += integrator.integrate(f_Pure, nu_a, nu_Max, integrator_tolerance);
+
+				if(nu_a < min_Peak_Frequency)
+				{
+					result += integrator.integrate(f_Pure, nu_a, min_Peak_Frequency, integrator_tolerance);
+					result += integrator.integrate(f_Pure, min_Peak_Frequency, max_Peak_Frequency, integrator_tolerance);
+					result += integrator.integrate(f_Pure, max_Peak_Frequency, nu_Max, integrator_tolerance);
+				} else
+				{
+					if(nu_a < max_Peak_Frequency)
+					{
+						result += integrator.integrate(f_Pure, nu_a, max_Peak_Frequency, integrator_tolerance);
+						result += integrator.integrate(f_Pure, max_Peak_Frequency, nu_Max, integrator_tolerance);
+					} else
+					{
+						result += integrator.integrate(f_Pure, nu_a, nu_Max, integrator_tolerance);
+					}
+				}
 			} else
 			if(p<nu_Max)
 			{
 				if(pdp<nu_Max)
 				{
 					result  = integral_p_dp();
-					result += integrator.integrate(f, pdp, nu_Max, integrator_tolerance);
+					//result += integrator.integrate(f, pdp, nu_Max, integrator_tolerance);
+
+					if(pdp < min_Peak_Frequency)
+					{
+						result += integrator.integrate(f, pdp, min_Peak_Frequency, integrator_tolerance);
+						result += integrator.integrate(f, min_Peak_Frequency, max_Peak_Frequency, integrator_tolerance);
+						result += integrator.integrate(f, max_Peak_Frequency, nu_Max, integrator_tolerance);
+					} else
+					{
+						if(pdp < max_Peak_Frequency)
+						{
+							result += integrator.integrate(f, pdp, max_Peak_Frequency, integrator_tolerance);
+							result += integrator.integrate(f, max_Peak_Frequency, nu_Max, integrator_tolerance);
+						} else
+						{
+							result += integrator.integrate(f, pdp, nu_Max, integrator_tolerance);
+						}
+					}
 				} else
 				{
 					result  = integral_p_nu(nu_Max);

@@ -247,7 +247,7 @@ public:
 	double calc_Field_Term_Sum				(QString polarization, int point_Index, int thread_Index);
 	void choose_PSD_1D_Function				(const Data& struct_Data, int thread_Index);
 	void choose_PSD_2D_Function				(const Data& struct_Data, int thread_Index);
-	double azimuthal_Integration			(gsl_function* function, double delta);
+	double azimuthal_Integration			(gsl_function* function, double cos_Theta_0, int point_Index);
 
 	// DWBA SA CSA
 	void calc_k_Wavenumber_Up_Low		(int thread_Index, int point_Index);
