@@ -41,10 +41,13 @@ public:
 	/// ------------------------------------------------
 
 	vector<double> specular_Debye_Waller_Weak_Factor_R;
+	double ABC_Combined_1D_Effective_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha, double nu_Max);
 	double ABC_Combined_Total_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha);
+	double FG_Combined_1D_Effective_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha, double nu_Max);
 	double FG_Combined_Total_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha);
-	double integrate_FG_from_0_to_nu(double nu, double sigma, double xi, double alpha);
+	double integrate_FG_2D_from_0_to_nu(double nu, double sigma, double xi, double alpha);
 
+	void calc_Combined_Delta_Sigma_2_Spline(const vector<double>& p0, gsl_spline*& spline_Delta_Sigma_2);
 	void calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Model, const Data& measurement);
 
 	double specular_Debye_Waller_Total_Sigma = 0;
