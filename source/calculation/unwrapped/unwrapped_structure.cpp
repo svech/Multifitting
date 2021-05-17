@@ -270,26 +270,26 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 //			sigma_Roughness[num_Layers] = sqrt(s*s + p*p);
 //		}
 	}
-	if(imperfections_Model.PSD_Model == measured_PSD)
-	{
-		if( measurement.measurement_Type == measurement_Types[Specular_Scan] ||
-			measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-			measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-			measurement.measurement_Type == measurement_Types[Offset_Scan]   )
-		{
-			if( imperfections_Model.vertical_Correlation == zero_Correlation ||
-				imperfections_Model.vertical_Correlation == full_Correlation ) {
-				sigma_Roughness[num_Layers] = imperfections_Model.PSD_1D.calc_Sigma_Full() * media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma_Factor_PSD_1D.value;
-			}
-			if( imperfections_Model.vertical_Correlation == partial_Correlation )	{
-				sigma_Roughness[num_Layers] = imperfections_Model.PSD_2D.calc_Sigma_Full() * media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma_Factor_PSD_2D.value;
-			}
-		}
-		if( measurement.measurement_Type == measurement_Types[GISAS_Map])
-		{
-			sigma_Roughness[num_Layers] = imperfections_Model.PSD_2D.calc_Sigma_Full() * media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma_Factor_PSD_2D.value;
-		}
-	}
+//	if(imperfections_Model.PSD_Model == measured_PSD)
+//	{
+//		if( measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+//			measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+//			measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+//			measurement.measurement_Type == measurement_Types[Offset_Scan]   )
+//		{
+//			if( imperfections_Model.vertical_Correlation == zero_Correlation ||
+//				imperfections_Model.vertical_Correlation == full_Correlation ) {
+//				sigma_Roughness[num_Layers] = imperfections_Model.PSD_1D.calc_Sigma_Full() * media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma_Factor_PSD_1D.value;
+//			}
+//			if( imperfections_Model.vertical_Correlation == partial_Correlation )	{
+//				sigma_Roughness[num_Layers] = imperfections_Model.PSD_2D.calc_Sigma_Full() * media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma_Factor_PSD_2D.value;
+//			}
+//		}
+//		if( measurement.measurement_Type == measurement_Types[GISAS_Map])
+//		{
+//			sigma_Roughness[num_Layers] = imperfections_Model.PSD_2D.calc_Sigma_Full() * media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma_Factor_PSD_2D.value;
+//		}
+//	}
 	alpha[num_Layers] = media_Data_Map_Vector[num_Layers+1]->roughness_Model.fractal_alpha.value;
 
 	// common sigma for partial correlation. for full correlation we use only substrate

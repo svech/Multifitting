@@ -283,7 +283,6 @@ class Node;
 // base PSD models
 #define ABC_Model				"ABC model"
 #define fractal_Gauss_Model		"fractal Gauss model"
-#define measured_PSD			"measured PSD"
 
 // measured PSD types
 #define PSD_Type_1D				"PSD 1D"

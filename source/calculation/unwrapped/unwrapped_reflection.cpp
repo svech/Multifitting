@@ -18,25 +18,59 @@ double base_PSD(double cos_Phi, Params* params)
 	int thread_Index = params->thread_Index;
 	Unwrapped_Reflection* u = params->unwrapped_Reflection;
 
-	return	   u->PSD_2D_Func_Vec[thread_Index](u->substrate.main_PSD_2D_factor,
-												u->substrate.roughness_Model.cor_radius.value,
-												u->substrate.roughness_Model.fractal_alpha.value,
-												u->measurement.k_Value,
-												params->cos_Theta,
-												params->cos_Theta_0,
-												cos_Phi,
-												u->substrate_Node->spline_PSD_FG_2D,
-												u->substrate_Node->acc_PSD_FG_2D)
+	double value = u->PSD_Gauss_Peak_2D_Func_Vec[thread_Index]( u->substrate.PSD_Gauss_Peak_2D_Factor,
+																u->substrate.roughness_Model.peak_Frequency.value,
+																u->substrate.roughness_Model.peak_Frequency_Width.value,
+																u->measurement.k_Value,
+																params->cos_Theta,
+																params->cos_Theta_0,
+																cos_Phi,
+																u->substrate_Node->spline_PSD_Peak,
+																u->substrate_Node->acc_PSD_Peak);
+	if(u->multilayer->imperfections_Model.add_Measured_PSD_2D && u->multilayer->imperfections_Model.PSD_2D.is_Loaded())
+	{
+		double nu = u->measurement.k_Value*sqrt(params->cos_Theta*params->cos_Theta + params->cos_Theta_0*params->cos_Theta_0 - 2*params->cos_Theta_0*params->cos_Theta*cos_Phi)/(2*M_PI); // here we need real frequency
 
-  + u->PSD_Gauss_Peak_2D_Func_Vec[thread_Index](u->substrate.PSD_Gauss_Peak_2D_Factor,
-												u->substrate.roughness_Model.peak_Frequency.value,
-												u->substrate.roughness_Model.peak_Frequency_Width.value,
-												u->measurement.k_Value,
-												params->cos_Theta,
-												params->cos_Theta_0,
-												cos_Phi,
-												u->substrate_Node->spline_PSD_Peak,
-												u->substrate_Node->acc_PSD_Peak);
+		double nu_Start = u->multilayer->imperfections_Model.PSD_2D.argument.front();
+		double nu_End   = u->multilayer->imperfections_Model.PSD_2D.argument.back();
+
+		// without nu_Limit here
+		if(nu<=nu_Start || nu>=nu_End )
+		{
+			value += u->PSD_2D_Func_Vec[thread_Index](  u->substrate.main_PSD_2D_factor,
+														u->substrate.roughness_Model.cor_radius.value,
+														u->substrate.roughness_Model.fractal_alpha.value,
+														u->measurement.k_Value,
+														params->cos_Theta,
+														params->cos_Theta_0,
+														cos_Phi,
+														u->substrate_Node->spline_PSD_FG_2D,
+														u->substrate_Node->acc_PSD_FG_2D);
+		} else
+		{
+			value += Global_Variables::PSD_Measured_2D( u->substrate.main_PSD_2D_factor,
+														u->substrate.roughness_Model.cor_radius.value,
+														u->substrate.roughness_Model.fractal_alpha.value,
+														u->measurement.k_Value,
+														params->cos_Theta,
+														params->cos_Theta_0,
+														cos_Phi,
+														u->substrate_Node->spline_PSD_Meas_2D,
+														u->substrate_Node->acc_PSD_Meas_2D);
+		}
+	} else
+	{
+		value += u->PSD_2D_Func_Vec[thread_Index](  u->substrate.main_PSD_2D_factor,
+													u->substrate.roughness_Model.cor_radius.value,
+													u->substrate.roughness_Model.fractal_alpha.value,
+													u->measurement.k_Value,
+													params->cos_Theta,
+													params->cos_Theta_0,
+													cos_Phi,
+													u->substrate_Node->spline_PSD_FG_2D,
+													u->substrate_Node->acc_PSD_FG_2D);
+	}
+	return value;
 }
 
 double function_Scattering_Replication_Factor_2D_s (double phi, void* p)
@@ -1162,23 +1196,79 @@ inline void Unwrapped_Reflection::fill_Item_PSD_1D(int thread_Index, int point_I
 		Node* node = short_Flat_Calc_Tree[item_Index];
 		Data& item = appropriate_Item_Vec[item_Index];
 		choose_PSD_1D_Function(item, thread_Index);
-		double value = PSD_1D_Func_Vec[thread_Index](item.main_PSD_1D_factor,
-													 item.roughness_Model.cor_radius.value,
-													 item.roughness_Model.fractal_alpha.value,
-													 measurement.k_Value,
-													 measurement.detector_Theta_Cos_Vec[point_Index],
-													 cos_Theta_0,
-													 node->spline_PSD_FG_1D,
-													 node->acc_PSD_FG_1D)
+//		double value = PSD_1D_Func_Vec[thread_Index](item.main_PSD_1D_factor,
+//													 item.roughness_Model.cor_radius.value,
+//													 item.roughness_Model.fractal_alpha.value,
+//													 measurement.k_Value,
+//													 measurement.detector_Theta_Cos_Vec[point_Index],
+//													 cos_Theta_0,
+//													 node->spline_PSD_FG_1D,
+//													 node->acc_PSD_FG_1D)
 
-		  + PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
-													 item.roughness_Model.peak_Frequency.value,
-													 item.roughness_Model.peak_Frequency_Width.value,
-													 measurement.k_Value,
-													 measurement.detector_Theta_Cos_Vec[point_Index],
-													 cos_Theta_0,
-													 node->spline_PSD_Peak,
-													 node->acc_PSD_Peak);
+//		  + PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
+//													 item.roughness_Model.peak_Frequency.value,
+//													 item.roughness_Model.peak_Frequency_Width.value,
+//													 measurement.k_Value,
+//													 measurement.detector_Theta_Cos_Vec[point_Index],
+//													 cos_Theta_0,
+//													 node->spline_PSD_Peak,
+//													 node->acc_PSD_Peak);
+
+		double value = PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
+																item.roughness_Model.peak_Frequency.value,
+																item.roughness_Model.peak_Frequency_Width.value,
+																measurement.k_Value,
+																measurement.detector_Theta_Cos_Vec[point_Index],
+																cos_Theta_0,
+																node->spline_PSD_Peak,
+																node->acc_PSD_Peak);
+
+		if(substrate_Node->spline_PSD_Combined_1D_Condition(multilayer->imperfections_Model))
+		{
+			double p = measurement.k_Value*abs(measurement.detector_Theta_Cos_Vec[point_Index] - cos_Theta_0)/(2*M_PI);
+			value += gsl_spline_eval(substrate_Node->spline_PSD_Combined_1D, p, substrate_Node->acc_PSD_Combined_1D);
+		} else
+		{
+			if(multilayer->imperfections_Model.add_Measured_PSD_1D && multilayer->imperfections_Model.PSD_1D.is_Loaded())
+			{
+				double nu = measurement.k_Value*abs(measurement.detector_Theta_Cos_Vec[point_Index] - cos_Theta_0)/(2*M_PI);
+				double nu_Start = multilayer->imperfections_Model.PSD_1D.argument.front();
+				double nu_End   = multilayer->imperfections_Model.PSD_1D.argument.back();
+
+				// without nu_Limit here
+				if(nu<=nu_Start || nu>=nu_End )
+				{
+					value += PSD_1D_Func_Vec[thread_Index]( item.main_PSD_1D_factor,
+															item.roughness_Model.cor_radius.value,
+															item.roughness_Model.fractal_alpha.value,
+															measurement.k_Value,
+															measurement.detector_Theta_Cos_Vec[point_Index],
+															cos_Theta_0,
+															node->spline_PSD_FG_1D,
+															node->acc_PSD_FG_1D);
+				} else
+				{
+					value += Global_Variables::PSD_Measured_1D( substrate.main_PSD_1D_factor,
+																substrate.roughness_Model.cor_radius.value,
+																substrate.roughness_Model.fractal_alpha.value,
+																measurement.k_Value,
+																measurement.detector_Theta_Cos_Vec[point_Index],
+																cos_Theta_0,
+																substrate_Node->spline_PSD_Meas_1D,
+																substrate_Node->acc_PSD_Meas_1D);
+				}
+			} else
+			{
+				value += PSD_1D_Func_Vec[thread_Index]( item.main_PSD_1D_factor,
+														item.roughness_Model.cor_radius.value,
+														item.roughness_Model.fractal_alpha.value,
+														measurement.k_Value,
+														measurement.detector_Theta_Cos_Vec[point_Index],
+														cos_Theta_0,
+														node->spline_PSD_FG_1D,
+														node->acc_PSD_FG_1D);
+			}
+		}
 
 		PSD_Factor_Item[thread_Index][item_Index] = max(value,0.);
 	}
@@ -1191,25 +1281,79 @@ inline void Unwrapped_Reflection::fill_Item_PSD_2D(int thread_Index, int point_I
 		Node* node = short_Flat_Calc_Tree[item_Index];
 		Data& item = appropriate_Item_Vec[item_Index];
 		choose_PSD_2D_Function(item, thread_Index);
-		double value = PSD_2D_Func_Vec[thread_Index](item.main_PSD_2D_factor,
-		                                             item.roughness_Model.cor_radius.value,
-		                                             item.roughness_Model.fractal_alpha.value,
-		                                             measurement.k_Value,
-		                                             measurement.detector_Theta_Cos_Vec[point_Index],
-		                                             measurement.beam_Theta_0_Cos_Value,
-													 measurement.detector_Phi_Cos_Vec[phi_Index],
-													 node->spline_PSD_FG_2D,
-													 node->acc_PSD_FG_2D)
+//		double value = PSD_2D_Func_Vec[thread_Index](item.main_PSD_2D_factor,
+//		                                             item.roughness_Model.cor_radius.value,
+//		                                             item.roughness_Model.fractal_alpha.value,
+//		                                             measurement.k_Value,
+//		                                             measurement.detector_Theta_Cos_Vec[point_Index],
+//		                                             measurement.beam_Theta_0_Cos_Value,
+//													 measurement.detector_Phi_Cos_Vec[phi_Index],
+//													 node->spline_PSD_FG_2D,
+//													 node->acc_PSD_FG_2D)
 
-		  + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](item.PSD_Gauss_Peak_2D_Factor,
-													 item.roughness_Model.peak_Frequency.value,
-													 item.roughness_Model.peak_Frequency_Width.value,
-													 measurement.k_Value,
-													 measurement.detector_Theta_Cos_Vec[point_Index],
-													 measurement.beam_Theta_0_Cos_Value,
-													 measurement.detector_Phi_Cos_Vec[phi_Index],
-													 node->spline_PSD_Peak,
-													 node->acc_PSD_Peak);
+//		  + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](item.PSD_Gauss_Peak_2D_Factor,
+//													 item.roughness_Model.peak_Frequency.value,
+//													 item.roughness_Model.peak_Frequency_Width.value,
+//													 measurement.k_Value,
+//													 measurement.detector_Theta_Cos_Vec[point_Index],
+//													 measurement.beam_Theta_0_Cos_Value,
+//													 measurement.detector_Phi_Cos_Vec[phi_Index],
+//													 node->spline_PSD_Peak,
+//													 node->acc_PSD_Peak);
+
+		double value = PSD_Gauss_Peak_2D_Func_Vec[thread_Index](item.PSD_Gauss_Peak_2D_Factor,
+																item.roughness_Model.peak_Frequency.value,
+																item.roughness_Model.peak_Frequency_Width.value,
+																measurement.k_Value,
+																measurement.detector_Theta_Cos_Vec[point_Index],
+																measurement.beam_Theta_0_Cos_Value,
+																measurement.detector_Phi_Cos_Vec[phi_Index],
+																node->spline_PSD_Peak,
+																node->acc_PSD_Peak);
+
+		if(multilayer->imperfections_Model.add_Measured_PSD_2D && multilayer->imperfections_Model.PSD_2D.is_Loaded())
+		{
+			double nu = measurement.k_Value*sqrt(measurement.detector_Theta_Cos_Vec[point_Index]*measurement.detector_Theta_Cos_Vec[point_Index] + measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value - 2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[point_Index]*measurement.detector_Phi_Cos_Vec[phi_Index])/(2*M_PI); // here we need real frequency
+
+			double nu_Start = multilayer->imperfections_Model.PSD_2D.argument.front();
+			double nu_End   = multilayer->imperfections_Model.PSD_2D.argument.back();
+
+			// without nu_Limit here
+			if(nu<=nu_Start || nu>=nu_End )
+			{
+				value += PSD_2D_Func_Vec[thread_Index]( substrate.main_PSD_2D_factor,
+														substrate.roughness_Model.cor_radius.value,
+														substrate.roughness_Model.fractal_alpha.value,
+														measurement.k_Value,
+														measurement.detector_Theta_Cos_Vec[point_Index],
+														measurement.beam_Theta_0_Cos_Value,
+														measurement.detector_Phi_Cos_Vec[phi_Index],
+														substrate_Node->spline_PSD_FG_2D,
+														substrate_Node->acc_PSD_FG_2D);
+			} else
+			{
+				value += Global_Variables::PSD_Measured_2D( substrate.main_PSD_2D_factor,
+															substrate.roughness_Model.cor_radius.value,
+															substrate.roughness_Model.fractal_alpha.value,
+															measurement.k_Value,
+															measurement.detector_Theta_Cos_Vec[point_Index],
+															measurement.beam_Theta_0_Cos_Value,
+															measurement.detector_Phi_Cos_Vec[phi_Index],
+															substrate_Node->spline_PSD_Meas_2D,
+															substrate_Node->acc_PSD_Meas_2D);
+			}
+		} else
+		{
+			value += PSD_2D_Func_Vec[thread_Index]( substrate.main_PSD_2D_factor,
+													substrate.roughness_Model.cor_radius.value,
+													substrate.roughness_Model.fractal_alpha.value,
+													measurement.k_Value,
+													measurement.detector_Theta_Cos_Vec[point_Index],
+													measurement.beam_Theta_0_Cos_Value,
+													measurement.detector_Phi_Cos_Vec[phi_Index],
+													substrate_Node->spline_PSD_FG_2D,
+													substrate_Node->acc_PSD_FG_2D);
+		}
 
 		PSD_Factor_Item[thread_Index][item_Index] = value;
 	}
@@ -2522,10 +2666,6 @@ void Unwrapped_Reflection::choose_PSD_1D_Function(const Data& struct_Data, int t
 			{
 				PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_Real_Gauss_1D;
 			}
-		} else
-		if(multilayer->imperfections_Model.PSD_Model == measured_PSD)
-		{
-			PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_Measured_1D;
 		}
 	}
 
@@ -2566,10 +2706,6 @@ void Unwrapped_Reflection::choose_PSD_2D_Function(const Data& struct_Data, int t
 			{
 				PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Real_Gauss_2D;
 			}
-		} else
-		if(multilayer->imperfections_Model.PSD_Model == measured_PSD)
-		{
-			PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_Measured_2D;
 		}
 	}
 
@@ -2751,23 +2887,78 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 							if(multilayer->imperfections_Model.use_Common_Roughness_Function)
 							{
 								choose_PSD_1D_Function(substrate, thread_Index);
-								double PSD_Factor = PSD_1D_Func_Vec[thread_Index](substrate.main_PSD_1D_factor,
-																				  substrate.roughness_Model.cor_radius.value,
-																				  substrate.roughness_Model.fractal_alpha.value,
-																				  measurement.k_Value,
-																				  measurement.detector_Theta_Cos_Vec[point_Index],
-																				  cos_Theta_0,
-																				  substrate_Node->spline_PSD_FG_1D,
-																				  substrate_Node->acc_PSD_FG_1D)
+//								double PSD_Factor = PSD_1D_Func_Vec[thread_Index](substrate.main_PSD_1D_factor,
+//																				  substrate.roughness_Model.cor_radius.value,
+//																				  substrate.roughness_Model.fractal_alpha.value,
+//																				  measurement.k_Value,
+//																				  measurement.detector_Theta_Cos_Vec[point_Index],
+//																				  cos_Theta_0,
+//																				  substrate_Node->spline_PSD_FG_1D,
+//																				  substrate_Node->acc_PSD_FG_1D)
 
-									   + PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
-																				  substrate.roughness_Model.peak_Frequency.value,
-																				  substrate.roughness_Model.peak_Frequency_Width.value,
-																				  measurement.k_Value,
-																				  measurement.detector_Theta_Cos_Vec[point_Index],
-																				  cos_Theta_0,
-																				  substrate_Node->spline_PSD_Peak,
-																				  substrate_Node->acc_PSD_Peak);
+//									   + PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
+//																				  substrate.roughness_Model.peak_Frequency.value,
+//																				  substrate.roughness_Model.peak_Frequency_Width.value,
+//																				  measurement.k_Value,
+//																				  measurement.detector_Theta_Cos_Vec[point_Index],
+//																				  cos_Theta_0,
+//																				  substrate_Node->spline_PSD_Peak,
+//																				  substrate_Node->acc_PSD_Peak);
+								double PSD_Factor = PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
+																							substrate.roughness_Model.peak_Frequency.value,
+																							substrate.roughness_Model.peak_Frequency_Width.value,
+																							measurement.k_Value,
+																							measurement.detector_Theta_Cos_Vec[point_Index],
+																							cos_Theta_0,
+																							substrate_Node->spline_PSD_Peak,
+																							substrate_Node->acc_PSD_Peak);
+								if(substrate_Node->spline_PSD_Combined_1D_Condition(multilayer->imperfections_Model))
+								{
+									double p = measurement.k_Value*abs(measurement.detector_Theta_Cos_Vec[point_Index] - cos_Theta_0)/(2*M_PI);
+									PSD_Factor += gsl_spline_eval(substrate_Node->spline_PSD_Combined_1D, p, substrate_Node->acc_PSD_Combined_1D);
+								} else
+								{
+									if(multilayer->imperfections_Model.add_Measured_PSD_1D && multilayer->imperfections_Model.PSD_1D.is_Loaded())
+									{
+										double nu = measurement.k_Value*abs(measurement.detector_Theta_Cos_Vec[point_Index] - cos_Theta_0)/(2*M_PI);
+										double nu_Start = multilayer->imperfections_Model.PSD_1D.argument.front();
+										double nu_End   = multilayer->imperfections_Model.PSD_1D.argument.back();
+
+										// without nu_Limit here
+										if(nu<=nu_Start || nu>=nu_End )
+										{
+											PSD_Factor += PSD_1D_Func_Vec[thread_Index](substrate.main_PSD_1D_factor,
+																						substrate.roughness_Model.cor_radius.value,
+																						substrate.roughness_Model.fractal_alpha.value,
+																						measurement.k_Value,
+																						measurement.detector_Theta_Cos_Vec[point_Index],
+																						cos_Theta_0,
+																						substrate_Node->spline_PSD_FG_1D,
+																						substrate_Node->acc_PSD_FG_1D);
+										} else
+										{
+											PSD_Factor += Global_Variables::PSD_Measured_1D(substrate.main_PSD_1D_factor,
+																							substrate.roughness_Model.cor_radius.value,
+																							substrate.roughness_Model.fractal_alpha.value,
+																							measurement.k_Value,
+																							measurement.detector_Theta_Cos_Vec[point_Index],
+																							cos_Theta_0,
+																							substrate_Node->spline_PSD_Meas_1D,
+																							substrate_Node->acc_PSD_Meas_1D);
+										}
+									} else
+									{
+										PSD_Factor += PSD_1D_Func_Vec[thread_Index](substrate.main_PSD_1D_factor,
+																					substrate.roughness_Model.cor_radius.value,
+																					substrate.roughness_Model.fractal_alpha.value,
+																					measurement.k_Value,
+																					measurement.detector_Theta_Cos_Vec[point_Index],
+																					cos_Theta_0,
+																					substrate_Node->spline_PSD_FG_1D,
+																					substrate_Node->acc_PSD_FG_1D);
+									}
+								}
+
 								PSD_Factor = max(PSD_Factor,0.);
 
 								// s-polarization
@@ -2899,26 +3090,79 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									double field_Term_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
-										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.main_PSD_2D_factor,
-																					  substrate.roughness_Model.cor_radius.value,
-																					  substrate.roughness_Model.fractal_alpha.value,
-																					  measurement.k_Value,
-																					  measurement.detector_Theta_Cos_Vec[point_Index],
-																					  measurement.beam_Theta_0_Cos_Value,
-																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-																					  substrate_Node->spline_PSD_FG_2D,
-																					  substrate_Node->acc_PSD_FG_2D)
+//										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.main_PSD_2D_factor,
+//																					  substrate.roughness_Model.cor_radius.value,
+//																					  substrate.roughness_Model.fractal_alpha.value,
+//																					  measurement.k_Value,
+//																					  measurement.detector_Theta_Cos_Vec[point_Index],
+//																					  measurement.beam_Theta_0_Cos_Value,
+//																					  measurement.detector_Phi_Cos_Vec[phi_Index],
+//																					  substrate_Node->spline_PSD_FG_2D,
+//																					  substrate_Node->acc_PSD_FG_2D)
 
-										   + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
-																					  substrate.roughness_Model.peak_Frequency.value,
-																					  substrate.roughness_Model.peak_Frequency_Width.value,
-																					  measurement.k_Value,
-																					  measurement.detector_Theta_Cos_Vec[point_Index],
-																					  measurement.beam_Theta_0_Cos_Value,
-																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-																					  substrate_Node->spline_PSD_Peak,
-																					  substrate_Node->acc_PSD_Peak);
+//										   + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
+//																					  substrate.roughness_Model.peak_Frequency.value,
+//																					  substrate.roughness_Model.peak_Frequency_Width.value,
+//																					  measurement.k_Value,
+//																					  measurement.detector_Theta_Cos_Vec[point_Index],
+//																					  measurement.beam_Theta_0_Cos_Value,
+//																					  measurement.detector_Phi_Cos_Vec[phi_Index],
+//																					  substrate_Node->spline_PSD_Peak,
+//																					  substrate_Node->acc_PSD_Peak);
 
+										PSD_2D_Factor =PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
+																								substrate.roughness_Model.peak_Frequency.value,
+																								substrate.roughness_Model.peak_Frequency_Width.value,
+																								measurement.k_Value,
+																								measurement.detector_Theta_Cos_Vec[point_Index],
+																								measurement.beam_Theta_0_Cos_Value,
+																								measurement.detector_Phi_Cos_Vec[phi_Index],
+																								substrate_Node->spline_PSD_Peak,
+																								substrate_Node->acc_PSD_Peak);
+
+										if(multilayer->imperfections_Model.add_Measured_PSD_2D && multilayer->imperfections_Model.PSD_2D.is_Loaded())
+										{
+											double nu = measurement.k_Value*sqrt(measurement.detector_Theta_Cos_Vec[point_Index]*measurement.detector_Theta_Cos_Vec[point_Index] + measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value - 2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[point_Index]*measurement.detector_Phi_Cos_Vec[phi_Index])/(2*M_PI); // here we need real frequency
+
+											double nu_Start = multilayer->imperfections_Model.PSD_2D.argument.front();
+											double nu_End   = multilayer->imperfections_Model.PSD_2D.argument.back();
+
+											// without nu_Limit here
+											if(nu<=nu_Start || nu>=nu_End )
+											{
+												PSD_2D_Factor += PSD_2D_Func_Vec[thread_Index]( substrate.main_PSD_2D_factor,
+																								substrate.roughness_Model.cor_radius.value,
+																								substrate.roughness_Model.fractal_alpha.value,
+																								measurement.k_Value,
+																								measurement.detector_Theta_Cos_Vec[point_Index],
+																								measurement.beam_Theta_0_Cos_Value,
+																								measurement.detector_Phi_Cos_Vec[phi_Index],
+																								substrate_Node->spline_PSD_FG_2D,
+																								substrate_Node->acc_PSD_FG_2D);
+											} else
+											{
+												PSD_2D_Factor += Global_Variables::PSD_Measured_2D( substrate.main_PSD_2D_factor,
+																									substrate.roughness_Model.cor_radius.value,
+																									substrate.roughness_Model.fractal_alpha.value,
+																									measurement.k_Value,
+																									measurement.detector_Theta_Cos_Vec[point_Index],
+																									measurement.beam_Theta_0_Cos_Value,
+																									measurement.detector_Phi_Cos_Vec[phi_Index],
+																									substrate_Node->spline_PSD_Meas_2D,
+																									substrate_Node->acc_PSD_Meas_2D);
+											}
+										} else
+										{
+											PSD_2D_Factor += PSD_2D_Func_Vec[thread_Index]( substrate.main_PSD_2D_factor,
+																							substrate.roughness_Model.cor_radius.value,
+																							substrate.roughness_Model.fractal_alpha.value,
+																							measurement.k_Value,
+																							measurement.detector_Theta_Cos_Vec[point_Index],
+																							measurement.beam_Theta_0_Cos_Value,
+																							measurement.detector_Phi_Cos_Vec[phi_Index],
+																							substrate_Node->spline_PSD_FG_2D,
+																							substrate_Node->acc_PSD_FG_2D);
+										}
 										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_s * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}
 
@@ -2929,25 +3173,79 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									double field_Term_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
-										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.main_PSD_2D_factor,
-																					  substrate.roughness_Model.cor_radius.value,
-																					  substrate.roughness_Model.fractal_alpha.value,
-																					  measurement.k_Value,
-																					  measurement.detector_Theta_Cos_Vec[point_Index],
-																					  measurement.beam_Theta_0_Cos_Value,
-																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-																					  substrate_Node->spline_PSD_FG_2D,
-																					  substrate_Node->acc_PSD_FG_2D)
+//										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.main_PSD_2D_factor,
+//																					  substrate.roughness_Model.cor_radius.value,
+//																					  substrate.roughness_Model.fractal_alpha.value,
+//																					  measurement.k_Value,
+//																					  measurement.detector_Theta_Cos_Vec[point_Index],
+//																					  measurement.beam_Theta_0_Cos_Value,
+//																					  measurement.detector_Phi_Cos_Vec[phi_Index],
+//																					  substrate_Node->spline_PSD_FG_2D,
+//																					  substrate_Node->acc_PSD_FG_2D)
 
-										   + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
-																					  substrate.roughness_Model.peak_Frequency.value,
-																					  substrate.roughness_Model.peak_Frequency_Width.value,
-																					  measurement.k_Value,
-																					  measurement.detector_Theta_Cos_Vec[point_Index],
-																					  measurement.beam_Theta_0_Cos_Value,
-																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-																					  substrate_Node->spline_PSD_Peak,
-																					  substrate_Node->acc_PSD_Peak);
+//										   + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
+//																					  substrate.roughness_Model.peak_Frequency.value,
+//																					  substrate.roughness_Model.peak_Frequency_Width.value,
+//																					  measurement.k_Value,
+//																					  measurement.detector_Theta_Cos_Vec[point_Index],
+//																					  measurement.beam_Theta_0_Cos_Value,
+//																					  measurement.detector_Phi_Cos_Vec[phi_Index],
+//																					  substrate_Node->spline_PSD_Peak,
+//																					  substrate_Node->acc_PSD_Peak);
+
+										PSD_2D_Factor =PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
+																								substrate.roughness_Model.peak_Frequency.value,
+																								substrate.roughness_Model.peak_Frequency_Width.value,
+																								measurement.k_Value,
+																								measurement.detector_Theta_Cos_Vec[point_Index],
+																								measurement.beam_Theta_0_Cos_Value,
+																								measurement.detector_Phi_Cos_Vec[phi_Index],
+																								substrate_Node->spline_PSD_Peak,
+																								substrate_Node->acc_PSD_Peak);
+
+										if(multilayer->imperfections_Model.add_Measured_PSD_2D && multilayer->imperfections_Model.PSD_2D.is_Loaded())
+										{
+											double nu = measurement.k_Value*sqrt(measurement.detector_Theta_Cos_Vec[point_Index]*measurement.detector_Theta_Cos_Vec[point_Index] + measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value - 2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[point_Index]*measurement.detector_Phi_Cos_Vec[phi_Index])/(2*M_PI); // here we need real frequency
+
+											double nu_Start = multilayer->imperfections_Model.PSD_2D.argument.front();
+											double nu_End   = multilayer->imperfections_Model.PSD_2D.argument.back();
+
+											// without nu_Limit here
+											if(nu<=nu_Start || nu>=nu_End )
+											{
+												PSD_2D_Factor += PSD_2D_Func_Vec[thread_Index]( substrate.main_PSD_2D_factor,
+																								substrate.roughness_Model.cor_radius.value,
+																								substrate.roughness_Model.fractal_alpha.value,
+																								measurement.k_Value,
+																								measurement.detector_Theta_Cos_Vec[point_Index],
+																								measurement.beam_Theta_0_Cos_Value,
+																								measurement.detector_Phi_Cos_Vec[phi_Index],
+																								substrate_Node->spline_PSD_FG_2D,
+																								substrate_Node->acc_PSD_FG_2D);
+											} else
+											{
+												PSD_2D_Factor += Global_Variables::PSD_Measured_2D( substrate.main_PSD_2D_factor,
+																									substrate.roughness_Model.cor_radius.value,
+																									substrate.roughness_Model.fractal_alpha.value,
+																									measurement.k_Value,
+																									measurement.detector_Theta_Cos_Vec[point_Index],
+																									measurement.beam_Theta_0_Cos_Value,
+																									measurement.detector_Phi_Cos_Vec[phi_Index],
+																									substrate_Node->spline_PSD_Meas_2D,
+																									substrate_Node->acc_PSD_Meas_2D);
+											}
+										} else
+										{
+											PSD_2D_Factor += PSD_2D_Func_Vec[thread_Index]( substrate.main_PSD_2D_factor,
+																							substrate.roughness_Model.cor_radius.value,
+																							substrate.roughness_Model.fractal_alpha.value,
+																							measurement.k_Value,
+																							measurement.detector_Theta_Cos_Vec[point_Index],
+																							measurement.beam_Theta_0_Cos_Value,
+																							measurement.detector_Phi_Cos_Vec[phi_Index],
+																							substrate_Node->spline_PSD_FG_2D,
+																							substrate_Node->acc_PSD_FG_2D);
+										}
 
 										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_p * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}
@@ -2958,25 +3256,79 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									double field_Term_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
-										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.main_PSD_2D_factor,
-																					  substrate.roughness_Model.cor_radius.value,
-																					  substrate.roughness_Model.fractal_alpha.value,
-																					  measurement.k_Value,
-																					  measurement.detector_Theta_Cos_Vec[point_Index],
-																					  measurement.beam_Theta_0_Cos_Value,
-																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-																					  substrate_Node->spline_PSD_FG_2D,
-																					  substrate_Node->acc_PSD_FG_2D);
+//										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.main_PSD_2D_factor,
+//																					  substrate.roughness_Model.cor_radius.value,
+//																					  substrate.roughness_Model.fractal_alpha.value,
+//																					  measurement.k_Value,
+//																					  measurement.detector_Theta_Cos_Vec[point_Index],
+//																					  measurement.beam_Theta_0_Cos_Value,
+//																					  measurement.detector_Phi_Cos_Vec[phi_Index],
+//																					  substrate_Node->spline_PSD_FG_2D,
+//																					  substrate_Node->acc_PSD_FG_2D);
 
-										   + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
-																					  substrate.roughness_Model.peak_Frequency.value,
-																					  substrate.roughness_Model.peak_Frequency_Width.value,
-																					  measurement.k_Value,
-																					  measurement.detector_Theta_Cos_Vec[point_Index],
-																					  measurement.beam_Theta_0_Cos_Value,
-																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-																					  substrate_Node->spline_PSD_Peak,
-																					  substrate_Node->acc_PSD_Peak);
+//										   + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
+//																					  substrate.roughness_Model.peak_Frequency.value,
+//																					  substrate.roughness_Model.peak_Frequency_Width.value,
+//																					  measurement.k_Value,
+//																					  measurement.detector_Theta_Cos_Vec[point_Index],
+//																					  measurement.beam_Theta_0_Cos_Value,
+//																					  measurement.detector_Phi_Cos_Vec[phi_Index],
+//																					  substrate_Node->spline_PSD_Peak,
+//																					  substrate_Node->acc_PSD_Peak);
+
+										PSD_2D_Factor =PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
+																								substrate.roughness_Model.peak_Frequency.value,
+																								substrate.roughness_Model.peak_Frequency_Width.value,
+																								measurement.k_Value,
+																								measurement.detector_Theta_Cos_Vec[point_Index],
+																								measurement.beam_Theta_0_Cos_Value,
+																								measurement.detector_Phi_Cos_Vec[phi_Index],
+																								substrate_Node->spline_PSD_Peak,
+																								substrate_Node->acc_PSD_Peak);
+
+										if(multilayer->imperfections_Model.add_Measured_PSD_2D && multilayer->imperfections_Model.PSD_2D.is_Loaded())
+										{
+											double nu = measurement.k_Value*sqrt(measurement.detector_Theta_Cos_Vec[point_Index]*measurement.detector_Theta_Cos_Vec[point_Index] + measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value - 2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[point_Index]*measurement.detector_Phi_Cos_Vec[phi_Index])/(2*M_PI); // here we need real frequency
+
+											double nu_Start = multilayer->imperfections_Model.PSD_2D.argument.front();
+											double nu_End   = multilayer->imperfections_Model.PSD_2D.argument.back();
+
+											// without nu_Limit here
+											if(nu<=nu_Start || nu>=nu_End )
+											{
+												PSD_2D_Factor += PSD_2D_Func_Vec[thread_Index]( substrate.main_PSD_2D_factor,
+																								substrate.roughness_Model.cor_radius.value,
+																								substrate.roughness_Model.fractal_alpha.value,
+																								measurement.k_Value,
+																								measurement.detector_Theta_Cos_Vec[point_Index],
+																								measurement.beam_Theta_0_Cos_Value,
+																								measurement.detector_Phi_Cos_Vec[phi_Index],
+																								substrate_Node->spline_PSD_FG_2D,
+																								substrate_Node->acc_PSD_FG_2D);
+											} else
+											{
+												PSD_2D_Factor += Global_Variables::PSD_Measured_2D( substrate.main_PSD_2D_factor,
+																									substrate.roughness_Model.cor_radius.value,
+																									substrate.roughness_Model.fractal_alpha.value,
+																									measurement.k_Value,
+																									measurement.detector_Theta_Cos_Vec[point_Index],
+																									measurement.beam_Theta_0_Cos_Value,
+																									measurement.detector_Phi_Cos_Vec[phi_Index],
+																									substrate_Node->spline_PSD_Meas_2D,
+																									substrate_Node->acc_PSD_Meas_2D);
+											}
+										} else
+										{
+											PSD_2D_Factor += PSD_2D_Func_Vec[thread_Index]( substrate.main_PSD_2D_factor,
+																							substrate.roughness_Model.cor_radius.value,
+																							substrate.roughness_Model.fractal_alpha.value,
+																							measurement.k_Value,
+																							measurement.detector_Theta_Cos_Vec[point_Index],
+																							measurement.beam_Theta_0_Cos_Value,
+																							measurement.detector_Phi_Cos_Vec[phi_Index],
+																							substrate_Node->spline_PSD_FG_2D,
+																							substrate_Node->acc_PSD_FG_2D);
+										}
 
 										calculated_Values.GISAS_Map[phi_Index][point_Index] = (s_Weight*field_Term_Sum_s + p_Weight*field_Term_Sum_p)*e_Factor_PT_2D*PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}

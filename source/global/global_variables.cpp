@@ -1442,14 +1442,6 @@ double Global_Variables::PSD_Measured_2D(double sigma, double xi, double alpha, 
 	return gsl_spline_eval(spline, nu, acc);
 }
 
-double Global_Variables::PSD_Measured_2D_from_nu(double factor, double xi, double alpha, double nu, gsl_spline *spline, gsl_interp_accel *acc)
-{
-	Q_UNUSED(factor)
-	Q_UNUSED(xi)
-	Q_UNUSED(alpha)
-	return gsl_spline_eval(spline, nu, acc);
-}
-
 double Global_Variables::no_PSD_at_all_1D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(sigma)

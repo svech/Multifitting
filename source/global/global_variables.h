@@ -388,7 +388,6 @@ public:
 	static double PSD_Gauss_Peak_2D_from_nu		(double factor, double peak_Frequency, double peak_Width, double nu);
 	static double PSD_Measured_1D				(double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Measured_2D				(double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
-	static double PSD_Measured_2D_from_nu		(double factor, double xi, double alpha, double nu, gsl_spline* spline, gsl_interp_accel* acc);
 	static double no_PSD_at_all_1D				(double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
 	static double zero_PSD_1D					(double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
 	static double zero_PSD_1D_from_nu			(double factor, double xi, double alpha, double p, gsl_spline* spline, gsl_interp_accel* acc);
