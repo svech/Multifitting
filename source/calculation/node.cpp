@@ -2259,6 +2259,7 @@ void Node::create_Spline_PSD_Measured(const Imperfections_Model& imperfections_M
 	{
 		PSD_Data psd_Data   = imperfections_Model.PSD_2D;
 		double sigma_Factor = struct_Data.roughness_Model.sigma_Factor_PSD_2D.value;
+		sigma_Factor = max(sigma_Factor,1E-6);
 
 		QVector<double> argument_Vec = psd_Data.argument;
 		QVector<double> value_Vec = psd_Data.value;
@@ -3116,11 +3117,33 @@ void Node::create_Spline_PSD_Linear_Growth_Top_1D(const Imperfections_Model &imp
 		auto f_Pure = [&](double nu)		{
 			return 4 * gsl_spline_eval(spline_PSD_Linear_Pure_Growth_Top_2D, nu, acc_PSD_Linear_Pure_Growth_Top_2D) * nu / sqrt(nu*nu - p*p);
 		};
-
 //		auto f_Peak_2D = [&](double nu)		{
 //			return 4 * PSD_2D_Peak_Func_from_nu(peak_Factor_2D, peak_Frequency, peak_Frequency_Width, nu)
 //					 * gsl_spline_eval(spline_PSD_Linear_Inheritance_Top_2D, nu, acc_PSD_Linear_Inheritance_Top_2D) * nu / sqrt(nu*nu - p*p);
 //		};
+
+
+		vector<double> nu_Points = {nu_a, nu_Max};
+		if(imperfections_Model.add_Measured_PSD_2D && imperfections_Model.PSD_2D.is_Loaded())
+		{
+			nu_Points.push_back(imperfections_Model.PSD_2D.argument.front());
+			nu_Points.push_back(imperfections_Model.PSD_2D.argument.back());
+		}
+		if(imperfections_Model.add_Gauss_Peak)
+		{
+			nu_Points.push_back(min_Peak_Frequency);
+			nu_Points.push_back(max_Peak_Frequency);
+		}
+
+		// sort out
+		std::sort(nu_Points.begin(), nu_Points.end());
+		for(int i=nu_Points.size()-1; i>0; i--)
+		{
+			if(nu_Points[i]>=nu_Max)
+			{
+				nu_Points.erase(nu_Points.begin()+i);
+			}
+		}
 
 		for(int i=n_Min; i<n_Max; ++i)
 		{
@@ -3137,22 +3160,37 @@ void Node::create_Spline_PSD_Linear_Growth_Top_1D(const Imperfections_Model &imp
 				         PSD_1D_Peak_Func_from_nu(1, peak_Frequency, peak_Frequency_Width, p, spline_PSD_Peak, acc_PSD_Peak);
 				//result += integrator.integrate(f_Pure, nu_a, nu_Max, integrator_tolerance);
 
-				if(nu_a < min_Peak_Frequency)
-				{
-					result += integrator.integrate(f_Pure, nu_a, min_Peak_Frequency, integrator_tolerance);
-					result += integrator.integrate(f_Pure, min_Peak_Frequency, max_Peak_Frequency, integrator_tolerance);
-					result += integrator.integrate(f_Pure, max_Peak_Frequency, nu_Max, integrator_tolerance);
-				} else
-				{
-					if(nu_a < max_Peak_Frequency)
-					{
-						result += integrator.integrate(f_Pure, nu_a, max_Peak_Frequency, integrator_tolerance);
-						result += integrator.integrate(f_Pure, max_Peak_Frequency, nu_Max, integrator_tolerance);
-					} else
-					{
-						result += integrator.integrate(f_Pure, nu_a, nu_Max, integrator_tolerance);
+				// first point > nu_a
+				int i0=0;
+				for(i0=0; i0<nu_Points.size(); i0++)	{
+					if(nu_Points[i0]>nu_a) {
+						break;
 					}
 				}
+
+				// integration
+				result += integrator.integrate(f_Pure, nu_a, nu_Points[i0], integrator_tolerance);
+				for(int i=i0; i<nu_Points.size()-1; i++)	{
+					result += integrator.integrate(f_Pure, nu_Points[i], nu_Points[i+1], integrator_tolerance);
+				}
+
+				// old variant
+//				if(nu_a < min_Peak_Frequency)
+//				{
+//					result += integrator.integrate(f_Pure, nu_a, min_Peak_Frequency, integrator_tolerance);
+//					result += integrator.integrate(f_Pure, min_Peak_Frequency, max_Peak_Frequency, integrator_tolerance);
+//					result += integrator.integrate(f_Pure, max_Peak_Frequency, nu_Max, integrator_tolerance);
+//				} else
+//				{
+//					if(nu_a < max_Peak_Frequency)
+//					{
+//						result += integrator.integrate(f_Pure, nu_a, max_Peak_Frequency, integrator_tolerance);
+//						result += integrator.integrate(f_Pure, max_Peak_Frequency, nu_Max, integrator_tolerance);
+//					} else
+//					{
+//						result += integrator.integrate(f_Pure, nu_a, nu_Max, integrator_tolerance);
+//					}
+//				}
 			} else
 			if(p<nu_Max)
 			{
@@ -3161,22 +3199,37 @@ void Node::create_Spline_PSD_Linear_Growth_Top_1D(const Imperfections_Model &imp
 					result  = integral_p_dp();
 					//result += integrator.integrate(f, pdp, nu_Max, integrator_tolerance);
 
-					if(pdp < min_Peak_Frequency)
-					{
-						result += integrator.integrate(f, pdp, min_Peak_Frequency, integrator_tolerance);
-						result += integrator.integrate(f, min_Peak_Frequency, max_Peak_Frequency, integrator_tolerance);
-						result += integrator.integrate(f, max_Peak_Frequency, nu_Max, integrator_tolerance);
-					} else
-					{
-						if(pdp < max_Peak_Frequency)
-						{
-							result += integrator.integrate(f, pdp, max_Peak_Frequency, integrator_tolerance);
-							result += integrator.integrate(f, max_Peak_Frequency, nu_Max, integrator_tolerance);
-						} else
-						{
-							result += integrator.integrate(f, pdp, nu_Max, integrator_tolerance);
+					// first point > pdp
+					int i0=0;
+					for(i0=0; i0<nu_Points.size(); i0++) {
+						if(nu_Points[i0]>pdp) {
+							break;
 						}
 					}
+
+					// integration
+					result += integrator.integrate(f, pdp, nu_Points[i0], integrator_tolerance);
+					for(int i=i0; i<nu_Points.size()-1; i++)	{
+						result += integrator.integrate(f, nu_Points[i], nu_Points[i+1], integrator_tolerance);
+					}
+
+					// old variant
+//					if(pdp < min_Peak_Frequency)
+//					{
+//						result += integrator.integrate(f, pdp, min_Peak_Frequency, integrator_tolerance);
+//						result += integrator.integrate(f, min_Peak_Frequency, max_Peak_Frequency, integrator_tolerance);
+//						result += integrator.integrate(f, max_Peak_Frequency, nu_Max, integrator_tolerance);
+//					} else
+//					{
+//						if(pdp < max_Peak_Frequency)
+//						{
+//							result += integrator.integrate(f, pdp, max_Peak_Frequency, integrator_tolerance);
+//							result += integrator.integrate(f, max_Peak_Frequency, nu_Max, integrator_tolerance);
+//						} else
+//						{
+//							result += integrator.integrate(f, pdp, nu_Max, integrator_tolerance);
+//						}
+//					}
 				} else
 				{
 					result  = integral_p_nu(nu_Max);

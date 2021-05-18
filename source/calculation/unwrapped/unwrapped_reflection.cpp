@@ -3982,8 +3982,9 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 	double result = 0;
 	/// ----------------------------------------------------------------------------------------------------------------------
 
-	if(multilayer->imperfections_Model.add_Gauss_Peak && !set_PSD_to_1)
+	if((multilayer->imperfections_Model.add_Gauss_Peak || (multilayer->imperfections_Model.add_Measured_PSD_2D && multilayer->imperfections_Model.PSD_2D.is_Loaded())) && !set_PSD_to_1)
 	{
+		// peak
 		double max_Peak_Frequency =     substrate.roughness_Model.peak_Frequency.value + 2*substrate.roughness_Model.peak_Frequency_Width.value;
 		double min_Peak_Frequency = max(substrate.roughness_Model.peak_Frequency.value - 2*substrate.roughness_Model.peak_Frequency_Width.value, 0.);
 
@@ -4001,12 +4002,48 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 		double phi_Max_Peak = qRadiansToDegrees(acos(cos_Phi_Max_Peak));
 		double phi_Min_Peak = qRadiansToDegrees(acos(cos_Phi_Min_Peak));
 
+		// PSD 2D measured
+		double max_Measured_2D_Frequency = multilayer->imperfections_Model.PSD_2D.argument.front();
+		double min_Measured_2D_Frequency = multilayer->imperfections_Model.PSD_2D.argument.back();
+
+		double cos_Measured_2D_Max = (cos_Theta_0*cos_Theta_0 + measurement.detector_Theta_Cos2_Vec[point_Index] - pow(measurement.lambda_Value*max_Measured_2D_Frequency,2))/
+									 (2*cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]);
+		double cos_Measured_2D_Min = (cos_Theta_0*cos_Theta_0 + measurement.detector_Theta_Cos2_Vec[point_Index] - pow(measurement.lambda_Value*min_Measured_2D_Frequency,2))/
+									 (2*cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]);
+
+		cos_Measured_2D_Max = min(cos_Measured_2D_Max, 1.);
+		cos_Measured_2D_Min = min(cos_Measured_2D_Min, 1.);
+
+		cos_Measured_2D_Max = max(cos_Measured_2D_Max, 0.);
+		cos_Measured_2D_Min = max(cos_Measured_2D_Min, 0.);
+
+		double phi_Measured_2D_Max = qRadiansToDegrees(acos(cos_Measured_2D_Max));
+		double phi_Measured_2D_Min = qRadiansToDegrees(acos(cos_Measured_2D_Min));
+
+
 		auto f = [&](double phi){return function->function(phi, function->params);};
 		tanh_sinh<double> integrator;
 		double integrator_Tolerance = 1E-3;
 
-		vector<double> phi_Inter_1 = {phi_Min, phi_Min_Peak, phi_Max_Peak, 0.002, 0.01, 0.1, 1, 5, 10, 20, phi_Max};
-		vector<double> phi_Inter_2 = {phi_Min, phi_Min_Peak, phi_Max_Peak, 0.05,  0.3,       2, 7,     20, phi_Max};
+		vector<double> phi_Inter_1 = {phi_Min, 0.002, 0.01, 0.1, 1, 5, 10, 20, phi_Max};
+		vector<double> phi_Inter_2 = {phi_Min, 0.05,  0.3,       2, 7,     20, phi_Max};
+
+		if(multilayer->imperfections_Model.add_Gauss_Peak)
+		{
+			phi_Inter_1.push_back(phi_Min_Peak);
+			phi_Inter_1.push_back(phi_Max_Peak);
+
+			phi_Inter_2.push_back(phi_Min_Peak);
+			phi_Inter_2.push_back(phi_Max_Peak);
+		}
+		if(multilayer->imperfections_Model.add_Measured_PSD_2D && multilayer->imperfections_Model.PSD_2D.is_Loaded())
+		{
+			phi_Inter_1.push_back(phi_Measured_2D_Max);
+			phi_Inter_1.push_back(phi_Measured_2D_Min);
+
+			phi_Inter_2.push_back(phi_Measured_2D_Max);
+			phi_Inter_2.push_back(phi_Measured_2D_Min);
+		}
 
 		// choose and sort points
 		vector<double> phi_Inter;
