@@ -123,6 +123,8 @@ SOURCES += \
     multilayer_approach/multilayer/target_curve/target_data_types/specular_target_curve_part.cpp \
     multilayer_approach/profile_plots/profile_plot.cpp \
     multilayer_approach/profile_plots/profile_plots_window.cpp \
+    multilayer_approach/roughness_plots/roughness_plot.cpp \
+    multilayer_approach/roughness_plots/roughness_plots_window.cpp \
     multilayer_approach/table_of_structures/coupling_editor.cpp \
     multilayer_approach/table_of_structures/confidence_interval_editor.cpp \
     multilayer_approach/table_of_structures/measured_psd_editor.cpp \
@@ -187,6 +189,8 @@ HEADERS += \
     multilayer_approach/multilayer/target_curve/target_data_types/specular_target_curve_part.h \
     multilayer_approach/profile_plots/profile_plot.h \
     multilayer_approach/profile_plots/profile_plots_window.h \
+    multilayer_approach/roughness_plots/roughness_plot.h \
+    multilayer_approach/roughness_plots/roughness_plots_window.h \
     multilayer_approach/table_of_structures/coupling_editor.h \
     multilayer_approach/table_of_structures/confidence_interval_editor.h \
     multilayer_approach/table_of_structures/measured_psd_editor.h \

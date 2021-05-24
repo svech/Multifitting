@@ -10,6 +10,7 @@
 #include "multilayer_approach/table_of_structures/table_of_structures.h"
 #include "multilayer_approach/graphs/optical_graphs.h"
 #include "multilayer_approach/profile_plots/profile_plots_window.h"
+#include "multilayer_approach/roughness_plots/roughness_plots_window.h"
 #include "multilayer_approach/calculation_settings_editor/calculation_settings_editor.h"
 #include "multilayer_approach/general_settings_editor/general_settings_editor.h"
 #include "multilayer_approach/fitting_settings/fitting_settings_editor.h"
@@ -23,6 +24,7 @@ class Table_Of_Structures;
 class Table_Of_Roughness;
 class Optical_Graphs;
 class Profile_Plots_Window;
+class Roughness_Plots_Window;
 class Calculation_Settings_Editor;
 class General_Settings_Editor;
 class Fitting_Settings_Editor;
@@ -64,6 +66,7 @@ public:
 
 	void open_Table_Of_Structures();
 	void open_Profile_Plots();
+	void open_Roughness_Plots();
 	void open_Optical_Graphs_1D(QString keep_Splitter = "");
 	void open_Optical_Graphs_2D(QString keep_Splitter = "");
 	void open_Calculation_Settings();
@@ -119,6 +122,7 @@ public:
 		Optical_Graphs*				 optical_Graphs_1D;			  QMap<QString, Optical_Graphs*>			  runned_Optical_Graphs_1D;
 		Optical_Graphs*				 optical_Graphs_2D;			  QMap<QString, Optical_Graphs*>			  runned_Optical_Graphs_2D;
 		Profile_Plots_Window*		 profile_Plots_Window;		  QMap<QString, Profile_Plots_Window*>		  runned_Profile_Plots_Window;
+		Roughness_Plots_Window*		 roughness_Plots_Window;	  QMap<QString, Roughness_Plots_Window*>	  runned_Roughness_Plots_Window;
 		Calculation_Settings_Editor* calculation_Settings_Editor; QMap<QString, Calculation_Settings_Editor*> runned_Calculation_Settings_Editor;
 		General_Settings_Editor*	 general_Settings_Editor;	  QMap<QString, General_Settings_Editor*>	  runned_General_Settings_Editor;
 		Fitting_Settings_Editor*	 fitting_Settings_Editor;	  QMap<QString, Fitting_Settings_Editor*>	  runned_Fitting_Settings_Editor;

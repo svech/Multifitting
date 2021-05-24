@@ -54,6 +54,12 @@ int profile_plots_y_corner;
 int profile_plots_width;
 int profile_plots_height;
 
+// roughness plots window geometry
+int roughness_plots_x_corner;
+int roughness_plots_y_corner;
+int roughness_plots_width;
+int roughness_plots_height;
+
 // fitting settings window geometry
 int fitting_settings_x_corner;
 int fitting_settings_y_corner;
@@ -595,6 +601,13 @@ void Settings::read_Windows_Geometry_Settings(bool reset_to_default)
 		profile_plots_height	= windows_Geometry_Settings.value( "profile_plots_height",		300 ).toInt();
 	windows_Geometry_Settings.endGroup();
 
+	windows_Geometry_Settings.beginGroup( Roughness_Plots_Window_Geometry );
+		roughness_plots_x_corner= windows_Geometry_Settings.value( "roughness_plots_x_corner",	800 ).toInt();
+		roughness_plots_y_corner= windows_Geometry_Settings.value( "roughness_plots_y_corner",	100 ).toInt();
+		roughness_plots_width	= windows_Geometry_Settings.value( "roughness_plots_width",		700 ).toInt();
+		roughness_plots_height	= windows_Geometry_Settings.value( "roughness_plots_height",	300 ).toInt();
+	windows_Geometry_Settings.endGroup();
+
 	windows_Geometry_Settings.beginGroup( Fitting_Settings_Window_Geometry );
 		fitting_settings_x_corner	= windows_Geometry_Settings.value( "fitting_settings_x_corner",	768 ).toInt();
 		fitting_settings_y_corner	= windows_Geometry_Settings.value( "fitting_settings_y_corner",	0	).toInt();
@@ -678,6 +691,13 @@ void Settings::save_Windows_Geometry_Settings()
 		windows_Geometry_Settings.setValue( "profile_plots_y_corner",		profile_plots_y_corner	);
 		windows_Geometry_Settings.setValue( "profile_plots_width",			profile_plots_width		);
 		windows_Geometry_Settings.setValue( "profile_plots_height",			profile_plots_height	);
+	windows_Geometry_Settings.endGroup();
+
+	windows_Geometry_Settings.beginGroup( Roughness_Plots_Window_Geometry );
+		windows_Geometry_Settings.setValue( "roughness_plots_x_corner",		roughness_plots_x_corner	);
+		windows_Geometry_Settings.setValue( "roughness_plots_y_corner",		roughness_plots_y_corner	);
+		windows_Geometry_Settings.setValue( "roughness_plots_width",		roughness_plots_width		);
+		windows_Geometry_Settings.setValue( "roughness_plots_height",		roughness_plots_height		);
 	windows_Geometry_Settings.endGroup();
 
 	windows_Geometry_Settings.beginGroup( Fitting_Settings_Window_Geometry );

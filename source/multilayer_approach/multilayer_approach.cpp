@@ -100,6 +100,7 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 			if(runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))	  {optical_Graphs_1D		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 			if(runned_Profile_Plots_Window.contains(profile_Plots_Key))		  {profile_Plots_Window		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 			if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key)){calculation_Settings_Editor->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
+			if(runned_Roughness_Plots_Window.contains(roughness_Plots_Key))	  {roughness_Plots_Window     ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 		}
 	});
 }
@@ -384,6 +385,23 @@ void Multilayer_Approach::open_Profile_Plots()
 	}
 }
 
+void Multilayer_Approach::open_Roughness_Plots()
+{
+	if(!runned_Profile_Plots_Window.contains(roughness_Plots_Key))
+	{
+		runned_Roughness_Plots_Window.insert(roughness_Plots_Key, roughness_Plots_Window);
+		roughness_Plots_Window = new Roughness_Plots_Window();//(this);
+			roughness_Plots_Window->setWindowFlags(Qt::Window);
+			roughness_Plots_Window->show();
+
+		runned_Roughness_Plots_Window.clear();
+		runned_Roughness_Plots_Window.insert(roughness_Plots_Key, roughness_Plots_Window);
+	} else
+	{
+		roughness_Plots_Window->activateWindow();
+	}
+}
+
 void Multilayer_Approach::open_Fits_Selector()
 {
 	if(!runned_Fits_Selectors.contains(fits_Selector_Key))
@@ -596,6 +614,7 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 		   runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key) ||
 		   runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key) ||
 		   runned_Profile_Plots_Window.contains(profile_Plots_Key) ||
+		   runned_Roughness_Plots_Window.contains(roughness_Plots_Key) ||
 		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
 			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
@@ -606,7 +625,8 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 
 		// lock tree
 		if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key)/*||
-		   runned_Profile_Plots_Window.contains(profile_Plots_Key)*/)
+		   runned_Profile_Plots_Window.contains(profile_Plots_Key) ||
+		   runned_Roughness_Plots_Window.contains(roughness_Plots_Key)*/)
 		{
 			// close editors
 			for(Item_Editor* editor : multilayer->structure_Tree->list_Editors)	editor->close();
@@ -653,6 +673,7 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 		   !runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key) &&
 		   !runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key) &&
 		   !runned_Profile_Plots_Window.contains(profile_Plots_Key) &&
+		   !runned_Roughness_Plots_Window.contains(roughness_Plots_Key) &&
 		   !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
 			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(false);
@@ -664,7 +685,8 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 
 		// unlock tree
 		if(!runned_Tables_Of_Structures.contains(table_Of_Structures_Key)/* &&
-		   !runned_Profile_Plots_Window.contains(profile_Plots_Key)*/)
+		   !runned_Profile_Plots_Window.contains(profile_Plots_Key) &&
+		   !runned_Roughness_Plots_Window.contains(roughness_Plots_Key)*/)
 		{
 			multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(false);
 			multilayer->structure_Tree->tree->blockSignals(false);

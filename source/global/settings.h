@@ -60,6 +60,12 @@ extern int profile_plots_y_corner;
 extern int profile_plots_width;
 extern int profile_plots_height;
 
+// roughness plots window geometry
+extern int roughness_plots_x_corner;
+extern int roughness_plots_y_corner;
+extern int roughness_plots_width;
+extern int roughness_plots_height;
+
 // fitting settings window geometry
 extern int fitting_settings_x_corner;
 extern int fitting_settings_y_corner;

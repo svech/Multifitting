@@ -72,27 +72,33 @@ void Multilayer::create_Main_Tools()
 		layout->setAlignment(Qt::AlignVCenter);
 
 	structure_Table_Button = new QPushButton("Structure table");
-		layout->addWidget(structure_Table_Button,0,0);
+		layout->addWidget(structure_Table_Button,0,0,1,2);
+
+	roughness_Plots_Button = new QPushButton("Roughness plot");
+		layout->addWidget(roughness_Plots_Button,1,0);
 	profile_Plots_Button = new QPushButton("Profile plot");
-			layout->addWidget(profile_Plots_Button,0,1);
+		layout->addWidget(profile_Plots_Button,1,1);
+
 
 	optical_Graphs_1D_Button = new QPushButton("1D graphs");
-		layout->addWidget(optical_Graphs_1D_Button,1,0);
+		layout->addWidget(optical_Graphs_1D_Button,2,0);
 	optical_Graphs_2D_Button = new QPushButton("2D graphs");
-		layout->addWidget(optical_Graphs_2D_Button,1,1);
+		layout->addWidget(optical_Graphs_2D_Button,2,1);
 
 	calculation_Settings_Button = new QPushButton("Calculation settings");
-		layout->addWidget(calculation_Settings_Button,2,0);
+		layout->addWidget(calculation_Settings_Button,3,0);
 	general_Settings_Button = new QPushButton("General settings");
-		layout->addWidget(general_Settings_Button,2,1);
+		layout->addWidget(general_Settings_Button,3,1);
 
 	fitting_Settings_Button = new QPushButton("Fitting settings");
-		layout->addWidget(fitting_Settings_Button,3,0);
+		layout->addWidget(fitting_Settings_Button,4,0);
 	fits_Selector_Button = new QPushButton("Fits selector");
-		layout->addWidget(fits_Selector_Button,3,1);
+		layout->addWidget(fits_Selector_Button,4,1);
 
 	Multilayer_Approach* parent_Multilayer_Approach = qobject_cast<Multilayer_Approach*>(parent);
 	connect(structure_Table_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Table_Of_Structures);
+
+	connect(roughness_Plots_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Roughness_Plots);
 	connect(profile_Plots_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Profile_Plots);
 
 	connect(optical_Graphs_1D_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, [=]{parent_Multilayer_Approach->open_Optical_Graphs_1D();});
