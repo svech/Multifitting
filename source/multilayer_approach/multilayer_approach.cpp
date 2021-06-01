@@ -387,7 +387,7 @@ void Multilayer_Approach::open_Profile_Plots()
 
 void Multilayer_Approach::open_Roughness_Plots()
 {
-	if(!runned_Profile_Plots_Window.contains(roughness_Plots_Key))
+	if(!runned_Roughness_Plots_Window.contains(roughness_Plots_Key))
 	{
 		runned_Roughness_Plots_Window.insert(roughness_Plots_Key, roughness_Plots_Window);
 		roughness_Plots_Window = new Roughness_Plots_Window();//(this);

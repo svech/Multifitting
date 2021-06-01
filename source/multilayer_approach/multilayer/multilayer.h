@@ -54,9 +54,9 @@ public:
 					QToolButton* independent_Variables_Corner_Button;
 					QMap<Independent_Curve*, Independent_Curve_Editor*> runned_Independent_Curve_Editors;
 
-					QPushButton* structure_Table_Button;
-					QPushButton* profile_Plots_Button;		  QPushButton* roughness_Plots_Button;
+					QPushButton* structure_Table_Button;	  QPushButton* profile_Plots_Button;
 					QPushButton* optical_Graphs_1D_Button;	  QPushButton* optical_Graphs_2D_Button;
+					QPushButton* roughness_Plots_Button;	  QPushButton* particles_Plots_Button;
 					QPushButton* calculation_Settings_Button; QPushButton* general_Settings_Button;
 					QPushButton* fitting_Settings_Button;	  QPushButton* fits_Selector_Button;
 

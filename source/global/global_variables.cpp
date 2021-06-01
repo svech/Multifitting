@@ -486,7 +486,7 @@ vector<QColor> color_Contrast_Adjoint_Sequence = {	QColor(0, 115, 40),
 													QColor(127, 0, 64)
 												 };
 
-double default_Profile_Line_Thickness = 1.4;
+double default_Profile_Line_Thickness = 1.9;
 double selected_Profile_Line_Thickness = 3.5;
 
 // -----------------------------------------------------------------------------------------

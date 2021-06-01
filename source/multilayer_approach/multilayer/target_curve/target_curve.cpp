@@ -141,6 +141,7 @@ void Target_Curve::parse_1D_Data()
 {
 	curve.argument.clear();
 	curve.values.clear();
+	header.clear();
 
 	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
 	{
@@ -201,7 +202,14 @@ void Target_Curve::parse_1D_Data()
 
 void Target_Curve::parse_2D_Data()
 {
+	std::cout << endl << "Loading 2D data. Wait..." << endl;
+
 	curve.value_2D.clear();
+	header.clear();
+
+	QString data_Type = rectangular_Table_Data_Type; // by default
+
+	/// check for data type by its first numeric line
 	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
 	{
 		QString temp_Line = lines_List[line_Index];
@@ -216,28 +224,112 @@ void Target_Curve::parse_2D_Data()
 			// split line into "numbers"
 			QStringList potentional_Numbers = temp_Line.split(delimiters,QString::SkipEmptyParts);
 
-			QVector<double> numbers_Row(potentional_Numbers.size());
-			for(int num_Index=0; num_Index<potentional_Numbers.size(); num_Index++)
+			if(potentional_Numbers.size()==3)
 			{
+				bool ok_To_Int_0 = false;
+				QString(potentional_Numbers[0]).toInt(&ok_To_Int_0);
+
+				bool ok_To_Int_1 = false;
+				QString(potentional_Numbers[1]).toInt(&ok_To_Int_1);
+
+				if(ok_To_Int_0 && ok_To_Int_1) {data_Type = point_By_Point_Data_Type;}
+			}
+			break;
+		}
+	}
+
+	/// reading data
+
+	// for point-by-point table
+	int last_Row = -2021;
+
+	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
+	{
+		QString temp_Line = lines_List[line_Index];
+		temp_Line = temp_Line.simplified();
+
+		// check if not header line (starts from digit)
+		bool is_Decimal = false;
+		QString(temp_Line[0]).toInt(&is_Decimal);
+
+		if(is_Decimal)
+		{
+			// split line into "numbers"
+			QStringList potentional_Numbers = temp_Line.split(delimiters,QString::SkipEmptyParts);
+
+			/// case of point-by-point table
+			if(data_Type == point_By_Point_Data_Type)
+			{
+				bool ok_To_Int_0 = false;
+				int row_Index = QString(potentional_Numbers[0]).replace(",", ".").toInt(&ok_To_Int_0);
+
+				//bool ok_To_Int_1 = false;
+				//int col_Index = QString(potentional_Numbers[1]).replace(",", ".").toInt(&ok_To_Int_1);
+
 				bool ok_To_Double = false;
-				double temp_Value = QString(potentional_Numbers[num_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+				double temp_Value = QString(potentional_Numbers[2]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+
+				// add new row
+				if(row_Index > last_Row)
+				{
+					curve.value_2D.append(QVector<double>());
+					last_Row = row_Index;
+				}
 
 				if(ok_To_Double)
 				{
-					numbers_Row[num_Index] = temp_Value;
+					curve.value_2D.last().append(temp_Value);
 				} else
 				{
-					numbers_Row[num_Index] = -2020;
-					qInfo() << "Target_Curve::parse_2D_Data  :  bad number in row" << line_Index << "column" << num_Index << endl;
+					curve.value_2D.last().append(-2021);
+					qInfo() << "Target_Curve::parse_2D_Data  :  bad number in row" << line_Index << endl;
 				}
 
+
+			} else
+			/// case of rectangular table
+			{
+				QVector<double> numbers_Row(potentional_Numbers.size());
+				for(int num_Index=0; num_Index<potentional_Numbers.size(); num_Index++)
+				{
+					bool ok_To_Double = false;
+					double temp_Value = QString(potentional_Numbers[num_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+
+					if(ok_To_Double)
+					{
+						numbers_Row[num_Index] = temp_Value;
+					} else
+					{
+						numbers_Row[num_Index] = -2020;
+						qInfo() << "Target_Curve::parse_2D_Data  :  bad number in row" << line_Index << "column" << num_Index << endl;
+					}
+
+				}
+				curve.value_2D.append(numbers_Row);
 			}
-			curve.value_2D.append(numbers_Row);
 		} else
 		{
 			header.append(temp_Line);
 		}
 	}
+
+	// transpose
+	if(data_Type == point_By_Point_Data_Type && curve.value_2D.size()>=3)
+	{
+		QVector<QVector<double>> value_2D_Transposed;
+		value_2D_Transposed.resize(curve.value_2D.front().size());
+		for(int i=0; i<value_2D_Transposed.size(); i++)
+		{
+			value_2D_Transposed[i].resize(curve.value_2D.size());
+			for(int j=0; j<value_2D_Transposed[0].size(); j++)
+			{
+				value_2D_Transposed[i][j] = curve.value_2D[j][i];
+			}
+		}
+		curve.value_2D = value_2D_Transposed;
+	}
+
+	std::cout << "Loaded" << endl << endl;
 
 	// decision
 	if(curve.value_2D.size()>=3)

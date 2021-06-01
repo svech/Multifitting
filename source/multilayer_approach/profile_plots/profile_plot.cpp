@@ -860,7 +860,7 @@ void Profile_Plot::calculate_Profile()
 			custom_Plot->graph()->data()->set(sharp_Delta_To_Plot_Vector);
 
 			if(data_Count<limit_For_Line_Thickness) custom_Plot->graph()->setPen(QPen(Qt::darkCyan, default_Profile_Line_Thickness));
-							else custom_Plot->graph()->setPen(QPen(Qt::darkCyan, 0));
+											   else custom_Plot->graph()->setPen(QPen(Qt::darkCyan, 0));
 
 			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 			custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);

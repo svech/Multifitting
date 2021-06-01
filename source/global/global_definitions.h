@@ -399,6 +399,10 @@ class Node;
 #define horizontal		"horizontal"
 #define vertical		"vertical"
 
+// 2D data types
+#define point_By_Point_Data_Type		"point-by-point data type"
+#define rectangular_Table_Data_Type		"rectangular table data type"
+
 // 2D data to show
 #define meas		"meas"
 #define calc		"calc"
