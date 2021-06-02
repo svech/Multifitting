@@ -73,6 +73,7 @@ public:
 	Graph_Options graph_Options_1D;
 	Graph_Options graph_Options_2D;
 	Profile_Plot_Options profile_Plot_Options;
+	Roughness_Plot_Options roughness_Plot_Options;
 	Discretization_Parameters discretization_Parameters;
 	Imperfections_Model imperfections_Model;
 

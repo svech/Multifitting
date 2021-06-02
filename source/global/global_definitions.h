@@ -16,7 +16,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 17
+#define VERSION_BUILD 18
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -740,6 +740,32 @@ struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 								 double local_Wavelength = 1.540562;
 								};
 
+// roughness plot options
+struct Roughness_Plot_Options	{QString PSD_Type = PSD_Type_1D;
+								 bool show_Top_Surface = false;
+								 bool show_Substrate_Surface = true;
+								 int num_Interface_To_Show = 0;
+								 bool show_Cursor_Position = true;
+
+								 bool rescale_X = true;
+								 bool rescale_Y = true;
+
+								 double x_Min = 1E-7; // A^-1
+								 double x_Max   = 1E-1; // A^-1
+								 double old_X_Begin = 1E-7; // A^-1
+								 double old_X_End   = 1E-1; // A^-1
+
+								 double old_Y_Begin = 0;
+								 double old_Y_End   = 1;
+
+								 QString x_Scale = log_Scale;
+								 QString y_Scale = log_Scale;
+
+								 QString local_frequency_units = Angstrom_Sym+Minus_One_Sym;
+								 QString local_PSD_1D_units = Angstrom_Sym+Cube_Sym;
+								 QString local_PSD_2D_units = Angstrom_Sym+Tetra_Sym;
+								};
+
 // calculated values for profile plotting
 struct Material_Profile			{QString material;
 								 QColor color;
@@ -1157,6 +1183,9 @@ QDataStream& operator >>( QDataStream& stream,		 Graph_2D_Positions& graph_2D_Po
 
 QDataStream& operator <<( QDataStream& stream, const Profile_Plot_Options& profile_Plot_Options );
 QDataStream& operator >>( QDataStream& stream,		 Profile_Plot_Options& profile_Plot_Options );
+
+QDataStream& operator <<( QDataStream& stream, const Roughness_Plot_Options& roughness_Plot_Options );
+QDataStream& operator >>( QDataStream& stream,		 Roughness_Plot_Options& roughness_Plot_Options );
 
 QDataStream& operator <<( QDataStream& stream, const Material_Profile& material_Profile );
 QDataStream& operator >>( QDataStream& stream,		 Material_Profile& material_Profile );

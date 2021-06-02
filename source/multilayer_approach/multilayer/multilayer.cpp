@@ -682,6 +682,7 @@ Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
 	graph_Options_1D = referent_Multilayer.graph_Options_1D;
 	graph_Options_2D = referent_Multilayer.graph_Options_2D;
 	profile_Plot_Options = referent_Multilayer.profile_Plot_Options;
+	roughness_Plot_Options = referent_Multilayer.roughness_Plot_Options;
 
 	discretization_Parameters = referent_Multilayer.discretization_Parameters;
 	imperfections_Model = referent_Multilayer.imperfections_Model;

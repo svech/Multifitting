@@ -113,7 +113,7 @@ void Roughness_Plots_Window::create_Tab_Content(QWidget *new_Widget, int tab_Ind
 {
 	Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
 
-	Roughness_Plot* new_Plot = new Roughness_Plot(multilayer, this);
+	Roughness_Plot* new_Plot = new Roughness_Plot(multilayer, this, this);
 		roughness_Plot_Vector[tab_Index] = new_Plot;
 
 	QHBoxLayout* tab_Layout = new QHBoxLayout(new_Widget);

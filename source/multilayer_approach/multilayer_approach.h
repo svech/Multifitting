@@ -76,6 +76,7 @@ public:
 
 	void reopen_Table_Of_Structures(bool keep_Tab_Index = false);
 	void reopen_Profile_Plots(bool keep_Tab_Index = false);
+	void reopen_Roughness_Plots(bool keep_Tab_Index = false);
 	void reopen_Optical_Graphs_1D(bool keep_Tab_Index = false, QString keep_Splitter = "");
 	void reopen_Optical_Graphs_2D(bool keep_Tab_Index = false, QString keep_Splitter = "");
 	void reopen_Calculation_Settings(bool keep_Tab_Index = false);

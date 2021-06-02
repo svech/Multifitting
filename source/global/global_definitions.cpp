@@ -476,6 +476,27 @@ QDataStream& operator >>( QDataStream& stream,		 Profile_Plot_Options& profile_P
 	return stream;
 }
 
+QDataStream& operator <<( QDataStream& stream, const Roughness_Plot_Options& roughness_Plot_Options )
+{
+	return stream << roughness_Plot_Options.PSD_Type
+				  << roughness_Plot_Options.show_Top_Surface << roughness_Plot_Options.show_Substrate_Surface << roughness_Plot_Options.num_Interface_To_Show << roughness_Plot_Options.show_Cursor_Position
+				  << roughness_Plot_Options.rescale_X << roughness_Plot_Options.rescale_Y
+				  << roughness_Plot_Options.x_Min << roughness_Plot_Options.x_Max
+				  << roughness_Plot_Options.old_X_Begin << roughness_Plot_Options.old_X_End << roughness_Plot_Options.old_Y_Begin << roughness_Plot_Options.old_Y_End
+				  << roughness_Plot_Options.x_Scale << roughness_Plot_Options.y_Scale
+				  << roughness_Plot_Options.local_frequency_units << roughness_Plot_Options.local_PSD_1D_units << roughness_Plot_Options.local_PSD_2D_units;
+}
+QDataStream& operator >>( QDataStream& stream,		 Roughness_Plot_Options& roughness_Plot_Options )
+{
+	return stream >> roughness_Plot_Options.PSD_Type
+				  >> roughness_Plot_Options.show_Top_Surface >> roughness_Plot_Options.show_Substrate_Surface >> roughness_Plot_Options.num_Interface_To_Show >> roughness_Plot_Options.show_Cursor_Position
+				  >> roughness_Plot_Options.rescale_X >> roughness_Plot_Options.rescale_Y
+				  >> roughness_Plot_Options.x_Min >> roughness_Plot_Options.x_Max
+				  >> roughness_Plot_Options.old_X_Begin >> roughness_Plot_Options.old_X_End >> roughness_Plot_Options.old_Y_Begin >> roughness_Plot_Options.old_Y_End
+				  >> roughness_Plot_Options.x_Scale >> roughness_Plot_Options.y_Scale
+				  >> roughness_Plot_Options.local_frequency_units >> roughness_Plot_Options.local_PSD_1D_units >> roughness_Plot_Options.local_PSD_2D_units;
+}
+
 QDataStream& operator <<( QDataStream& stream, const Material_Profile& material_Profile )
 {
 	return stream << material_Profile.material << material_Profile.color << material_Profile.relative_Concentration;

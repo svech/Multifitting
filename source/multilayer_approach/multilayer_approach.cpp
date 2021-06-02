@@ -159,6 +159,9 @@ void Multilayer_Approach::fast_Hide_Windows()
 	if(runned_Profile_Plots_Window.contains(profile_Plots_Key))	{
 		profile_Plots_Window->close();
 	}
+	if(runned_Roughness_Plots_Window.contains(roughness_Plots_Key))	{
+		roughness_Plots_Window->close();
+	}
 	if(runned_Fits_Selectors.contains(fits_Selector_Key))	{
 		fits_Selector->close();
 	}
@@ -390,6 +393,7 @@ void Multilayer_Approach::open_Roughness_Plots()
 	if(!runned_Roughness_Plots_Window.contains(roughness_Plots_Key))
 	{
 		runned_Roughness_Plots_Window.insert(roughness_Plots_Key, roughness_Plots_Window);
+
 		roughness_Plots_Window = new Roughness_Plots_Window();//(this);
 			roughness_Plots_Window->setWindowFlags(Qt::Window);
 			roughness_Plots_Window->show();
@@ -491,6 +495,18 @@ void Multilayer_Approach::reopen_Profile_Plots(bool keep_Tab_Index)
 		runned_Profile_Plots_Window.value(profile_Plots_Key)->close();
 		open_Profile_Plots();
 		if(keep_Tab_Index) runned_Profile_Plots_Window.value(profile_Plots_Key)->main_Tabs->setCurrentIndex(active_Tab);
+	}
+}
+
+void Multilayer_Approach::reopen_Roughness_Plots(bool keep_Tab_Index)
+{
+	if(runned_Roughness_Plots_Window.contains(roughness_Plots_Key))
+	{
+		int active_Tab;
+		if(keep_Tab_Index) active_Tab = runned_Roughness_Plots_Window.value(roughness_Plots_Key)->main_Tabs->currentIndex();
+		runned_Roughness_Plots_Window.value(roughness_Plots_Key)->close();
+		open_Roughness_Plots();
+		if(keep_Tab_Index) runned_Roughness_Plots_Window.value(roughness_Plots_Key)->main_Tabs->setCurrentIndex(active_Tab);
 	}
 }
 
@@ -873,6 +889,15 @@ void Multilayer_Approach::open(QString filename)
 		runned_Profile_Plots_Window.value(profile_Plots_Key)->close();
 	}
 
+	// close roughness
+	bool reopen_Roughness_Plots = runned_Roughness_Plots_Window.contains(roughness_Plots_Key);
+	int active_Tab_Roughness_Plots = -2019;
+	if(reopen_Roughness_Plots)
+	{
+		active_Tab_Roughness_Plots = runned_Roughness_Plots_Window.value(roughness_Plots_Key)->main_Tabs->currentIndex();
+		runned_Roughness_Plots_Window.value(roughness_Plots_Key)->close();
+	}
+
 	// close fitting settings
 	bool reopen_Fit_Settings = runned_Fitting_Settings_Editor.contains(fit_Settings_Key);
 	if(reopen_Fit_Settings)
@@ -1049,6 +1074,10 @@ void Multilayer_Approach::open(QString filename)
 		if(Global_Variables::check_Loaded_Version(1,10,2))
 		{in >> multilayer->profile_Plot_Options;}			// since 1.10.2
 
+		/// roughness plot
+		if(Global_Variables::check_Loaded_Version(1,11,18))
+		{in >> multilayer->roughness_Plot_Options;}			// since 1.11.18
+
 		/// discretization
 		if(Global_Variables::check_Loaded_Version(1,10,2))
 		{in >> multilayer->discretization_Parameters;}		// since 1.10.2
@@ -1177,10 +1206,16 @@ void Multilayer_Approach::open(QString filename)
 		open_Optical_Graphs_2D();
 	}
 
-	// close profile
+	// reopen profile
 	if(reopen_Profile_Plots)
 	{
 		open_Profile_Plots();
+	}
+
+	// reopen roughness
+	if(reopen_Roughness_Plots)
+	{
+		open_Roughness_Plots();
 	}
 
 	// reopen fitting settings
@@ -1324,6 +1359,9 @@ void Multilayer_Approach::save(QString filename)
 
 		/// profile plot
 		out << multilayer->profile_Plot_Options;	  // since 1.10.2
+
+		/// roughness plot
+		out << multilayer->roughness_Plot_Options;		// since 1.11.18
 
 		/// discretization
 		out << multilayer->discretization_Parameters;	  // since 1.10.2
