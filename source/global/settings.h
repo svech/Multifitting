@@ -452,6 +452,7 @@ extern double default_wavelength;
 extern double default_wavelength_min;
 extern double default_wavelength_max;
 
+extern double default_logarithmic_threshold_PSD;
 extern double default_logarithmic_threshold_beta;
 extern double default_logarithmic_threshold_material_density;
 extern double default_logarithmic_threshold_element_concentration;

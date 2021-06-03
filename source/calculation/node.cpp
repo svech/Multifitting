@@ -508,6 +508,12 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 	}
 
 	// with and without discretization
+	calculate_PSD_Factor(imperfections_Model);
+}
+
+void Node::calculate_PSD_Factor(const Imperfections_Model& imperfections_Model)
+{
+	// with and without discretization
 	if( struct_Data.item_Type == item_Type_Layer ||
 		struct_Data.item_Type == item_Type_Substrate )
 	{
@@ -1982,7 +1988,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 	} else
 	if(measurement.measurement_Type == measurement_Types[Specular_Scan])
 	{
-		nu_Max = 2*M_PI*imperfections_Model.nu_Limit*(1+addition)*10;
+		nu_Max = 2*M_PI*imperfections_Model.nu_Limit*(1+addition)*1.1;
 	} else
 	{
 		//if(imperfections_Model.vertical_Correlation == partial_Correlation)
@@ -2015,7 +2021,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 			   (imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model ||
 				imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model ))
 			{
-				nu_Max = max(nu_Max, 2*M_PI*imperfections_Model.nu_Limit*(1+addition)*10);
+				nu_Max = max(nu_Max, 2*M_PI*imperfections_Model.nu_Limit*(1+addition)*1.1);
 			}
 		}
 	}
@@ -2063,7 +2069,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 	{
 		gauss_kronrod_Depth = 5;
 	}
-	double n = 2;
+	double n = 2; //2
 	double shift = M_PI*(2*n+0.25);
 
 	/// with parallelization
@@ -2083,6 +2089,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 		Q_UNUSED(thread_Index)
 		ooura_fourier_cos<double> integrator_Cos(tol, depth);
 		ooura_fourier_sin<double> integrator_Sin(tol, depth);
+//		tanh_sinh<double> tanh_sinh_Integrator;
 
 		double nu = 0;
 		double error;
@@ -2098,7 +2105,8 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 				{
 					return exp(-pow(r/xi,2*alpha)) * cyl_bessel_j(0, nu*r) * r;
 				};
-				integral = 2*M_PI*gauss_kronrod<double, 61>::integrate(f_1, 0, division_Point, gauss_kronrod_Depth, 1e-7, &error);
+				integral =  2*M_PI*gauss_kronrod<double, 61>::integrate(f_1, 0, division_Point, gauss_kronrod_Depth, 1e-7, &error);
+//				integral = 2*M_PI*tanh_sinh_Integrator.integrate(f_1, 0, division_Point, 1E-2);
 
 				// second part
 				auto f_2_cos = [&](double r)

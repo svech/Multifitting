@@ -50,11 +50,11 @@ public:
 
 	void renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item);
 
-	void stratify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Nodes);
-	void stratify_Calc_Tree(tree<Node>& calc_Tree);
-	void flatten_Tree(const tree<Node>::iterator& parent, const tree<Node>& calc_Tree, vector<Node*>& flat_Calc_Tree);
-	void short_Tree(const vector<Node *> &flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree);
-	int unwrap_Calc_Tree_Node(const tree<Node>::iterator& parent, vector<Node*>& media_Node_Map_Vector, int media_Index = 0);
+	static void stratify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Nodes);
+	static void stratify_Calc_Tree(tree<Node>& calc_Tree);
+	static void flatten_Tree(const tree<Node>::iterator& parent, const tree<Node>& calc_Tree, vector<Node*>& flat_Calc_Tree);
+	static void short_Tree(const vector<Node *> &flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree);
+	static int unwrap_Calc_Tree_Node(const tree<Node>::iterator& parent, vector<Node*>& media_Node_Map_Vector, int media_Index = 0);
 	static int unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, vector<Data*>& media_Data_Map_Vector, vector<int>& media_Period_Index_Map_Vector, int media_Index = 0, int period_Index = 0);
 
 	template <typename Type>

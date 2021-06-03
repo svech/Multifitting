@@ -443,6 +443,7 @@ double default_wavelength;
 double default_wavelength_min;
 double default_wavelength_max;
 
+double default_logarithmic_threshold_PSD;
 double default_logarithmic_threshold_beta;
 double default_logarithmic_threshold_material_density;
 double default_logarithmic_threshold_element_concentration;
@@ -1443,6 +1444,7 @@ void Settings::read_Measurement_Default_Values(bool reset_to_default)
 		default_phi_angle_min								= measurement_Default_Values.value( "default_phi_angle_min",							   -1.3		).toDouble();
 		default_phi_angle_max								= measurement_Default_Values.value( "default_phi_angle_max",								1.3		).toDouble();
 
+		default_logarithmic_threshold_PSD					= measurement_Default_Values.value( "default_logarithmic_threshold_PSD",					1E-17	).toDouble();
 		default_logarithmic_threshold_beta					= measurement_Default_Values.value( "default_logarithmic_threshold_beta",					1E-17	).toDouble();
 		default_logarithmic_threshold_material_density		= measurement_Default_Values.value( "default_logarithmic_threshold_material_density",		1E-7	).toDouble();
 		default_logarithmic_threshold_element_concentration = measurement_Default_Values.value( "default_logarithmic_threshold_element_concentration",	1E15	).toDouble();
@@ -1522,6 +1524,7 @@ void Settings::save_Measurement_Default_Values()
 		measurement_Default_Values.setValue( "default_phi_angle_min",								default_phi_angle_min								);
 		measurement_Default_Values.setValue( "default_phi_angle_max",								default_phi_angle_max								);
 
+		measurement_Default_Values.setValue( "default_logarithmic_threshold_PSD",					default_logarithmic_threshold_PSD					);
 		measurement_Default_Values.setValue( "default_logarithmic_threshold_beta",					default_logarithmic_threshold_beta					);
 		measurement_Default_Values.setValue( "default_logarithmic_threshold_material_density",		default_logarithmic_threshold_material_density		);
 		measurement_Default_Values.setValue( "default_logarithmic_threshold_element_concentration",	default_logarithmic_threshold_element_concentration	);

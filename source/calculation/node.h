@@ -12,6 +12,7 @@ public:
 	explicit Node(QTreeWidgetItem* item);
 
 	void calculate_Intermediate_Points(const Data& measurement, Node* above_Node, bool depth_Grading, bool inconvenient_Approximation, bool sigma_Grading, bool enable_Discretization, const Imperfections_Model& imperfections_Model, QString mode);
+	void calculate_PSD_Factor(const Imperfections_Model& imperfections_Model);
 
 	Data struct_Data;
 	bool stop_Calcuation = false;

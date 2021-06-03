@@ -14,6 +14,7 @@ public:
 	void create_Main_Layout();
 	void create_Left_Side();
 	void create_Plot_Frame_And_Scale();
+	void calculate_Profile();
 	void plot_Data(bool recalculate_Profile = false);
 
 	Multilayer* multilayer;
@@ -45,6 +46,37 @@ public:
 			QLabel* scale_X_Label;
 			QRadioButton* lin_X_RadioButton;
 			QRadioButton* log_X_RadioButton;
+
+		QGroupBox* units_GroupBox;
+			QComboBox* argument_ComboBox;
+			QComboBox* PSD_1D_ComboBox;
+			QComboBox* PSD_2D_ComboBox;
+
+
+		int media_Counter = 2; // ambient is the first
+		tree<Node> calc_Tree;
+		vector<Node*> flat_Calc_Tree;	            // contains only Ambient, Layers, Substrate
+		vector<Node*> short_Flat_Calc_Tree;	        // contains only Layers, Substrate, and no extreme layers
+		vector<Node*> media_Node_Map_Vector;
+		vector<Data*> media_Data_Map_Vector;		// pointers to real_Calc_Tree, without calculated epsilon, hi etc
+		vector<int>   media_Period_Index_Map_Vector;
+
+		QVector<double> boundary_Vector;
+		QVector<double> thickness_Vector;
+
+		// data to plot
+		QVector<QCPGraphData> top_Surface_Plot_Vector;
+		QVector<QCPGraphData> current_Interface_Plot_Vector;
+		QVector<QCPGraphData> substrate_Surface_Plot_Vector;
+
+		QVector<double> arg;
+		QVector<double> top_Surface_Val;
+		QVector<double> current_Interface_Val;
+		QVector<double> substrate_Surface_Val;
+
+		bool use_Top_Surface;
+		bool use_Current_Interface;
+		bool use_Substrate_Surface;
 };
 
 #endif // ROUGHNESS_PLOT_H

@@ -928,6 +928,21 @@ int Global_Variables::get_Tree_Depth(QTreeWidgetItem* item)
 	}
 	return depth;
 }
+int Global_Variables::get_Tree_Depth(tree<Node>& calc_Tree, const tree<Node>::iterator& parent)
+{
+	int depth = 0;
+	QVector<int> child_Depth;
+	if(parent.number_of_children()>0)
+	{
+		for(unsigned child_Index=0; child_Index<parent.number_of_children(); child_Index++)
+		{
+			tree<Node>::post_order_iterator child = calc_Tree.child(parent,child_Index);
+			child_Depth.append(get_Tree_Depth(calc_Tree, child));
+		}
+		depth=1+*(std::minmax_element(child_Depth.begin(),child_Depth.end()).second);
+	}
+	return depth;
+}
 
 QString Global_Variables::structure_Item_Name(const Data& struct_Data)
 {

@@ -285,7 +285,8 @@ void Calculation_Tree::stratify_Calc_Tree_Iteration(const tree<Node>::iterator& 
 
 void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 {
-	int max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
+//	int max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
+	int max_Depth = Global_Variables::get_Tree_Depth(calc_Tree, calc_Tree.begin());				// unstratified depth
 
 	for(int depth=max_Depth-1; depth>0; depth--)
 	{
