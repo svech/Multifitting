@@ -17,31 +17,25 @@ void Roughness_Plot::create_Main_Layout()
 	custom_Plot = new QCustomPlot(this);
 	custom_Plot->addGraph();
 
-//	horizontall_Scrollbar = new QScrollBar(Qt::Horizontal);
-//	connect(horizontall_Scrollbar, &QScrollBar::valueChanged, this, &Profile_Plot::horizontall_ScrollbarChanged);
-//	connect(custom_Plot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange&)>(&QCPAxis::rangeChanged), this, &Profile_Plot::x_Axis_RangeChanged);
-//	horizontall_Scrollbar->blockSignals(true);
-
 	// synchronize selection of graphs with selection of corresponding legend items:
-//	connect(custom_Plot, &QCustomPlot::selectionChangedByUser, this, [=]
-//	{
-//		for (int i=0; i<custom_Plot->graphCount(); ++i)
-//		{
-//			QCPGraph* graph = custom_Plot->graph(i);
-//			if(custom_Plot->legend->hasItemWithPlottable(graph))
-//			{
-//				QCPPlottableLegendItem* item = custom_Plot->legend->itemWithPlottable(graph);
-//				if (item->selected() || graph->selected())
-//				{
-//					item->setSelected(true);
-//					graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
-//				}
-//			}
-//		}
-//	});
-//	custom_Plot->legend->setSelectableParts(QCPLegend::spItems);
-//	custom_Plot->legend->setSelectedIconBorderPen(QPen(Qt::black, 1));
-//	connect(custom_Plot, &QCustomPlot::plottableDoubleClick, this, &Profile_Plot::hide_Show_Other_Plots);
+	connect(custom_Plot, &QCustomPlot::selectionChangedByUser, this, [=]
+	{
+		for (int i=0; i<custom_Plot->graphCount(); ++i)
+		{
+			QCPGraph* graph = custom_Plot->graph(i);
+			if(custom_Plot->legend->hasItemWithPlottable(graph))
+			{
+				QCPPlottableLegendItem* item = custom_Plot->legend->itemWithPlottable(graph);
+				if (item->selected() || graph->selected())
+				{
+					item->setSelected(true);
+					graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
+				}
+			}
+		}
+	});
+	custom_Plot->legend->setSelectableParts(QCPLegend::spItems);
+	custom_Plot->legend->setSelectedIconBorderPen(QPen(Qt::black, 1));
 
 	if(multilayer->roughness_Plot_Options.show_Cursor_Position)
 	{
@@ -59,14 +53,9 @@ void Roughness_Plot::create_Main_Layout()
 		});
 	}
 	create_Left_Side();
+	lock_Interfaces();
 
 	main_Layout->addWidget(custom_Plot);
-//	QVBoxLayout* plot_Bar_Layout = new QVBoxLayout;
-//		plot_Bar_Layout->setContentsMargins(4,4,4,0);
-//	main_Layout->addLayout(plot_Bar_Layout);
-//	plot_Bar_Layout->addWidget(custom_Plot);
-//	plot_Bar_Layout->addWidget(horizontall_Scrollbar);
-
 	plot_Data(true);
 }
 
@@ -145,21 +134,34 @@ void Roughness_Plot::create_Left_Side()
 		connect(show_Top_Surface_CheckBox, &QCheckBox::toggled, this, [=]
 		{
 			multilayer->roughness_Plot_Options.show_Top_Surface = show_Top_Surface_CheckBox->isChecked();
+			use_Top_Surface = multilayer->roughness_Plot_Options.show_Top_Surface;
 			plot_Data(true);
 		});
 
-		show_Interface_by_Number_ComboBox = new QComboBox;
-		QHBoxLayout* interface_by_Number_Layout = new QHBoxLayout;
-			interface_by_Number_Layout->setAlignment(Qt::AlignLeft);
-			interface_by_Number_Layout->addWidget(show_Interface_by_Number_ComboBox);
-		interface_Layout->addLayout(interface_by_Number_Layout);
-		connect(show_Interface_by_Number_ComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=]
+		QHBoxLayout* interface_Number_layout = new QHBoxLayout;
+			interface_Number_layout->setAlignment(Qt::AlignLeft);
+		interface_Layout->addLayout(interface_Number_layout);
+
+		show_Interface_by_Number_CheckBox = new QCheckBox("Show interface");
+			show_Interface_by_Number_CheckBox->setChecked(multilayer->roughness_Plot_Options.show_Interface_With_Number);
+		interface_Number_layout->addWidget(show_Interface_by_Number_CheckBox);
+		connect(show_Interface_by_Number_CheckBox, &QCheckBox::toggled, this, [=]
 		{
-			multilayer->roughness_Plot_Options.num_Interface_To_Show = show_Interface_by_Number_ComboBox->currentIndex();
+			multilayer->roughness_Plot_Options.show_Interface_With_Number = show_Interface_by_Number_CheckBox->isChecked();
+			use_Current_Interface = multilayer->roughness_Plot_Options.show_Interface_With_Number;
+			interface_by_Number_ComboBox->setEnabled(multilayer->roughness_Plot_Options.show_Interface_With_Number);
 			plot_Data(true);
 		});
-		QLabel* interface_Label = new QLabel("  interface");
-			interface_by_Number_Layout->addWidget(interface_Label);
+
+		interface_by_Number_ComboBox = new QComboBox;
+			interface_by_Number_ComboBox->setFixedWidth(55);
+			interface_by_Number_ComboBox->setEnabled(multilayer->roughness_Plot_Options.show_Interface_With_Number);
+		interface_Number_layout->addWidget(interface_by_Number_ComboBox,0,Qt::AlignLeft);
+		connect(interface_by_Number_ComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=]
+		{
+			multilayer->roughness_Plot_Options.interface_Number_To_Show = interface_by_Number_ComboBox->currentIndex()+1;
+			plot_Data(true);
+		});
 
 		show_Substrate_Surface_CheckBox = new QCheckBox("Show substrate surface");
 			show_Substrate_Surface_CheckBox->setChecked(multilayer->roughness_Plot_Options.show_Substrate_Surface);
@@ -167,6 +169,7 @@ void Roughness_Plot::create_Left_Side()
 		connect(show_Substrate_Surface_CheckBox, &QCheckBox::toggled, this, [=]
 		{
 			multilayer->roughness_Plot_Options.show_Substrate_Surface = show_Substrate_Surface_CheckBox->isChecked();
+			use_Substrate_Surface = multilayer->roughness_Plot_Options.show_Substrate_Surface;
 			plot_Data(true);
 		});
 
@@ -201,6 +204,7 @@ void Roughness_Plot::create_Left_Side()
 		connect(min_X_LineEdit,  &QLineEdit::textEdited, this, [=]	{
 			double coeff = spatial_Frequency_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_frequency_units);
 			multilayer->roughness_Plot_Options.x_Min = Locale.toDouble(min_X_LineEdit->text())*coeff;
+			plot_Data(true);
 		});
 
 		QLabel* space_label = new QLabel(" - ");
@@ -215,11 +219,35 @@ void Roughness_Plot::create_Left_Side()
 		connect(max_X_LineEdit,  &QLineEdit::textEdited, this, [=]	{
 			double coeff = spatial_Frequency_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_frequency_units);
 			multilayer->roughness_Plot_Options.x_Max = Locale.toDouble(max_X_LineEdit->text())*coeff;
+			plot_Data(true);
 		});
 
 		QLabel* x_Units_label = new QLabel(" "+multilayer->roughness_Plot_Options.local_frequency_units);
 			x_Units_label->setEnabled(multilayer->roughness_Plot_Options.rescale_X);
 		x_Range_layout->addWidget(x_Units_label,0,Qt::AlignLeft);
+
+		// ----------------------------------------------------
+
+		QHBoxLayout* z_Range_Layout = new QHBoxLayout;
+			z_Range_Layout->setAlignment(Qt::AlignLeft);
+		scale_Layout->addLayout(z_Range_Layout);
+
+		QLabel* orders_Label = new QLabel("Y range, orders: ");
+		z_Range_Layout->addWidget(orders_Label);
+
+		orders_Spinbox = new MyDoubleSpinBox(nullptr, false);
+			orders_Spinbox->setRange(1,99);
+			orders_Spinbox->setDecimals(1);
+			orders_Spinbox->setSingleStep(0.1);
+			orders_Spinbox->setValue(multilayer->roughness_Plot_Options.orders_To_Show);
+			orders_Spinbox->setAccelerated(true);
+			orders_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		z_Range_Layout->addWidget(orders_Spinbox);
+		connect(orders_Spinbox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			multilayer->roughness_Plot_Options.orders_To_Show = orders_Spinbox->value();
+			plot_Data();
+		});
 
 		// ----------------------------------------------------
 
@@ -331,7 +359,6 @@ void Roughness_Plot::create_Left_Side()
 			units_Layout->setSpacing(2);
 			units_Layout->setContentsMargins(8,5,6,5);
 
-
 		// ----------------------------------------------------
 
 		cursor_Cordinate_CheckBox = new QCheckBox("Show cursor position");
@@ -420,6 +447,10 @@ void Roughness_Plot::create_Left_Side()
 		scale_GroupBox->setFixedWidth(interface_GroupBox->width());
 		units_GroupBox->setFixedWidth(interface_GroupBox->width());
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+	// bit of initialization
+	PSD_1D_RadioButton->clicked(PSD_1D_RadioButton->isChecked());
+	PSD_2D_RadioButton->clicked(PSD_2D_RadioButton->isChecked());
 
 	custom_Plot->replot();
 }
@@ -522,11 +553,7 @@ void Roughness_Plot::create_Plot_Frame_And_Scale()
 
 void Roughness_Plot::calculate_Profile()
 {
-	int num_Plot_Points = 1000; // by default, without measured PSD
-
-	use_Top_Surface = false;
-	use_Current_Interface = false;
-	use_Substrate_Surface = false;
+	num_Plot_Points = 1000; // by default, without measured PSD
 
 	arg.clear();
 	top_Surface_Val.clear();
@@ -545,9 +572,28 @@ void Roughness_Plot::calculate_Profile()
 	double nu_Min = min(multilayer->roughness_Plot_Options.x_Min,multilayer->roughness_Plot_Options.x_Max);
 	double nu_Max = max(multilayer->roughness_Plot_Options.x_Min,multilayer->roughness_Plot_Options.x_Max);
 
+	double val_Coeff = 1;
+	double arg_Coeff = spatial_Frequency_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_frequency_units);
+
+	if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
+		val_Coeff = PSD_1D_Value_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_PSD_1D_units);
+	} else	{
+		val_Coeff = PSD_2D_Value_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_PSD_2D_units);
+	}
+
 	/// preparing calc_Tree
 	Calculation_Tree::fill_Tree_From_Scratch(calc_Tree, multilayer->structure_Tree->tree, multilayer);
 	media_Counter = Calculation_Tree::get_Total_Num_Layers(calc_Tree.begin());
+
+	// now we can fill interface_by_Number_ComboBox
+	interface_by_Number_ComboBox->blockSignals(true);
+	interface_by_Number_ComboBox->clear();
+	for(int interface_Index = 1; interface_Index<media_Counter; interface_Index++)
+	{
+		interface_by_Number_ComboBox->addItem(QString::number(interface_Index));
+	}
+	interface_by_Number_ComboBox->setCurrentIndex(multilayer->roughness_Plot_Options.interface_Number_To_Show-1);
+	interface_by_Number_ComboBox->blockSignals(false);
 
 	// unstratified
 	media_Data_Map_Vector.resize(media_Counter);
@@ -561,71 +607,6 @@ void Roughness_Plot::calculate_Profile()
 	Calculation_Tree::flatten_Tree(calc_Tree.begin(), calc_Tree, flat_Calc_Tree);
 	Calculation_Tree::short_Tree(flat_Calc_Tree, short_Flat_Calc_Tree);
 	Calculation_Tree::unwrap_Calc_Tree_Node(calc_Tree.begin(), media_Node_Map_Vector);
-
-	Node* substrate_Node = flat_Calc_Tree.back();
-	Data& substrate_Data = substrate_Node->struct_Data;
-	substrate_Node->calculate_PSD_Factor(multilayer->imperfections_Model);
-
-	/// creating FG splines
-	Data fake_Measurement;
-	fake_Measurement.measurement_Type = measurement_Types[Specular_Scan];
-	if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-		substrate_Node->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, fake_Measurement);
-	} else {
-		substrate_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model, fake_Measurement);
-	}
-
-	/// choosing base PSD functions
-	double (*PSD_Func_from_nu)(double, double, double, double, gsl_spline*, gsl_interp_accel*);
-	double factor = 1;
-	gsl_spline* spline_PSD_FG;
-	gsl_interp_accel* acc_PSD_FG;
-	double val_Coeff = 1;
-	double arg_Coeff = spatial_Frequency_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_frequency_units);
-
-	double xi    = substrate_Data.roughness_Model.cor_radius.value;
-	double alpha = substrate_Data.roughness_Model.fractal_alpha.value;
-
-	if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-		val_Coeff = PSD_1D_Value_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_PSD_1D_units);
-	} else	{
-		val_Coeff = PSD_2D_Value_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_PSD_2D_units);
-	}
-
-	if(multilayer->imperfections_Model.PSD_Model == ABC_Model) {
-		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-			PSD_Func_from_nu = &Global_Variables::PSD_ABC_1D_from_nu;
-			factor = substrate_Data.PSD_ABC_1D_Factor;
-		} else {
-			PSD_Func_from_nu = &Global_Variables::PSD_ABC_2D_from_nu;
-			factor = substrate_Data.PSD_ABC_2D_Factor;
-		}
-	}
-	if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model) {
-		const double& alpha = substrate_Data.roughness_Model.fractal_alpha.value;
-
-		if(abs(alpha-1)>DBL_EPSILON) {
-			if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-				PSD_Func_from_nu = &Global_Variables::PSD_Fractal_Gauss_1D_from_nu;
-				factor = 1;
-				spline_PSD_FG = substrate_Node->spline_PSD_FG_1D;
-				acc_PSD_FG = substrate_Node->acc_PSD_FG_1D;
-			} else {
-				PSD_Func_from_nu = &Global_Variables::PSD_Fractal_Gauss_2D_from_nu;
-				factor = 1;
-				spline_PSD_FG = substrate_Node->spline_PSD_FG_2D;
-				acc_PSD_FG = substrate_Node->acc_PSD_FG_2D;
-			}
-		} else {
-			if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-				PSD_Func_from_nu = &Global_Variables::PSD_Real_Gauss_1D_from_nu;
-				factor = substrate_Data.PSD_Real_Gauss_1D_Factor;
-			} else {
-				PSD_Func_from_nu = &Global_Variables::PSD_Real_Gauss_2D_from_nu;
-				factor = substrate_Data.PSD_Real_Gauss_2D_Factor;
-			}
-		}
-	}
 
 	///--------------------------------------------------------------------------------------------------------------
 
@@ -652,30 +633,75 @@ void Roughness_Plot::calculate_Profile()
 		}
 	}
 
-
-	// if common PSD for all interfaces
-	if( multilayer->imperfections_Model.use_Common_Roughness_Function &&
-	   (multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
-		multilayer->imperfections_Model.vertical_Correlation == zero_Correlation) )
+	custom_Plot->clearGraphs();
+	custom_Plot->legend->setVisible(true);
+	QString material;
+	if(use_Top_Surface)
 	{
-		use_Substrate_Surface = true;
-
-		for(int i=0; i<num_Plot_Points; i++)
+		bool go_Further = true;
+		calc_PSD_For_Interface(media_Counter-1, top_Surface_Val, go_Further, material);
+		if(go_Further)
 		{
-			substrate_Surface_Val[i] = PSD_Func_from_nu(factor, xi, alpha, arg[i], spline_PSD_FG, acc_PSD_FG) / val_Coeff;
-			arg[i] = arg[i] / arg_Coeff;
-		}
+			for(int i=0; i<num_Plot_Points; i++)
+			{
+				top_Surface_Plot_Vector[i].key = arg[i] / arg_Coeff;
+				top_Surface_Plot_Vector[i].value = top_Surface_Val[i] / val_Coeff;
+			}
 
-		for(int i=0; i<num_Plot_Points; i++)
-		{
-			substrate_Surface_Plot_Vector[i].key = arg[i];
-			substrate_Surface_Plot_Vector[i].value = substrate_Surface_Val[i];
+			custom_Plot->addGraph();
+			custom_Plot->graph()->data()->set(top_Surface_Plot_Vector);
+			custom_Plot->graph()->setPen(QPen(Qt::blue, 2.9));
+			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
+			custom_Plot->graph()->setName("Top surface (" + material + ")");
+
+			custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setTextColor(Qt::blue);
+			custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setSelectedTextColor(Qt::blue);
 		}
-		custom_Plot->graph()->data()->set(substrate_Surface_Plot_Vector);
-		custom_Plot->graph()->setPen(QPen(Qt::black, 2.0));
 	}
+	if(use_Current_Interface)
+	{
+		bool go_Further = true;
+		calc_PSD_For_Interface(multilayer->roughness_Plot_Options.interface_Number_To_Show, current_Interface_Val, go_Further, material);
+		if(go_Further)
+		{
+			for(int i=0; i<num_Plot_Points; i++)
+			{
+				current_Interface_Plot_Vector[i].key = arg[i] / arg_Coeff;
+				current_Interface_Plot_Vector[i].value = current_Interface_Val[i] / val_Coeff;
+			}
 
+			custom_Plot->addGraph();
+			custom_Plot->graph()->data()->set(current_Interface_Plot_Vector);
+			custom_Plot->graph()->setPen(QPen(Qt::red, 2.3));
+			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
+			custom_Plot->graph()->setName("Interface " + QString::number(multilayer->roughness_Plot_Options.interface_Number_To_Show) + " (" + material + ")");
 
+			custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setTextColor(Qt::red);
+			custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setSelectedTextColor(Qt::red);
+		}
+	}
+	if(use_Substrate_Surface)
+	{
+		bool go_Further = true;
+		calc_PSD_For_Interface(1, substrate_Surface_Val, go_Further, material);
+		if(go_Further)
+		{
+			for(int i=0; i<num_Plot_Points; i++)
+			{
+				substrate_Surface_Plot_Vector[i].key = arg[i] / arg_Coeff;
+				substrate_Surface_Plot_Vector[i].value = substrate_Surface_Val[i] / val_Coeff;
+			}
+
+			custom_Plot->addGraph();
+			custom_Plot->graph()->data()->set(substrate_Surface_Plot_Vector);
+			custom_Plot->graph()->setPen(QPen(Qt::black, 1.4));
+			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
+			custom_Plot->graph()->setName("Substrate (" + material + ")");
+
+			custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setTextColor(Qt::black);
+			custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setSelectedTextColor(Qt::black);
+		}
+	}
 
 //	struct_Data_Vector.resize(struct_Data_Counter);
 //	media_Period_Index_Map_Vector.resize(struct_Data_Counter);
@@ -701,10 +727,91 @@ void Roughness_Plot::calculate_Profile()
 //		boundary_Vector[i+1] = boundary_Vector[i]+thickness_Vector[i];
 //	}
 
-	if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-		substrate_Node->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
-	} else {
-		substrate_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
+}
+
+void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>& value_Vector, bool& use_Interface, QString& material)
+{
+	if(interface_Index >= media_Counter)
+	{
+		use_Interface = false;
+		return;
+	}
+	interface_Index = media_Counter - interface_Index;
+
+	Node* current_Node = media_Node_Map_Vector[interface_Index];
+	Data& current_Data = current_Node->struct_Data;
+
+	material = current_Data.material;
+
+	if( interface_Index == media_Counter-1 ||								// if substrate or
+		!multilayer->imperfections_Model.use_Common_Roughness_Function)		// if any independent interface
+	{
+		current_Node->calculate_PSD_Factor(multilayer->imperfections_Model);
+
+		/// creating FG splines. additional checks inside
+		Data fake_Measurement;
+		fake_Measurement.measurement_Type = measurement_Types[Specular_Scan];
+		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
+			current_Node->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, fake_Measurement);
+		} else {
+			current_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model, fake_Measurement);
+		}
+
+		/// choosing base PSD functions
+		double (*PSD_Func_from_nu)(double, double, double, double, gsl_spline*, gsl_interp_accel*);
+		double factor = 1;
+		gsl_spline* spline_PSD_FG;
+		gsl_interp_accel* acc_PSD_FG;
+
+		if(multilayer->imperfections_Model.PSD_Model == ABC_Model) {
+			if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
+				PSD_Func_from_nu = &Global_Variables::PSD_ABC_1D_from_nu;
+				factor = current_Data.PSD_ABC_1D_Factor;
+			} else {
+				PSD_Func_from_nu = &Global_Variables::PSD_ABC_2D_from_nu;
+				factor = current_Data.PSD_ABC_2D_Factor;
+			}
+		}
+		if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model) {
+			const double& alpha = current_Data.roughness_Model.fractal_alpha.value;
+
+			if(abs(alpha-1)>DBL_EPSILON) {
+				if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
+					PSD_Func_from_nu = &Global_Variables::PSD_Fractal_Gauss_1D_from_nu;
+					factor = 1;
+					spline_PSD_FG = current_Node->spline_PSD_FG_1D;
+					acc_PSD_FG = current_Node->acc_PSD_FG_1D;
+				} else {
+					PSD_Func_from_nu = &Global_Variables::PSD_Fractal_Gauss_2D_from_nu;
+					factor = 1;
+					spline_PSD_FG = current_Node->spline_PSD_FG_2D;
+					acc_PSD_FG = current_Node->acc_PSD_FG_2D;
+				}
+			} else {
+				if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
+					PSD_Func_from_nu = &Global_Variables::PSD_Real_Gauss_1D_from_nu;
+					factor = current_Data.PSD_Real_Gauss_1D_Factor;
+				} else {
+					PSD_Func_from_nu = &Global_Variables::PSD_Real_Gauss_2D_from_nu;
+					factor = current_Data.PSD_Real_Gauss_2D_Factor;
+				}
+			}
+		}
+
+		/// PSD calculation
+		double xi    = current_Data.roughness_Model.cor_radius.value;
+		double alpha = current_Data.roughness_Model.fractal_alpha.value;
+		for(int i=0; i<num_Plot_Points; i++)
+		{
+			value_Vector[i] = PSD_Func_from_nu(factor, xi, alpha, arg[i], spline_PSD_FG, acc_PSD_FG);
+		}
+
+		/// clear FG splines
+		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
+			current_Node->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
+		} else {
+			current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
+		}
 	}
 }
 
@@ -760,11 +867,22 @@ void Roughness_Plot::plot_Data(bool recalculate_Profile)
 
 		minimum = minimum_Raw_Non_Zero/1;
 		maximum = maximum_Raw_Non_Zero*3;
+
+		minimum = max(minimum,maximum/pow(10,multilayer->roughness_Plot_Options.orders_To_Show));
 	}
 
-	if(multilayer->roughness_Plot_Options.rescale_X){ custom_Plot->xAxis->setRange(arg.first(), arg.last());	}
+	// units coefficients
+	double arg_Coeff = spatial_Frequency_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_frequency_units);
+	double val_Coeff = 1;
+	if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
+		val_Coeff = PSD_1D_Value_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_PSD_1D_units);
+	} else	{
+		val_Coeff = PSD_2D_Value_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_PSD_2D_units);
+	}
+
+	if(multilayer->roughness_Plot_Options.rescale_X){ custom_Plot->xAxis->setRange(arg.first()/arg_Coeff, arg.last()/arg_Coeff);	}
 	else											{ custom_Plot->xAxis->setRange(multilayer->roughness_Plot_Options.old_X_Begin, multilayer->roughness_Plot_Options.old_X_End);}
-	if(multilayer->roughness_Plot_Options.rescale_Y){ custom_Plot->yAxis->setRange(minimum, maximum);			}
+	if(multilayer->roughness_Plot_Options.rescale_Y){ custom_Plot->yAxis->setRange(minimum/val_Coeff, maximum/val_Coeff);			}
 	else											{ custom_Plot->yAxis->setRange(multilayer->roughness_Plot_Options.old_Y_Begin, multilayer->roughness_Plot_Options.old_Y_End);}
 
 	// labels
@@ -776,4 +894,32 @@ void Roughness_Plot::plot_Data(bool recalculate_Profile)
 	}
 
 	custom_Plot->replot();
+}
+
+// if common PSD for all interfaces: calculate for substrate only
+void Roughness_Plot::lock_Interfaces()
+{
+	if( multilayer->imperfections_Model.use_Common_Roughness_Function &&(
+		(multilayer->imperfections_Model.vertical_Correlation == full_Correlation    || multilayer->imperfections_Model.vertical_Correlation == zero_Correlation                 ) ||
+		(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation && multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model)
+		))
+	{
+		use_Top_Surface = false;
+		use_Current_Interface = false;
+		use_Substrate_Surface = true;
+
+		show_Top_Surface_CheckBox->setDisabled(true);
+		show_Interface_by_Number_CheckBox->setDisabled(true);
+		interface_by_Number_ComboBox->setDisabled(true);
+		show_Substrate_Surface_CheckBox->setDisabled(true);
+	} else {
+		use_Top_Surface = multilayer->roughness_Plot_Options.show_Top_Surface;
+		use_Current_Interface = multilayer->roughness_Plot_Options.show_Interface_With_Number;
+		use_Substrate_Surface = multilayer->roughness_Plot_Options.show_Substrate_Surface;
+
+		show_Top_Surface_CheckBox->setDisabled(false);
+		show_Interface_by_Number_CheckBox->setDisabled(false);
+		interface_by_Number_ComboBox->setDisabled(!multilayer->roughness_Plot_Options.show_Interface_With_Number);
+		show_Substrate_Surface_CheckBox->setDisabled(false);
+	}
 }

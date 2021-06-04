@@ -15,8 +15,11 @@ public:
 	void create_Left_Side();
 	void create_Plot_Frame_And_Scale();
 	void calculate_Profile();
+	void calc_PSD_For_Interface(int interface_Index, QVector<double>& value_Vector, bool& use_Interface, QString& material);
 	void plot_Data(bool recalculate_Profile = false);
+	void lock_Interfaces();
 
+	int num_Plot_Points;
 	Multilayer* multilayer;
 	QCustomPlot* custom_Plot;
 	Roughness_Plots_Window* roughness_Plots_Window;
@@ -29,11 +32,12 @@ public:
 
 		QGroupBox* interface_GroupBox;
 			QCheckBox* show_Top_Surface_CheckBox;
-			QComboBox* show_Interface_by_Number_ComboBox;
+			QCheckBox* show_Interface_by_Number_CheckBox;
+			QComboBox* interface_by_Number_ComboBox;
 			QCheckBox* show_Substrate_Surface_CheckBox;
 
 		QGroupBox* scale_GroupBox;
-			QCheckBox* cursor_Cordinate_CheckBox;
+			MyDoubleSpinBox* orders_Spinbox;
 			QCheckBox* rescale_X_CheckBox;
 			QLineEdit* min_X_LineEdit;
 			QLineEdit* max_X_LineEdit;
@@ -48,6 +52,7 @@ public:
 			QRadioButton* log_X_RadioButton;
 
 		QGroupBox* units_GroupBox;
+			QCheckBox* cursor_Cordinate_CheckBox;
 			QComboBox* argument_ComboBox;
 			QComboBox* PSD_1D_ComboBox;
 			QComboBox* PSD_2D_ComboBox;

@@ -753,6 +753,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 	// replot graphs
 	Global_Variables::plot_All_Data_in_Graphs();
 	Global_Variables::plot_All_Data_in_Profiles();
+	Global_Variables::plot_All_Data_in_Roughness();
 
 	if(print_And_Verbose)
 	{

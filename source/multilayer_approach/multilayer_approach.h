@@ -57,6 +57,7 @@ public:
 	void save_As();
 	void calculate(bool silent = false);
 	void global_Recalculate(bool silent = true);
+	void recalculate_From_Table(bool silent = true);
 	void start_Fitting();
 	void abort_Calculations();
 	void calculation_Started();

@@ -128,6 +128,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 					GISAS_DWBA_SA_CSA = false; // no more
 					global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);
 					global_Multilayer_Approach->reopen_Calculation_Settings(true);
+					global_Multilayer_Approach->reopen_Roughness_Plots();
 				}
 			}
 			if(discretization_DWBA_SA_CSA)
@@ -167,6 +168,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 					discretization_DWBA_SA_CSA = false; // no more
 //					global_Multilayer_Approach->reopen_Optical_Graphs_1D(true);
 					global_Multilayer_Approach->reopen_Calculation_Settings(true);
+					global_Multilayer_Approach->reopen_Roughness_Plots();
 				}
 			}
 			if(!GISAS_DWBA_SA_CSA && !discretization_DWBA_SA_CSA)
@@ -180,6 +182,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 				close();
 				global_Multilayer_Approach->reopen_Table_Of_Structures(true);
 				global_Multilayer_Approach->reopen_Calculation_Settings(true);
+				global_Multilayer_Approach->reopen_Roughness_Plots();
 			}
 		} else
 		{
@@ -192,6 +195,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 			close();
 			global_Multilayer_Approach->reopen_Table_Of_Structures(true);
 			global_Multilayer_Approach->reopen_Calculation_Settings(true);
+			global_Multilayer_Approach->reopen_Roughness_Plots();
 		}
 	});
 }

@@ -1222,7 +1222,7 @@ void Profile_Plot::calculate_Profile()
 				custom_Plot->graph()->data()->set(materials_To_Plot_Vector_Vector[material_index]);
 
 				if(data_Count<limit_For_Line_Thickness) custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
-								else custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()], 0));
+				else								    custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()], 0));
 
 				custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 				custom_Plot->graph()->setName(different_Materials[material_index]);
@@ -1382,7 +1382,7 @@ void Profile_Plot::calculate_Profile()
 				custom_Plot->graph()->data()->set(elements_To_Plot_Vector_Vector[element_Index]);
 
 				if(data_Count<limit_For_Line_Thickness) custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
-								else custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()], 0));
+				else									custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()], 0));
 
 				custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 				custom_Plot->graph()->setName(different_Elements[element_Index]);

@@ -738,7 +738,13 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 	}
 
 	// recalculation at change
-	if(recalculate_spinbox_aperiodic_table && !reload) {global_Multilayer_Approach->calculate(true);}
+	if(recalculate_spinbox_aperiodic_table && !reload)
+	{
+		global_Multilayer_Approach->calculate(true);
+	} else {
+		Global_Variables::plot_All_Data_in_Profiles();
+		Global_Variables::plot_All_Data_in_Roughness();
+	}
 }
 
 void Regular_Aperiodic_Table::refresh_Thickness_Checkboxes(int i, int n)

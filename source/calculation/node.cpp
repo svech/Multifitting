@@ -2069,7 +2069,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 	{
 		gauss_kronrod_Depth = 5;
 	}
-	double n = 2; //2
+	double n = 1; //2
 	double shift = M_PI*(2*n+0.25);
 
 	/// with parallelization

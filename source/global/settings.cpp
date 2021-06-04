@@ -1444,7 +1444,7 @@ void Settings::read_Measurement_Default_Values(bool reset_to_default)
 		default_phi_angle_min								= measurement_Default_Values.value( "default_phi_angle_min",							   -1.3		).toDouble();
 		default_phi_angle_max								= measurement_Default_Values.value( "default_phi_angle_max",								1.3		).toDouble();
 
-		default_logarithmic_threshold_PSD					= measurement_Default_Values.value( "default_logarithmic_threshold_PSD",					1E-17	).toDouble();
+		default_logarithmic_threshold_PSD					= measurement_Default_Values.value( "default_logarithmic_threshold_PSD",					1E-100	).toDouble();
 		default_logarithmic_threshold_beta					= measurement_Default_Values.value( "default_logarithmic_threshold_beta",					1E-17	).toDouble();
 		default_logarithmic_threshold_material_density		= measurement_Default_Values.value( "default_logarithmic_threshold_material_density",		1E-7	).toDouble();
 		default_logarithmic_threshold_element_concentration = measurement_Default_Values.value( "default_logarithmic_threshold_element_concentration",	1E15	).toDouble();

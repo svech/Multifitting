@@ -742,9 +742,10 @@ struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 
 // roughness plot options
 struct Roughness_Plot_Options	{QString PSD_Type = PSD_Type_1D;
-								 bool show_Top_Surface = false;
+								 bool show_Top_Surface = true;
+								 bool show_Interface_With_Number = true;
 								 bool show_Substrate_Surface = true;
-								 int num_Interface_To_Show = 0;
+								 int interface_Number_To_Show = 1;
 								 bool show_Cursor_Position = true;
 
 								 bool rescale_X = true;
@@ -755,6 +756,7 @@ struct Roughness_Plot_Options	{QString PSD_Type = PSD_Type_1D;
 								 double old_X_Begin = 1E-7; // A^-1
 								 double old_X_End   = 1E-1; // A^-1
 
+								 double orders_To_Show = 10;
 								 double old_Y_Begin = 0;
 								 double old_Y_End   = 1;
 

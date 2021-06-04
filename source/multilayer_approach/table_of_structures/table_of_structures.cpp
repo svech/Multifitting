@@ -620,7 +620,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 					// refresh view in main window
 					emit_Data_Edited();
-					if(recalculate_spinbox_structure_table) {global_Multilayer_Approach->calculate(true);}
+					global_Multilayer_Approach->recalculate_From_Table(true);
 				});
 			}
 
@@ -3080,7 +3080,7 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 	connect(check_Box, &QCheckBox::clicked, this, [=]
 	{		
 		// recalculation at change
-		if(recalculate_spinbox_structure_table) {global_Multilayer_Approach->calculate(true);}
+		global_Multilayer_Approach->recalculate_From_Table(true);
 	});
 
 	table->setCellWidget(current_Row, current_Column, back_Widget);
@@ -3471,7 +3471,7 @@ void Table_Of_Structures::create_Nu0_Spin_Box(My_Table_Widget* table, int tab_In
 		} else
 		{
 			multilayer->imperfections_Model.vertical_Inheritance_Frequency = vertical_Inheritance_Roughness_Frequency_Spinbox->value()*arg_Coeff; // from spatial_frequency_units to A^-1
-			if(recalculate_spinbox_structure_table) {global_Multilayer_Approach->calculate(true);}
+			global_Multilayer_Approach->recalculate_From_Table(true);
 		}
 		{
 			double ff = vertical_Inheritance_Roughness_Frequency_Spinbox->value();
@@ -5304,7 +5304,7 @@ void Table_Of_Structures::refresh_Stoich()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_spinbox_structure_table && !reload && value_Type == VAL) {global_Multilayer_Approach->calculate(true);}
+		if(!reload && value_Type == VAL) {global_Multilayer_Approach->recalculate_From_Table(true);}
 	}
 }
 
@@ -5469,6 +5469,7 @@ void Table_Of_Structures::check_Material(QLineEdit* line_Edit)
 	}
 	{
 		emit_Data_Edited();
+		global_Multilayer_Approach->recalculate_From_Table(true);
 		reload_Related_Widgets(QObject::sender());
 	}
 }
@@ -5688,7 +5689,7 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 		reload_Related_Widgets(QObject::sender());
 
 		//	recalculation at change
-		if(recalculate_spinbox_structure_table && !reload) {global_Multilayer_Approach->calculate(true);}
+		if(!reload) {global_Multilayer_Approach->recalculate_From_Table(true);}
 	}
 }
 
@@ -6166,7 +6167,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 		emit_Data_Edited();
 
 		// recalculation at change
-		if(recalculate_spinbox_structure_table && !reload && value_Type == VAL) {global_Multilayer_Approach->calculate(true);}
+		if(!reload && value_Type == VAL) {global_Multilayer_Approach->recalculate_From_Table(true);}
 	}
 }
 
@@ -6353,7 +6354,7 @@ void Table_Of_Structures::refresh_Check_Box_Label_Interlayer(bool)
 		}
 
 		// recalculation at change
-		if(recalculate_spinbox_structure_table && !reload) {global_Multilayer_Approach->calculate(true);}
+		if(!reload) {global_Multilayer_Approach->recalculate_From_Table(true);}
 	}
 }
 
@@ -6442,7 +6443,7 @@ void Table_Of_Structures::refresh_Weigts_Interlayer()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_spinbox_structure_table && !reload && value_Type == VAL) {global_Multilayer_Approach->calculate(true);}
+		if(!reload && value_Type == VAL) {global_Multilayer_Approach->recalculate_From_Table(true);}
 	}
 }
 
@@ -6557,7 +6558,7 @@ void Table_Of_Structures::refresh_MySigma_Interlayer()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_spinbox_structure_table && !reload) {global_Multilayer_Approach->calculate(true);}
+		if(!reload) {global_Multilayer_Approach->recalculate_From_Table(true);}
 	}
 }
 

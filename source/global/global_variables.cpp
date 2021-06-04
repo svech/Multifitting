@@ -2120,6 +2120,16 @@ void Global_Variables::plot_All_Data_in_Profiles()
 	}
 }
 
+void Global_Variables::plot_All_Data_in_Roughness()
+{
+	if(global_Multilayer_Approach->runned_Roughness_Plots_Window.contains(roughness_Plots_Key))
+	{
+		for(Roughness_Plot* roughness_Plot : global_Multilayer_Approach->roughness_Plots_Window->roughness_Plot_Vector)
+		{
+			roughness_Plot->plot_Data(true);
+		}
+	}}
+
 void Global_Variables::variable_Drift(double& value, Drift &drift, int period_Index, int num_Repetition, gsl_rng* r)
 {
 	double drift_Factor = 1;

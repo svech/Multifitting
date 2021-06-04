@@ -284,7 +284,7 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 
 		// recalculate
 		recalculate_spinbox_structure_table = copy_Recalculate;
-		if(recalculate_spinbox_structure_table) {global_Multilayer_Approach->calculate(true);}
+		global_Multilayer_Approach->recalculate_From_Table(true);
 	});
 }
 
@@ -358,7 +358,7 @@ void Layer_Thickness_Transfer::spinBox_Lambda(MyDoubleSpinBox* current_Child_Spi
 
 	// recalculate
 	recalculate_spinbox_structure_table = copy_Recalculate;
-	if(recalculate_spinbox_structure_table) {global_Multilayer_Approach->calculate(true);}
+	global_Multilayer_Approach->recalculate_From_Table(true);
 }
 
 void Layer_Thickness_Transfer::refresh(MyDoubleSpinBox* spinbox)

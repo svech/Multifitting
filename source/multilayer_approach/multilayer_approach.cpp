@@ -1486,6 +1486,18 @@ void Multilayer_Approach::global_Recalculate(bool silent)
 	}
 }
 
+void Multilayer_Approach::recalculate_From_Table(bool silent)
+{
+	if(recalculate_spinbox_structure_table)
+	{
+		global_Multilayer_Approach->calculate(silent);
+	} else
+	{
+		Global_Variables::plot_All_Data_in_Profiles();
+		Global_Variables::plot_All_Data_in_Roughness();
+	}
+}
+
 void Multilayer_Approach::start_Fitting()
 {
 	if(!fitting_Settings->in_Calculation)
