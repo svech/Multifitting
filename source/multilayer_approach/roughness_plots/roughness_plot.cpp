@@ -634,7 +634,6 @@ void Roughness_Plot::calculate_Profile()
 	}
 
 	custom_Plot->clearGraphs();
-	custom_Plot->legend->setVisible(true);
 	QString material;
 	if(use_Top_Surface)
 	{
@@ -702,6 +701,8 @@ void Roughness_Plot::calculate_Profile()
 			custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setSelectedTextColor(Qt::black);
 		}
 	}
+	custom_Plot->legend->setVisible(true);
+	custom_Plot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignBottom); // legend position
 
 //	struct_Data_Vector.resize(struct_Data_Counter);
 //	media_Period_Index_Map_Vector.resize(struct_Data_Counter);
