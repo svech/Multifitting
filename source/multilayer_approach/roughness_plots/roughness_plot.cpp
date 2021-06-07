@@ -553,7 +553,10 @@ void Roughness_Plot::create_Plot_Frame_And_Scale()
 
 void Roughness_Plot::calculate_Profile()
 {
-	num_Plot_Points = 1000; // by default, without measured PSD
+	double nu_Min = min(multilayer->roughness_Plot_Options.x_Min,multilayer->roughness_Plot_Options.x_Max);
+	double nu_Max = max(multilayer->roughness_Plot_Options.x_Min,multilayer->roughness_Plot_Options.x_Max);
+
+	num_Plot_Points = num_roughness_plot_points;
 
 	arg.clear();
 	top_Surface_Val.clear();
@@ -569,8 +572,6 @@ void Roughness_Plot::calculate_Profile()
 	current_Interface_Plot_Vector.resize(num_Plot_Points);
 	substrate_Surface_Plot_Vector.resize(num_Plot_Points);
 
-	double nu_Min = min(multilayer->roughness_Plot_Options.x_Min,multilayer->roughness_Plot_Options.x_Max);
-	double nu_Max = max(multilayer->roughness_Plot_Options.x_Min,multilayer->roughness_Plot_Options.x_Max);
 
 	double val_Coeff = 1;
 	double arg_Coeff = spatial_Frequency_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_frequency_units);
@@ -703,31 +704,6 @@ void Roughness_Plot::calculate_Profile()
 	}
 	custom_Plot->legend->setVisible(true);
 	custom_Plot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignBottom); // legend position
-
-//	struct_Data_Vector.resize(struct_Data_Counter);
-//	media_Period_Index_Map_Vector.resize(struct_Data_Counter);
-
-//	/// unwrap tree to vector of pointers
-//	struct_Data_Pointer_Vector.resize(struct_Data_Counter);
-//	Calculation_Tree::unwrap_Calc_Tree_Data(calc_Tree.begin(), struct_Data_Pointer_Vector, media_Period_Index_Map_Vector);
-
-//	// copy
-//	for(int struct_Index=0; struct_Index<struct_Data_Counter; struct_Index++)
-//	{
-//		struct_Data_Vector[struct_Index] = (*struct_Data_Pointer_Vector[struct_Index]);
-//	}
-
-//	fill_All_Data_From_Struct_Vector();
-
-//	// thicknesses and boundaries position
-//	boundary_Vector.resize(struct_Data_Vector.size()-1);	boundary_Vector.first() = 0;
-//	thickness_Vector.resize(struct_Data_Vector.size()-2);
-//	for(int i=0; i<thickness_Vector.size(); i++)
-//	{
-//		thickness_Vector[i] = struct_Data_Vector[i+1].thickness.value;
-//		boundary_Vector[i+1] = boundary_Vector[i]+thickness_Vector[i];
-//	}
-
 }
 
 void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>& value_Vector, bool& use_Interface, QString& material)
@@ -737,13 +713,14 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 		use_Interface = false;
 		return;
 	}
-	interface_Index = media_Counter - interface_Index;
+	interface_Index = media_Counter - interface_Index; // new interface index, 1 on top surface, media_Counter-1 on substrate
 
 	Node* current_Node = media_Node_Map_Vector[interface_Index];
 	Data& current_Data = current_Node->struct_Data;
 
 	material = current_Data.material;
 
+	/// main PSD
 	if( interface_Index == media_Counter-1 ||								// if substrate or
 		!multilayer->imperfections_Model.use_Common_Roughness_Function)		// if any independent interface
 	{
@@ -812,6 +789,167 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 			current_Node->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
 		} else {
 			current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
+		}
+	}
+
+	/// measured PSD
+	if( interface_Index == media_Counter-1 )	// if substrate
+	{
+		PSD_Data psd_Data;
+		gsl_spline* spline_PSD_Meas;
+		gsl_interp_accel* acc_PSD_Meas;
+		bool use_Measured = false;
+
+		/// create measured spline
+		current_Node->create_Spline_PSD_Measured(multilayer->imperfections_Model);
+
+		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D)
+		{
+			psd_Data = multilayer->imperfections_Model.PSD_1D;
+			spline_PSD_Meas = current_Node->spline_PSD_Meas_1D;
+			acc_PSD_Meas = current_Node->acc_PSD_Meas_1D;
+			use_Measured = multilayer->imperfections_Model.add_Measured_PSD_1D;
+
+			if(current_Node->spline_PSD_Combined_1D_Condition(multilayer->imperfections_Model))
+			{
+				current_Node->create_Spline_PSD_Combined_1D(multilayer->imperfections_Model);
+				for(int i=0; i<num_Plot_Points; i++)
+				{
+					value_Vector[i] = gsl_spline_eval(current_Node->spline_PSD_Combined_1D, arg[i], current_Node->acc_PSD_Combined_1D);
+				}
+				current_Node->clear_Spline_PSD_Combined_1D(multilayer->imperfections_Model);
+			}
+		} else
+		{
+			psd_Data = multilayer->imperfections_Model.PSD_2D;
+			spline_PSD_Meas = current_Node->spline_PSD_Meas_2D;
+			acc_PSD_Meas = current_Node->acc_PSD_Meas_2D;
+			use_Measured = multilayer->imperfections_Model.add_Measured_PSD_2D;
+		}
+
+		if(psd_Data.is_Loaded() && use_Measured)
+		{
+			for(int i=0; i<num_Plot_Points; i++)
+			{
+				if( arg[i]>psd_Data.argument.front() &&
+					arg[i]<psd_Data.argument.back())
+				{
+					value_Vector[i] = gsl_spline_eval(spline_PSD_Meas, arg[i], acc_PSD_Meas);
+				}
+			}
+		}
+		/// clear measured spline
+		current_Node->clear_Spline_PSD_Measured(multilayer->imperfections_Model);
+	}
+
+	/// gaussian peak
+	if( multilayer->imperfections_Model.add_Gauss_Peak &&					// if have peak
+	   (interface_Index == media_Counter-1 ||								// if substrate or
+		!multilayer->imperfections_Model.use_Common_Roughness_Function))	// if any independent interface
+	{
+		current_Node->calculate_PSD_Factor(multilayer->imperfections_Model);
+
+		/// creating peak spline
+		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
+			current_Node->create_Spline_PSD_Peak(multilayer->imperfections_Model);
+		} else {
+			/* do nothing */
+		}
+
+		/// choosing base PSD functions
+		double (*PSD_Peak_from_nu)(double, double, double, double, gsl_spline*, gsl_interp_accel*);
+		double factor = 1;
+		gsl_spline* spline_PSD_Peak;
+		gsl_interp_accel* acc_PSD_Peak;
+
+		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
+			PSD_Peak_from_nu = &Global_Variables::PSD_Gauss_Peak_1D_from_nu;
+			factor = 1;
+			spline_PSD_Peak = current_Node->spline_PSD_Peak;
+			acc_PSD_Peak = current_Node->acc_PSD_Peak;
+		} else {
+			PSD_Peak_from_nu = &Global_Variables::PSD_Gauss_Peak_2D_from_nu;
+			factor = current_Data.PSD_Gauss_Peak_2D_Factor;
+			spline_PSD_Peak = nullptr;
+			acc_PSD_Peak = nullptr;
+		}
+
+		/// PSD calculation
+		double peak_Frequency =		current_Data.roughness_Model.peak_Frequency.value;
+		double peak_Frequency_Width =current_Data.roughness_Model.peak_Frequency_Width.value;
+		for(int i=0; i<num_Plot_Points; i++)
+		{
+			value_Vector[i] += PSD_Peak_from_nu(factor, peak_Frequency, peak_Frequency_Width, arg[i], spline_PSD_Peak, acc_PSD_Peak);
+		}
+
+		/// clear peak spline
+		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
+			current_Node->clear_Spline_PSD_Peak(multilayer->imperfections_Model);
+		} else {
+			/* do nothing */
+		}
+	}
+
+	/// ------------------------------------------------------------------------------------------------------------------
+	/// for linear growth of layers
+	/// ------------------------------------------------------------------------------------------------------------------
+
+	if( interface_Index < media_Counter-1 &&	// not for substrate
+		multilayer->imperfections_Model.vertical_Correlation == partial_Correlation &&
+	   (multilayer->imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model ||
+		multilayer->imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model))
+	{
+		Data fake_Measurement;
+		fake_Measurement.measurement_Type = measurement_Types[Specular_Scan];
+
+		// for legacy reasons we should calculate splines in substrate node
+		Node* substrate_Node = media_Node_Map_Vector[media_Counter-1];
+
+		substrate_Node->calculate_PSD_Factor(multilayer->imperfections_Model);
+		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D)
+		{
+			/// 1D
+			if(substrate_Node->spline_PSD_Combined_1D_Condition		(multilayer->imperfections_Model))
+			{
+				substrate_Node->create_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model, fake_Measurement);
+				substrate_Node->create_Spline_PSD_Combined_1D		(multilayer->imperfections_Model);
+			}
+			substrate_Node->create_Spline_PSD_Measured				(multilayer->imperfections_Model);
+			substrate_Node->create_Spline_PSD_Linear_Growth_2D		(multilayer->imperfections_Model, media_Data_Map_Vector, interface_Index-1);
+			substrate_Node->create_Spline_PSD_Linear_Growth_1D		(multilayer->imperfections_Model, fake_Measurement);
+
+			///--------------------------------------------------------------------------------------------------------
+			for(int i=0; i<num_Plot_Points; i++)
+			{
+				value_Vector[i] = gsl_spline_eval(substrate_Node->spline_PSD_Linear_Growth_1D, arg[i], substrate_Node->acc_PSD_Linear_Growth_1D);
+			}
+			///--------------------------------------------------------------------------------------------------------
+
+			substrate_Node->clear_Spline_PSD_Linear_Growth_1D		(multilayer->imperfections_Model, fake_Measurement);
+			substrate_Node->clear_Spline_PSD_Linear_Growth_2D		(multilayer->imperfections_Model);
+			substrate_Node->clear_Spline_PSD_Measured				(multilayer->imperfections_Model);
+			if(substrate_Node->spline_PSD_Combined_1D_Condition		(multilayer->imperfections_Model))
+			{
+				substrate_Node->clear_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
+				substrate_Node->clear_Spline_PSD_Combined_1D		(multilayer->imperfections_Model);
+			}
+		} else
+		{
+			/// 2D
+			substrate_Node->create_Spline_PSD_Fractal_Gauss_2D		(multilayer->imperfections_Model, fake_Measurement);
+			substrate_Node->create_Spline_PSD_Measured				(multilayer->imperfections_Model);
+			substrate_Node->create_Spline_PSD_Linear_Growth_2D		(multilayer->imperfections_Model, media_Data_Map_Vector, interface_Index-1);
+
+			///--------------------------------------------------------------------------------------------------------
+			for(int i=0; i<num_Plot_Points; i++)
+			{
+				value_Vector[i] = gsl_spline_eval(substrate_Node->spline_PSD_Linear_Growth_2D, arg[i], substrate_Node->acc_PSD_Linear_Growth_2D);
+			}
+			///--------------------------------------------------------------------------------------------------------
+
+			substrate_Node->clear_Spline_PSD_Fractal_Gauss_2D		(multilayer->imperfections_Model);
+			substrate_Node->clear_Spline_PSD_Measured				(multilayer->imperfections_Model);
+			substrate_Node->clear_Spline_PSD_Linear_Growth_2D		(multilayer->imperfections_Model);
 		}
 	}
 }

@@ -1434,8 +1434,10 @@ double Global_Variables::PSD_Gauss_Peak_2D(double factor,  double peak_Frequency
 	return factor * exp(-pow((nu-peak_Frequency)/peak_Width,2));
 }
 
-double Global_Variables::PSD_Gauss_Peak_2D_from_nu(double factor, double peak_Frequency, double peak_Width, double nu)
+double Global_Variables::PSD_Gauss_Peak_2D_from_nu(double factor, double peak_Frequency, double peak_Width, double nu, gsl_spline* spline, gsl_interp_accel* acc)
 {
+	Q_UNUSED(spline)
+	Q_UNUSED(acc)
 	return factor * exp(-pow((nu-peak_Frequency)/peak_Width,2));
 }
 
@@ -1522,12 +1524,15 @@ double Global_Variables::zero_PSD_2D(double sigma, double xi, double alpha, doub
 	return 0;
 }
 
-double Global_Variables::zero_PSD_2D_from_nu(double factor, double xi, double alpha, double nu)
+double Global_Variables::zero_PSD_2D_from_nu(double factor, double xi, double alpha, double nu, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(factor)
 	Q_UNUSED(xi)
 	Q_UNUSED(alpha)
 	Q_UNUSED(nu)
+	Q_UNUSED(spline)
+	Q_UNUSED(acc)
+
 	return 0;
 }
 

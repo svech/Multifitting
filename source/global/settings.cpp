@@ -531,6 +531,7 @@ bool tab_synchronization;
 bool calculation_time;
 bool show_residuals;
 bool make_all_windows_resizeable;
+int  num_roughness_plot_points;
 
 ///====================================================================
 
@@ -1623,6 +1624,9 @@ void Settings::read_General_Settings(bool reset_to_default)
 		show_residuals						= general_Settings.value( "show_residuals",							true    ).toBool();
 		replot_graphs_during_fitting_1D		= general_Settings.value( "replot_graphs_during_fitting_1D",		true	).toBool();
 //		replot_graphs_during_fitting_2D		= general_Settings.value( "replot_graphs_during_fitting_2D",		false	).toBool();
+
+		num_roughness_plot_points			= general_Settings.value( "num_roughness_plot_points",				2000	).toInt();
+
 	general_Settings.endGroup();
 
 	// limit max number of threads
@@ -1675,6 +1679,8 @@ void Settings::save_General_Settings()
 		general_Settings.setValue("individual_residuals",				show_residuals						);
 		general_Settings.setValue("replot_graphs_during_fitting_1D",	replot_graphs_during_fitting_1D		);
 //		general_Settings.setValue("replot_graphs_during_fitting_2D",	replot_graphs_during_fitting_2D		);
+
+		general_Settings.setValue("num_roughness_plot_points",			num_roughness_plot_points			);
 	general_Settings.endGroup();
 }
 
