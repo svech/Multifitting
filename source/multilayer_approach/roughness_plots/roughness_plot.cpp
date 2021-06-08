@@ -960,11 +960,9 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D)
 		{
 			/// 1D
-			if(substrate_Node->spline_PSD_Combined_1D_Condition		(multilayer->imperfections_Model))
-			{
-				substrate_Node->create_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model, fake_Measurement);
-				substrate_Node->create_Spline_PSD_Combined_1D		(multilayer->imperfections_Model);
-			}
+			substrate_Node->create_Spline_PSD_Fractal_Gauss_1D	(multilayer->imperfections_Model, fake_Measurement);
+			substrate_Node->create_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model, fake_Measurement);
+			substrate_Node->create_Spline_PSD_Combined_1D		(multilayer->imperfections_Model);
 			substrate_Node->create_Spline_PSD_Peak					(multilayer->imperfections_Model);
 			substrate_Node->create_Spline_PSD_Measured				(multilayer->imperfections_Model);
 			substrate_Node->create_Spline_PSD_Linear_Growth_2D		(multilayer->imperfections_Model, media_Data_Map_Vector, interface_Index-1);
@@ -985,11 +983,9 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 			substrate_Node->clear_Spline_PSD_Linear_Growth_2D		(multilayer->imperfections_Model);
 			substrate_Node->clear_Spline_PSD_Measured				(multilayer->imperfections_Model);
 			substrate_Node->clear_Spline_PSD_Peak					(multilayer->imperfections_Model);
-			if(substrate_Node->spline_PSD_Combined_1D_Condition		(multilayer->imperfections_Model))
-			{
-				substrate_Node->clear_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
-				substrate_Node->clear_Spline_PSD_Combined_1D		(multilayer->imperfections_Model);
-			}
+			substrate_Node->clear_Spline_PSD_Combined_1D		(multilayer->imperfections_Model);
+			substrate_Node->clear_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
+			substrate_Node->clear_Spline_PSD_Fractal_Gauss_1D	(multilayer->imperfections_Model);
 		} else
 		{
 			/// 2D
