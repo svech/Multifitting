@@ -15,7 +15,7 @@ public:
 	void create_Left_Side();
 	void create_Plot_Frame_And_Scale();
 	void calculate_Profile();
-	void calc_PSD_For_Interface(int interface_Index, QVector<double>& value_Vector, bool& use_Interface, QString& material);
+	void calc_PSD_For_Interface(int interface_Index, QVector<double>& value_Vector, bool& use_Interface, QString& material, double& sigma_Eff, double nu_Min, double nu_Max);
 	void plot_Data(bool recalculate_Profile = false);
 	void lock_Interfaces();
 

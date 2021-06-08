@@ -117,6 +117,7 @@ void Table_Of_Structures::create_Menu()
 				}
 			}
 		}
+		Global_Variables::plot_All_Data_in_Roughness();
 	});
 	connect(menu, &Menu::refresh, this, &Table_Of_Structures::emit_Data_Edited);
 
@@ -4423,9 +4424,9 @@ void Table_Of_Structures::create_Simple_Label(My_Table_Widget* table, int tab_In
 		if(whats_This == whats_This_Linear_A3)							label->setText("a"+Subscript_3_Sym+" ["+linear_a3_units+"]");
 		if(whats_This == whats_This_Linear_A4)							label->setText("a"+Subscript_4_Sym+" ["+linear_a4_units+"]");
 		if(whats_This == whats_This_Roughness_Peak_Sigma)				label->setText(Sigma_Sym+Subscript_v_Sym+" ["+length_units+"]");
-		if(whats_This == whats_This_Roughness_Peak_Frequency 	)		label->setText(                Nu_Sym+" ["+spatial_frequency_units+"]");
-		if(whats_This == whats_This_Roughness_Peak_Frequency_Width 	)	label->setText(Delta_Small_Sym+Nu_Sym+" ["+spatial_frequency_units+"]");
-		if(whats_This == whats_This_Sigma_Eff_PSD 	)					label->setText(Sigma_Sym+Subscript_e_Sym+" ["+length_units+"]");
+		if(whats_This == whats_This_Roughness_Peak_Frequency)			label->setText(                Nu_Sym+" ["+spatial_frequency_units+"]");
+		if(whats_This == whats_This_Roughness_Peak_Frequency_Width)		label->setText(Delta_Small_Sym+Nu_Sym+" ["+spatial_frequency_units+"]");
+		if(whats_This == whats_This_Sigma_Eff_PSD)						label->setText(Sigma_Sym+Subscript_e_Sym+" ["+length_units+"]");
 
 
 		if(whats_This == whats_This_Particle_Radius)					label->setText("R ["+length_units+"]");

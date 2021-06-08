@@ -1,5 +1,6 @@
 #include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/special_functions/sinc.hpp>
+#include <boost/math/quadrature/tanh_sinh.hpp>
 #include "global_variables.h"
 #include "multilayer_approach/multilayer_approach.h"
 #include "standard/mydoublespinbox.h"
@@ -1534,6 +1535,98 @@ double Global_Variables::zero_PSD_2D_from_nu(double factor, double xi, double al
 	Q_UNUSED(acc)
 
 	return 0;
+}
+
+double Global_Variables::ABC_1D_Integral_0_Nu(double sigma, double xi, double alpha, double nu)
+{
+	double z = -pow(2*M_PI*nu*xi,2); // z is non-negative
+	double zz = z/(z-1);
+	if(abs(zz)>=1) {qInfo() << "Global_Variables::ABC_1D_Integral_0_Nu  : a :  abs(zz)>=1, nu =" << nu << endl;}
+	double pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
+	return 2*(2*M_PI*nu)*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
+}
+
+double Global_Variables::ABC_2D_Integral_0_Nu(double sigma, double xi, double alpha, double nu)
+{
+	double val = (2*M_PI*nu*xi);
+	return sigma*sigma*(1.-pow(1 + val*val,-alpha));
+}
+
+double Global_Variables::FG_1D_Integral_0_Nu(double sigma, double xi, double alpha, double nu)
+{
+	if(nu>DBL_EPSILON)
+	{
+		auto f_Cor_Sigma_1D = [&](double r) {return 1/r * sigma*sigma * exp(-pow(r/xi,2*alpha));};
+		ooura_fourier_sin<double> integrator;
+
+		std::pair<double, double> result_Boost = integrator.integrate(f_Cor_Sigma_1D, 2*M_PI*nu);
+		return M_2_PI*result_Boost.first;
+	} else
+	{
+		return 0.;
+	}
+}
+
+double Global_Variables::FG_2D_Integral_0_Nu(double sigma, double xi, double alpha, double nu)
+{
+	if(nu>DBL_EPSILON)
+	{
+		double w = 2*M_PI*nu;
+
+		double integral = 0;
+		double n = 2;
+		double shift = M_PI*(2*n+0.75); // for Bessel order == 1
+		double division_Point = shift/w;
+
+		// first part
+		tanh_sinh<double> sigma_Integrator;
+		double sigma_Integrator_Tolerance = 1E-4;
+		auto f_1 = [&](double r) {
+			return exp(-pow(r/xi,2*alpha)) * cyl_bessel_j(1, w*r);
+		};
+		integral = w * sigma_Integrator.integrate(f_1, 0, division_Point, sigma_Integrator_Tolerance);
+
+		// second part
+		const double tol = 1E-7;
+		int depth = 4;
+		ooura_fourier_cos<double> integrator_Cos(tol, depth);
+		ooura_fourier_sin<double> integrator_Sin(tol, depth);
+		auto f_2_cos = [&](double r)
+		{
+			double r_Sh = r + shift/w;
+			double r_Sh_W = w*r + shift;
+			double cos_Val = Global_Variables::val_Cos_Expansion(r_Sh_W, cos_a_Coeff_For_BesselJ1);
+			return exp(-pow(r_Sh/xi,2*alpha)) * cos_Val / sqrt(r_Sh_W);
+		};
+		auto f_2_sin = [&](double r)
+		{
+			double r_Sh = r + shift/w;
+			double r_Sh_W = w*r + shift;
+			double sin_Val = Global_Variables::val_Sin_Expansion(r_Sh_W, sin_a_Coeff_For_BesselJ1);
+			return exp(-pow(r_Sh/xi,2*alpha)) * sin_Val / sqrt(r_Sh_W);
+		};
+		std::pair<double, double> cos_Integral = integrator_Cos.integrate(f_2_cos, w);
+		integral += w*sqrt(M_2_PI)*cos_Integral.first;
+		std::pair<double, double> sin_Integral = integrator_Sin.integrate(f_2_sin, w);
+		integral += w*sqrt(M_2_PI)*sin_Integral.first;
+
+		return sigma*sigma*integral;
+	} else
+	{
+		return 0.;
+	}
+}
+
+double Global_Variables::real_Gauss_1D_Integral_0_Nu(double sigma, double xi, double alpha, double nu)
+{
+	double val = M_PI*nu*xi;
+	return sigma*sigma*erf(val*val);
+}
+
+double Global_Variables::real_Gauss_2D_Integral_0_Nu(double sigma, double xi, double alpha, double nu)
+{
+	double val = M_PI*nu*xi;
+	return sigma*sigma*(1.-exp(-val*val));
 }
 
 double Global_Variables::Cor_Fractal_Gauss(double xi, double alpha, double r)

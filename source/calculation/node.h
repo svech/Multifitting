@@ -42,11 +42,17 @@ public:
 	/// ------------------------------------------------
 
 	vector<double> specular_Debye_Waller_Weak_Factor_R;
+
+	// universal functions
+	double combined_Effective_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha, double nu_Min, double nu_Max, QString PSD_Type);
+	double combined_Effective_Sigma_2_From_Spline(double nu_Min, double nu_Max, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Type);
+	double combined_Effective_Sigma_2_Peak(double nu0, double dnu, double nu_Min, double nu_Max, QString PSD_Type);
+
+	// old realizations
 	double ABC_Combined_1D_Effective_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha, double nu_Max);
 	double ABC_Combined_Total_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha);
 	double FG_Combined_1D_Effective_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha, double nu_Max);
 	double FG_Combined_Total_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha);
-	double integrate_FG_2D_from_0_to_nu(double nu, double sigma, double xi, double alpha);
 
 	void calc_Combined_Delta_Sigma_2_Spline(const vector<double>& p0, gsl_spline*& spline_Delta_Sigma_2);
 	void calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Model, const Data& measurement);
