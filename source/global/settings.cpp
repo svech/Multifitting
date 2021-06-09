@@ -531,7 +531,9 @@ bool tab_synchronization;
 bool calculation_time;
 bool show_residuals;
 bool make_all_windows_resizeable;
+
 int  num_roughness_plot_points;
+double max_Frequency_For_2D_Spline;
 
 ///====================================================================
 
@@ -1626,6 +1628,7 @@ void Settings::read_General_Settings(bool reset_to_default)
 //		replot_graphs_during_fitting_2D		= general_Settings.value( "replot_graphs_during_fitting_2D",		false	).toBool();
 
 		num_roughness_plot_points			= general_Settings.value( "num_roughness_plot_points",				2000	).toInt();
+		max_Frequency_For_2D_Spline			= general_Settings.value( "max_Frequency_For_2D_Spline",			100		).toDouble(); // A^-1 , > nu_Limit
 
 	general_Settings.endGroup();
 
@@ -1681,6 +1684,7 @@ void Settings::save_General_Settings()
 //		general_Settings.setValue("replot_graphs_during_fitting_2D",	replot_graphs_during_fitting_2D		);
 
 		general_Settings.setValue("num_roughness_plot_points",			num_roughness_plot_points			);
+		general_Settings.setValue("max_Frequency_For_2D_Spline",		max_Frequency_For_2D_Spline			);
 	general_Settings.endGroup();
 }
 

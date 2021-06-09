@@ -1013,7 +1013,7 @@ struct Imperfections_Model		{
 								QString inheritance_Model = replication_Factor_Inheritance_Model;
 								QString reflectivity_With_Roughness = Debye_Waller_R;
 								int DWBA_n_Max_Series = 5;
-								double nu_Limit = 0.1; // A^-1
+								double nu_Limit = 0.1; // A^-1 , < max_Frequency_For_2D_Spline
 
 								PSD_Data PSD_1D;
 								PSD_Data PSD_2D;

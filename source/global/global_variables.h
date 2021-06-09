@@ -317,6 +317,8 @@ public:
 
 	static void parallel_For(int num_Points, int num_Threads, const std::function<void(int n_Min, int n_Max, int thread_Index)> &lambda);
 	static double get_Order_Of_Magnitude(double number);
+	static void fill_Vector_With_Log_Step(vector<double>& arg, double nu_Start, double nu_End, int num_Points);
+	static double fill_Nu_Start_From_Xi(double xi);
 
 	template <typename Type>
 	static void resize_Line_Edit(Type* input_Line_Edit, bool adjust_Window = false);

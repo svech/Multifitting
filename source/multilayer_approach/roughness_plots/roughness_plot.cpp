@@ -198,7 +198,6 @@ void Roughness_Plot::create_Left_Side()
 		double coeff = spatial_Frequency_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_frequency_units);
 		min_X_LineEdit = new QLineEdit(Locale.toString(multilayer->roughness_Plot_Options.x_Min/coeff));
 			min_X_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			min_X_LineEdit->setEnabled(multilayer->roughness_Plot_Options.rescale_X);
 			min_X_LineEdit->setFixedWidth(40);
 		x_Range_layout->addWidget(min_X_LineEdit,0,Qt::AlignLeft);
 		connect(min_X_LineEdit,  &QLineEdit::textEdited, this, [=]	{
@@ -208,12 +207,10 @@ void Roughness_Plot::create_Left_Side()
 		});
 
 		QLabel* space_label = new QLabel(" - ");
-			space_label->setEnabled(multilayer->roughness_Plot_Options.rescale_X);
 		x_Range_layout->addWidget(space_label,0,Qt::AlignLeft);
 
 		max_X_LineEdit = new QLineEdit(Locale.toString(multilayer->roughness_Plot_Options.x_Max/coeff));
 			max_X_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			max_X_LineEdit->setEnabled(multilayer->roughness_Plot_Options.rescale_X);
 			max_X_LineEdit->setFixedWidth(40);
 		x_Range_layout->addWidget(max_X_LineEdit,0,Qt::AlignLeft);
 		connect(max_X_LineEdit,  &QLineEdit::textEdited, this, [=]	{
@@ -223,7 +220,6 @@ void Roughness_Plot::create_Left_Side()
 		});
 
 		QLabel* x_Units_label = new QLabel(" "+multilayer->roughness_Plot_Options.local_frequency_units);
-			x_Units_label->setEnabled(multilayer->roughness_Plot_Options.rescale_X);
 		x_Range_layout->addWidget(x_Units_label,0,Qt::AlignLeft);
 
 		// ----------------------------------------------------
@@ -624,14 +620,7 @@ void Roughness_Plot::calculate_Profile()
 	}
 	if(multilayer->roughness_Plot_Options.x_Scale == log_Scale)
 	{
-		double power = 1./(num_Plot_Points-1);
-		double step_Factor = pow(nu_Max/nu_Min,power);
-
-		arg[0] = nu_Min;
-		for(int i=1; i<num_Plot_Points; i++)
-		{
-			arg[i] = arg[i-1]*step_Factor;
-		}
+		Global_Variables::fill_Vector_With_Log_Step(arg, nu_Min, nu_Max, num_Plot_Points);
 	}
 
 	custom_Plot->clearGraphs();
@@ -738,12 +727,10 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 		current_Node->calculate_PSD_Factor(multilayer->imperfections_Model);
 
 		/// creating FG splines. additional checks inside
-		Data fake_Measurement;
-		fake_Measurement.measurement_Type = measurement_Types[Specular_Scan];
 		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-			current_Node->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, fake_Measurement);
+			current_Node->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
 		} else {
-			current_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model, fake_Measurement);
+			current_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
 		}
 
 		/// choosing base PSD functions
@@ -831,10 +818,8 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 
 			if(current_Node->spline_PSD_Combined_1D_Condition(multilayer->imperfections_Model))
 			{
-				Data fake_Measurement;
-				fake_Measurement.measurement_Type = measurement_Types[Specular_Scan];
-				current_Node->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, fake_Measurement);
-				current_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model, fake_Measurement);
+				current_Node->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
+				current_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
 				current_Node->create_Spline_PSD_Combined_1D(multilayer->imperfections_Model);
 
 				for(int i=0; i<num_Plot_Points; i++)
@@ -960,13 +945,13 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D)
 		{
 			/// 1D
-			substrate_Node->create_Spline_PSD_Fractal_Gauss_1D	(multilayer->imperfections_Model, fake_Measurement);
-			substrate_Node->create_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model, fake_Measurement);
+			substrate_Node->create_Spline_PSD_Fractal_Gauss_1D	(multilayer->imperfections_Model);
+			substrate_Node->create_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
 			substrate_Node->create_Spline_PSD_Combined_1D		(multilayer->imperfections_Model);
-			substrate_Node->create_Spline_PSD_Peak					(multilayer->imperfections_Model);
-			substrate_Node->create_Spline_PSD_Measured				(multilayer->imperfections_Model);
-			substrate_Node->create_Spline_PSD_Linear_Growth_2D		(multilayer->imperfections_Model, media_Data_Map_Vector, interface_Index-1);
-			substrate_Node->create_Spline_PSD_Linear_Growth_1D		(multilayer->imperfections_Model, fake_Measurement);
+			substrate_Node->create_Spline_PSD_Peak				(multilayer->imperfections_Model);
+			substrate_Node->create_Spline_PSD_Measured			(multilayer->imperfections_Model);
+			substrate_Node->create_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model, media_Data_Map_Vector, interface_Index-1);
+			substrate_Node->create_Spline_PSD_Linear_Growth_1D	(multilayer->imperfections_Model, fake_Measurement);
 
 			///--------------------------------------------------------------------------------------------------------
 			for(int i=0; i<num_Plot_Points; i++)
@@ -979,19 +964,19 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 			sigma_Eff = sqrt(sigma_2);
 			///--------------------------------------------------------------------------------------------------------
 
-			substrate_Node->clear_Spline_PSD_Linear_Growth_1D		(multilayer->imperfections_Model, fake_Measurement);
-			substrate_Node->clear_Spline_PSD_Linear_Growth_2D		(multilayer->imperfections_Model);
-			substrate_Node->clear_Spline_PSD_Measured				(multilayer->imperfections_Model);
-			substrate_Node->clear_Spline_PSD_Peak					(multilayer->imperfections_Model);
+			substrate_Node->clear_Spline_PSD_Linear_Growth_1D	(multilayer->imperfections_Model, fake_Measurement);
+			substrate_Node->clear_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model);
+			substrate_Node->clear_Spline_PSD_Measured			(multilayer->imperfections_Model);
+			substrate_Node->clear_Spline_PSD_Peak				(multilayer->imperfections_Model);
 			substrate_Node->clear_Spline_PSD_Combined_1D		(multilayer->imperfections_Model);
 			substrate_Node->clear_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
 			substrate_Node->clear_Spline_PSD_Fractal_Gauss_1D	(multilayer->imperfections_Model);
 		} else
 		{
 			/// 2D
-			substrate_Node->create_Spline_PSD_Fractal_Gauss_2D		(multilayer->imperfections_Model, fake_Measurement);
-			substrate_Node->create_Spline_PSD_Measured				(multilayer->imperfections_Model);
-			substrate_Node->create_Spline_PSD_Linear_Growth_2D		(multilayer->imperfections_Model, media_Data_Map_Vector, interface_Index-1);
+			substrate_Node->create_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
+			substrate_Node->create_Spline_PSD_Measured			(multilayer->imperfections_Model);
+			substrate_Node->create_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model, media_Data_Map_Vector, interface_Index-1);
 
 			///--------------------------------------------------------------------------------------------------------
 			for(int i=0; i<num_Plot_Points; i++)
@@ -1004,9 +989,9 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 			sigma_Eff = sqrt(sigma_2);
 			///--------------------------------------------------------------------------------------------------------
 
-			substrate_Node->clear_Spline_PSD_Fractal_Gauss_2D		(multilayer->imperfections_Model);
-			substrate_Node->clear_Spline_PSD_Measured				(multilayer->imperfections_Model);
-			substrate_Node->clear_Spline_PSD_Linear_Growth_2D		(multilayer->imperfections_Model);
+			substrate_Node->clear_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
+			substrate_Node->clear_Spline_PSD_Measured			(multilayer->imperfections_Model);
+			substrate_Node->clear_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model);
 		}
 	}
 }
@@ -1076,7 +1061,7 @@ void Roughness_Plot::plot_Data(bool recalculate_Profile)
 		val_Coeff = PSD_2D_Value_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_PSD_2D_units);
 	}
 
-	if(multilayer->roughness_Plot_Options.rescale_X){ custom_Plot->xAxis->setRange(arg.first()/arg_Coeff, arg.last()/arg_Coeff);	}
+	if(multilayer->roughness_Plot_Options.rescale_X){ custom_Plot->xAxis->setRange(arg.front()/arg_Coeff, arg.back()/arg_Coeff);	}
 	else											{ custom_Plot->xAxis->setRange(multilayer->roughness_Plot_Options.old_X_Begin, multilayer->roughness_Plot_Options.old_X_End);}
 	if(multilayer->roughness_Plot_Options.rescale_Y){ custom_Plot->yAxis->setRange(minimum/val_Coeff, maximum/val_Coeff);			}
 	else											{ custom_Plot->yAxis->setRange(multilayer->roughness_Plot_Options.old_Y_Begin, multilayer->roughness_Plot_Options.old_Y_End);}

@@ -74,7 +74,7 @@ public:
 		QVector<QCPGraphData> current_Interface_Plot_Vector;
 		QVector<QCPGraphData> substrate_Surface_Plot_Vector;
 
-		QVector<double> arg;
+		vector<double> arg;
 		QVector<double> top_Surface_Val;
 		QVector<double> current_Interface_Val;
 		QVector<double> substrate_Surface_Val;

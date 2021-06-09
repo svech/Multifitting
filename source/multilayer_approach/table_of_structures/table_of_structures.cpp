@@ -411,7 +411,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			current_Column += 2;
 
 			// sigma min/max
-			if(has_Boundaries)
+			if(has_Boundaries && has_Interlayer_Show)
 			{
 				create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, "nothing", "s, "+Plus_Minus_Sym+"%");
 				create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Sigma_Diffuse);

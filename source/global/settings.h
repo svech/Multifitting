@@ -540,7 +540,10 @@ extern bool tab_synchronization;
 extern bool calculation_time;
 extern bool show_residuals;
 extern bool make_all_windows_resizeable;
+
 extern int  num_roughness_plot_points;
+extern double max_Frequency_For_2D_Spline;
+
 
 ///====================================================================
 

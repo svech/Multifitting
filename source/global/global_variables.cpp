@@ -1541,7 +1541,11 @@ double Global_Variables::ABC_1D_Integral_0_Nu(double sigma, double xi, double al
 {
 	double z = -pow(2*M_PI*nu*xi,2); // z is non-negative
 	double zz = z/(z-1);
-	if(abs(zz)>=1) {qInfo() << "Global_Variables::ABC_1D_Integral_0_Nu  : a :  abs(zz)>=1, nu =" << nu << endl;}
+	if(abs(zz)>=1)
+	{
+//		qInfo() << "Global_Variables::ABC_1D_Integral_0_Nu  : abs(zz)>=1, nu =" << nu << "z =" << z << "zz =" << zz << endl;
+		zz = (1.-2*DBL_EPSILON);
+	}
 	double pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
 	return 2*(2*M_PI*nu)*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
 }
@@ -2078,6 +2082,27 @@ double Global_Variables::get_Order_Of_Magnitude(double number)
 			return 1e-5;
 		}
 	}
+}
+
+void Global_Variables::fill_Vector_With_Log_Step(vector<double> &arg, double nu_Start, double nu_End, int num_Points)
+{
+	double power = 1./(num_Points-1);
+	double step_Factor = pow(nu_End/nu_Start,power);
+	arg[0] = nu_Start;
+	for(int i=1; i<num_Points; i++)
+	{
+		arg[i] = arg[i-1]*step_Factor;
+	}
+}
+
+double Global_Variables::fill_Nu_Start_From_Xi(double xi)
+{
+	if(xi<=1E4)				return 2*M_PI/1E12;
+	if(1E4<xi && xi<=1E5)	return 2*M_PI/1E14;
+	if(1E5<xi && xi<=2E6)	return 2*M_PI/1E15;
+	if(2E6<xi && xi<=1E7)	return 2*M_PI/1E16;
+	if(xi>1E7)				return 2*M_PI/1E17;
+	return 2*M_PI/1E16;
 }
 
 template<typename Type>
