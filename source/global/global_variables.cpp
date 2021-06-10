@@ -2097,12 +2097,12 @@ void Global_Variables::fill_Vector_With_Log_Step(vector<double> &arg, double nu_
 
 double Global_Variables::fill_Nu_Start_From_Xi(double xi)
 {
-	if(xi<=1E4)				return 2*M_PI/1E12;
-	if(1E4<xi && xi<=1E5)	return 2*M_PI/1E14;
-	if(1E5<xi && xi<=2E6)	return 2*M_PI/1E15;
-	if(2E6<xi && xi<=1E7)	return 2*M_PI/1E16;
-	if(xi>1E7)				return 2*M_PI/1E17;
-	return 2*M_PI/1E16;
+	if(xi<=1E4)				return 1E-12;
+	if(1E4<xi && xi<=1E5)	return 1E-14;
+	if(1E5<xi && xi<=2E6)	return 1E-15;
+	if(2E6<xi && xi<=1E7)	return 1E-16;
+	if(xi>1E7)				return 1E-17;
+	return 1E-16;
 }
 
 template<typename Type>

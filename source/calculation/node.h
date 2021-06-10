@@ -45,8 +45,8 @@ public:
 
 	// universal functions
 	double combined_Effective_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha, double nu_Min, double nu_Max, QString PSD_Type);
-	double combined_Effective_Sigma_2_From_Spline(double nu_Min, double nu_Max, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Type);
-	double combined_Effective_Sigma_2_Peak(double nu0, double dnu, double nu_Min, double nu_Max, QString PSD_Type);
+	double combined_Effective_Sigma_2_From_Spline(const Imperfections_Model& imperfections_Model, double nu_Min, double nu_Max, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Type);
+	double combined_Effective_Sigma_2_Peak(double nu_Min, double nu_Max, QString PSD_Type);
 
 	// old realizations
 	double ABC_Combined_1D_Effective_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha, double nu_Max);
@@ -106,8 +106,8 @@ public:
 	gsl_spline* spline_PSD_Linear_Inheritance_2D;
 	gsl_interp_accel* acc_PSD_Linear_Inheritance_2D;
 
-	void create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfections_Model, const Data& measurement);
-	void clear_Spline_PSD_Linear_Growth_1D (const Imperfections_Model& imperfections_Model, const Data& measurement);
+	void create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfections_Model);
+	void clear_Spline_PSD_Linear_Growth_1D (const Imperfections_Model& imperfections_Model);
 
 	gsl_spline* spline_PSD_Linear_Growth_1D;
 	gsl_interp_accel* acc_PSD_Linear_Growth_1D;

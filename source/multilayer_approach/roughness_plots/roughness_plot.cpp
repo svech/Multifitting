@@ -832,7 +832,7 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 				}
 
 				/// sigma_effective calculation
-				double sigma_2 = current_Node->combined_Effective_Sigma_2_From_Spline(calc_Nu_Min, calc_Nu_Max, current_Node->spline_PSD_Combined_1D, current_Node->acc_PSD_Combined_1D, multilayer->roughness_Plot_Options.PSD_Type);
+				double sigma_2 = current_Node->combined_Effective_Sigma_2_From_Spline(multilayer->imperfections_Model, calc_Nu_Min, calc_Nu_Max, current_Node->spline_PSD_Combined_1D, current_Node->acc_PSD_Combined_1D, multilayer->roughness_Plot_Options.PSD_Type);
 				sigma_Eff = sqrt(sigma_2);
 
 				current_Node->clear_Spline_PSD_Combined_1D(multilayer->imperfections_Model);
@@ -915,8 +915,8 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 		}
 
 		/// sigma_effective peak addition calculation
-		double sigma_2 = current_Node->combined_Effective_Sigma_2_Peak(peak_Frequency, peak_Frequency_Width, calc_Nu_Min, calc_Nu_Max, multilayer->roughness_Plot_Options.PSD_Type);
-		sigma_Eff += sqrt(sigma_2);
+		double sigma_2 = current_Node->combined_Effective_Sigma_2_Peak(calc_Nu_Min, calc_Nu_Max, multilayer->roughness_Plot_Options.PSD_Type);
+		sigma_Eff = sqrt(sigma_Eff*sigma_Eff + sigma_2);
 
 		/// clear peak spline
 		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
@@ -935,9 +935,6 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 	   (multilayer->imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model ||
 		multilayer->imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model))
 	{
-		Data fake_Measurement;
-		fake_Measurement.measurement_Type = measurement_Types[Specular_Scan];
-
 		// for legacy reasons we should calculate splines in substrate node
 		Node* substrate_Node = media_Node_Map_Vector[media_Counter-1];
 
@@ -951,20 +948,24 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 			substrate_Node->create_Spline_PSD_Peak				(multilayer->imperfections_Model);
 			substrate_Node->create_Spline_PSD_Measured			(multilayer->imperfections_Model);
 			substrate_Node->create_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model, media_Data_Map_Vector, interface_Index-1);
-			substrate_Node->create_Spline_PSD_Linear_Growth_1D	(multilayer->imperfections_Model, fake_Measurement);
+			substrate_Node->create_Spline_PSD_Linear_Growth_1D	(multilayer->imperfections_Model);
 
 			///--------------------------------------------------------------------------------------------------------
 			for(int i=0; i<num_Plot_Points; i++)
 			{
-				value_Vector[i] = gsl_spline_eval(substrate_Node->spline_PSD_Linear_Growth_1D, arg[i], substrate_Node->acc_PSD_Linear_Growth_1D);
+				if(arg[i] <= multilayer->imperfections_Model.nu_Limit) {
+					value_Vector[i] = gsl_spline_eval(substrate_Node->spline_PSD_Linear_Growth_1D, arg[i], substrate_Node->acc_PSD_Linear_Growth_1D);
+				} else {
+					value_Vector[i] = 0;
+				}
 			}
 
 			/// sigma_effective calculation
-			double sigma_2 = substrate_Node->combined_Effective_Sigma_2_From_Spline(nu_Min, nu_Max, substrate_Node->spline_PSD_Linear_Growth_1D, substrate_Node->acc_PSD_Linear_Growth_1D, multilayer->roughness_Plot_Options.PSD_Type);
+			double sigma_2 = substrate_Node->combined_Effective_Sigma_2_From_Spline(multilayer->imperfections_Model, calc_Nu_Min, calc_Nu_Max, substrate_Node->spline_PSD_Linear_Growth_1D, substrate_Node->acc_PSD_Linear_Growth_1D, multilayer->roughness_Plot_Options.PSD_Type);
 			sigma_Eff = sqrt(sigma_2);
 			///--------------------------------------------------------------------------------------------------------
 
-			substrate_Node->clear_Spline_PSD_Linear_Growth_1D	(multilayer->imperfections_Model, fake_Measurement);
+			substrate_Node->clear_Spline_PSD_Linear_Growth_1D	(multilayer->imperfections_Model);
 			substrate_Node->clear_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model);
 			substrate_Node->clear_Spline_PSD_Measured			(multilayer->imperfections_Model);
 			substrate_Node->clear_Spline_PSD_Peak				(multilayer->imperfections_Model);
@@ -981,11 +982,15 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 			///--------------------------------------------------------------------------------------------------------
 			for(int i=0; i<num_Plot_Points; i++)
 			{
-				value_Vector[i] = gsl_spline_eval(substrate_Node->spline_PSD_Linear_Growth_2D, arg[i], substrate_Node->acc_PSD_Linear_Growth_2D);
+				if(arg[i] <= multilayer->imperfections_Model.nu_Limit) {
+					value_Vector[i] = gsl_spline_eval(substrate_Node->spline_PSD_Linear_Growth_2D, arg[i], substrate_Node->acc_PSD_Linear_Growth_2D);
+				} else {
+					value_Vector[i] = 0;
+				}
 			}
 
 			/// sigma_effective calculation
-			double sigma_2 = substrate_Node->combined_Effective_Sigma_2_From_Spline(nu_Min, nu_Max, substrate_Node->spline_PSD_Linear_Growth_2D, substrate_Node->acc_PSD_Linear_Growth_2D, multilayer->roughness_Plot_Options.PSD_Type);
+			double sigma_2 = substrate_Node->combined_Effective_Sigma_2_From_Spline(multilayer->imperfections_Model, calc_Nu_Min, calc_Nu_Max, substrate_Node->spline_PSD_Linear_Growth_2D, substrate_Node->acc_PSD_Linear_Growth_2D, multilayer->roughness_Plot_Options.PSD_Type);
 			sigma_Eff = sqrt(sigma_2);
 			///--------------------------------------------------------------------------------------------------------
 
