@@ -2084,7 +2084,7 @@ double Global_Variables::get_Order_Of_Magnitude(double number)
 	}
 }
 
-void Global_Variables::fill_Vector_With_Log_Step(vector<double> &arg, double nu_Start, double nu_End, int num_Points)
+void Global_Variables::fill_Vector_With_Log_Step(vector<double>& arg, double nu_Start, double nu_End, int num_Points)
 {
 	double power = 1./(num_Points-1);
 	double step_Factor = pow(nu_End/nu_Start,power);

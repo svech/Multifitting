@@ -722,8 +722,8 @@ double Node::combined_Effective_Sigma_2_From_Spline(const Imperfections_Model& i
 	nu_Max = max(nu_Min, nu_Max);
 
 	// create intervals
-	double factor = 5;
 	vector<double> nu_Points = {nu_Min, nu_Max};
+	double factor = 5;
 	double b = nu_Min*factor;
 	while (b<nu_Max)
 	{
@@ -747,12 +747,10 @@ double Node::combined_Effective_Sigma_2_From_Spline(const Imperfections_Model& i
 	std::sort(nu_Points.begin(), nu_Points.end());
 
 	if(PSD_Type == PSD_Type_1D)
-	{
+	{	
 		auto psd_From_Spline = [&](double p){return gsl_spline_eval(spline, p, acc);};
 		for(int i=0; i<nu_Points.size()-1; i++)		{
-//			qInfo() << nu_Points[i] << nu_Points[i+1] << endl;
 			sigma_2 += integrator.integrate(psd_From_Spline, nu_Points[i], nu_Points[i+1], integrator_Tolerance);
-//			qInfo() << "done" << endl;
 		}
 	} else
 	{
@@ -1947,7 +1945,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 	double xi =    struct_Data.roughness_Model.cor_radius.value;
 	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
 
-	double p_Max = 2*M_PI*imperfections_Model.nu_Limit;		// for 1D spline nu_Limit is enough
+	double p_Max = 2*M_PI*imperfections_Model.nu_Limit*3.1;		// for 1D spline nu_Limit is enough
 	double p_Start = 2*M_PI*Global_Variables::fill_Nu_Start_From_Xi(xi);
 
 	int num_Spline_Points = 500;
@@ -2024,7 +2022,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 	double xi =    struct_Data.roughness_Model.cor_radius.value;
 	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
 
-	double nu_Max = 2*M_PI*max_Frequency_For_2D_Spline;	// for 2D spline max_Frequency_For_2D_Spline>nu_Limit is better
+	double nu_Max = 2*M_PI*max_Frequency_For_2D_Spline*3.1;		// for 2D spline max_Frequency_For_2D_Spline>nu_Limit is better
 	double nu_Start = 2*M_PI*Global_Variables::fill_Nu_Start_From_Xi(xi);
 
 	int num_Spline_Points = 500;
@@ -2259,7 +2257,7 @@ void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfection
 	double xi = struct_Data.roughness_Model.cor_radius.value;
 	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
 
-	double p_Max = imperfections_Model.nu_Limit;					// for 1D spline nu_Limit is enough
+	double p_Max = imperfections_Model.nu_Limit*3.1;				// for 1D spline nu_Limit is enough
 	double p_Start = Global_Variables::fill_Nu_Start_From_Xi(xi);
 
 	double nu_Max_Integration_2D = max_Frequency_For_2D_Spline;		// for 2D PSD
@@ -2582,7 +2580,7 @@ void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfe
 	double peak_Frequency =		  struct_Data.roughness_Model.peak_Frequency.value;
 	double peak_Frequency_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
 
-	double nu_Max = max_Frequency_For_2D_Spline;	// for 2D spline max_Frequency_For_2D_Spline>nu_Limit is better
+	double nu_Max = max_Frequency_For_2D_Spline*3.1;	// for 2D spline max_Frequency_For_2D_Spline>nu_Limit is better
 	double nu_Start = Global_Variables::fill_Nu_Start_From_Xi(xi);
 
 	int num_Spline_Points = 5000; // here we can set many points, because this spline doesn't require expensive integration
@@ -2709,7 +2707,7 @@ void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfe
 				// PSD evolution
 				inheritance_Vec[i]   = inheritance_Vec  [i]*inheritance_Exp;
 				growth_PSD_Vec[i]    = growth_PSD_Vec   [i]*inheritance_Exp + growth_PSD; // pure growth
-				PSD_2D_Vec[i] = PSD_2D_Vec[i]*inheritance_Exp + growth_PSD; // summary growth
+				PSD_2D_Vec[i] = PSD_2D_Vec[i]*inheritance_Exp + growth_PSD;				  // summary growth
 			}
 		}
 	});
@@ -2798,14 +2796,14 @@ void Node::create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfe
 	   imperfections_Model.inheritance_Model != linear_Growth_n_1_4_Inheritance_Model )	return;
 	if(struct_Data.item_Type != item_Type_Substrate ) return;
 
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 
 	double xi =					  struct_Data.roughness_Model.cor_radius.value;
 	double alpha =				  struct_Data.roughness_Model.fractal_alpha.value;
 //	double peak_Frequency =		  struct_Data.roughness_Model.peak_Frequency.value;
 //	double peak_Frequency_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
 
-	double p_Max = imperfections_Model.nu_Limit;					// for 1D spline nu_Limit is enough
+	double p_Max = imperfections_Model.nu_Limit*3.1;				// for 1D spline nu_Limit is enough
 	double p_Start = Global_Variables::fill_Nu_Start_From_Xi(xi);
 	double nu_Max_Integration_2D = max_Frequency_For_2D_Spline;		// for 2D PSD
 
@@ -2902,7 +2900,7 @@ void Node::create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfe
 //		auto f_Pure = [&](double nu)	{
 //			return 4 * gsl_spline_eval(spline_PSD_Linear_Pure_Growth_2D, nu, acc_PSD_Linear_Pure_Growth_2D) * nu / sqrt(nu*nu - p*p);
 //		};
-//		auto f_Peak_2D = [&](double nu)		{
+//		auto f_Peak_2D = [&](double nu)	{
 //			return 4 * PSD_2D_Peak_Func_from_nu(peak_Factor_2D, peak_Frequency, peak_Frequency_Width, nu)
 //					 * gsl_spline_eval(spline_PSD_Linear_Inheritance_Top_2D, nu, acc_PSD_Linear_Inheritance_Top_2D) * nu / sqrt(nu*nu - p*p);
 //		};
@@ -2953,9 +2951,9 @@ void Node::create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfe
 	spline_PSD_Linear_Growth_1D = gsl_spline_alloc(gsl_interp_steffen, val.size());
 	gsl_spline_init(spline_PSD_Linear_Growth_1D, arg.data(), val.data(), val.size());
 
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "	Linear Growth 1D spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "	Linear Growth 1D spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 }
 void Node::clear_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfections_Model)
 {

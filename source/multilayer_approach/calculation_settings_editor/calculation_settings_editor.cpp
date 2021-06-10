@@ -408,7 +408,7 @@ void Calculation_Settings_Editor::load_Roughness_Parameters(int tab_Index)
 		double coeff = spatial_Frequency_Coefficients_Map.value(units);
 		MyDoubleSpinBox* nu_Limit_Spinbox = new MyDoubleSpinBox(nullptr, false);
 			nu_Limit_Spinbox->setAccelerated(true);
-			nu_Limit_Spinbox->setRange(0.01, max_Frequency_For_2D_Spline/coeff);
+			nu_Limit_Spinbox->setRange(0.01, max_Frequency_For_2D_Spline/10/coeff);
 			nu_Limit_Spinbox->setDecimals(2);
 			nu_Limit_Spinbox->setValue(multilayer->imperfections_Model.nu_Limit/coeff);
 			nu_Limit_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);

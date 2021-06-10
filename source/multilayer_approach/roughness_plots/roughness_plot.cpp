@@ -203,6 +203,7 @@ void Roughness_Plot::create_Left_Side()
 		connect(min_X_LineEdit,  &QLineEdit::textEdited, this, [=]	{
 			double coeff = spatial_Frequency_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_frequency_units);
 			multilayer->roughness_Plot_Options.x_Min = Locale.toDouble(min_X_LineEdit->text())*coeff;
+			multilayer->roughness_Plot_Options.x_Min+=1E-50;
 			plot_Data(true);
 		});
 
@@ -216,6 +217,7 @@ void Roughness_Plot::create_Left_Side()
 		connect(max_X_LineEdit,  &QLineEdit::textEdited, this, [=]	{
 			double coeff = spatial_Frequency_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_frequency_units);
 			multilayer->roughness_Plot_Options.x_Max = Locale.toDouble(max_X_LineEdit->text())*coeff;
+			multilayer->roughness_Plot_Options.x_Max+=1E-50;
 			plot_Data(true);
 		});
 
