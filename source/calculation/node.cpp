@@ -723,8 +723,8 @@ double Node::combined_Effective_Sigma_2_From_Spline(const Imperfections_Model& i
 
 	// create intervals
 	vector<double> nu_Points = {nu_Min, nu_Max};
-	double factor = 10;
-	double b = max(nu_Min,DBL_EPSILON)*factor;
+	double factor = 5;
+	double b = max(nu_Min,1E-12)*factor;
 	while (b<nu_Max)
 	{
 		nu_Points.push_back(b);
@@ -1031,6 +1031,8 @@ void Node::calc_Combined_Delta_Sigma_2_Spline(const vector<double>& p0, gsl_spli
 
 void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Model, const Data& measurement)
 {
+	/// used only for specular scans
+
 	// angular width of detector
 	double max_Delta_Theta_Detector = measurement.get_Max_Delta_Theta_Detector();
 
@@ -1982,7 +1984,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 
 	// in other cases ( substrate or layer-with-individual-function ) go further
 
-//	auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
 
 	double sigma = struct_Data.roughness_Model.sigma.value;
 	double xi =    struct_Data.roughness_Model.cor_radius.value;
@@ -2025,7 +2027,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 				{
 					return exp(-pow(r/xi,2*alpha)) * cyl_bessel_j(0, nu*r) * r;
 				};
-				integral  = 2*M_PI*tanh_sinh_Integrator.integrate(f_1, 0, division_Point, tanh_Sinh_Tolerance);
+				integral = 2*M_PI*tanh_sinh_Integrator.integrate(f_1, 0, division_Point, tanh_Sinh_Tolerance);
 
 				// second part
 				auto f_2_cos = [&](double r)
@@ -2072,9 +2074,9 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 	spline_PSD_FG_2D = gsl_spline_alloc(gsl_interp_steffen, val.size());
 	gsl_spline_init(spline_PSD_FG_2D, arg.data(), val.data(), val.size());
 
-//	auto end = std::chrono::system_clock::now();
-//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "	FG 2D spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "	FG 2D spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 }
 void Node::clear_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfections_Model)
 {
@@ -2883,7 +2885,7 @@ void Node::create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfe
 		{
 			double result = 0;
 			p = arg[i];
-			dp = (p+1E-40)*1E-9;
+			dp = (p+1E-40)*1E-12;
 			double pdp = p+dp;
 
 			if(pdp<p_Max)
