@@ -723,7 +723,7 @@ double Node::combined_Effective_Sigma_2_From_Spline(const Imperfections_Model& i
 
 	// create intervals
 	vector<double> nu_Points = {nu_Min, nu_Max};
-	double factor = 5;
+	double factor = 10;
 	double b = nu_Min*factor;
 	while (b<nu_Max)
 	{
@@ -2590,7 +2590,11 @@ void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfe
 	vector<double> inheritance_Vec(num_Spline_Points);		// additional values
 
 	/// filling argument points with log-scale step
-	Global_Variables::fill_Vector_With_Log_Step(arg, nu_Start, nu_Max, num_Spline_Points);
+	if(imperfections_Model.add_Gauss_Peak)	{
+		Global_Variables::fill_Vector_With_Log_Step_With_Peak(arg, nu_Start, nu_Max, peak_Frequency, peak_Frequency_Width, num_Spline_Points);
+	} else {
+		Global_Variables::fill_Vector_With_Log_Step(arg, nu_Start, nu_Max, num_Spline_Points);
+	}
 
 	/// choosing base PSD functions
 	double (*PSD_1D_Func_from_nu)(double, double, double, double, gsl_spline*, gsl_interp_accel*);
@@ -2800,8 +2804,8 @@ void Node::create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfe
 
 	double xi =					  struct_Data.roughness_Model.cor_radius.value;
 	double alpha =				  struct_Data.roughness_Model.fractal_alpha.value;
-//	double peak_Frequency =		  struct_Data.roughness_Model.peak_Frequency.value;
-//	double peak_Frequency_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
+	double peak_Frequency =		  struct_Data.roughness_Model.peak_Frequency.value;
+	double peak_Frequency_Width = struct_Data.roughness_Model.peak_Frequency_Width.value;
 
 	double p_Max = imperfections_Model.nu_Limit*3.1;				// for 1D spline nu_Limit is enough
 	double p_Start = Global_Variables::fill_Nu_Start_From_Xi(xi);
@@ -2811,8 +2815,12 @@ void Node::create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfe
 	vector<double> arg(num_Spline_Points);
 	vector<double> val(num_Spline_Points);
 
-	/// filling argument points with log-scale step
-	Global_Variables::fill_Vector_With_Log_Step(arg, p_Start, p_Max, num_Spline_Points);
+	/// filling argument points with log-scale step	
+	if(imperfections_Model.add_Gauss_Peak)	{
+		Global_Variables::fill_Vector_With_Log_Step_With_Peak(arg, p_Start, p_Max, peak_Frequency, peak_Frequency_Width, num_Spline_Points, true);
+	} else {
+		Global_Variables::fill_Vector_With_Log_Step(arg, p_Start, p_Max, num_Spline_Points);
+	}
 
 	/// choosing base PSD 2D functions
 	double (*PSD_1D_Func_from_nu)(double, double, double, double, gsl_spline*, gsl_interp_accel*);

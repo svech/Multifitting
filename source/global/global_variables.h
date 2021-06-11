@@ -318,6 +318,7 @@ public:
 	static void parallel_For(int num_Points, int num_Threads, const std::function<void(int n_Min, int n_Max, int thread_Index)> &lambda);
 	static double get_Order_Of_Magnitude(double number);
 	static void fill_Vector_With_Log_Step(vector<double>& arg, double nu_Start, double nu_End, int num_Points);
+	static void fill_Vector_With_Log_Step_With_Peak(vector<double>& arg, double nu_Start, double nu_End, double peak_Frequency,double  peak_Frequency_Width, int num_Points, bool if_1D = false);
 	static double fill_Nu_Start_From_Xi(double xi);
 
 	template <typename Type>

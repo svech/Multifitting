@@ -622,7 +622,18 @@ void Roughness_Plot::calculate_Profile()
 	}
 	if(multilayer->roughness_Plot_Options.x_Scale == log_Scale)
 	{
-		Global_Variables::fill_Vector_With_Log_Step(arg, nu_Min, nu_Max, num_Plot_Points);
+		Node* substrate_Node = media_Node_Map_Vector[media_Counter-1];
+		Data& substrate_Data = substrate_Node->struct_Data;
+
+		double peak_Frequency		= substrate_Data.roughness_Model.peak_Frequency.value;
+		double peak_Frequency_Width = substrate_Data.roughness_Model.peak_Frequency_Width.value;
+
+		if(multilayer->imperfections_Model.add_Gauss_Peak)
+		{
+			Global_Variables::fill_Vector_With_Log_Step_With_Peak(arg, nu_Min, nu_Max, peak_Frequency, peak_Frequency_Width, num_Plot_Points, multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D);
+		} else {
+			Global_Variables::fill_Vector_With_Log_Step(arg, nu_Min, nu_Max, num_Plot_Points);
+		}
 	}
 
 	custom_Plot->clearGraphs();
@@ -648,6 +659,13 @@ void Roughness_Plot::calculate_Profile()
 			custom_Plot->graph()->setPen(QPen(Qt::blue, 2.9));
 			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 			custom_Plot->graph()->setName("Top surface (" + material + "), "+Sigma_Sym+Subscript_e_Sym+"="+QString::number(sigma_Eff/length_Coeff,'f',2)+" "+length_units);
+
+			// for testing
+//			QCPScatterStyle scatter_Style;
+//			scatter_Style.setShape(QCPScatterStyle::ScatterShape(QCPScatterStyle::ssCircle));
+//			scatter_Style.setSize(5);
+//			custom_Plot->graph()->setScatterStyle(scatter_Style);
+
 
 			custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setTextColor(Qt::blue);
 			custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setSelectedTextColor(Qt::blue);

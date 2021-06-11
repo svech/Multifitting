@@ -2095,6 +2095,69 @@ void Global_Variables::fill_Vector_With_Log_Step(vector<double>& arg, double nu_
 	}
 }
 
+void Global_Variables::fill_Vector_With_Log_Step_With_Peak(vector<double>& arg, double nu_Start, double nu_End, double peak_Frequency, double peak_Frequency_Width, int num_Points, bool if_1D)
+{
+	double peak_Range_Factor_Up = 10;
+	double peak_Range_Factor_Low = 10;
+	double N = 31;
+	if(if_1D)
+	{
+		N = 101;
+		peak_Range_Factor_Up = 100;
+		peak_Range_Factor_Low = 100;
+	}
+
+	double peak_Max = peak_Frequency + peak_Frequency_Width*peak_Range_Factor_Up;
+	double peak_Min = peak_Frequency - peak_Frequency_Width*peak_Range_Factor_Low;
+
+	if(    peak_Min <= nu_Start
+		|| peak_Max >= nu_End  )
+	{
+		Global_Variables::fill_Vector_With_Log_Step(arg, nu_Start, nu_End, num_Points);
+	} else
+	{
+		double before_Peak = log(peak_Min/nu_Start);
+		double in_Peak     = log(peak_Max/peak_Min);
+		double after_Peak  = log(nu_End/peak_Max);
+		double all		   = log(nu_End/nu_Start);
+
+		double before_Peak_Points = num_Points*before_Peak/all;
+		double in_Peak_Points     = num_Points*in_Peak/all;
+		double after_Peak_Points  = num_Points*after_Peak/all;
+
+		// min N points for peak
+		if(in_Peak_Points < N)
+		{
+			double lack_Peak_points = max(N-in_Peak_Points,0.);
+			in_Peak_Points += lack_Peak_points;
+			before_Peak_Points -= lack_Peak_points*before_Peak_Points/(before_Peak_Points + after_Peak_Points);
+
+			// integers
+			int before_Peak_Points_Int = int(before_Peak_Points);
+			int in_Peak_Points_Int = int(in_Peak_Points);
+			int after_Peak_Points_Int = num_Points - before_Peak_Points_Int - in_Peak_Points_Int;
+			in_Peak_Points_Int += 2; // front and back will be left
+
+			arg.clear();
+
+			vector<double> before_Peak_Arg(before_Peak_Points_Int);
+			Global_Variables::fill_Vector_With_Log_Step(before_Peak_Arg, nu_Start, peak_Min, before_Peak_Points_Int);
+			arg.insert( arg.end(), before_Peak_Arg.begin(), before_Peak_Arg.end() );
+
+			vector<double> in_Peak_Points_Arg(in_Peak_Points_Int);
+			Global_Variables::fill_Vector_With_Log_Step(in_Peak_Points_Arg, peak_Min, peak_Max, in_Peak_Points_Int);
+			arg.insert( arg.end(), in_Peak_Points_Arg.begin()+1, in_Peak_Points_Arg.end()-1 );
+
+			vector<double> after_Peak_Points_Arg(after_Peak_Points_Int);
+			Global_Variables::fill_Vector_With_Log_Step(after_Peak_Points_Arg, peak_Max, nu_End, after_Peak_Points_Int);
+			arg.insert( arg.end(), after_Peak_Points_Arg.begin(), after_Peak_Points_Arg.end() );
+		} else
+		{
+			Global_Variables::fill_Vector_With_Log_Step(arg, nu_Start, nu_End, num_Points);
+		}
+	}
+}
+
 double Global_Variables::fill_Nu_Start_From_Xi(double xi)
 {
 	if(xi<=1E4)				return 1E-12;
