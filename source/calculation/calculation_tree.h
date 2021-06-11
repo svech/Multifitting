@@ -28,7 +28,7 @@ struct Data_Element
 	vector<Node*> flat_Calc_Tree;	            // contains only Ambient, Layers, Substrate
 	vector<Node*> short_Flat_Calc_Tree;	        // contains only Layers, Substrate, and no extreme layers
 	vector<Node*> media_Node_Map_Vector;
-	vector<Data*> media_Data_Map_Vector;		// pointers to real_Calc_Tree, without calculated epsilon, hi etc
+	vector<Data>  media_Data_Map_Vector;		// without calculated epsilon, hi etc
 	vector<int>   media_Period_Index_Map_Vector;
 };
 
@@ -55,7 +55,7 @@ public:
 	static void flatten_Tree(const tree<Node>::iterator& parent, const tree<Node>& calc_Tree, vector<Node*>& flat_Calc_Tree);
 	static void short_Tree(const vector<Node *> &flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree);
 	static int unwrap_Calc_Tree_Node(const tree<Node>::iterator& parent, vector<Node*>& media_Node_Map_Vector, int media_Index = 0);
-	static int unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, vector<Data*>& media_Data_Map_Vector, vector<int>& media_Period_Index_Map_Vector, int media_Index = 0, int period_Index = 0);
+	static int unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, vector<Data>& media_Data_Map_Vector, vector<int>& media_Period_Index_Map_Vector, int media_Index = 0, int period_Index = 0);
 
 	template <typename Type>
 	void calculate_1_Kind_Preliminary(Data_Element<Type>& data_Element);
@@ -65,10 +65,10 @@ public:
 	template <typename Type>
 	void calculate_1_Curve(Data_Element<Type>& data_Element);
 
-	void calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree, const vector<Data*>& media_Data_Map_Vector, const Calc_Functions& calc_Functions, Data &measurement, QString mode);
+	void calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree, const vector<Data>& media_Data_Map_Vector, const Calc_Functions& calc_Functions, Data &measurement, QString mode);
 	void clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, const Data& measurement, QString mode);
 
-	void calculate_Unwrapped_Structure   (const Calc_Functions& calc_Functions, const vector<Node*>& media_Node_Map_Vector, const vector<Data*>& media_Data_Map_Vector, const vector<int>& media_Period_Index_Map_Vector, const Data& measurement, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);
+	void calculate_Unwrapped_Structure   (const Calc_Functions& calc_Functions, const vector<Node*>& media_Node_Map_Vector, const vector<Data>& media_Data_Map_Vector, const vector<int>& media_Period_Index_Map_Vector, const Data& measurement, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);
 	void calculate_Unwrapped_Reflectivity(const vector<Node*>& short_Flat_Calc_Tree, Calculated_Values& calculated_Values, Unwrapped_Structure*  unwrapped_Structure, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element, QString mode);
 
 	static void print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree);

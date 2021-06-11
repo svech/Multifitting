@@ -23,7 +23,7 @@ public:
 	Unwrapped_Structure(Multilayer* multilayer,
 						const Calc_Functions& calc_Functions,
 						const vector<Node*>& media_Node_Map_Vector,
-						const vector<Data*>& media_Data_Map_Vector,
+						const vector<Data>& media_Data_Map_Vector,
 						const vector<int>& media_Period_Index_Map_Vector,
 						const Data& measurement,
 						int num_Media_Sharp,
@@ -45,7 +45,7 @@ public:
 	Imperfections_Model& imperfections_Model;
 	const Calc_Functions& calc_Functions;
 	const vector<Node*>& media_Node_Map_Vector;
-	const vector<Data*>& media_Data_Map_Vector;
+	const vector<Data>& media_Data_Map_Vector;
 	const vector<int>& media_Period_Index_Map_Vector;
 	const Data& measurement;
 

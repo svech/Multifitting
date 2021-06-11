@@ -225,7 +225,7 @@ void Calculation_Tree::fill_Calc_Trees()
 			independent_Data_Element.flat_Calc_Tree.clear();
 			flatten_Tree(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.calc_Tree, independent_Data_Element.flat_Calc_Tree);
 			short_Tree(independent_Data_Element.flat_Calc_Tree, independent_Data_Element.short_Flat_Calc_Tree);
-			unwrap_Calc_Tree_Node(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.media_Node_Map_Vector);			
+			unwrap_Calc_Tree_Node(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.media_Node_Map_Vector);
 		}
 	}
 }
@@ -442,7 +442,7 @@ int Calculation_Tree::unwrap_Calc_Tree_Node(const tree<Node>::iterator& parent, 
 	return media_Index;
 }
 
-int Calculation_Tree::unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, vector<Data*>& media_Data_Map_Vector, vector<int>& media_Period_Index_Map_Vector, int media_Index, int period_Index)
+int Calculation_Tree::unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, vector<Data>& media_Data_Map_Vector, vector<int>& media_Period_Index_Map_Vector, int media_Index, int period_Index)
 {
 	const Data& parent_Data = parent.node->data.struct_Data;
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
@@ -458,12 +458,12 @@ int Calculation_Tree::unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, 
 			   child_Data.item_Type == item_Type_Layer   ||
 			   child_Data.item_Type == item_Type_Substrate )
 			{
-				media_Data_Map_Vector[media_Index] = &child_Data;
+				media_Data_Map_Vector[media_Index] = child_Data;
 				// for drifts
 				if(child_Data.parent_Item_Type == item_Type_Multilayer )
 				{
 					media_Period_Index_Map_Vector[media_Index] = period_Index;
-					media_Data_Map_Vector[media_Index]->num_Repetition.parameter.value = parent_Data.num_Repetition.value();
+					media_Data_Map_Vector[media_Index].num_Repetition.parameter.value = parent_Data.num_Repetition.value();
 				}
 				++media_Index;
 			}
@@ -475,7 +475,7 @@ int Calculation_Tree::unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, 
 			{
 				for(int cell_Index=0; cell_Index<child_Data.regular_Components.size(); ++cell_Index)
 				{
-					media_Data_Map_Vector[media_Index] = &(child_Data.regular_Components[cell_Index].components[period_Index]);
+					media_Data_Map_Vector[media_Index] = (child_Data.regular_Components[cell_Index].components[period_Index]);
 					++media_Index;
 				}
 			}
@@ -580,7 +580,7 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QStrin
 template void Calculation_Tree::calculate_1_Kind<Independent_Curve>(Data_Element<Independent_Curve>&, QString);
 template void Calculation_Tree::calculate_1_Kind<Target_Curve>	   (Data_Element<Target_Curve>&, QString);
 
-void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree, const vector<Data*>& media_Data_Map_Vector, const Calc_Functions& calc_Functions, Data& measurement, QString mode)
+void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree, const vector<Data>& media_Data_Map_Vector, const Calc_Functions& calc_Functions, Data& measurement, QString mode)
 {
 	for(size_t node_Index = 0; node_Index<flat_Calc_Tree.size(); node_Index++)
 	{
@@ -803,7 +803,7 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 
 void Calculation_Tree::calculate_Unwrapped_Structure(const Calc_Functions& calc_Functions,
 													 const vector<Node*>& media_Node_Map_Vector,
-													 const vector<Data*>& media_Data_Map_Vector,
+													 const vector<Data>& media_Data_Map_Vector,
 													 const vector<int>& media_Period_Index_Map_Vector,
 													 const Data& measurement,
 													 Unwrapped_Structure*& unwrapped_Structure_Vec_Element)

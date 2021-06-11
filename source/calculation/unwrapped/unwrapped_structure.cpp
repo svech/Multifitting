@@ -4,7 +4,7 @@
 Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 										 const Calc_Functions& calc_Functions,
 										 const vector<Node*>& media_Node_Map_Vector,
-										 const vector<Data*>& media_Data_Map_Vector,
+										 const vector<Data>& media_Data_Map_Vector,
 										 const vector<int>& media_Period_Index_Map_Vector,
 										 const Data& measurement,
 										 int num_Media_Sharp,
@@ -146,15 +146,15 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 	for(int boundary_Index=0; boundary_Index<num_Boundaries; boundary_Index++)
 	{
 		int media_Index = boundary_Index+1;
-		sigma_Diffuse		[boundary_Index] = media_Data_Map_Vector[media_Index]->sigma_Diffuse.value;
-		common_Sigma_Diffuse[boundary_Index] = media_Data_Map_Vector[media_Index]->common_Sigma_Diffuse;
+		sigma_Diffuse		[boundary_Index] = media_Data_Map_Vector[media_Index].sigma_Diffuse.value;
+		common_Sigma_Diffuse[boundary_Index] = media_Data_Map_Vector[media_Index].common_Sigma_Diffuse;
 		enabled_Interlayer  [boundary_Index] = false;
 
 
 		// interlayers
 		for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
 		{
-			boundary_Interlayer_Composition[boundary_Index][func_Index] = media_Data_Map_Vector[boundary_Index+1]->interlayer_Composition[func_Index];
+			boundary_Interlayer_Composition[boundary_Index][func_Index] = media_Data_Map_Vector[boundary_Index+1].interlayer_Composition[func_Index];
 
 			if(common_Sigma_Diffuse[boundary_Index]) 	{
 				boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value = sigma_Diffuse[boundary_Index];
@@ -166,16 +166,16 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 			}
 			// can drift
 			Global_Variables::variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value,
-											 media_Data_Map_Vector[media_Index]->sigma_Diffuse_Drift,
+											 media_Data_Map_Vector[media_Index].sigma_Diffuse_Drift,
 											 media_Period_Index_Map_Vector[media_Index],
-											 media_Data_Map_Vector[media_Index]->num_Repetition.value(),
+											 media_Data_Map_Vector[media_Index].num_Repetition.value(),
 											 r);
 		}
 		// interlayers drift
 		Global_Variables::variable_Drift(sigma_Diffuse[boundary_Index],
-										 media_Data_Map_Vector[media_Index]->sigma_Diffuse_Drift,
+										 media_Data_Map_Vector[media_Index].sigma_Diffuse_Drift,
 										 media_Period_Index_Map_Vector[media_Index],
-										 media_Data_Map_Vector[media_Index]->num_Repetition.value(),
+										 media_Data_Map_Vector[media_Index].num_Repetition.value(),
 										 r);
 	}
 
@@ -196,12 +196,12 @@ void Unwrapped_Structure::fill_Thickness_And_Boundaries_Position()
 
 	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
 	{
-		thickness[layer_Index] = media_Data_Map_Vector[layer_Index+1]->thickness.value;
+		thickness[layer_Index] = media_Data_Map_Vector[layer_Index+1].thickness.value;
 		// can drift
 		Global_Variables::variable_Drift(thickness[layer_Index],
-										 media_Data_Map_Vector[layer_Index+1]->thickness_Drift,
+										 media_Data_Map_Vector[layer_Index+1].thickness_Drift,
 										 media_Period_Index_Map_Vector[layer_Index+1],
-										 media_Data_Map_Vector[layer_Index+1]->num_Repetition.value(),
+										 media_Data_Map_Vector[layer_Index+1].num_Repetition.value(),
 										 r);
 		boundaries_Position[layer_Index+1] = boundaries_Position[layer_Index] + thickness[layer_Index];
 	}
@@ -245,16 +245,16 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 //				sigma_Roughness [layer_Index] = sqrt(s*s + p*p);
 //			}
 		}
-		mu			[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.mu.value;
-		omega		[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.omega.value;
-		alpha		[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.fractal_alpha.value;
-		beta		[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.fractal_beta.value;
+		mu			[layer_Index] = media_Data_Map_Vector[media_Index].roughness_Model.mu.value;
+		omega		[layer_Index] = media_Data_Map_Vector[media_Index].roughness_Model.omega.value;
+		alpha		[layer_Index] = media_Data_Map_Vector[media_Index].roughness_Model.fractal_alpha.value;
+		beta		[layer_Index] = media_Data_Map_Vector[media_Index].roughness_Model.fractal_beta.value;
 		omega_pow23	[layer_Index] = pow(omega[layer_Index], (2*alpha[layer_Index]+2)/3); // for linear growth
 
-		a1[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.a1.value;
-		a2[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.a2.value;
-		a3[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.a3.value;
-		a4[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.a4.value;
+		a1[layer_Index] = media_Data_Map_Vector[media_Index].roughness_Model.a1.value;
+		a2[layer_Index] = media_Data_Map_Vector[media_Index].roughness_Model.a2.value;
+		a3[layer_Index] = media_Data_Map_Vector[media_Index].roughness_Model.a3.value;
+		a4[layer_Index] = media_Data_Map_Vector[media_Index].roughness_Model.a4.value;
 	}
 	// substrate
 	if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
@@ -290,7 +290,7 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 //			sigma_Roughness[num_Layers] = imperfections_Model.PSD_2D.calc_Sigma_Full() * media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma_Factor_PSD_2D.value;
 //		}
 //	}
-	alpha[num_Layers] = media_Data_Map_Vector[num_Layers+1]->roughness_Model.fractal_alpha.value;
+	alpha[num_Layers] = media_Data_Map_Vector[num_Layers+1].roughness_Model.fractal_alpha.value;
 
 	// common sigma for partial correlation. for full correlation we use only substrate
 	if(imperfections_Model.use_Common_Roughness_Function)

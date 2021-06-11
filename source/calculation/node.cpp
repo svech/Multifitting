@@ -2566,7 +2566,7 @@ void Node::clear_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model)
 	gsl_interp_accel_free(acc_PSD_Peak);
 }
 
-void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfections_Model, const vector<Data*>& media_Data_Map_Vector, int interface_Index)
+void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfections_Model, const vector<Data>& media_Data_Map_Vector, int interface_Index)
 {
 	if(imperfections_Model.vertical_Correlation != partial_Correlation) return;
 	if(imperfections_Model.inheritance_Model != linear_Growth_Alpha_Inheritance_Model &&
@@ -2672,20 +2672,20 @@ void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfe
 			// growth
 			for(int bound_Index = media_Data_Map_Vector.size()-2; bound_Index>=(interface_Index+1)/*1*/; bound_Index--)
 			{
-				Data* current_Data = media_Data_Map_Vector[bound_Index];
+				const Data& current_Data = media_Data_Map_Vector[bound_Index];
 
 				double inheritance_Exp = 1;
 				double growth_PSD = 0;
 
-				double thickness = current_Data->thickness.value;
-				double omega	 = current_Data->roughness_Model.omega.value;
-				double mu		 = current_Data->roughness_Model.mu.value;
-				double alpha	 = current_Data->roughness_Model.fractal_alpha.value;
+				double thickness = current_Data.thickness.value;
+				double omega	 = current_Data.roughness_Model.omega.value;
+				double mu		 = current_Data.roughness_Model.mu.value;
+				double alpha	 = current_Data.roughness_Model.fractal_alpha.value;
 
-				double a1 = current_Data->roughness_Model.a1.value;
-				double a2 = current_Data->roughness_Model.a2.value;
-				double a3 = current_Data->roughness_Model.a3.value;
-				double a4 = current_Data->roughness_Model.a4.value;
+				double a1 = current_Data.roughness_Model.a1.value;
+				double a2 = current_Data.roughness_Model.a2.value;
+				double a3 = current_Data.roughness_Model.a3.value;
+				double a4 = current_Data.roughness_Model.a4.value;
 
 				double b_Function = 0;
 				if(imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model)	{
@@ -2717,9 +2717,9 @@ void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfe
 		double growth_PSD = 0;
 		for(int bound_Index = media_Data_Map_Vector.size()-2; bound_Index>=(interface_Index+1)/*1*/; bound_Index--)
 		{
-			Data* current_Data = media_Data_Map_Vector[bound_Index];
-			double thickness = current_Data->thickness.value;
-			double omega	 = current_Data->roughness_Model.omega.value;
+			const Data& current_Data = media_Data_Map_Vector[bound_Index];
+			double thickness = current_Data.thickness.value;
+			double omega	 = current_Data.roughness_Model.omega.value;
 
 			growth_PSD += omega*thickness;
 		}

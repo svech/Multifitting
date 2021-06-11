@@ -2253,7 +2253,7 @@ void Global_Variables::plot_All_Data_in_Roughness()
 		}
 	}}
 
-void Global_Variables::variable_Drift(double& value, Drift &drift, int period_Index, int num_Repetition, gsl_rng* r)
+void Global_Variables::variable_Drift(double& value, const Drift &drift, int period_Index, int num_Repetition, gsl_rng* r)
 {
 	double drift_Factor = 1;
 	double period_Index_From_Middle = period_Index - (num_Repetition/2.-0.5);

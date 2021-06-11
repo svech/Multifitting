@@ -719,13 +719,13 @@ void Profile_Plot::calculate_Profile()
 
 
 	/// unwrap to vector of pointers
-	vector<Data*> struct_Data_Pointer_Vector(struct_Data_Counter);
+	vector<Data> struct_Data_Pointer_Vector(struct_Data_Counter);
 	Calculation_Tree::unwrap_Calc_Tree_Data(calc_Tree.begin(), struct_Data_Pointer_Vector, media_Period_Index_Map_Vector);
 
 	// copy
 	for(int struct_Index=0; struct_Index<struct_Data_Counter; struct_Index++)
 	{
-		struct_Data_Vector[struct_Index] = (*struct_Data_Pointer_Vector[struct_Index]);
+		struct_Data_Vector[struct_Index] = struct_Data_Pointer_Vector[struct_Index];
 	}
 
 	fill_All_Data_From_Struct_Vector();

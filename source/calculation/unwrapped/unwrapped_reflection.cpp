@@ -1364,7 +1364,7 @@ void Unwrapped_Reflection::fill_Boundary_Item()
 	// media_Data_Map_Vector[0] is Ambient, so we skip it
 	for(size_t boundary_Index=0; boundary_Index<media_Data_Map_Vector.size()-1; ++boundary_Index)
 	{
-		const Data& struct_Data = (*media_Data_Map_Vector[boundary_Index+1]);
+		const Data& struct_Data = media_Data_Map_Vector[boundary_Index+1];
 
 		int index_Of_Item = id_Item_Map.value(struct_Data.id);
 		boundary_Item_Vec[boundary_Index] = index_Of_Item;

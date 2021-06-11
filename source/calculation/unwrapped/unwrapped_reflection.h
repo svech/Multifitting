@@ -39,7 +39,7 @@ public:
 
 	const vector<Node*>& short_Flat_Calc_Tree;
 	const vector<Node*>& media_Node_Map_Vector;
-	const vector<Data*>& media_Data_Map_Vector;
+	const vector<Data>& media_Data_Map_Vector;
 	Node* substrate_Node;
 	Data substrate;
 

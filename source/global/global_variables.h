@@ -328,7 +328,7 @@ public:
 	static void plot_All_Data_in_2D_Graphs();
 	static void plot_All_Data_in_Profiles();
 	static void plot_All_Data_in_Roughness();
-	static void variable_Drift(double& value, Drift& drift, int period_Index, int num_Repetition, gsl_rng *r);
+	static void variable_Drift(double& value, const Drift &drift, int period_Index, int num_Repetition, gsl_rng *r);
 	static void get_Prefix_Suffix(double& prefix, double& suffix, double max_Sigma);
 	static void discretize_Prefix_Suffix(double prefix, double suffix, int& num_Prefix_Slices, int& num_Suffix_Slices, vector<double>& discrete_Step_Vector, double default_Step);
 	static void get_Peak_Parameters(const vector<double>& argument, const vector<double>& values, double& max_Value_Position, double& max_Value, double& width);

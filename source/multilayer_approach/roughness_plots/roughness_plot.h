@@ -63,7 +63,7 @@ public:
 		vector<Node*> flat_Calc_Tree;	            // contains only Ambient, Layers, Substrate
 		vector<Node*> short_Flat_Calc_Tree;	        // contains only Layers, Substrate, and no extreme layers
 		vector<Node*> media_Node_Map_Vector;
-		vector<Data*> media_Data_Map_Vector;		// pointers to real_Calc_Tree, without calculated epsilon, hi etc
+		vector<Data>  media_Data_Map_Vector;		// without calculated epsilon, hi etc
 		vector<int>   media_Period_Index_Map_Vector;
 
 		QVector<double> boundary_Vector;
