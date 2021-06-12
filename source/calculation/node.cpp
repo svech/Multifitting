@@ -527,6 +527,9 @@ void Node::calculate_PSD_Factor(const Imperfections_Model& imperfections_Model)
 
 		struct_Data.PSD_ABC_1D_Factor = 4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi;
 		struct_Data.PSD_ABC_2D_Factor = 4*M_PI * sigma*sigma * xi*xi * alpha;
+
+		struct_Data.PSD_FG_1D_Asymp_Factor = sigma*sigma * sin(M_PI*alpha) * tgamma(2*alpha+1) / (M_PI*M_PI*pow(xi,2*alpha));
+
 		struct_Data.PSD_Real_Gauss_1D_Factor = 2*sqrt(M_PI) * sigma*sigma*xi;
 		struct_Data.PSD_Real_Gauss_2D_Factor = M_PI * sigma*sigma*xi*xi;
 
@@ -1896,7 +1899,22 @@ void Node::calc_Integral_Intensity_Near_Specular(const Imperfections_Model& impe
 ////				<< PSD_Func(factor, xi, alpha, k, cos_Theta, cos_Theta_0, spline_PSD_FG_1D, acc_PSD_FG_1D)
 //				<< endl;
 //	}
-//	qInfo() << endl << endl;
+	//	qInfo() << endl << endl;
+}
+
+double Node::get_Asymptotics_Nu(double xi, double alpha)
+{
+	// for 1D and 2D
+	if(alpha >= 0.9               ) return 1E2/xi;
+	if(alpha < 0.9 && alpha >= 0.7) return 1E3/xi;
+	if(alpha < 0.7 && alpha >= 0.6) return 1E4/xi;
+	if(alpha < 0.6 && alpha >= 0.5) return 1E5/xi;
+	if(alpha < 0.5 && alpha >= 0.4) return 1E6/xi;
+	if(alpha < 0.4 && alpha >= 0.3) return 1E7/xi;
+	if(alpha < 0.3 && alpha >= 0.2) return 1E8/xi;
+	if(alpha < 0.2                ) return 1E9/xi;
+
+	return -2021;
 }
 
 void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model)
@@ -1928,19 +1946,29 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 	const double tolerance = 1E-5;
 	const int depth = 2;
 
+	/// asymptotics
+	ooura_fourier_cos<double> cos_Integrator(tolerance, depth);
+	double nu_Asymp = get_Asymptotics_Nu(xi, alpha);
+	double factor_Asymp = 4*cos_Integrator.integrate(f, nu_Asymp).first /
+						  Global_Variables::PSD_Fractal_Gauss_1D_Asymp_from_nu(1, alpha, nu_Asymp);
+
 	/// integrate with parallelization
-	Global_Variables::parallel_For(num_Spline_Points, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
+	if(abs(1-alpha)>DBL_EPSILON/* && abs(0.5-alpha)>DBL_EPSILON*/)	// integrate even for alpha == 0.5, but for alpha<1
 	{
-		Q_UNUSED(thread_Index)
-		ooura_fourier_cos<double> cos_Integrator(tolerance,depth);
-		for(int i = n_Min; i<n_Max; i++)
+		Global_Variables::parallel_For(num_Spline_Points, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 		{
-			if(abs(1-alpha)>DBL_EPSILON/* && abs(0.5-alpha)>DBL_EPSILON*/)	// integrate even for alpha == 0.5, but for alpha<1
+			Q_UNUSED(thread_Index)
+			ooura_fourier_cos<double> cos_Integrator(tolerance,depth);
+			for(int i = n_Min; i<n_Max; i++)
 			{
-				val[i] = 4*cos_Integrator.integrate(f, arg[i]).first;
+				if(arg[i] < nu_Asymp) {
+					val[i] = 4*cos_Integrator.integrate(f, arg[i]).first;
+				} else {
+					val[i] = Global_Variables::PSD_Fractal_Gauss_1D_Asymp_from_nu(factor_Asymp, alpha, arg[i]);
+				}
 			}
-		}
-	});
+		});
+	}
 
 	/// prepend zero point
 	{
@@ -2007,52 +2035,68 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 	double n = 2; //2
 	double shift = M_PI*(2*n+0.25);
 
-	/// integrate with parallelization
-	Global_Variables::parallel_For(num_Spline_Points, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
+	auto integral_At_Point = [&](double nu, ooura_fourier_cos<double>& integrator_Cos, ooura_fourier_sin<double>& integrator_Sin, tanh_sinh<double>& tanh_sinh_Integrator)
 	{
-		Q_UNUSED(thread_Index)
-		ooura_fourier_cos<double> integrator_Cos(tolerance, depth);
-		ooura_fourier_sin<double> integrator_Sin(tolerance, depth);
-		tanh_sinh<double> tanh_sinh_Integrator;
-
-		for(int i = n_Min; i<n_Max; i++)
+		double integral = 0;
+		double division_Point = shift/nu;
+		// first part
+		auto f_1 = [&](double r)
 		{
-			double nu = arg[i];
-			if(abs(1-alpha)>DBL_EPSILON/* && abs(0.5-alpha)>DBL_EPSILON*/) // integrate even for alpha == 0.5, but for alpha<1
+			return exp(-pow(r/xi,2*alpha)) * cyl_bessel_j(0, nu*r) * r;
+		};
+		integral = 2*M_PI*tanh_sinh_Integrator.integrate(f_1, 0, division_Point, tanh_Sinh_Tolerance);
+
+		// second part
+		auto f_2_cos = [&](double r)
+		{
+			double r_Sh = r + shift/nu;
+			double r_Sh_W = nu*r + shift;
+			double cos_Val = Global_Variables::val_Cos_Expansion(r_Sh_W, cos_a_Coeff_For_BesselJ0);
+			return exp(-pow(r_Sh/xi,2*alpha)) * cos_Val * sqrt(r_Sh/nu);
+		};
+		auto f_2_sin = [&](double r)
+		{
+			double r_Sh = r + shift/nu;
+			double r_Sh_W = nu*r + shift;
+			double sin_Val = Global_Variables::val_Sin_Expansion(r_Sh_W, sin_a_Coeff_For_BesselJ0);
+			return exp(-pow(r_Sh/xi,2*alpha)) * sin_Val * sqrt(r_Sh/nu);
+		};
+		std::pair<double, double> cos_Integral = integrator_Cos.integrate(f_2_cos, nu);
+		integral += sqrt(8*M_PI)*cos_Integral.first;
+		std::pair<double, double> sin_Integral = integrator_Sin.integrate(f_2_sin, nu);
+		integral += sqrt(8*M_PI)*sin_Integral.first;
+
+		return sigma*sigma*integral;
+	};
+
+	/// asymptotics
+	ooura_fourier_cos<double> integrator_Cos(tolerance, depth);
+	ooura_fourier_sin<double> integrator_Sin(tolerance, depth);
+	tanh_sinh<double> tanh_sinh_Integrator;
+	double nu_Asymp = get_Asymptotics_Nu(xi, alpha);
+	double factor_Asymp = integral_At_Point(nu_Asymp, integrator_Cos, integrator_Sin, tanh_sinh_Integrator) /
+						  Global_Variables::PSD_Fractal_Gauss_2D_Asymp_from_nu(1, alpha, nu_Asymp);
+
+	/// integrate with parallelization
+	if(abs(1-alpha)>DBL_EPSILON/* && abs(0.5-alpha)>DBL_EPSILON*/) // integrate even for alpha == 0.5, but for alpha<1
+	{
+		Global_Variables::parallel_For(num_Spline_Points, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
+		{
+			Q_UNUSED(thread_Index)
+			ooura_fourier_cos<double> integrator_Cos(tolerance, depth);
+			ooura_fourier_sin<double> integrator_Sin(tolerance, depth);
+			tanh_sinh<double> tanh_sinh_Integrator;
+
+			for(int i = n_Min; i<n_Max; i++)
 			{
-				double integral = 0;
-				double division_Point = shift/nu;
-				// first part
-				auto f_1 = [&](double r)
-				{
-					return exp(-pow(r/xi,2*alpha)) * cyl_bessel_j(0, nu*r) * r;
-				};
-				integral = 2*M_PI*tanh_sinh_Integrator.integrate(f_1, 0, division_Point, tanh_Sinh_Tolerance);
-
-				// second part
-				auto f_2_cos = [&](double r)
-				{
-					double r_Sh = r + shift/nu;
-					double r_Sh_W = nu*r + shift;
-					double cos_Val = Global_Variables::val_Cos_Expansion(r_Sh_W, cos_a_Coeff_For_BesselJ0);
-					return exp(-pow(r_Sh/xi,2*alpha)) * cos_Val * sqrt(r_Sh/nu);
-				};
-				auto f_2_sin = [&](double r)
-				{
-					double r_Sh = r + shift/nu;
-					double r_Sh_W = nu*r + shift;
-					double sin_Val = Global_Variables::val_Sin_Expansion(r_Sh_W, sin_a_Coeff_For_BesselJ0);
-					return exp(-pow(r_Sh/xi,2*alpha)) * sin_Val * sqrt(r_Sh/nu);
-				};
-				std::pair<double, double> cos_Integral = integrator_Cos.integrate(f_2_cos, nu);
-				integral += sqrt(8*M_PI)*cos_Integral.first;
-				std::pair<double, double> sin_Integral = integrator_Sin.integrate(f_2_sin, nu);
-				integral += sqrt(8*M_PI)*sin_Integral.first;
-
-				val[i] = sigma*sigma*integral;
+				if(arg[i] < nu_Asymp) {
+					val[i] = integral_At_Point(arg[i], integrator_Cos, integrator_Sin, tanh_sinh_Integrator);
+				} else {
+					val[i] = Global_Variables::PSD_Fractal_Gauss_2D_Asymp_from_nu(factor_Asymp, alpha, arg[i]);
+				}
 			}
-		}
-	});
+		});
+	}
 
 	/// prepend zero point
 	{

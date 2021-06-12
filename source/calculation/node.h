@@ -63,6 +63,7 @@ public:
 	void calc_Integral_Intensity_Near_Specular(const Imperfections_Model& imperfections_Model, Data& measurement, const Calc_Functions& calc_Functions);
 	/// ------------------------------------------------
 
+	double get_Asymptotics_Nu(double xi, double alpha);
 	void create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model);
 	void clear_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model);
 

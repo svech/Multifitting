@@ -1395,6 +1395,11 @@ double Global_Variables::PSD_Fractal_Gauss_1D_from_nu(double factor, double xi, 
 	return gsl_spline_eval(spline, 2*M_PI*p, acc);
 }
 
+double Global_Variables::PSD_Fractal_Gauss_1D_Asymp_from_nu(double factor, double alpha, double p)
+{
+	return factor/pow(p, 1+2*alpha);
+}
+
 double Global_Variables::PSD_Fractal_Gauss_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(factor)
@@ -1410,6 +1415,11 @@ double Global_Variables::PSD_Fractal_Gauss_2D_from_nu(double factor, double xi, 
 	Q_UNUSED(xi)
 	Q_UNUSED(alpha)
 	return gsl_spline_eval(spline, 2*M_PI*nu, acc);
+}
+
+double Global_Variables::PSD_Fractal_Gauss_2D_Asymp_from_nu(double factor, double alpha, double nu)
+{
+	return factor/pow(nu, 2+2*alpha);
 }
 
 double Global_Variables::PSD_Gauss_Peak_1D(double factor, double peak_Frequency, double peak_Width, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc)

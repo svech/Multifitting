@@ -957,6 +957,7 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 	{
 		// for legacy reasons we should calculate splines in substrate node
 		Node* substrate_Node = media_Node_Map_Vector[media_Counter-1];
+		Data& substrate_Data = substrate_Node->struct_Data;
 
 		substrate_Node->calculate_PSD_Factor(multilayer->imperfections_Model);
 		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D)
