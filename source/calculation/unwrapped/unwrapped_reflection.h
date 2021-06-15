@@ -168,7 +168,7 @@ public:
 	vector<vector<double>> cor_Func_Item;						//	[thread][item_Index]
 
 	///---------------------------------------------------------------------
-	// density fluctuations
+	// particles
 	///---------------------------------------------------------------------
 
 	vector<vector<vector<complex<double>>>> k_03;	//	[thread][item_Index][0-3]
@@ -259,7 +259,7 @@ public:
 	double function_DWBA_SA_CSA_Batch_Individual_Integrand(double r, int thread_Index);
 	double cor_Function_Integration		(int point_Index, int thread_Index, double cos_Theta_0);
 
-	// density fluctuations
+	// particles
 	void calc_k_Wavenumber_Layer	(						int thread_Index, int point_Index);
 	void calc_Half_Layer_Exponents	(						int thread_Index);
 	void calc_C_Factor				(QString polarization,	int thread_Index, int point_Index);

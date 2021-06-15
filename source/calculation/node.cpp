@@ -144,10 +144,10 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 		vector<double> spectral_Points(1, measurement.lambda_Value);
 		fill_Epsilon_For_Angular_Measurements(spectral_Points);
 
-		// for scattering on density fluctuation
+		// for scattering on particles
 		if(mode == SCATTERED_MODE)
 		{
-			fill_Epsilon_Contrast_For_Density_Fluctuations(spectral_Points);
+			fill_Epsilon_Contrast_For_Particles(spectral_Points);
 		}
 	}
 
@@ -599,9 +599,9 @@ void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points
 	}
 }
 
-void Node::fill_Epsilon_Contrast_For_Density_Fluctuations(vector<double>& spectral_Points)
+void Node::fill_Epsilon_Contrast_For_Particles(vector<double>& spectral_Points)
 {
-	if(struct_Data.fluctuations_Model.is_Used)
+	if(struct_Data.particles_Model.is_Used)
 	{
 		complex<double> delta_Epsilon_Ang, epsilon_Ang;
 
@@ -620,7 +620,7 @@ void Node::fill_Epsilon_Contrast_For_Density_Fluctuations(vector<double>& spectr
 		// compile from elements
 		{
 			vector<complex<double>> temp_Epsilon;
-			optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.fluctuations_Model.particle_Absolute_Density.value, spectral_Points, temp_Epsilon);
+			optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.particles_Model.particle_Absolute_Density.value, spectral_Points, temp_Epsilon);
 			delta_Epsilon_Ang = 1. - temp_Epsilon.front();
 		}
 
@@ -631,7 +631,7 @@ void Node::fill_Epsilon_Contrast_For_Density_Fluctuations(vector<double>& spectr
 		// if absolute density
 		if(struct_Data.composed_Material)	epsilon_Ang = 1. - delta_Epsilon_Ang;
 		// if relative density
-		else								epsilon_Ang = 1. - struct_Data.fluctuations_Model.particle_Relative_Density.value * delta_Epsilon_Ang;
+		else								epsilon_Ang = 1. - struct_Data.particles_Model.particle_Relative_Density.value * delta_Epsilon_Ang;
 
 
 		delta_Epsilon_Contrast = epsilon.front() - epsilon_Ang;
@@ -3217,28 +3217,28 @@ void Node::clear_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfec
 double Node::G1_Type_Outer()
 {
 	double a = 1;
-	if(struct_Data.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+	if(struct_Data.particles_Model.particle_Interference_Function == radial_Paracrystal)
 	{
-		a = struct_Data.fluctuations_Model.particle_Radial_Distance.value;
+		a = struct_Data.particles_Model.particle_Radial_Distance.value;
 	}
-	if(struct_Data.fluctuations_Model.particle_Interference_Function == disorder)
+	if(struct_Data.particles_Model.particle_Interference_Function == disorder)
 	{
-		a = struct_Data.fluctuations_Model.particle_Average_Distance.value;
+		a = struct_Data.particles_Model.particle_Average_Distance.value;
 	}
 
-	if(struct_Data.fluctuations_Model.geometric_Model == square_Model)
+	if(struct_Data.particles_Model.geometric_Model == square_Model)
 	{
 		return Global_Variables::G1_Square(a);
 	}
-	if(struct_Data.fluctuations_Model.geometric_Model == hexagonal_Model )
+	if(struct_Data.particles_Model.geometric_Model == hexagonal_Model )
 	{
 		return Global_Variables::G1_Hexagone(a);
 	}
-	if(struct_Data.fluctuations_Model.geometric_Model == pure_Radial_Model )
+	if(struct_Data.particles_Model.geometric_Model == pure_Radial_Model )
 	{
 		return Global_Variables::G1_Pure_Radial(a);
 	}
-	qInfo() << endl << "Node::G1_Type_Outer  :  wrong fluctuations_Model.geometric_Model" << endl << endl;
+	qInfo() << endl << "Node::G1_Type_Outer  :  wrong particles_Model.geometric_Model" << endl << endl;
 	return -2020;
 }
 
@@ -3249,9 +3249,9 @@ double Node::G2_Type_Outer(double q)
 
 void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, const Data& measurement)
 {
-	if(!imperfections_Model.use_Fluctuations) return;
-	if(!struct_Data.fluctuations_Model.is_Used) return;
-	if(struct_Data.fluctuations_Model.particle_Interference_Function != radial_Paracrystal) return;
+	if(!imperfections_Model.use_Particles) return;
+	if(!struct_Data.particles_Model.is_Used) return;
+	if(struct_Data.particles_Model.particle_Interference_Function != radial_Paracrystal) return;
 	if(struct_Data.item_Type != item_Type_Layer ) return;
 	if(measurement.measurement_Type != measurement_Types[GISAS]) return;
 
@@ -3307,13 +3307,13 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 
 	// choose pattern
 	double phi_Max;
-	double a = struct_Data.fluctuations_Model.particle_Radial_Distance.value;
+	double a = struct_Data.particles_Model.particle_Radial_Distance.value;
 	double b = a;
-	double sigma = struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation.value;
+	double sigma = struct_Data.particles_Model.particle_Radial_Distance_Deviation.value;
 	G2_Type.resize(reflectivity_calc_threads);
 	G2_Type_q_Zero.resize(reflectivity_calc_threads);
 	G2_Type_long.resize(reflectivity_calc_threads);
-	if(struct_Data.fluctuations_Model.geometric_Model == square_Model)
+	if(struct_Data.particles_Model.geometric_Model == square_Model)
 	{
 		G1_Type = Global_Variables::G1_Square;
 		for(int thread_Index = 0; thread_Index<reflectivity_calc_threads; thread_Index++)
@@ -3342,7 +3342,7 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 		}
 		std::sort(q_Peak.begin(), q_Peak.end());
 	}
-	if(struct_Data.fluctuations_Model.geometric_Model == hexagonal_Model)
+	if(struct_Data.particles_Model.geometric_Model == hexagonal_Model)
 	{
 		G1_Type = Global_Variables::G1_Hexagone;
 		for(int thread_Index = 0; thread_Index<reflectivity_calc_threads; thread_Index++)
@@ -3377,7 +3377,7 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 		}
 		std::sort(q_Peak.begin(), q_Peak.end());
 	}
-	if(struct_Data.fluctuations_Model.geometric_Model == pure_Radial_Model)
+	if(struct_Data.particles_Model.geometric_Model == pure_Radial_Model)
 	{
 		G1_Type = Global_Variables::G1_Square;
 		for(int thread_Index = 0; thread_Index<reflectivity_calc_threads; thread_Index++)
@@ -3402,17 +3402,17 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 		std::sort(q_Peak.begin(), q_Peak.end());
 	}
 	double N_size = 1e7*min(measurement.sample_Geometry.size, measurement.beam_Geometry.size/max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON))/a;
-	double N_domain = struct_Data.fluctuations_Model.domain_Size.value/a;
+	double N_domain = struct_Data.particles_Model.domain_Size.value/a;
 	double N = min(N_size, N_domain);
 	N = max(N,3.);
 	double M_size = 1e7*measurement.beam_Geometry.lateral_Width/b;
-	double M_domain = struct_Data.fluctuations_Model.domain_Size.value/b;
+	double M_domain = struct_Data.particles_Model.domain_Size.value/b;
 	double M = min(M_size, M_domain);
 	M = max(M,3.);
 	// we will use M dependent of N
-	if(struct_Data.fluctuations_Model.geometric_Model == square_Model)		M = N;
-	if(struct_Data.fluctuations_Model.geometric_Model == hexagonal_Model)	M = N*2/M_SQRT3;
-	if(struct_Data.fluctuations_Model.geometric_Model == pure_Radial_Model) M = N*2/M_SQRT3;
+	if(struct_Data.particles_Model.geometric_Model == square_Model)		M = N;
+	if(struct_Data.particles_Model.geometric_Model == hexagonal_Model)	M = N*2/M_SQRT3;
+	if(struct_Data.particles_Model.geometric_Model == pure_Radial_Model) M = N*2/M_SQRT3;
 
 	// peak half-widths
 	vector<double> hw_Peak(q_Peak.size());
@@ -3542,7 +3542,7 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	vector<bool> too_Narrow(reflectivity_calc_threads);
 
 
-	if(struct_Data.fluctuations_Model.geometric_Model == pure_Radial_Model)
+	if(struct_Data.particles_Model.geometric_Model == pure_Radial_Model)
 	{
 		Global_Variables::parallel_For(int(q_Vec.size()), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 		{
@@ -3627,7 +3627,7 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	}
 	if(narrow)
 	{
-		qInfo() << endl << "WARNING: in " << Global_Variables::structure_Item_Name(struct_Data) << " in density fluctuations r/dr is too high" << endl << endl;
+		qInfo() << endl << "WARNING: in " << Global_Variables::structure_Item_Name(struct_Data) << " in particles r/dr is too high" << endl << endl;
 	}
 
 //	QFile file("G2.txt");
@@ -3648,9 +3648,9 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 
 void Node::clear_Spline_G2_2D(const Imperfections_Model& imperfections_Model, const Data& measurement)
 {
-	if(!imperfections_Model.use_Fluctuations) return;
-	if(!struct_Data.fluctuations_Model.is_Used) return;
-	if(struct_Data.fluctuations_Model.particle_Interference_Function != radial_Paracrystal) return;
+	if(!imperfections_Model.use_Particles) return;
+	if(!struct_Data.particles_Model.is_Used) return;
+	if(struct_Data.particles_Model.particle_Interference_Function != radial_Paracrystal) return;
 	if(struct_Data.item_Type != item_Type_Layer ) return;
 	if(measurement.measurement_Type != measurement_Types[GISAS]) return;
 

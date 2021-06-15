@@ -590,28 +590,28 @@ QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Mode
 	return stream;
 }
 
-QDataStream& operator <<( QDataStream& stream, const Fluctuations_Model& fluctuations_Model )
+QDataStream& operator <<(QDataStream& stream, const Particles_Model& particles_Model )
 {
-	return stream << fluctuations_Model.is_Enabled << fluctuations_Model.is_Used
+	return stream << particles_Model.is_Enabled << particles_Model.is_Used
 
-				  << fluctuations_Model.particle_Shape
-				  << fluctuations_Model.particle_Absolute_Density << fluctuations_Model.particle_Relative_Density << fluctuations_Model.particle_Radius << fluctuations_Model.particle_Height
+				  << particles_Model.particle_Shape
+				  << particles_Model.particle_Absolute_Density << particles_Model.particle_Relative_Density << particles_Model.particle_Radius << particles_Model.particle_Height
 
-				  << fluctuations_Model.particle_Interference_Function << fluctuations_Model.geometric_Model
-				  << fluctuations_Model.particle_Average_Distance
-				  << fluctuations_Model.particle_Radial_Distance << fluctuations_Model.particle_Radial_Distance_Deviation << fluctuations_Model.domain_Size
-				  << fluctuations_Model.particle_Z_Position << fluctuations_Model.particle_Z_Position_Deviation;
+				  << particles_Model.particle_Interference_Function << particles_Model.geometric_Model
+				  << particles_Model.particle_Average_Distance
+				  << particles_Model.particle_Radial_Distance << particles_Model.particle_Radial_Distance_Deviation << particles_Model.domain_Size
+				  << particles_Model.particle_Z_Position << particles_Model.particle_Z_Position_Deviation;
 }
-QDataStream& operator >>( QDataStream& stream,		 Fluctuations_Model& fluctuations_Model )
+QDataStream& operator >>( QDataStream& stream,		 Particles_Model& particles_Model )
 {
-	return stream >> fluctuations_Model.is_Enabled >> fluctuations_Model.is_Used
-				  >> fluctuations_Model.particle_Shape
-				  >> fluctuations_Model.particle_Absolute_Density >> fluctuations_Model.particle_Relative_Density >> fluctuations_Model.particle_Radius >> fluctuations_Model.particle_Height
+	return stream >> particles_Model.is_Enabled >> particles_Model.is_Used
+				  >> particles_Model.particle_Shape
+				  >> particles_Model.particle_Absolute_Density >> particles_Model.particle_Relative_Density >> particles_Model.particle_Radius >> particles_Model.particle_Height
 
-				  >> fluctuations_Model.particle_Interference_Function >> fluctuations_Model.geometric_Model
-				  >> fluctuations_Model.particle_Average_Distance
-				  >> fluctuations_Model.particle_Radial_Distance >> fluctuations_Model.particle_Radial_Distance_Deviation >> fluctuations_Model.domain_Size
-				  >> fluctuations_Model.particle_Z_Position >> fluctuations_Model.particle_Z_Position_Deviation;
+				  >> particles_Model.particle_Interference_Function >> particles_Model.geometric_Model
+				  >> particles_Model.particle_Average_Distance
+				  >> particles_Model.particle_Radial_Distance >> particles_Model.particle_Radial_Distance_Deviation >> particles_Model.domain_Size
+				  >> particles_Model.particle_Z_Position >> particles_Model.particle_Z_Position_Deviation;
 }
 
 QDataStream& operator <<( QDataStream& stream, const PSD_Data& psd_Data )
@@ -643,7 +643,7 @@ QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperf
 
 				  << imperfections_Model.PSD_1D << imperfections_Model.PSD_2D
 
-				  << imperfections_Model.use_Fluctuations << imperfections_Model.cross_Layer_Interference << imperfections_Model.initial_Particle_Shape
+				  << imperfections_Model.use_Particles << imperfections_Model.cross_Layer_Interference << imperfections_Model.initial_Particle_Shape
 				  << imperfections_Model.initial_Interference_Function << imperfections_Model.initial_Geometric_Model;
 }
 QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfections_Model )
@@ -688,7 +688,7 @@ QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfecti
 	if(Global_Variables::check_Loaded_Version(1,11,10))
 	{stream >> imperfections_Model.PSD_1D >> imperfections_Model.PSD_2D;}
 
-	stream >> imperfections_Model.use_Fluctuations >> imperfections_Model.cross_Layer_Interference >> imperfections_Model.initial_Particle_Shape
+	stream >> imperfections_Model.use_Particles >> imperfections_Model.cross_Layer_Interference >> imperfections_Model.initial_Particle_Shape
 		   >> imperfections_Model.initial_Interference_Function >> imperfections_Model.initial_Geometric_Model;
 
 	return stream;

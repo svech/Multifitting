@@ -178,7 +178,7 @@ void Table_Of_Structures::add_Tabs()
 		reload_All_Widgets();
 	}
 	table_Is_Fully_Created = true;
-	for(QCheckBox* check_Box_Usage : check_Boxes_Fluctuations_Usage_List)
+	for(QCheckBox* check_Box_Usage : check_Boxes_Particles_Usage_List)
 	{
 		check_Box_Usage->toggled(check_Box_Usage->isChecked());
 	}
@@ -247,12 +247,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 						has_Drift = true;
 					}
 
-					if( struct_Data.fluctuations_Model.particle_Shape == full_Spheroid ||
-						struct_Data.fluctuations_Model.particle_Shape == cylinder )
+					if( struct_Data.particles_Model.particle_Shape == full_Spheroid ||
+						struct_Data.particles_Model.particle_Shape == cylinder )
 					{
 						has_Particle_Height = true;
 					}
-					if( struct_Data.fluctuations_Model.particle_Interference_Function == radial_Paracrystal )
+					if( struct_Data.particles_Model.particle_Interference_Function == radial_Paracrystal )
 					{
 						has_Particle_Distance_Deviation = true;
 					}
@@ -522,8 +522,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		int first_Roughness_Column = 0;
 		int last_Roughness_Column = 0;
 
-		int first_Fluctuations_Column = 0;
-		int last_Fluctuations_Column = 0;
+		int first_Particles_Column = 0;
+		int last_Particles_Column = 0;
 
 		bool steps_Are_Done_Line_Drift = false;
 		bool steps_Are_Done_Rand_Drift = false;
@@ -1142,7 +1142,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 			}
 			first_Roughness_Column = current_Column;
-			int additional_Column = show_Right_Column || (multilayer->imperfections_Model.use_Fluctuations && has_Layers) ? 1 : 0;
+			int additional_Column = show_Right_Column || (multilayer->imperfections_Model.use_Particles && has_Layers) ? 1 : 0;
 
 			// sigma roughness
 			bool show_Sigma = false;
@@ -1698,14 +1698,14 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 
 			///--------------------------------------------------------------------------------------------
-			/// DENSITY FLUCTUATIONS
+			/// PARTICLES
 			///--------------------------------------------------------------------------------------------
 
-			first_Fluctuations_Column = current_Column;
+			first_Particles_Column = current_Column;
 
 			// usage, shape and interference function
 			bool show_Usage_Buttons = false;
-			if(	struct_Data.fluctuations_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled )
 			{
 				show_Usage_Buttons = true;
 			}
@@ -1719,13 +1719,13 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				// last
 				create_Check_Box_Usage (new_Table, tab_Index, current_Row,   current_Column, structure_Item, "on/off", 0, 4, 0, 2020); // more than table size, it is like inf
 
-				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=2;
 			}
 
 			// particle density
 			bool show_Particle_Density = false;
-			if(	struct_Data.fluctuations_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled )
 			{
 				show_Particle_Density = true;
 			}
@@ -1761,18 +1761,18 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This_Particle_Density);
 					steps_Are_Done_Particle_Density = true;
 				}
-				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
 
 			// particle radius
 			bool show_Particle_Radius = false;
-			if(	struct_Data.fluctuations_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				if( struct_Data.fluctuations_Model.particle_Shape == full_Sphere ||
-					struct_Data.fluctuations_Model.particle_Shape == full_Spheroid ||
-					struct_Data.fluctuations_Model.particle_Shape == cylinder )
+				if( struct_Data.particles_Model.particle_Shape == full_Sphere ||
+					struct_Data.particles_Model.particle_Shape == full_Spheroid ||
+					struct_Data.particles_Model.particle_Shape == cylinder )
 				{
 					show_Particle_Radius = true;
 				}
@@ -1795,17 +1795,17 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 					steps_Are_Done_Particle_Radius = true;
 				}
-				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
 
 			// particle height
 			bool show_Particle_Height = false;
-			if(	struct_Data.fluctuations_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				if( struct_Data.fluctuations_Model.particle_Shape == full_Spheroid ||
-					struct_Data.fluctuations_Model.particle_Shape == cylinder )
+				if( struct_Data.particles_Model.particle_Shape == full_Spheroid ||
+					struct_Data.particles_Model.particle_Shape == cylinder )
 				{
 					show_Particle_Height = true;
 				}
@@ -1828,22 +1828,22 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 					steps_Are_Done_Particle_Height = true;
 				}
-				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=2;
 			}
-			if(has_Particle_Height && !show_Particle_Height && struct_Data.fluctuations_Model.is_Enabled) // keep empty place
+			if(has_Particle_Height && !show_Particle_Height && struct_Data.particles_Model.is_Enabled) // keep empty place
 			{
 				add_Columns	(new_Table, current_Column+1);
-				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
 
 			// particle average distance
 			bool show_Particle_Average_Distance = false;
-			if(	struct_Data.fluctuations_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				if( struct_Data.fluctuations_Model.particle_Interference_Function == disorder)
+				if( struct_Data.particles_Model.particle_Interference_Function == disorder)
 				{
 					show_Particle_Average_Distance = true;
 				}
@@ -1866,7 +1866,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This_Particle_Distance);
 					steps_Are_Done_Particle_Distance = true;
 				}
-				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
 				if(has_Particle_Distance_Deviation)	{current_Column+=2;}
 				else								{current_Column+=2;}
 			}
@@ -1874,9 +1874,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// particle radial distance
 			bool show_Particle_Radial_Distance = false;
-			if(	struct_Data.fluctuations_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				if( struct_Data.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+				if( struct_Data.particles_Model.particle_Interference_Function == radial_Paracrystal)
 				{
 					show_Particle_Radial_Distance = true;
 				}
@@ -1899,16 +1899,16 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This_Particle_Distance);
 					steps_Are_Done_Particle_Distance = true;
 				}
-				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=1;
 			}
 			///--------------------------------------------------------------------------------------------
 
 			// particle radial distance deviation
 			bool show_Particle_Radial_Distance_Deviation = false;
-			if(	struct_Data.fluctuations_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				if( struct_Data.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+				if( struct_Data.particles_Model.particle_Interference_Function == radial_Paracrystal)
 				{
 					show_Particle_Radial_Distance_Deviation = true;
 				}
@@ -1931,10 +1931,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 					steps_Are_Done_Particle_Distance_Deviation = true;
 				}
-				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=1;
 			}
-//			if(has_Particle_Distance_Deviation && !show_Particle_Radial_Distance_Deviation && struct_Data.fluctuations_Model.is_Enabled) // keep empty place
+//			if(has_Particle_Distance_Deviation && !show_Particle_Radial_Distance_Deviation && struct_Data.particles_Model.is_Enabled) // keep empty place
 //			{
 //				add_Columns	(new_Table, current_Column+1);
 //				current_Column+=2;
@@ -1943,9 +1943,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// domain size
 			bool show_Domain_Size = false;
-			if(	struct_Data.fluctuations_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				if( struct_Data.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+				if( struct_Data.particles_Model.particle_Interference_Function == radial_Paracrystal)
 				{
 					show_Domain_Size = true;
 				}
@@ -1970,20 +1970,20 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 //					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 //					steps_Are_Done_Particle_Distance_Deviation = true;
 //				}
-				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=2;
 			}
-			if(has_Particle_Distance_Deviation && !show_Particle_Radial_Distance_Deviation && struct_Data.fluctuations_Model.is_Enabled) // keep empty place
+			if(has_Particle_Distance_Deviation && !show_Particle_Radial_Distance_Deviation && struct_Data.particles_Model.is_Enabled) // keep empty place
 			{
 				add_Columns	(new_Table, current_Column+1);
-				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
 
 			// particle z position
 			bool show_Particle_Z_Position = false;
-			if(	struct_Data.fluctuations_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled )
 			{
 				show_Particle_Z_Position = true;
 			}
@@ -2005,14 +2005,14 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 					steps_Are_Done_Particle_Z_Position = true;
 				}
-				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=1;
 			}
 			///--------------------------------------------------------------------------------------------
 
 			// particle z position deviation
 			bool show_Particle_Z_Position_Deviation = false;
-			if(	struct_Data.fluctuations_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled )
 			{
 				show_Particle_Z_Position_Deviation = true;
 			}
@@ -2035,7 +2035,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 					steps_Are_Done_Particle_Z_Position_Deviation = true;
 				}
-				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -2050,7 +2050,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		{
 			int broadening = 0;
 //			if(multilayer->imperfections_Model.PSD_Model == measured_PSD) broadening = 1;
-			int right_Broadening_Factor = show_Right_Column || (multilayer->imperfections_Model.use_Fluctuations && has_Layers) ? 2 : 1;
+			int right_Broadening_Factor = show_Right_Column || (multilayer->imperfections_Model.use_Particles && has_Layers) ? 2 : 1;
 
 			// row 1
 			QLabel* approximation_Label = new QLabel(multilayer->imperfections_Model.approximation);
@@ -2083,29 +2083,29 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			new_Table->setCellWidget(first_Row+2, first_Roughness_Column, ver_Cor_Label);
 		}
 
-		// big label about fluctuations model
-		if(multilayer->imperfections_Model.use_Fluctuations && has_Layers)
+		// big label about particles model
+		if(multilayer->imperfections_Model.use_Particles && has_Layers)
 		{
 			// row 1
 			QLabel* approximation_Label = new QLabel("DWBA approximation");
 				approximation_Label->setAlignment(Qt::AlignCenter);
 				approximation_Label->setFont(QFont(approximation_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(first_Row,first_Fluctuations_Column,1,last_Fluctuations_Column-first_Fluctuations_Column+1);
-			new_Table->setCellWidget(first_Row, first_Fluctuations_Column, approximation_Label);
+			new_Table->setSpan(first_Row,first_Particles_Column,1,last_Particles_Column-first_Particles_Column+1);
+			new_Table->setCellWidget(first_Row, first_Particles_Column, approximation_Label);
 
 			// row 2
 			QLabel* model_Label = new QLabel("in-layer interference");
 				model_Label->setAlignment(Qt::AlignCenter);
 				model_Label->setFont(QFont(model_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(first_Row+1,first_Fluctuations_Column,1,last_Fluctuations_Column-first_Fluctuations_Column+1);
-			new_Table->setCellWidget(first_Row+1, first_Fluctuations_Column, model_Label);
+			new_Table->setSpan(first_Row+1,first_Particles_Column,1,last_Particles_Column-first_Particles_Column+1);
+			new_Table->setCellWidget(first_Row+1, first_Particles_Column, model_Label);
 
 			// row 3
 			QLabel* ver_Cor_Label = new QLabel("zero cross-layer correlation");
 				ver_Cor_Label->setAlignment(Qt::AlignCenter);
 				ver_Cor_Label->setFont(QFont(ver_Cor_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(first_Row+2,first_Fluctuations_Column,1,last_Fluctuations_Column-first_Fluctuations_Column+1);
-			new_Table->setCellWidget(first_Row+2, first_Fluctuations_Column, ver_Cor_Label);
+			new_Table->setSpan(first_Row+2,first_Particles_Column,1,last_Particles_Column-first_Particles_Column+1);
+			new_Table->setCellWidget(first_Row+2, first_Particles_Column, ver_Cor_Label);
 		}
 
 		// add or not last row
@@ -2266,17 +2266,17 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Sigma_Factor_PSD_1D)					{precision = line_edit_psd_factor_precision;			coeff = 1;																	return struct_Data.roughness_Model.sigma_Factor_PSD_1D; }
 	if(whats_This == whats_This_Sigma_Factor_PSD_2D)					{precision = line_edit_psd_factor_precision;			coeff = 1;																	return struct_Data.roughness_Model.sigma_Factor_PSD_2D; }
 
-	// density fluctuations
-	if(whats_This == whats_This_Particle_Absolute_Density)		{precision = line_edit_density_precision;						coeff = 1;																		return struct_Data.fluctuations_Model.particle_Absolute_Density;			}
-	if(whats_This == whats_This_Particle_Relative_Density)		{precision = line_edit_density_precision;						coeff = 1;																		return struct_Data.fluctuations_Model.particle_Relative_Density;			}
-	if(whats_This == whats_This_Particle_Radius)				{precision = line_edit_particle_size_precision;					coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Radius;						}
-	if(whats_This == whats_This_Particle_Height)				{precision = line_edit_particle_size_precision;					coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Height;						}
-	if(whats_This == whats_This_Particle_Average_Distance)		{precision = line_edit_particle_lateral_distance_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Average_Distance;			}
-	if(whats_This == whats_This_Particle_Radial_Distance)		{precision = line_edit_particle_lateral_distance_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Radial_Distance;				}
-if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{precision = line_edit_particle_lateral_distance_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation;	}
-	if(whats_This == whats_This_Domain_Size)					{precision = line_edit_cor_radius_precision;					coeff = correlation_Length_Coefficients_Map.value(correlation_length_units);	return struct_Data.fluctuations_Model.domain_Size;							}
-	if(whats_This == whats_This_Particle_Z_Position)			{precision = line_edit_particle_z_position_precision;			coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Z_Position;					}
-	if(whats_This == whats_This_Particle_Z_Position_Deviation)	{precision = line_edit_particle_z_position_precision;			coeff = length_Coefficients_Map.value(length_units);							return struct_Data.fluctuations_Model.particle_Z_Position_Deviation;		}
+	// particles
+	if(whats_This == whats_This_Particle_Absolute_Density)		{precision = line_edit_density_precision;						coeff = 1;																		return struct_Data.particles_Model.particle_Absolute_Density;			}
+	if(whats_This == whats_This_Particle_Relative_Density)		{precision = line_edit_density_precision;						coeff = 1;																		return struct_Data.particles_Model.particle_Relative_Density;			}
+	if(whats_This == whats_This_Particle_Radius)				{precision = line_edit_particle_size_precision;					coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Radius;						}
+	if(whats_This == whats_This_Particle_Height)				{precision = line_edit_particle_size_precision;					coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Height;						}
+	if(whats_This == whats_This_Particle_Average_Distance)		{precision = line_edit_particle_lateral_distance_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Average_Distance;			}
+	if(whats_This == whats_This_Particle_Radial_Distance)		{precision = line_edit_particle_lateral_distance_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Radial_Distance;				}
+if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{precision = line_edit_particle_lateral_distance_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Radial_Distance_Deviation;	}
+	if(whats_This == whats_This_Domain_Size)					{precision = line_edit_cor_radius_precision;					coeff = correlation_Length_Coefficients_Map.value(correlation_length_units);	return struct_Data.particles_Model.domain_Size;							}
+	if(whats_This == whats_This_Particle_Z_Position)			{precision = line_edit_particle_z_position_precision;			coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Z_Position;					}
+	if(whats_This == whats_This_Particle_Z_Position_Deviation)	{precision = line_edit_particle_z_position_precision;			coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Z_Position_Deviation;		}
 
 	// multilayer
 	if(whats_This == whats_This_Num_Repetitions)			{precision = 0;								coeff = 1;						return struct_Data.num_Repetition.parameter;			}
@@ -3027,7 +3027,7 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 	QCheckBox* check_Box = new QCheckBox(text);
 
 	Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	check_Box->setChecked(layer_Data.fluctuations_Model.is_Used);
+	check_Box->setChecked(layer_Data.particles_Model.is_Used);
 
 	// enable/disable function
 	check_Box->setProperty(row_Property, current_Row);
@@ -3044,7 +3044,7 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 	// storage
 	check_Boxes_Map.	       insert	   (check_Box, structure_Item);
 	all_Widgets_To_Reload[tab_Index].append(check_Box);
-	check_Boxes_Fluctuations_Usage_List.append(check_Box);
+	check_Boxes_Particles_Usage_List.append(check_Box);
 
 	// set up BACK widget
 	// alignment
@@ -3063,9 +3063,9 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 		}
 
 		Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-		layer_Data.fluctuations_Model.is_Used = check_Box->isChecked();
+		layer_Data.particles_Model.is_Used = check_Box->isChecked();
 
-		if(layer_Data.fluctuations_Model.is_Used)
+		if(layer_Data.particles_Model.is_Used)
 			back_Widget->setStyleSheet("QWidget { background: rgb(100, 255, 220); }");
 		else
 			back_Widget->setStyleSheet("background-color: white");
@@ -3091,7 +3091,7 @@ void Table_Of_Structures::create_Shape_Button(My_Table_Widget* table, int curren
 {
 	Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-	QPushButton* shape_Button = new QPushButton(layer_Data.fluctuations_Model.particle_Shape);
+	QPushButton* shape_Button = new QPushButton(layer_Data.particles_Model.particle_Shape);
 		shape_Button->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS);
 	table->setCellWidget(current_Row, current_Column, shape_Button);
 
@@ -3102,7 +3102,7 @@ void Table_Of_Structures::create_Pattern_Button(My_Table_Widget* table, int curr
 {
 	Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-	QPushButton* pattern_Button = new QPushButton(layer_Data.fluctuations_Model.particle_Interference_Function);
+	QPushButton* pattern_Button = new QPushButton(layer_Data.particles_Model.particle_Interference_Function);
 		pattern_Button->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS);
 	table->setCellWidget(current_Row, current_Column, pattern_Button);
 
@@ -3113,7 +3113,7 @@ void Table_Of_Structures::create_Model_Button(My_Table_Widget *table, int curren
 {
 	Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-	QPushButton* model_Button = new QPushButton(layer_Data.fluctuations_Model.geometric_Model);
+	QPushButton* model_Button = new QPushButton(layer_Data.particles_Model.geometric_Model);
 		model_Button->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS);
 	table->setCellWidget(current_Row, current_Column, model_Button);
 
@@ -3156,15 +3156,15 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 
 		// buttons
 		QRadioButton* full_Sphere_Radiobutton = new QRadioButton("Sphere");
-			full_Sphere_Radiobutton->setChecked(layer_Data.fluctuations_Model.particle_Shape == full_Sphere);
+			full_Sphere_Radiobutton->setChecked(layer_Data.particles_Model.particle_Shape == full_Sphere);
 		choice_Group_Box_Layout->addWidget(full_Sphere_Radiobutton);
 
 		QRadioButton* full_Spheroid_Radiobutton = new QRadioButton("Spheroid");
-			full_Spheroid_Radiobutton->setChecked(layer_Data.fluctuations_Model.particle_Shape == full_Spheroid);
+			full_Spheroid_Radiobutton->setChecked(layer_Data.particles_Model.particle_Shape == full_Spheroid);
 		choice_Group_Box_Layout->addWidget(full_Spheroid_Radiobutton);
 
 		QRadioButton* full_Cylinder_Radiobutton = new QRadioButton("Cylinder");
-			full_Cylinder_Radiobutton->setChecked(layer_Data.fluctuations_Model.particle_Shape == cylinder);
+			full_Cylinder_Radiobutton->setChecked(layer_Data.particles_Model.particle_Shape == cylinder);
 		choice_Group_Box_Layout->addWidget(full_Cylinder_Radiobutton);
 
 		QButtonGroup* shape_Group = new QButtonGroup;
@@ -3178,7 +3178,7 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 			if(full_Sphere_Radiobutton->isChecked())
 			{
 				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-				layer_Data.fluctuations_Model.particle_Shape = full_Sphere;
+				layer_Data.particles_Model.particle_Shape = full_Sphere;
 
 				QVariant var;
 				var.setValue(layer_Data);
@@ -3190,7 +3190,7 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 			if(full_Spheroid_Radiobutton->isChecked())
 			{
 				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-				layer_Data.fluctuations_Model.particle_Shape = full_Spheroid;
+				layer_Data.particles_Model.particle_Shape = full_Spheroid;
 
 				QVariant var;
 				var.setValue(layer_Data);
@@ -3202,7 +3202,7 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 			if(full_Cylinder_Radiobutton->isChecked())
 			{
 				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-				layer_Data.fluctuations_Model.particle_Shape = cylinder;
+				layer_Data.particles_Model.particle_Shape = cylinder;
 
 				QVariant var;
 				var.setValue(layer_Data);
@@ -3213,15 +3213,15 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 	if(shape_Pattern_Model == "pattern")
 	{
 		// settings group box
-		choice_Group_Box->setTitle("Particle order");
+		choice_Group_Box->setTitle("Lateral order");
 
 		// buttons
 		QRadioButton* disorder_Radiobutton = new QRadioButton("Disorder");
-			disorder_Radiobutton->setChecked(layer_Data.fluctuations_Model.particle_Interference_Function == disorder);
+			disorder_Radiobutton->setChecked(layer_Data.particles_Model.particle_Interference_Function == disorder);
 		choice_Group_Box_Layout->addWidget(disorder_Radiobutton);
 
 		QRadioButton* radial_Paracrystal_Radiobutton = new QRadioButton("Radial paracrystal");
-			radial_Paracrystal_Radiobutton->setChecked(layer_Data.fluctuations_Model.particle_Interference_Function == radial_Paracrystal);
+			radial_Paracrystal_Radiobutton->setChecked(layer_Data.particles_Model.particle_Interference_Function == radial_Paracrystal);
 		choice_Group_Box_Layout->addWidget(radial_Paracrystal_Radiobutton);
 
 		QButtonGroup* interference_Function_Group = new QButtonGroup;
@@ -3235,7 +3235,7 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 			if(disorder_Radiobutton->isChecked())
 			{
 				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-				layer_Data.fluctuations_Model.particle_Interference_Function = disorder;
+				layer_Data.particles_Model.particle_Interference_Function = disorder;
 
 				QVariant var;
 				var.setValue(layer_Data);
@@ -3247,7 +3247,7 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 			if(radial_Paracrystal_Radiobutton->isChecked())
 			{
 				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-				layer_Data.fluctuations_Model.particle_Interference_Function = radial_Paracrystal;
+				layer_Data.particles_Model.particle_Interference_Function = radial_Paracrystal;
 
 				QVariant var;
 				var.setValue(layer_Data);
@@ -3262,15 +3262,15 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 
 		// buttons
 		QRadioButton* hexagonal_Radiobutton = new QRadioButton("Hexagonal");
-			hexagonal_Radiobutton->setChecked(layer_Data.fluctuations_Model.geometric_Model == hexagonal_Model);
+			hexagonal_Radiobutton->setChecked(layer_Data.particles_Model.geometric_Model == hexagonal_Model);
 		choice_Group_Box_Layout->addWidget(hexagonal_Radiobutton);
 
 		QRadioButton* square_Radiobutton = new QRadioButton("Square");
-			square_Radiobutton->setChecked(layer_Data.fluctuations_Model.geometric_Model == square_Model);
+			square_Radiobutton->setChecked(layer_Data.particles_Model.geometric_Model == square_Model);
 		choice_Group_Box_Layout->addWidget(square_Radiobutton);
 
 		QRadioButton* pure_Radial_Radiobutton = new QRadioButton("Radial");
-			pure_Radial_Radiobutton->setChecked(layer_Data.fluctuations_Model.geometric_Model == pure_Radial_Model);
+			pure_Radial_Radiobutton->setChecked(layer_Data.particles_Model.geometric_Model == pure_Radial_Model);
 //		choice_Group_Box_Layout->addWidget(pure_Radial_Radiobutton);
 
 		QButtonGroup* model_Group = new QButtonGroup;
@@ -3285,7 +3285,7 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 			if(hexagonal_Radiobutton->isChecked())
 			{
 				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-				layer_Data.fluctuations_Model.geometric_Model = hexagonal_Model;
+				layer_Data.particles_Model.geometric_Model = hexagonal_Model;
 
 				QVariant var;
 				var.setValue(layer_Data);
@@ -3297,7 +3297,7 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 			if(square_Radiobutton->isChecked())
 			{
 				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-				layer_Data.fluctuations_Model.geometric_Model = square_Model;
+				layer_Data.particles_Model.geometric_Model = square_Model;
 
 				QVariant var;
 				var.setValue(layer_Data);
@@ -3309,7 +3309,7 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 			if(pure_Radial_Radiobutton->isChecked())
 			{
 				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-				layer_Data.fluctuations_Model.geometric_Model = pure_Radial_Model;
+				layer_Data.particles_Model.geometric_Model = pure_Radial_Model;
 
 				QVariant var;
 				var.setValue(layer_Data);
@@ -3679,7 +3679,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 			spin_Box->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 		}
 
-		// fluctuations
+		// particles
 		if( whats_This == whats_This_Particle_Average_Distance ||
 			whats_This == whats_This_Particle_Radial_Distance)
 		{
@@ -5954,7 +5954,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 				spin_Box->setMinimum(1e-1/coeff);
 				spin_Box->setMaximum(1e10/coeff);
 			}
-			// fluctuations
+			// particles
 			if( whats_This == whats_This_Particle_Average_Distance ||
 				whats_This == whats_This_Particle_Radial_Distance)
 			{

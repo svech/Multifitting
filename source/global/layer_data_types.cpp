@@ -655,151 +655,151 @@ Data::Data(QString item_Type_Passed)
 			}
 		}
 
-		// density fluctuations
+		// particles
 		{
-			fluctuations_Model.is_Enabled = default_fluctuation_enabled;
-			if(item_Type == item_Type_Layer)	fluctuations_Model.is_Used = default_fluctuation_used;
-			else								fluctuations_Model.is_Used = false;
+			particles_Model.is_Enabled = default_particles_enabled;
+			if(item_Type == item_Type_Layer)	particles_Model.is_Used = default_particles_used;
+			else								particles_Model.is_Used = false;
 		}
 		// particle absolute density
 		{
-			fluctuations_Model.particle_Absolute_Density.value   = default_fluctuation_absolute_density;
-			fluctuations_Model.particle_Absolute_Density.fit.is_Fitable = false;
-			fluctuations_Model.particle_Absolute_Density.fit.min = default_fluctuation_absolute_density_min;
-			fluctuations_Model.particle_Absolute_Density.fit.max = default_fluctuation_absolute_density_max;
-			fluctuations_Model.particle_Absolute_Density.indicator.whats_This = whats_This_Particle_Absolute_Density;
-			fluctuations_Model.particle_Absolute_Density.indicator.item_Id = id;
+			particles_Model.particle_Absolute_Density.value   = default_particles_absolute_density;
+			particles_Model.particle_Absolute_Density.fit.is_Fitable = false;
+			particles_Model.particle_Absolute_Density.fit.min = default_particles_absolute_density_min;
+			particles_Model.particle_Absolute_Density.fit.max = default_particles_absolute_density_max;
+			particles_Model.particle_Absolute_Density.indicator.whats_This = whats_This_Particle_Absolute_Density;
+			particles_Model.particle_Absolute_Density.indicator.item_Id = id;
 
-			fluctuations_Model.particle_Absolute_Density.confidence.calc_Conf_Interval = false;
-			fluctuations_Model.particle_Absolute_Density.confidence.min = fluctuations_Model.particle_Absolute_Density.fit.min;
-			fluctuations_Model.particle_Absolute_Density.confidence.max = fluctuations_Model.particle_Absolute_Density.fit.max;
-			fluctuations_Model.particle_Absolute_Density.confidence.num_Points = default_num_confidence_points;
+			particles_Model.particle_Absolute_Density.confidence.calc_Conf_Interval = false;
+			particles_Model.particle_Absolute_Density.confidence.min = particles_Model.particle_Absolute_Density.fit.min;
+			particles_Model.particle_Absolute_Density.confidence.max = particles_Model.particle_Absolute_Density.fit.max;
+			particles_Model.particle_Absolute_Density.confidence.num_Points = default_num_confidence_points;
 		}
 		// particle relative density
 		{
-			fluctuations_Model.particle_Relative_Density.value   = default_fluctuation_relative_density;
-			fluctuations_Model.particle_Relative_Density.fit.is_Fitable = false;
-			fluctuations_Model.particle_Relative_Density.fit.min = default_fluctuation_relative_density_min;
-			fluctuations_Model.particle_Relative_Density.fit.max = default_fluctuation_relative_density_max;
-			fluctuations_Model.particle_Relative_Density.indicator.whats_This = whats_This_Particle_Relative_Density;
-			fluctuations_Model.particle_Relative_Density.indicator.item_Id = id;
+			particles_Model.particle_Relative_Density.value   = default_particles_relative_density;
+			particles_Model.particle_Relative_Density.fit.is_Fitable = false;
+			particles_Model.particle_Relative_Density.fit.min = default_particles_relative_density_min;
+			particles_Model.particle_Relative_Density.fit.max = default_particles_relative_density_max;
+			particles_Model.particle_Relative_Density.indicator.whats_This = whats_This_Particle_Relative_Density;
+			particles_Model.particle_Relative_Density.indicator.item_Id = id;
 
-			fluctuations_Model.particle_Relative_Density.confidence.calc_Conf_Interval = false;
-			fluctuations_Model.particle_Relative_Density.confidence.min = fluctuations_Model.particle_Relative_Density.fit.min;
-			fluctuations_Model.particle_Relative_Density.confidence.max = fluctuations_Model.particle_Relative_Density.fit.max;
-			fluctuations_Model.particle_Relative_Density.confidence.num_Points = default_num_confidence_points;
+			particles_Model.particle_Relative_Density.confidence.calc_Conf_Interval = false;
+			particles_Model.particle_Relative_Density.confidence.min = particles_Model.particle_Relative_Density.fit.min;
+			particles_Model.particle_Relative_Density.confidence.max = particles_Model.particle_Relative_Density.fit.max;
+			particles_Model.particle_Relative_Density.confidence.num_Points = default_num_confidence_points;
 		}
 		// particle radius
 		{
-			fluctuations_Model.particle_Radius.value   = default_fluctuation_particle_radius;
-			fluctuations_Model.particle_Radius.fit.is_Fitable = false;
-			fluctuations_Model.particle_Radius.fit.min = default_fluctuation_particle_radius_min;
-			fluctuations_Model.particle_Radius.fit.max = default_fluctuation_particle_radius_max;
-			fluctuations_Model.particle_Radius.indicator.whats_This = whats_This_Particle_Radius;
-			fluctuations_Model.particle_Radius.indicator.item_Id = id;
+			particles_Model.particle_Radius.value   = default_particles_radius;
+			particles_Model.particle_Radius.fit.is_Fitable = false;
+			particles_Model.particle_Radius.fit.min = default_particles_radius_min;
+			particles_Model.particle_Radius.fit.max = default_particles_radius_max;
+			particles_Model.particle_Radius.indicator.whats_This = whats_This_Particle_Radius;
+			particles_Model.particle_Radius.indicator.item_Id = id;
 
-			fluctuations_Model.particle_Radius.confidence.calc_Conf_Interval = false;
-			fluctuations_Model.particle_Radius.confidence.min = fluctuations_Model.particle_Radius.fit.min;
-			fluctuations_Model.particle_Radius.confidence.max = fluctuations_Model.particle_Radius.fit.max;
-			fluctuations_Model.particle_Radius.confidence.num_Points = default_num_confidence_points;
+			particles_Model.particle_Radius.confidence.calc_Conf_Interval = false;
+			particles_Model.particle_Radius.confidence.min = particles_Model.particle_Radius.fit.min;
+			particles_Model.particle_Radius.confidence.max = particles_Model.particle_Radius.fit.max;
+			particles_Model.particle_Radius.confidence.num_Points = default_num_confidence_points;
 		}
 		// particle height
 		{
-			fluctuations_Model.particle_Height.value   = default_fluctuation_particle_height;
-			fluctuations_Model.particle_Height.fit.is_Fitable = false;
-			fluctuations_Model.particle_Height.fit.min = default_fluctuation_particle_height_min;
-			fluctuations_Model.particle_Height.fit.max = default_fluctuation_particle_height_max;
-			fluctuations_Model.particle_Height.indicator.whats_This = whats_This_Particle_Height;
-			fluctuations_Model.particle_Height.indicator.item_Id = id;
+			particles_Model.particle_Height.value   = default_particles_height;
+			particles_Model.particle_Height.fit.is_Fitable = false;
+			particles_Model.particle_Height.fit.min = default_particles_height_min;
+			particles_Model.particle_Height.fit.max = default_particles_height_max;
+			particles_Model.particle_Height.indicator.whats_This = whats_This_Particle_Height;
+			particles_Model.particle_Height.indicator.item_Id = id;
 
-			fluctuations_Model.particle_Height.confidence.calc_Conf_Interval = false;
-			fluctuations_Model.particle_Height.confidence.min = fluctuations_Model.particle_Height.fit.min;
-			fluctuations_Model.particle_Height.confidence.max = fluctuations_Model.particle_Height.fit.max;
-			fluctuations_Model.particle_Height.confidence.num_Points = default_num_confidence_points;
+			particles_Model.particle_Height.confidence.calc_Conf_Interval = false;
+			particles_Model.particle_Height.confidence.min = particles_Model.particle_Height.fit.min;
+			particles_Model.particle_Height.confidence.max = particles_Model.particle_Height.fit.max;
+			particles_Model.particle_Height.confidence.num_Points = default_num_confidence_points;
 		}
 		// particle average distance (disorder case)
 		{
-			fluctuations_Model.particle_Average_Distance.value   = default_fluctuation_particle_distance;
-			fluctuations_Model.particle_Average_Distance.fit.is_Fitable = false;
-			fluctuations_Model.particle_Average_Distance.fit.min = default_fluctuation_particle_distance_min;
-			fluctuations_Model.particle_Average_Distance.fit.max = default_fluctuation_particle_distance_max;
-			fluctuations_Model.particle_Average_Distance.indicator.whats_This = whats_This_Particle_Average_Distance;
-			fluctuations_Model.particle_Average_Distance.indicator.item_Id = id;
+			particles_Model.particle_Average_Distance.value   = default_particles_distance;
+			particles_Model.particle_Average_Distance.fit.is_Fitable = false;
+			particles_Model.particle_Average_Distance.fit.min = default_particles_distance_min;
+			particles_Model.particle_Average_Distance.fit.max = default_particles_distance_max;
+			particles_Model.particle_Average_Distance.indicator.whats_This = whats_This_Particle_Average_Distance;
+			particles_Model.particle_Average_Distance.indicator.item_Id = id;
 
-			fluctuations_Model.particle_Average_Distance.confidence.calc_Conf_Interval = false;
-			fluctuations_Model.particle_Average_Distance.confidence.min = fluctuations_Model.particle_Average_Distance.fit.min;
-			fluctuations_Model.particle_Average_Distance.confidence.max = fluctuations_Model.particle_Average_Distance.fit.max;
-			fluctuations_Model.particle_Average_Distance.confidence.num_Points = default_num_confidence_points;
+			particles_Model.particle_Average_Distance.confidence.calc_Conf_Interval = false;
+			particles_Model.particle_Average_Distance.confidence.min = particles_Model.particle_Average_Distance.fit.min;
+			particles_Model.particle_Average_Distance.confidence.max = particles_Model.particle_Average_Distance.fit.max;
+			particles_Model.particle_Average_Distance.confidence.num_Points = default_num_confidence_points;
 		}
 		// particle radial distance (radial paracrystal case)
 		{
-			fluctuations_Model.particle_Radial_Distance.value   = default_fluctuation_particle_distance;
-			fluctuations_Model.particle_Radial_Distance.fit.is_Fitable = false;
-			fluctuations_Model.particle_Radial_Distance.fit.min = default_fluctuation_particle_distance_min;
-			fluctuations_Model.particle_Radial_Distance.fit.max = default_fluctuation_particle_distance_max;
-			fluctuations_Model.particle_Radial_Distance.indicator.whats_This = whats_This_Particle_Radial_Distance;
-			fluctuations_Model.particle_Radial_Distance.indicator.item_Id = id;
+			particles_Model.particle_Radial_Distance.value   = default_particles_distance;
+			particles_Model.particle_Radial_Distance.fit.is_Fitable = false;
+			particles_Model.particle_Radial_Distance.fit.min = default_particles_distance_min;
+			particles_Model.particle_Radial_Distance.fit.max = default_particles_distance_max;
+			particles_Model.particle_Radial_Distance.indicator.whats_This = whats_This_Particle_Radial_Distance;
+			particles_Model.particle_Radial_Distance.indicator.item_Id = id;
 
-			fluctuations_Model.particle_Radial_Distance.confidence.calc_Conf_Interval = false;
-			fluctuations_Model.particle_Radial_Distance.confidence.min = fluctuations_Model.particle_Radial_Distance.fit.min;
-			fluctuations_Model.particle_Radial_Distance.confidence.max = fluctuations_Model.particle_Radial_Distance.fit.max;
-			fluctuations_Model.particle_Radial_Distance.confidence.num_Points = default_num_confidence_points;
+			particles_Model.particle_Radial_Distance.confidence.calc_Conf_Interval = false;
+			particles_Model.particle_Radial_Distance.confidence.min = particles_Model.particle_Radial_Distance.fit.min;
+			particles_Model.particle_Radial_Distance.confidence.max = particles_Model.particle_Radial_Distance.fit.max;
+			particles_Model.particle_Radial_Distance.confidence.num_Points = default_num_confidence_points;
 		}
 		// particle radial distance deviation (radial paracrystal case)
 		{
-			fluctuations_Model.particle_Radial_Distance_Deviation.value   = default_fluctuation_particle_distance_deviation;
-			fluctuations_Model.particle_Radial_Distance_Deviation.fit.is_Fitable = false;
-			fluctuations_Model.particle_Radial_Distance_Deviation.fit.min = default_fluctuation_particle_distance_deviation_min;
-			fluctuations_Model.particle_Radial_Distance_Deviation.fit.max = default_fluctuation_particle_distance_deviation_max;
-			fluctuations_Model.particle_Radial_Distance_Deviation.indicator.whats_This = whats_This_Particle_Radial_Distance_Deviation;
-			fluctuations_Model.particle_Radial_Distance_Deviation.indicator.item_Id = id;
+			particles_Model.particle_Radial_Distance_Deviation.value   = default_particles_distance_deviation;
+			particles_Model.particle_Radial_Distance_Deviation.fit.is_Fitable = false;
+			particles_Model.particle_Radial_Distance_Deviation.fit.min = default_particles_distance_deviation_min;
+			particles_Model.particle_Radial_Distance_Deviation.fit.max = default_particles_distance_deviation_max;
+			particles_Model.particle_Radial_Distance_Deviation.indicator.whats_This = whats_This_Particle_Radial_Distance_Deviation;
+			particles_Model.particle_Radial_Distance_Deviation.indicator.item_Id = id;
 
-			fluctuations_Model.particle_Radial_Distance_Deviation.confidence.calc_Conf_Interval = false;
-			fluctuations_Model.particle_Radial_Distance_Deviation.confidence.min = fluctuations_Model.particle_Radial_Distance_Deviation.fit.min;
-			fluctuations_Model.particle_Radial_Distance_Deviation.confidence.max = fluctuations_Model.particle_Radial_Distance_Deviation.fit.max;
-			fluctuations_Model.particle_Radial_Distance_Deviation.confidence.num_Points = default_num_confidence_points;
+			particles_Model.particle_Radial_Distance_Deviation.confidence.calc_Conf_Interval = false;
+			particles_Model.particle_Radial_Distance_Deviation.confidence.min = particles_Model.particle_Radial_Distance_Deviation.fit.min;
+			particles_Model.particle_Radial_Distance_Deviation.confidence.max = particles_Model.particle_Radial_Distance_Deviation.fit.max;
+			particles_Model.particle_Radial_Distance_Deviation.confidence.num_Points = default_num_confidence_points;
 		}
 		// domain size (radial paracrystal case)
 		{
-			fluctuations_Model.domain_Size.value = default_fluctuation_domain_size;
-			fluctuations_Model.domain_Size.fit.is_Fitable = false;
-			fluctuations_Model.domain_Size.fit.min = default_fluctuation_domain_size_min;
-			fluctuations_Model.domain_Size.fit.max = default_fluctuation_domain_size_max;
-			fluctuations_Model.domain_Size.indicator.whats_This = whats_This_Domain_Size;
-			fluctuations_Model.domain_Size.indicator.item_Id = id;
+			particles_Model.domain_Size.value = default_particles_domain_size;
+			particles_Model.domain_Size.fit.is_Fitable = false;
+			particles_Model.domain_Size.fit.min = default_particles_domain_size_min;
+			particles_Model.domain_Size.fit.max = default_particles_domain_size_max;
+			particles_Model.domain_Size.indicator.whats_This = whats_This_Domain_Size;
+			particles_Model.domain_Size.indicator.item_Id = id;
 
-			fluctuations_Model.domain_Size.confidence.calc_Conf_Interval = false;
-			fluctuations_Model.domain_Size.confidence.min = fluctuations_Model.domain_Size.fit.min;
-			fluctuations_Model.domain_Size.confidence.max = fluctuations_Model.domain_Size.fit.max;
-			fluctuations_Model.domain_Size.confidence.num_Points = default_num_confidence_points;
+			particles_Model.domain_Size.confidence.calc_Conf_Interval = false;
+			particles_Model.domain_Size.confidence.min = particles_Model.domain_Size.fit.min;
+			particles_Model.domain_Size.confidence.max = particles_Model.domain_Size.fit.max;
+			particles_Model.domain_Size.confidence.num_Points = default_num_confidence_points;
 		}
 		// particle z position
 		{
-			fluctuations_Model.particle_Z_Position.value = default_fluctuation_z_position;
-			fluctuations_Model.particle_Z_Position.fit.is_Fitable = false;
-			fluctuations_Model.particle_Z_Position.fit.min = default_fluctuation_z_position_min;
-			fluctuations_Model.particle_Z_Position.fit.max = default_fluctuation_z_position_max;
-			fluctuations_Model.particle_Z_Position.indicator.whats_This = whats_This_Particle_Z_Position;
-			fluctuations_Model.particle_Z_Position.indicator.item_Id = id;
+			particles_Model.particle_Z_Position.value = default_particles_z_position;
+			particles_Model.particle_Z_Position.fit.is_Fitable = false;
+			particles_Model.particle_Z_Position.fit.min = default_particles_z_position_min;
+			particles_Model.particle_Z_Position.fit.max = default_particles_z_position_max;
+			particles_Model.particle_Z_Position.indicator.whats_This = whats_This_Particle_Z_Position;
+			particles_Model.particle_Z_Position.indicator.item_Id = id;
 
-			fluctuations_Model.particle_Z_Position.confidence.calc_Conf_Interval = false;
-			fluctuations_Model.particle_Z_Position.confidence.min = fluctuations_Model.particle_Z_Position.fit.min;
-			fluctuations_Model.particle_Z_Position.confidence.max = fluctuations_Model.particle_Z_Position.fit.max;
-			fluctuations_Model.particle_Z_Position.confidence.num_Points = default_num_confidence_points;
+			particles_Model.particle_Z_Position.confidence.calc_Conf_Interval = false;
+			particles_Model.particle_Z_Position.confidence.min = particles_Model.particle_Z_Position.fit.min;
+			particles_Model.particle_Z_Position.confidence.max = particles_Model.particle_Z_Position.fit.max;
+			particles_Model.particle_Z_Position.confidence.num_Points = default_num_confidence_points;
 		}
 		// particle z position deviation
 		{
-			fluctuations_Model.particle_Z_Position_Deviation.value = default_fluctuation_z_position_deviation;
-			fluctuations_Model.particle_Z_Position_Deviation.fit.is_Fitable = false;
-			fluctuations_Model.particle_Z_Position_Deviation.fit.min = default_fluctuation_z_position_deviation_min;
-			fluctuations_Model.particle_Z_Position_Deviation.fit.max = default_fluctuation_z_position_deviation_max;
-			fluctuations_Model.particle_Z_Position_Deviation.indicator.whats_This = whats_This_Particle_Z_Position_Deviation;
-			fluctuations_Model.particle_Z_Position_Deviation.indicator.item_Id = id;
+			particles_Model.particle_Z_Position_Deviation.value = default_particles_z_position_deviation;
+			particles_Model.particle_Z_Position_Deviation.fit.is_Fitable = false;
+			particles_Model.particle_Z_Position_Deviation.fit.min = default_particles_z_position_deviation_min;
+			particles_Model.particle_Z_Position_Deviation.fit.max = default_particles_z_position_deviation_max;
+			particles_Model.particle_Z_Position_Deviation.indicator.whats_This = whats_This_Particle_Z_Position_Deviation;
+			particles_Model.particle_Z_Position_Deviation.indicator.item_Id = id;
 
-			fluctuations_Model.particle_Z_Position_Deviation.confidence.calc_Conf_Interval = false;
-			fluctuations_Model.particle_Z_Position_Deviation.confidence.min = fluctuations_Model.particle_Z_Position_Deviation.fit.min;
-			fluctuations_Model.particle_Z_Position_Deviation.confidence.max = fluctuations_Model.particle_Z_Position_Deviation.fit.max;
-			fluctuations_Model.particle_Z_Position_Deviation.confidence.num_Points = default_num_confidence_points;
+			particles_Model.particle_Z_Position_Deviation.confidence.calc_Conf_Interval = false;
+			particles_Model.particle_Z_Position_Deviation.confidence.min = particles_Model.particle_Z_Position_Deviation.fit.min;
+			particles_Model.particle_Z_Position_Deviation.confidence.max = particles_Model.particle_Z_Position_Deviation.fit.max;
+			particles_Model.particle_Z_Position_Deviation.confidence.num_Points = default_num_confidence_points;
 		}
 	}
 
@@ -914,17 +914,17 @@ void Data::reset_All_IDs()
 	//---------------------------------------------
 		thickness.indicator.id = Global_Definitions::generate_Id(); thickness.indicator.item_Id = id;		thickness.coupled.clear_Coupled();
 
-		// density fluctuations
-		fluctuations_Model.particle_Absolute_Density		 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Absolute_Density.			indicator.item_Id = id;		fluctuations_Model.particle_Absolute_Density.			coupled.clear_Coupled();
-		fluctuations_Model.particle_Relative_Density		 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Relative_Density.			indicator.item_Id = id;		fluctuations_Model.particle_Relative_Density.			coupled.clear_Coupled();
-		fluctuations_Model.particle_Radius					 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Radius.						indicator.item_Id = id;		fluctuations_Model.particle_Radius.						coupled.clear_Coupled();
-		fluctuations_Model.particle_Height					 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Height.						indicator.item_Id = id;		fluctuations_Model.particle_Height.						coupled.clear_Coupled();
-		fluctuations_Model.particle_Average_Distance		 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Average_Distance.			indicator.item_Id = id;		fluctuations_Model.particle_Average_Distance.			coupled.clear_Coupled();
-		fluctuations_Model.particle_Radial_Distance			 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Radial_Distance.			indicator.item_Id = id;		fluctuations_Model.particle_Radial_Distance.			coupled.clear_Coupled();
-		fluctuations_Model.particle_Radial_Distance_Deviation.indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Radial_Distance_Deviation.	indicator.item_Id = id;		fluctuations_Model.particle_Radial_Distance_Deviation.	coupled.clear_Coupled();
-		fluctuations_Model.domain_Size						 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.domain_Size.							indicator.item_Id = id;		fluctuations_Model.domain_Size.							coupled.clear_Coupled();
-		fluctuations_Model.particle_Z_Position				 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Z_Position.					indicator.item_Id = id;		fluctuations_Model.particle_Z_Position.					coupled.clear_Coupled();
-		fluctuations_Model.particle_Z_Position_Deviation	 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Z_Position_Deviation.		indicator.item_Id = id;		fluctuations_Model.particle_Z_Position_Deviation.		coupled.clear_Coupled();
+		// particles
+		particles_Model.particle_Absolute_Density		 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Absolute_Density.			indicator.item_Id = id;		particles_Model.particle_Absolute_Density.			coupled.clear_Coupled();
+		particles_Model.particle_Relative_Density		 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Relative_Density.			indicator.item_Id = id;		particles_Model.particle_Relative_Density.			coupled.clear_Coupled();
+		particles_Model.particle_Radius					 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Radius.						indicator.item_Id = id;		particles_Model.particle_Radius.						coupled.clear_Coupled();
+		particles_Model.particle_Height					 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Height.						indicator.item_Id = id;		particles_Model.particle_Height.						coupled.clear_Coupled();
+		particles_Model.particle_Average_Distance		 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Average_Distance.			indicator.item_Id = id;		particles_Model.particle_Average_Distance.			coupled.clear_Coupled();
+		particles_Model.particle_Radial_Distance			 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Radial_Distance.			indicator.item_Id = id;		particles_Model.particle_Radial_Distance.			coupled.clear_Coupled();
+		particles_Model.particle_Radial_Distance_Deviation.indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Radial_Distance_Deviation.	indicator.item_Id = id;		particles_Model.particle_Radial_Distance_Deviation.	coupled.clear_Coupled();
+		particles_Model.domain_Size						 .indicator.id = Global_Definitions::generate_Id(); particles_Model.domain_Size.							indicator.item_Id = id;		particles_Model.domain_Size.							coupled.clear_Coupled();
+		particles_Model.particle_Z_Position				 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Z_Position.					indicator.item_Id = id;		particles_Model.particle_Z_Position.					coupled.clear_Coupled();
+		particles_Model.particle_Z_Position_Deviation	 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Z_Position_Deviation.		indicator.item_Id = id;		particles_Model.particle_Z_Position_Deviation.		coupled.clear_Coupled();
 
 		// thickness drift
 		thickness_Drift.drift_Line_Value	.indicator.id = Global_Definitions::generate_Id(); thickness_Drift.drift_Line_Value		.indicator.item_Id = id;	thickness_Drift.drift_Line_Value.		coupled.clear_Coupled();
@@ -1216,43 +1216,43 @@ QString Data::get_Composed_Material()
 
 double Data::average_Layer_density() const
 {
-	if(fluctuations_Model.is_Enabled && fluctuations_Model.is_Used && thickness.value>DBL_EPSILON)
+	if(particles_Model.is_Enabled && particles_Model.is_Used && thickness.value>DBL_EPSILON)
 	{
 		// particle shape
 		double particle_Volume = 0;
-		if(fluctuations_Model.particle_Shape == full_Sphere)
+		if(particles_Model.particle_Shape == full_Sphere)
 		{
-			particle_Volume = 4*M_PI/3.*pow(fluctuations_Model.particle_Radius.value,3);
+			particle_Volume = 4*M_PI/3.*pow(particles_Model.particle_Radius.value,3);
 		}
-		if(fluctuations_Model.particle_Shape == full_Spheroid)
+		if(particles_Model.particle_Shape == full_Spheroid)
 		{
-			particle_Volume = 2*M_PI/3.*pow(fluctuations_Model.particle_Radius.value,2)*fluctuations_Model.particle_Height.value;
+			particle_Volume = 2*M_PI/3.*pow(particles_Model.particle_Radius.value,2)*particles_Model.particle_Height.value;
 		}
-		if(fluctuations_Model.particle_Shape == cylinder)
+		if(particles_Model.particle_Shape == cylinder)
 		{
-			particle_Volume = M_PI*pow(fluctuations_Model.particle_Radius.value,2)*fluctuations_Model.particle_Height.value;
+			particle_Volume = M_PI*pow(particles_Model.particle_Radius.value,2)*particles_Model.particle_Height.value;
 		}
 
 		double average_Distance = 1;
-		if(fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+		if(particles_Model.particle_Interference_Function == radial_Paracrystal)
 		{
-			average_Distance = fluctuations_Model.particle_Radial_Distance.value;
+			average_Distance = particles_Model.particle_Radial_Distance.value;
 		}
-		if(fluctuations_Model.particle_Interference_Function == disorder)
+		if(particles_Model.particle_Interference_Function == disorder)
 		{
-			average_Distance = fluctuations_Model.particle_Average_Distance.value;
+			average_Distance = particles_Model.particle_Average_Distance.value;
 		}
 
 		double layer_Volume = 1;
-		if(fluctuations_Model.geometric_Model == hexagonal_Model)
+		if(particles_Model.geometric_Model == hexagonal_Model)
 		{
 			layer_Volume = thickness.value*M_SQRT3/2*average_Distance*average_Distance;
 		}
-		if(fluctuations_Model.geometric_Model == square_Model)
+		if(particles_Model.geometric_Model == square_Model)
 		{
 			layer_Volume = thickness.value*average_Distance*average_Distance;
 		}
-		if(fluctuations_Model.geometric_Model == pure_Radial_Model)
+		if(particles_Model.geometric_Model == pure_Radial_Model)
 		{
 			layer_Volume = thickness.value*M_SQRT3/2*average_Distance*average_Distance;
 		}
@@ -1260,8 +1260,8 @@ double Data::average_Layer_density() const
 
 		// resultin density
 		double average_Density;
-		if(composed_Material)	{average_Density = (absolute_Density.value*(layer_Volume-particle_Volume) + fluctuations_Model.particle_Absolute_Density.value*particle_Volume)/layer_Volume;	}
-		else					{average_Density = (relative_Density.value*(layer_Volume-particle_Volume) + fluctuations_Model.particle_Relative_Density.value*particle_Volume)/layer_Volume;	}
+		if(composed_Material)	{average_Density = (absolute_Density.value*(layer_Volume-particle_Volume) + particles_Model.particle_Absolute_Density.value*particle_Volume)/layer_Volume;	}
+		else					{average_Density = (relative_Density.value*(layer_Volume-particle_Volume) + particles_Model.particle_Relative_Density.value*particle_Volume)/layer_Volume;	}
 
 //		return max(average_Density, 0.);
 		return average_Density;
@@ -1420,19 +1420,19 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 	{		
 		potentially_Fitable_Parameters.push_back(&thickness);
 
-		if(imperfections_Model.use_Fluctuations && fluctuations_Model.is_Enabled && fluctuations_Model.is_Used)	 // automatically imperfections_Model.use_Fluctuations == fluctuations_Model.is_Enabled
+		if(imperfections_Model.use_Particles && particles_Model.is_Enabled && particles_Model.is_Used)	 // automatically imperfections_Model.use_Particles == particles_Model.is_Enabled
 		{
-			// density fluctuations
-			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Absolute_Density);
-			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Relative_Density);
-			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Radius);
-			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Height);
-			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Average_Distance);
-			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Radial_Distance);
-			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Radial_Distance_Deviation);
-			potentially_Fitable_Parameters.push_back(&fluctuations_Model.domain_Size);
-			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Z_Position);
-			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Z_Position_Deviation);
+			// particles
+			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Absolute_Density);
+			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Relative_Density);
+			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radius);
+			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Height);
+			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Average_Distance);
+			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radial_Distance);
+			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radial_Distance_Deviation);
+			potentially_Fitable_Parameters.push_back(&particles_Model.domain_Size);
+			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Z_Position);
+			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Z_Position_Deviation);
 		}
 
 		if(imperfections_Model.show_Drift)
@@ -1639,19 +1639,19 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 	{
 		table_Showed_Parameters.push_back(&thickness);
 
-		if(imperfections_Model.use_Fluctuations)
+		if(imperfections_Model.use_Particles)
 		{
-			// density fluctuations
-			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Absolute_Density);
-			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Relative_Density);
-			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Radius);
-			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Height);
-			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Average_Distance);
-			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Radial_Distance);
-			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Radial_Distance_Deviation);
-			table_Showed_Parameters.push_back(&fluctuations_Model.domain_Size);
-			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Z_Position);
-			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Z_Position_Deviation);
+			// particles
+			table_Showed_Parameters.push_back(&particles_Model.particle_Absolute_Density);
+			table_Showed_Parameters.push_back(&particles_Model.particle_Relative_Density);
+			table_Showed_Parameters.push_back(&particles_Model.particle_Radius);
+			table_Showed_Parameters.push_back(&particles_Model.particle_Height);
+			table_Showed_Parameters.push_back(&particles_Model.particle_Average_Distance);
+			table_Showed_Parameters.push_back(&particles_Model.particle_Radial_Distance);
+			table_Showed_Parameters.push_back(&particles_Model.particle_Radial_Distance_Deviation);
+			table_Showed_Parameters.push_back(&particles_Model.domain_Size);
+			table_Showed_Parameters.push_back(&particles_Model.particle_Z_Position);
+			table_Showed_Parameters.push_back(&particles_Model.particle_Z_Position_Deviation);
 		}
 
 		if(imperfections_Model.show_Drift)
@@ -1758,16 +1758,16 @@ void Data::prepare_Layer_For_Regular_Component()
 //---------------------------------------------
 	make_Free(thickness);
 
-	make_Free(fluctuations_Model.particle_Absolute_Density);
-	make_Free(fluctuations_Model.particle_Relative_Density);
-	make_Free(fluctuations_Model.particle_Radius);
-	make_Free(fluctuations_Model.particle_Height);
-	make_Free(fluctuations_Model.particle_Average_Distance);
-	make_Free(fluctuations_Model.particle_Radial_Distance);
-	make_Free(fluctuations_Model.particle_Radial_Distance_Deviation);
-	make_Free(fluctuations_Model.domain_Size);
-	make_Free(fluctuations_Model.particle_Z_Position);
-	make_Free(fluctuations_Model.particle_Z_Position_Deviation);
+	make_Free(particles_Model.particle_Absolute_Density);
+	make_Free(particles_Model.particle_Relative_Density);
+	make_Free(particles_Model.particle_Radius);
+	make_Free(particles_Model.particle_Height);
+	make_Free(particles_Model.particle_Average_Distance);
+	make_Free(particles_Model.particle_Radial_Distance);
+	make_Free(particles_Model.particle_Radial_Distance_Deviation);
+	make_Free(particles_Model.domain_Size);
+	make_Free(particles_Model.particle_Z_Position);
+	make_Free(particles_Model.particle_Z_Position_Deviation);
 
 	make_Free(thickness_Drift.drift_Line_Value);
 	make_Free(thickness_Drift.drift_Sine_Amplitude);
@@ -1844,7 +1844,7 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 				<< data.composed_Material << data.material << data.approved_Material << data.absolute_Density << data.relative_Density << data.composition
 			// Layer, Substrate
 				<< data.common_Sigma_Diffuse << data.sigma_Diffuse << data.interlayer_Composition
-				<< data.roughness_Model << data.fluctuations_Model
+				<< data.roughness_Model << data.particles_Model
 			// Layer
 				<< data.layer_Index << data.has_Parent << data.thickness << data.thickness_Drift << data.sigma_Diffuse_Drift
 			// Multilayer
@@ -1937,7 +1937,7 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 		}
 		stream >> data.common_Sigma_Diffuse >> data.sigma_Diffuse >> data.interlayer_Composition;
 		if(Global_Variables::check_Loaded_Version(1,11,0))
-		{stream >> data.roughness_Model >> data.fluctuations_Model;}
+		{stream >> data.roughness_Model >> data.particles_Model;}
 
 		// Layer
 		stream  >> data.layer_Index >> data.has_Parent >> data.thickness >> data.thickness_Drift >> data.sigma_Diffuse_Drift

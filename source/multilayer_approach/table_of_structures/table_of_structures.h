@@ -53,7 +53,7 @@ public:
 	void create_Label				(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, QString text);
 	void create_Check_Box_Label		(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, QString text, int r_S, int r_F, int c_S, int c_F);
 
-	// for density fluctuations
+	// for particles
 	void create_Check_Box_Usage		(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString text, int r_S, int r_F, int c_S, int c_F);
 	void create_Shape_Button		(My_Table_Widget* table,                int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
 	void create_Pattern_Button		(My_Table_Widget* table,                int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
@@ -211,7 +211,7 @@ public:
 	QMap<QCheckBox*,id_Type>		check_Boxes_Fit_Map;
 	QMap<QWidget*,id_Type>			back_Widgets_Fit_Map;
 	QMap<MyDoubleSpinBox*,id_Type>	spin_Boxes_ID_Map;
-	QList<QCheckBox*>				check_Boxes_Fluctuations_Usage_List;
+	QList<QCheckBox*>				check_Boxes_Particles_Usage_List;
 
 	// refresh/reload regular aperiodic
 	QList<QList<QWidget*>>			regular_Aperiodic_Widgets_To_Reload;

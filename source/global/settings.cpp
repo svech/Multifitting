@@ -243,45 +243,45 @@ double	default_roughness_peak_frequency_width;
 double	default_roughness_peak_frequency_width_min;
 double	default_roughness_peak_frequency_width_max;
 
-// Fluctuation_Values
-bool	default_fluctuation_enabled;
-bool	default_fluctuation_used;		// true
+// Particles_Values
+bool	default_particles_enabled;
+bool	default_particles_used;		// true
 
-double	default_fluctuation_absolute_density;
-double	default_fluctuation_absolute_density_min;
-double	default_fluctuation_absolute_density_max;
+double	default_particles_absolute_density;
+double	default_particles_absolute_density_min;
+double	default_particles_absolute_density_max;
 
-double	default_fluctuation_relative_density;
-double	default_fluctuation_relative_density_min;
-double	default_fluctuation_relative_density_max;
+double	default_particles_relative_density;
+double	default_particles_relative_density_min;
+double	default_particles_relative_density_max;
 
-double	default_fluctuation_particle_radius;
-double	default_fluctuation_particle_radius_min;
-double	default_fluctuation_particle_radius_max;
+double	default_particles_radius;
+double	default_particles_radius_min;
+double	default_particles_radius_max;
 
-double	default_fluctuation_particle_height;
-double	default_fluctuation_particle_height_min;
-double	default_fluctuation_particle_height_max;
+double	default_particles_height;
+double	default_particles_height_min;
+double	default_particles_height_max;
 
-double	default_fluctuation_particle_distance;
-double	default_fluctuation_particle_distance_min;
-double	default_fluctuation_particle_distance_max;
+double	default_particles_distance;
+double	default_particles_distance_min;
+double	default_particles_distance_max;
 
-double	default_fluctuation_particle_distance_deviation;
-double	default_fluctuation_particle_distance_deviation_min;
-double	default_fluctuation_particle_distance_deviation_max;
+double	default_particles_distance_deviation;
+double	default_particles_distance_deviation_min;
+double	default_particles_distance_deviation_max;
 
-double	default_fluctuation_domain_size;
-double	default_fluctuation_domain_size_min;
-double	default_fluctuation_domain_size_max;
+double	default_particles_domain_size;
+double	default_particles_domain_size_min;
+double	default_particles_domain_size_max;
 
-double	default_fluctuation_z_position;
-double	default_fluctuation_z_position_min;
-double	default_fluctuation_z_position_max;
+double	default_particles_z_position;
+double	default_particles_z_position_min;
+double	default_particles_z_position_max;
 
-double	default_fluctuation_z_position_deviation;
-double	default_fluctuation_z_position_deviation_min;
-double	default_fluctuation_z_position_deviation_max;
+double	default_particles_z_position_deviation;
+double	default_particles_z_position_deviation_min;
+double	default_particles_z_position_deviation_max;
 
 // Stack_Values
 int		default_stack_number_of_repetition;
@@ -889,45 +889,45 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		default_roughness_peak_frequency_width_max			= structure_Default_Values.value( "default_roughness_peak_frequency_width_max",		0.9E-4  ).toDouble();
 	structure_Default_Values.endGroup();
 
-	structure_Default_Values.beginGroup( Fluctuation_Values );
-		default_fluctuation_enabled							= structure_Default_Values.value( "default_fluctuation_enabled",						false ).toBool();
-		default_fluctuation_used							= structure_Default_Values.value( "default_fluctuation_used",							true	 ).toBool();
+	structure_Default_Values.beginGroup( Particles_Values );
+		default_particles_enabled							= structure_Default_Values.value( "default_particles_enabled",						false ).toBool();
+		default_particles_used							= structure_Default_Values.value( "default_particles_used",							true	 ).toBool();
 
-		default_fluctuation_absolute_density				= structure_Default_Values.value( "default_fluctuation_absolute_density",				2.699 ).toDouble();
-		default_fluctuation_absolute_density_min			= structure_Default_Values.value( "default_fluctuation_absolute_density_min",			2.500 ).toDouble();
-		default_fluctuation_absolute_density_max			= structure_Default_Values.value( "default_fluctuation_absolute_density_max",			2.700 ).toDouble();
+		default_particles_absolute_density				= structure_Default_Values.value( "default_particles_absolute_density",				2.699 ).toDouble();
+		default_particles_absolute_density_min			= structure_Default_Values.value( "default_particles_absolute_density_min",			2.500 ).toDouble();
+		default_particles_absolute_density_max			= structure_Default_Values.value( "default_particles_absolute_density_max",			2.700 ).toDouble();
 
-		default_fluctuation_relative_density				= structure_Default_Values.value( "default_fluctuation_relative_density",				1	  ).toDouble();
-		default_fluctuation_relative_density_min			= structure_Default_Values.value( "default_fluctuation_relative_density_min",			0.7	  ).toDouble();
-		default_fluctuation_relative_density_max			= structure_Default_Values.value( "default_fluctuation_relative_density_max",			1	  ).toDouble();
+		default_particles_relative_density				= structure_Default_Values.value( "default_particles_relative_density",				1	  ).toDouble();
+		default_particles_relative_density_min			= structure_Default_Values.value( "default_particles_relative_density_min",			0.7	  ).toDouble();
+		default_particles_relative_density_max			= structure_Default_Values.value( "default_particles_relative_density_max",			1	  ).toDouble();
 
-		default_fluctuation_particle_radius					= structure_Default_Values.value( "default_fluctuation_particle_radius",				10	  ).toDouble();
-		default_fluctuation_particle_radius_min				= structure_Default_Values.value( "default_fluctuation_particle_radius_min",			 0	  ).toDouble();
-		default_fluctuation_particle_radius_max				= structure_Default_Values.value( "default_fluctuation_particle_radius_max",			20	  ).toDouble();
+		default_particles_radius					= structure_Default_Values.value( "default_particles_radius",				10	  ).toDouble();
+		default_particles_radius_min				= structure_Default_Values.value( "default_particles_radius_min",			 0	  ).toDouble();
+		default_particles_radius_max				= structure_Default_Values.value( "default_particles_radius_max",			20	  ).toDouble();
 
-		default_fluctuation_particle_height					= structure_Default_Values.value( "default_fluctuation_particle_height",				20	  ).toDouble();
-		default_fluctuation_particle_height_min				= structure_Default_Values.value( "default_fluctuation_particle_height_min",			 0	  ).toDouble();
-		default_fluctuation_particle_height_max				= structure_Default_Values.value( "default_fluctuation_particle_height_max",			20	  ).toDouble();
+		default_particles_height					= structure_Default_Values.value( "default_particles_height",				20	  ).toDouble();
+		default_particles_height_min				= structure_Default_Values.value( "default_particles_height_min",			 0	  ).toDouble();
+		default_particles_height_max				= structure_Default_Values.value( "default_particles_height_max",			20	  ).toDouble();
 
-		default_fluctuation_particle_distance				= structure_Default_Values.value( "default_fluctuation_particle_distance",				100	  ).toDouble();
-		default_fluctuation_particle_distance_min			= structure_Default_Values.value( "default_fluctuation_particle_distance_min",			10	  ).toDouble();
-		default_fluctuation_particle_distance_max			= structure_Default_Values.value( "default_fluctuation_particle_distance_max",			200	  ).toDouble();
+		default_particles_distance				= structure_Default_Values.value( "default_particles_distance",				100	  ).toDouble();
+		default_particles_distance_min			= structure_Default_Values.value( "default_particles_distance_min",			10	  ).toDouble();
+		default_particles_distance_max			= structure_Default_Values.value( "default_particles_distance_max",			200	  ).toDouble();
 
-		default_fluctuation_particle_distance_deviation		= structure_Default_Values.value( "default_fluctuation_particle_distance_deviation",	1	  ).toDouble();
-		default_fluctuation_particle_distance_deviation_min	= structure_Default_Values.value( "default_fluctuation_particle_distance_deviation_min",0.5	  ).toDouble();
-		default_fluctuation_particle_distance_deviation_max	= structure_Default_Values.value( "default_fluctuation_particle_distance_deviation_max",90    ).toDouble();
+		default_particles_distance_deviation		= structure_Default_Values.value( "default_particles_distance_deviation",	1	  ).toDouble();
+		default_particles_distance_deviation_min	= structure_Default_Values.value( "default_particles_distance_deviation_min",0.5	  ).toDouble();
+		default_particles_distance_deviation_max	= structure_Default_Values.value( "default_particles_distance_deviation_max",90    ).toDouble();
 
-		default_fluctuation_domain_size						= structure_Default_Values.value( "default_fluctuation_domain_size",				1e5		).toDouble();
-		default_fluctuation_domain_size_min					= structure_Default_Values.value( "default_fluctuation_domain_size_min",			1E2		).toDouble();
-		default_fluctuation_domain_size_max					= structure_Default_Values.value( "default_fluctuation_domain_size_max",			9E6		).toDouble();
+		default_particles_domain_size						= structure_Default_Values.value( "default_particles_domain_size",				1e5		).toDouble();
+		default_particles_domain_size_min					= structure_Default_Values.value( "default_particles_domain_size_min",			1E2		).toDouble();
+		default_particles_domain_size_max					= structure_Default_Values.value( "default_particles_domain_size_max",			9E6		).toDouble();
 
-		default_fluctuation_z_position						= structure_Default_Values.value( "default_fluctuation_z_position",					  0		).toDouble();
-		default_fluctuation_z_position_min					= structure_Default_Values.value( "default_fluctuation_z_position_min",				-10		).toDouble();
-		default_fluctuation_z_position_max					= structure_Default_Values.value( "default_fluctuation_z_position_max",				 10		).toDouble();
+		default_particles_z_position						= structure_Default_Values.value( "default_particles_z_position",					  0		).toDouble();
+		default_particles_z_position_min					= structure_Default_Values.value( "default_particles_z_position_min",				-10		).toDouble();
+		default_particles_z_position_max					= structure_Default_Values.value( "default_particles_z_position_max",				 10		).toDouble();
 
-		default_fluctuation_z_position_deviation			= structure_Default_Values.value( "default_fluctuation_z_position_deviation",		  0		).toDouble();
-		default_fluctuation_z_position_deviation_min		= structure_Default_Values.value( "default_fluctuation_z_position_deviation_min",	  0		).toDouble();
-		default_fluctuation_z_position_deviation_max		= structure_Default_Values.value( "default_fluctuation_z_position_deviation_max",     5		).toDouble();
+		default_particles_z_position_deviation			= structure_Default_Values.value( "default_particles_z_position_deviation",		  0		).toDouble();
+		default_particles_z_position_deviation_min		= structure_Default_Values.value( "default_particles_z_position_deviation_min",	  0		).toDouble();
+		default_particles_z_position_deviation_max		= structure_Default_Values.value( "default_particles_z_position_deviation_max",     5		).toDouble();
 	structure_Default_Values.endGroup();
 
 	structure_Default_Values.beginGroup( Stack_Values );
@@ -1154,45 +1154,45 @@ void Settings::save_Structure_Default_Values()
 		structure_Default_Values.setValue( "default_roughness_peak_frequency_width_max",	default_roughness_peak_frequency_width_max		);
 	structure_Default_Values.endGroup();
 
-	structure_Default_Values.beginGroup( Fluctuation_Values );
-		structure_Default_Values.setValue( "default_fluctuation_enabled",							default_fluctuation_enabled				);
-		structure_Default_Values.setValue( "default_fluctuation_used",								default_fluctuation_used				);
+	structure_Default_Values.beginGroup( Particles_Values );
+		structure_Default_Values.setValue( "default_particles_enabled",							default_particles_enabled				);
+		structure_Default_Values.setValue( "default_particles_used",								default_particles_used				);
 
-		structure_Default_Values.setValue( "default_fluctuation_absolute_density",					default_fluctuation_absolute_density	);
-		structure_Default_Values.setValue( "default_fluctuation_absolute_density_min",				default_fluctuation_absolute_density_min);
-		structure_Default_Values.setValue( "default_fluctuation_absolute_density_max",				default_fluctuation_absolute_density_max);
+		structure_Default_Values.setValue( "default_particles_absolute_density",					default_particles_absolute_density	);
+		structure_Default_Values.setValue( "default_particles_absolute_density_min",				default_particles_absolute_density_min);
+		structure_Default_Values.setValue( "default_particles_absolute_density_max",				default_particles_absolute_density_max);
 
-		structure_Default_Values.setValue( "default_fluctuation_relative_density",					default_fluctuation_relative_density	);
-		structure_Default_Values.setValue( "default_fluctuation_relative_density_min",				default_fluctuation_relative_density_min);
-		structure_Default_Values.setValue( "default_fluctuation_relative_density_max",				default_fluctuation_relative_density_max);
+		structure_Default_Values.setValue( "default_particles_relative_density",					default_particles_relative_density	);
+		structure_Default_Values.setValue( "default_particles_relative_density_min",				default_particles_relative_density_min);
+		structure_Default_Values.setValue( "default_particles_relative_density_max",				default_particles_relative_density_max);
 
-		structure_Default_Values.setValue( "default_fluctuation_particle_radius",					default_fluctuation_particle_radius		);
-		structure_Default_Values.setValue( "default_fluctuation_particle_radius_min",				default_fluctuation_particle_radius_min	);
-		structure_Default_Values.setValue( "default_fluctuation_particle_radius_max",				default_fluctuation_particle_radius_max	);
+		structure_Default_Values.setValue( "default_particles_radius",					default_particles_radius		);
+		structure_Default_Values.setValue( "default_particles_radius_min",				default_particles_radius_min	);
+		structure_Default_Values.setValue( "default_particles_radius_max",				default_particles_radius_max	);
 
-		structure_Default_Values.setValue( "default_fluctuation_particle_height",					default_fluctuation_particle_height		);
-		structure_Default_Values.setValue( "default_fluctuation_particle_height_min",				default_fluctuation_particle_height_min	);
-		structure_Default_Values.setValue( "default_fluctuation_particle_height_max",				default_fluctuation_particle_height_max	);
+		structure_Default_Values.setValue( "default_particles_height",					default_particles_height		);
+		structure_Default_Values.setValue( "default_particles_height_min",				default_particles_height_min	);
+		structure_Default_Values.setValue( "default_particles_height_max",				default_particles_height_max	);
 
-		structure_Default_Values.setValue( "default_fluctuation_particle_distance",					default_fluctuation_particle_distance		);
-		structure_Default_Values.setValue( "default_fluctuation_particle_distance_min",				default_fluctuation_particle_distance_min	);
-		structure_Default_Values.setValue( "default_fluctuation_particle_distance_max",				default_fluctuation_particle_distance_max	);
+		structure_Default_Values.setValue( "default_particles_distance",					default_particles_distance		);
+		structure_Default_Values.setValue( "default_particles_distance_min",				default_particles_distance_min	);
+		structure_Default_Values.setValue( "default_particles_distance_max",				default_particles_distance_max	);
 
-		structure_Default_Values.setValue( "default_fluctuation_particle_distance_deviation",		default_fluctuation_particle_distance_deviation		);
-		structure_Default_Values.setValue( "default_fluctuation_particle_distance_deviation_min",	default_fluctuation_particle_distance_deviation_min	);
-		structure_Default_Values.setValue( "default_fluctuation_particle_distance_deviation_max",	default_fluctuation_particle_distance_deviation_max	);
+		structure_Default_Values.setValue( "default_particles_distance_deviation",		default_particles_distance_deviation		);
+		structure_Default_Values.setValue( "default_particles_distance_deviation_min",	default_particles_distance_deviation_min	);
+		structure_Default_Values.setValue( "default_particles_distance_deviation_max",	default_particles_distance_deviation_max	);
 
-		structure_Default_Values.setValue( "default_fluctuation_domain_size",						default_fluctuation_domain_size					);
-		structure_Default_Values.setValue( "default_fluctuation_domain_size_min",					default_fluctuation_domain_size_min				);
-		structure_Default_Values.setValue( "default_fluctuation_domain_size_max",					default_fluctuation_domain_size_max				);
+		structure_Default_Values.setValue( "default_particles_domain_size",						default_particles_domain_size					);
+		structure_Default_Values.setValue( "default_particles_domain_size_min",					default_particles_domain_size_min				);
+		structure_Default_Values.setValue( "default_particles_domain_size_max",					default_particles_domain_size_max				);
 
-		structure_Default_Values.setValue( "default_fluctuation_z_position",						default_fluctuation_z_position					);
-		structure_Default_Values.setValue( "default_fluctuation_z_position_min",					default_fluctuation_z_position_min				);
-		structure_Default_Values.setValue( "default_fluctuation_z_position_max",					default_fluctuation_z_position_max				);
+		structure_Default_Values.setValue( "default_particles_z_position",						default_particles_z_position					);
+		structure_Default_Values.setValue( "default_particles_z_position_min",					default_particles_z_position_min				);
+		structure_Default_Values.setValue( "default_particles_z_position_max",					default_particles_z_position_max				);
 
-		structure_Default_Values.setValue( "default_fluctuation_z_position_deviation",				default_fluctuation_z_position_deviation		);
-		structure_Default_Values.setValue( "default_fluctuation_z_position_deviation_min",			default_fluctuation_z_position_deviation_min	);
-		structure_Default_Values.setValue( "default_fluctuation_z_position_deviation_max",			default_fluctuation_z_position_deviation_max	);
+		structure_Default_Values.setValue( "default_particles_z_position_deviation",				default_particles_z_position_deviation		);
+		structure_Default_Values.setValue( "default_particles_z_position_deviation_min",			default_particles_z_position_deviation_min	);
+		structure_Default_Values.setValue( "default_particles_z_position_deviation_max",			default_particles_z_position_deviation_max	);
 	structure_Default_Values.endGroup();
 
 	structure_Default_Values.beginGroup( Stack_Values );

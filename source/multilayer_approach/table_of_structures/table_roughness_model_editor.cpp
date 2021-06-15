@@ -26,7 +26,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 	create_Interlayer_Groupbox();
 	create_Drift_Groupbox();
 	create_Roughness_Groupbox();
-	create_Density_Fluctuations_Groupbox();
+	create_Particles_Groupbox();
 
 	QHBoxLayout* buttons_Layout = new QHBoxLayout;
 	main_Layout->addLayout(buttons_Layout);
@@ -38,8 +38,8 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 	buttons_Layout->addWidget(ok_Button,0,Qt::AlignCenter);
 	connect(ok_Button, &QPushButton::clicked, this, [=]
 	{
-		// fluctuations
-		refresh_Tree_Fluctuations(old_Common_Particle_Shape        != multilayer->imperfections_Model.initial_Particle_Shape,
+		// particles
+		refresh_Tree_Particles(old_Common_Particle_Shape        != multilayer->imperfections_Model.initial_Particle_Shape,
 								  old_Common_Interference_Function != multilayer->imperfections_Model.initial_Interference_Function,
 								  old_Common_Geometric_Model       != multilayer->imperfections_Model.initial_Geometric_Model);
 
@@ -779,19 +779,19 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 	});
 }
 
-void Table_Roughness_Model_Editor::create_Density_Fluctuations_Groupbox()
+void Table_Roughness_Model_Editor::create_Particles_Groupbox()
 {
-	density_Fluctuations_Groupbox = new QGroupBox("Use density fluctuations");
-		density_Fluctuations_Groupbox->setCheckable(true);
-		density_Fluctuations_Groupbox->setChecked(multilayer->imperfections_Model.use_Fluctuations);
-	main_Layout->addWidget(density_Fluctuations_Groupbox);
-	connect(density_Fluctuations_Groupbox, &QGroupBox::toggled, this, [=]
+	particles_Groupbox = new QGroupBox("Use particles");
+		particles_Groupbox->setCheckable(true);
+		particles_Groupbox->setChecked(multilayer->imperfections_Model.use_Particles);
+	main_Layout->addWidget(particles_Groupbox);
+	connect(particles_Groupbox, &QGroupBox::toggled, this, [=]
 	{
-		multilayer->imperfections_Model.use_Fluctuations = density_Fluctuations_Groupbox->isChecked();
-		refresh_Tree_Fluctuations();
+		multilayer->imperfections_Model.use_Particles = particles_Groupbox->isChecked();
+		refresh_Tree_Particles();
 	});
 
-	QHBoxLayout* groupbox_Layout = new QHBoxLayout(density_Fluctuations_Groupbox);
+	QHBoxLayout* groupbox_Layout = new QHBoxLayout(particles_Groupbox);
 
 	// --------------------------------------------
 	// initial common particles shape
@@ -829,7 +829,7 @@ void Table_Roughness_Model_Editor::create_Density_Fluctuations_Groupbox()
 			interference_Function_Layout->setAlignment(Qt::AlignTop);
 		groupbox_Layout->addLayout(interference_Function_Layout);
 
-		QLabel* interference_Function_Label = new QLabel("Particle order");
+		QLabel* interference_Function_Label = new QLabel("Lateral order");
 			interference_Function_Layout->addWidget(interference_Function_Label);
 
 		QRadioButton* disorder_Radiobutton = new QRadioButton("Disorder");
@@ -1012,7 +1012,7 @@ void Table_Roughness_Model_Editor::refresh_Tree_Roughness()
 	}
 }
 
-void Table_Roughness_Model_Editor::refresh_Tree_Fluctuations(bool refresh_Shape, bool refresh_Interference_Function, bool refresh_Geometry)
+void Table_Roughness_Model_Editor::refresh_Tree_Particles(bool refresh_Shape, bool refresh_Interference_Function, bool refresh_Geometry)
 {
 	QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
 	while(*it)
@@ -1021,19 +1021,19 @@ void Table_Roughness_Model_Editor::refresh_Tree_Fluctuations(bool refresh_Shape,
 		Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 		if( struct_Data.item_Type == item_Type_Layer )
 		{
-			Global_Variables::enable_Disable_Fluctuations_Model(struct_Data, multilayer->imperfections_Model);
+			Global_Variables::enable_Disable_Particles_Model(struct_Data, multilayer->imperfections_Model);
 
 			if(refresh_Shape)
 			{
-				struct_Data.fluctuations_Model.particle_Shape = multilayer->imperfections_Model.initial_Particle_Shape;
+				struct_Data.particles_Model.particle_Shape = multilayer->imperfections_Model.initial_Particle_Shape;
 			}
 			if(refresh_Interference_Function)
 			{
-				struct_Data.fluctuations_Model.particle_Interference_Function = multilayer->imperfections_Model.initial_Interference_Function;
+				struct_Data.particles_Model.particle_Interference_Function = multilayer->imperfections_Model.initial_Interference_Function;
 			}
 			if(refresh_Geometry)
 			{
-				struct_Data.fluctuations_Model.geometric_Model = multilayer->imperfections_Model.initial_Geometric_Model;
+				struct_Data.particles_Model.geometric_Model = multilayer->imperfections_Model.initial_Geometric_Model;
 			}
 
 			QVariant var;

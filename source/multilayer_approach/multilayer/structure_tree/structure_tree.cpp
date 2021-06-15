@@ -432,7 +432,7 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item, int i)
 
 				QString left_Bracket = "";
 				QString right_Bracket = "";
-				if(multilayer->imperfections_Model.use_Fluctuations && data.fluctuations_Model.is_Used) {left_Bracket = "<"; right_Bracket = ">";}
+				if(multilayer->imperfections_Model.use_Particles && data.particles_Model.is_Used) {left_Bracket = "<"; right_Bracket = ">";}
 				if(data.composed_Material)	{density_Text = Locale.toString(data.average_Layer_density(),thumbnail_double_format,thumbnail_density_precision) + density_units;	}
 				else						{density_Text = Locale.toString(data.average_Layer_density(),thumbnail_double_format,thumbnail_density_precision);					}
 

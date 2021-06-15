@@ -14,11 +14,11 @@ public:
 	void create_Interlayer_Groupbox();
 	void create_Drift_Groupbox();
 	void create_Roughness_Groupbox();
-	void create_Density_Fluctuations_Groupbox();
+	void create_Particles_Groupbox();
 	void refresh_Tree_Interlayer(int interlayer_Index, bool state);
 	void refresh_Tree_Drift(QString whats_This, bool state);
 	void refresh_Tree_Roughness();
-	void refresh_Tree_Fluctuations(bool refresh_Shape = false, bool refresh_Interference_Function = false, bool refresh_Geometry = false);
+	void refresh_Tree_Particles(bool refresh_Shape = false, bool refresh_Interference_Function = false, bool refresh_Geometry = false);
 
 	Multilayer* multilayer;
 
@@ -26,7 +26,7 @@ public:
 	QGroupBox* interlayer_Groupbox;
 	QGroupBox* drift_Groupbox;
 	QGroupBox* roughness_Groupbox;
-	QGroupBox* density_Fluctuations_Groupbox;
+	QGroupBox* particles_Groupbox;
 };
 
 #endif // TABLE_ROUGHNESS_MODEL_EDITOR_H

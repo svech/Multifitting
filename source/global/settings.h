@@ -251,45 +251,45 @@ extern double	default_roughness_peak_frequency_width;
 extern double	default_roughness_peak_frequency_width_min;
 extern double	default_roughness_peak_frequency_width_max;
 
-// Fluctuation_Values
-extern bool		default_fluctuation_enabled;
-extern bool		default_fluctuation_used;
+// Particles_Values
+extern bool		default_particles_enabled;
+extern bool		default_particles_used;
 
-extern double	default_fluctuation_absolute_density;
-extern double	default_fluctuation_absolute_density_min;
-extern double	default_fluctuation_absolute_density_max;
+extern double	default_particles_absolute_density;
+extern double	default_particles_absolute_density_min;
+extern double	default_particles_absolute_density_max;
 
-extern double	default_fluctuation_relative_density;
-extern double	default_fluctuation_relative_density_min;
-extern double	default_fluctuation_relative_density_max;
+extern double	default_particles_relative_density;
+extern double	default_particles_relative_density_min;
+extern double	default_particles_relative_density_max;
 
-extern double	default_fluctuation_particle_radius;
-extern double	default_fluctuation_particle_radius_min;
-extern double	default_fluctuation_particle_radius_max;
+extern double	default_particles_radius;
+extern double	default_particles_radius_min;
+extern double	default_particles_radius_max;
 
-extern double	default_fluctuation_particle_height;
-extern double	default_fluctuation_particle_height_min;
-extern double	default_fluctuation_particle_height_max;
+extern double	default_particles_height;
+extern double	default_particles_height_min;
+extern double	default_particles_height_max;
 
-extern double	default_fluctuation_particle_distance;
-extern double	default_fluctuation_particle_distance_min;
-extern double	default_fluctuation_particle_distance_max;
+extern double	default_particles_distance;
+extern double	default_particles_distance_min;
+extern double	default_particles_distance_max;
 
-extern double	default_fluctuation_particle_distance_deviation;
-extern double	default_fluctuation_particle_distance_deviation_min;
-extern double	default_fluctuation_particle_distance_deviation_max;
+extern double	default_particles_distance_deviation;
+extern double	default_particles_distance_deviation_min;
+extern double	default_particles_distance_deviation_max;
 
-extern double	default_fluctuation_domain_size;
-extern double	default_fluctuation_domain_size_min;
-extern double	default_fluctuation_domain_size_max;
+extern double	default_particles_domain_size;
+extern double	default_particles_domain_size_min;
+extern double	default_particles_domain_size_max;
 
-extern double	default_fluctuation_z_position;
-extern double	default_fluctuation_z_position_min;
-extern double	default_fluctuation_z_position_max;
+extern double	default_particles_z_position;
+extern double	default_particles_z_position_min;
+extern double	default_particles_z_position_max;
 
-extern double	default_fluctuation_z_position_deviation;
-extern double	default_fluctuation_z_position_deviation_min;
-extern double	default_fluctuation_z_position_deviation_max;
+extern double	default_particles_z_position_deviation;
+extern double	default_particles_z_position_deviation_min;
+extern double	default_particles_z_position_deviation_max;
 
 // Stack_Values
 extern int		default_stack_number_of_repetition;

@@ -950,7 +950,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 				}
 			}
 
-			// density fluctuations
+			// particles
 			{
 				exp_03.resize(num_Threads);
 				k_03.resize(num_Threads);
@@ -3534,7 +3534,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			{
 				if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 				{
-					if(multilayer->imperfections_Model.use_Fluctuations)
+					if(multilayer->imperfections_Model.use_Particles)
 					{
 						for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 						{
@@ -3544,8 +3544,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 				}
 			}
 
-			// density fluctuations
-			if(multilayer->imperfections_Model.use_Fluctuations)
+			// particles
+			if(multilayer->imperfections_Model.use_Particles)
 			{
 				// TODO
 				calc_k_Wavenumber_Layer(thread_Index, point_Index);
@@ -3573,7 +3573,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					{
 						Data& item = appropriate_Item_Vec[item_Index];
 
-						if(item.fluctuations_Model.is_Used)
+						if(item.particles_Model.is_Used)
 						{
 							Node* node = short_Flat_Calc_Tree[item_Index];
 							double d_Eps_Norm = norm(node->delta_Epsilon_Contrast);
@@ -3589,11 +3589,11 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								double q = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
 
 								calc_Item_Form_Factor(thread_Index, item_Index, q);
-								if(item.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+								if(item.particles_Model.particle_Interference_Function == radial_Paracrystal)
 								{
 									calc_Item_Alfa_Factor_With_G2(thread_Index, item_Index, q, G1_Type_Value);
 								} else
-								if(item.fluctuations_Model.particle_Interference_Function == disorder)
+								if(item.particles_Model.particle_Interference_Function == disorder)
 								{
 									calc_Item_Alfa_Factor_No_G2(thread_Index, item_Index, q, G1_Type_Value);
 								}
@@ -3696,7 +3696,7 @@ void Unwrapped_Reflection::calc_k_Wavenumber_Layer(int thread_Index, int point_I
 	{
 		const Data& item = appropriate_Item_Vec[item_Index];
 
-		if(item.fluctuations_Model.is_Used)
+		if(item.particles_Model.is_Used)
 		{
 			int first_Layer_Of_Item = boundaries_Of_Item_Vec[item_Index].front();
 			int boundary_Index = first_Layer_Of_Item + 1;
@@ -3716,7 +3716,7 @@ void Unwrapped_Reflection::calc_Half_Layer_Exponents(int thread_Index)
 	{
 		const Data& item = appropriate_Item_Vec[item_Index];
 
-		if(item.fluctuations_Model.is_Used)
+		if(item.particles_Model.is_Used)
 		{
 			if( unwrapped_Structure->depth_Grading )
 			{
@@ -3772,7 +3772,7 @@ void Unwrapped_Reflection::calc_C_Factor(QString polarization, int thread_Index,
 	{
 		const Data& item = appropriate_Item_Vec[item_Index];
 
-		if(item.fluctuations_Model.is_Used)
+		if(item.particles_Model.is_Used)
 		{
 			for(int& layer_Index : boundaries_Of_Item_Vec[item_Index])
 			{
@@ -3808,12 +3808,12 @@ void Unwrapped_Reflection::calc_Omega_Factor(int thread_Index)
 	{
 		Data& item = appropriate_Item_Vec[item_Index];
 
-		if(item.fluctuations_Model.is_Used)
+		if(item.particles_Model.is_Used)
 		{
 			for(int i=0; i<4; i++)
 			{
 				w_03[thread_Index][item_Index][i] = Global_Variables::omega_Factor(k_03[thread_Index][item_Index][i],
-																				   item.fluctuations_Model.particle_Z_Position_Deviation.value);
+																				   item.particles_Model.particle_Z_Position_Deviation.value);
 			}
 		}
 	}
@@ -3826,7 +3826,7 @@ void Unwrapped_Reflection::calc_Gamma_Factor(int thread_Index)
 	{
 		Data& item = appropriate_Item_Vec[item_Index];
 
-		if(item.fluctuations_Model.is_Used)
+		if(item.particles_Model.is_Used)
 		{
 			for(int i=0; i<4; i++)
 			{
@@ -3834,7 +3834,7 @@ void Unwrapped_Reflection::calc_Gamma_Factor(int thread_Index)
 				{
 					g_03_03[thread_Index][item_Index][i][j] = Global_Variables::gamma_Factor(k_03[thread_Index][item_Index][i],
 																							 k_03[thread_Index][item_Index][j],
-																							 item.fluctuations_Model.particle_Z_Position_Deviation.value);
+																							 item.particles_Model.particle_Z_Position_Deviation.value);
 				}
 			}
 		}
@@ -3848,15 +3848,15 @@ void Unwrapped_Reflection::choose_Form_Factor_2D_Function(int thread_Index)
 	{
 		Data& item = appropriate_Item_Vec[item_Index];
 
-		if(item.fluctuations_Model.particle_Shape == full_Sphere)
+		if(item.particles_Model.particle_Shape == full_Sphere)
 		{
 			form_Factor_2D_Func_Vec[thread_Index][item_Index] = Global_Variables::full_Sphere_FF;
 		} else
-		if(item.fluctuations_Model.particle_Shape == full_Spheroid)
+		if(item.particles_Model.particle_Shape == full_Spheroid)
 		{
 			form_Factor_2D_Func_Vec[thread_Index][item_Index] = Global_Variables::full_Spheroid_FF;
 		} else
-		if(item.fluctuations_Model.particle_Shape == cylinder)
+		if(item.particles_Model.particle_Shape == cylinder)
 		{
 			form_Factor_2D_Func_Vec[thread_Index][item_Index] = Global_Variables::cylinder_FF;
 		}
@@ -3872,9 +3872,9 @@ void Unwrapped_Reflection::calc_Item_Form_Factor(int thread_Index, size_t item_I
 		F_03[thread_Index][item_Index][i] = form_Factor_2D_Func_Vec[thread_Index][item_Index]
 													(q,
 													 k_03[thread_Index][item_Index][i],
-													 item.fluctuations_Model.particle_Radius.value,
-													 item.fluctuations_Model.particle_Height.value,
-													 item.fluctuations_Model.particle_Z_Position.value);
+													 item.particles_Model.particle_Radius.value,
+													 item.particles_Model.particle_Height.value,
+													 item.particles_Model.particle_Z_Position.value);
 	}
 }
 
@@ -4242,7 +4242,7 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 	if(	spec_Scat_mode == SCATTERED_MODE &&
 		unwrapped_Structure->calc_Functions.check_Scattering )
 	{
-		if(multilayer->imperfections_Model.use_Roughness || multilayer->imperfections_Model.use_Fluctuations)
+		if(multilayer->imperfections_Model.use_Roughness || multilayer->imperfections_Model.use_Particles)
 		{
 			// calculated_Values.S_s	[point_Index] already calculated
 			// calculated_Values.S_p	[point_Index] already calculated
@@ -4258,7 +4258,7 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 	if(	spec_Scat_mode == SCATTERED_MODE &&
 		unwrapped_Structure->calc_Functions.check_GISAS)
 	{
-		if(multilayer->imperfections_Model.use_Roughness || multilayer->imperfections_Model.use_Fluctuations)
+		if(multilayer->imperfections_Model.use_Roughness || multilayer->imperfections_Model.use_Particles)
 		{
 			// interpolate the other half
 			if(short_Phi_Points!=phi_Points)

@@ -138,7 +138,7 @@ void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget
 			}
 		}
 		Global_Variables::enable_Disable_Roughness_Model   (substrate, multilayer->imperfections_Model);
-		Global_Variables::enable_Disable_Fluctuations_Model(substrate, multilayer->imperfections_Model);
+		Global_Variables::enable_Disable_Particles_Model(substrate, multilayer->imperfections_Model);
 
 		// change id
 		substrate.reset_All_IDs();
@@ -637,7 +637,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 					}
 				}
 			}
-			if(multilayer->imperfections_Model.use_Fluctuations)
+			if(multilayer->imperfections_Model.use_Particles)
 			{
 				// TODO when 2D, when 1D
 				short_Flat_Calc_Tree[node_Index]->create_Spline_G2_2D(multilayer->imperfections_Model, measurement);
@@ -741,7 +741,7 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 					}
 				}
 			}
-			if(multilayer->imperfections_Model.use_Fluctuations)
+			if(multilayer->imperfections_Model.use_Particles)
 			{
 				// TODO when 2D, when 1D
 				short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D(multilayer->imperfections_Model, measurement);

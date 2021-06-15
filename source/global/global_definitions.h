@@ -86,7 +86,7 @@ class Node;
 		#define Substrate_Values			"Substrate_Values"
 		#define Common_Values				"Common_Values"
 		#define Roughness_Values			"Roughness_Values"
-		#define Fluctuation_Values			"Fluctuation_Values"
+		#define Particles_Values			"Particles_Values"
 		#define Stack_Values				"Stack_Values"
 		#define Steps						"Steps"
 		#define Units						"Units"
@@ -931,7 +931,7 @@ struct Roughness_Model			{
 								Parameter sigma_Factor_PSD_1D;
 								Parameter sigma_Factor_PSD_2D;
 								};
-struct Fluctuations_Model		{
+struct Particles_Model		{
 								bool is_Enabled = false;
 								bool is_Used = true;
 
@@ -1019,8 +1019,8 @@ struct Imperfections_Model		{
 								PSD_Data PSD_1D;
 								PSD_Data PSD_2D;
 
-								// density fluctuations
-								bool use_Fluctuations = false;
+								// particles
+								bool use_Particles = false;
 
 								QString cross_Layer_Interference = no_Cross_Layer_Interference;
 
@@ -1163,8 +1163,8 @@ QDataStream& operator >>( QDataStream& stream,		 Discretization_Parameters& disc
 QDataStream& operator <<( QDataStream& stream, const Roughness_Model& roughness_Model );
 QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Model );
 
-QDataStream& operator <<( QDataStream& stream, const Fluctuations_Model& fluctuations_Model );
-QDataStream& operator >>( QDataStream& stream,		 Fluctuations_Model& fluctuations_Model );
+QDataStream& operator <<( QDataStream& stream, const Particles_Model& particles_Model );
+QDataStream& operator >>( QDataStream& stream,		 Particles_Model& particles_Model );
 
 QDataStream& operator <<( QDataStream& stream, const PSD_Data& psd_Data );
 QDataStream& operator >>( QDataStream& stream,		 PSD_Data& psd_Data );
