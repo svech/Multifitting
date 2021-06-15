@@ -402,12 +402,12 @@ public:
 	static double zero_PSD_2D						(double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 	static double zero_PSD_2D_from_nu				(double factor, double xi, double alpha, double nu, gsl_spline* spline, gsl_interp_accel* acc);
 
-	static double ABC_1D_Integral_0_Nu				(double sigma, double xi, double alpha, double nu);
-	static double ABC_2D_Integral_0_Nu				(double sigma, double xi, double alpha, double nu);
-	static double FG_1D_Integral_0_Nu				(double sigma, double xi, double alpha, double nu);
-	static double FG_2D_Integral_0_Nu				(double sigma, double xi, double alpha, double nu);
-	static double real_Gauss_1D_Integral_0_Nu		(double sigma, double xi, double alpha, double nu);
-	static double real_Gauss_2D_Integral_0_Nu		(double sigma, double xi, double alpha, double nu);
+	static double ABC_1D_Integral_0_Nu				(double sigma, double xi, double alpha, double nu, ooura_fourier_sin<double> &integrator);
+	static double ABC_2D_Integral_0_Nu				(double sigma, double xi, double alpha, double nu, ooura_fourier_sin<double> &integrator);
+	static double FG_1D_Integral_0_Nu				(double sigma, double xi, double alpha, double nu, ooura_fourier_sin<double> &integrator);
+	static double FG_2D_Integral_0_Nu				(double sigma, double xi, double alpha, double nu, ooura_fourier_sin<double> &integrator);
+	static double real_Gauss_1D_Integral_0_Nu		(double sigma, double xi, double alpha, double nu, ooura_fourier_sin<double> &integrator);
+	static double real_Gauss_2D_Integral_0_Nu		(double sigma, double xi, double alpha, double nu, ooura_fourier_sin<double> &integrator);
 
 
 	static double Cor_Fractal_Gauss					(				 double xi, double alpha, double r);

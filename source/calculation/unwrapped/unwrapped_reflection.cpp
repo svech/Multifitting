@@ -1,5 +1,4 @@
 #include "unwrapped_reflection.h"
-#include <boost/math/quadrature/tanh_sinh.hpp>
 #include "multilayer_approach/multilayer/multilayer.h"
 
 struct Params
@@ -4021,10 +4020,6 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 		double phi_Measured_2D_Min = qRadiansToDegrees(acos(cos_Measured_2D_Min));
 
 
-		auto f = [&](double phi){return function->function(phi, function->params);};
-		tanh_sinh<double> integrator;
-		double integrator_Tolerance = 1E-3;
-
 		vector<double> phi_Inter_1 = {phi_Min, 0.002, 0.01, 0.1, 1, 5, 10, 20, phi_Max};
 		vector<double> phi_Inter_2 = {phi_Min, 0.05,  0.3,       2, 7,     20, phi_Max};
 
@@ -4055,11 +4050,20 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 		std::sort(phi_Inter.begin(), phi_Inter.end());
 
 		// integration
+		auto f = [&](double phi){return function->function(phi, function->params);};
+		tanh_sinh<double> integrator;
+		double integrator_Tolerance = 1E-2;
 		for(size_t i=0; i<phi_Inter.size()-1; i++)
 		{
 			if(phi_Inter[i]<phi_Inter[i+1])
 			{
-				result += integrator.integrate(f, phi_Inter[i],	phi_Inter[i+1], integrator_Tolerance);
+//				result += integrator.integrate(f, phi_Inter[i],	phi_Inter[i+1], integrator_Tolerance); // too slow
+				if(i==0) {
+					result += integrator.integrate(f, phi_Inter[i],	phi_Inter[i+1], integrator_Tolerance);
+//					result += gauss_kronrod<double,15>::integrate(f, phi_Inter[i], phi_Inter[i+1], 0, integrator_Tolerance);
+				} else {
+					result += gauss_kronrod<double,5>::integrate(f, phi_Inter[i], phi_Inter[i+1], 0, integrator_Tolerance);
+				}
 			}
 		}
 	} else
