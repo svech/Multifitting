@@ -1078,11 +1078,13 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 		if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return; // if use_Common_Roughness_Function we calculate DW factor only for substrate
 	}
 
-	// max circular frequency inside detector
+	auto start = std::chrono::system_clock::now();
+
+	/// max real frequency inside detector
 	vector<double> p0(num_Points);
 	for(size_t i = 0; i<num_Points; ++i)
 	{
-		p0[i] = k[i]*abs(cos_Theta_0[i] - cos(qDegreesToRadians(angle_Theta_0[i] + max_Delta_Theta_Detector)));
+		p0[i] = k[i]*abs(cos_Theta_0[i] - cos(qDegreesToRadians(angle_Theta_0[i] + max_Delta_Theta_Detector)));///(2*M_PI);
 	}
 
 	// integration
@@ -1490,6 +1492,10 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 		double hi = k[i]*sin(qDegreesToRadians(angle_Theta_0[i]));
 		specular_Debye_Waller_Weak_Factor_R[i] = exp( - 4. * hi*hi * sigma_2[i] );
 	}
+
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "	specular sigma DW:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 }
 
 void Node::calc_Debye_Waller_Total_Sigma(const Imperfections_Model& imperfections_Model)
@@ -1503,7 +1509,7 @@ void Node::calc_Debye_Waller_Total_Sigma(const Imperfections_Model& imperfection
 	}
 	specular_Debye_Waller_Total_Sigma = 0;
 
-//	auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
 
 	/// peak total sigma
 	double peak_Sigma = 0;
@@ -1549,10 +1555,10 @@ void Node::calc_Debye_Waller_Total_Sigma(const Imperfections_Model& imperfection
 	}
 	specular_Debye_Waller_Total_Sigma = sqrt(specular_Debye_Waller_Total_Sigma);
 
-//	qInfo() << "sigma" << specular_Debye_Waller_Total_Sigma << endl;
-//	auto end = std::chrono::system_clock::now();
-//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "	total sigma DW:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
+	qInfo() << "sigma" << specular_Debye_Waller_Total_Sigma << endl;
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "	total sigma DW:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 }
 
 struct Params
@@ -2012,7 +2018,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 
 	// in other cases ( substrate or layer-with-individual-function ) go further
 
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 
 	double sigma = struct_Data.roughness_Model.sigma.value;
 	double xi =    struct_Data.roughness_Model.cor_radius.value;
@@ -2031,8 +2037,8 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 	/// integration params
 	const double tolerance = 1E-5;
 	const int depth = 2;
-	const double tanh_Sinh_Tolerance = 1E-5;
-	double n = 2; //2
+	const double tanh_Sinh_Tolerance = 1E-4;
+	double n = 1; //2       // performance depends on it
 	double shift = M_PI*(2*n+0.25);
 
 	auto integral_At_Point = [&](double nu, ooura_fourier_cos<double>& integrator_Cos, ooura_fourier_sin<double>& integrator_Sin, tanh_sinh<double>& tanh_sinh_Integrator)
@@ -2118,9 +2124,9 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 	spline_PSD_FG_2D = gsl_spline_alloc(gsl_interp_steffen, val.size());
 	gsl_spline_init(spline_PSD_FG_2D, arg.data(), val.data(), val.size());
 
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "	FG 2D spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "	FG 2D spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 }
 void Node::clear_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfections_Model)
 {
