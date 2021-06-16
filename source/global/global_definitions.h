@@ -17,7 +17,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 18
+#define VERSION_BUILD 19
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -225,7 +225,8 @@ class Node;
 #define INDEPENDENT_LINE_EDIT_WIDTH 50		// for independent_Variables_Editor
 #define MIN_CONFIDENCE_POINTS	3			// for confidence interval
 #define COLOR_LEGEND_LABEL_WIDTH 100		// for table color legend
-#define DISTRIBUTION_BOX_FIELD_WIDTH 90		// for target_Curve_Editor: distribution box
+#define DISTRIBUTION_BOX_FIELD_WIDTH 70		// for target_Curve_Editor: distribution box
+#define MAX_BINNING_FACTOR 1000				// for target_Curve_Editor
 
 // -----------------------------------------------------------------------------------------
 
@@ -586,7 +587,6 @@ struct Distribution             { double FWHM_distribution = 0;
 								  bool use_Sampling = false;
 								  int number_of_Samples = 1;
 								};
-
 struct Detector_1D				{ QString detector_Type;
 
 								  // slit
@@ -595,6 +595,10 @@ struct Detector_1D				{ QString detector_Type;
 
 								  // crystal
 								  Distribution detector_Theta_Resolution;
+
+								  // binning
+								  bool use_Binning = false;
+								  int binning_Factor = 1;
 								};
 
 struct Detector_2D				{ QString detector_Type;
@@ -607,6 +611,11 @@ struct Detector_2D				{ QString detector_Type;
 								  // spherical
 								  Distribution detector_Theta_Resolution;
 								  Distribution detector_Phi_Resolution;
+
+								  // binning
+								  bool use_Binning = false;
+								  int theta_Binning_Factor = 1;
+								  int phi_Binning_Factor = 1;
 								};
 
 struct Sample_Geometry			{ double size = 20;			// mm

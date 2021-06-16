@@ -6,12 +6,13 @@
 
 class Multilayer_Approach;
 class Common_Part;
+class Target_Curve_Editor;
 
 class Detector_Target_Curve_Part : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Detector_Target_Curve_Part(Target_Curve* target_Curve, Target_Curve_Plot* target_Curve_Plot, QWidget *parent = nullptr);
+	explicit Detector_Target_Curve_Part(Target_Curve* target_Curve, Target_Curve_Editor* target_Curve_Editor, QWidget *parent = nullptr);
 
 	void create_Argument_GroupBox();
 	void create_Value_GroupBox();
@@ -32,6 +33,7 @@ public:
 	void connecting();
 
 	Target_Curve* target_Curve;
+	Target_Curve_Editor* target_Curve_Editor;
 	Target_Curve_Plot* target_Curve_Plot;
 
 	QVBoxLayout* main_Layout;

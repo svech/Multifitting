@@ -1,10 +1,11 @@
 #include "common_part.h"
 
-Common_Part::Common_Part(Independent_Curve* independent_Curve, Target_Curve* target_Curve, bool is_Independent, QWidget *parent) :
+Common_Part::Common_Part(Independent_Curve* independent_Curve, Target_Curve* target_Curve, bool is_Independent, Target_Curve_Editor* target_Curve_Editor, QWidget *parent) :
 	measurement   (is_Independent ? independent_Curve->measurement    : target_Curve->measurement),
 	angular_Units (is_Independent ? independent_Curve->angular_Units  : target_Curve->angular_Units),
 	spectral_Units(is_Independent ? independent_Curve->spectral_Units : target_Curve->spectral_Units),
 	is_Independent(is_Independent),
+	target_Curve_Editor(target_Curve_Editor),
 	QWidget(parent)
 {
 	main_Layout = new QVBoxLayout(this);
@@ -16,7 +17,7 @@ Common_Part::Common_Part(Independent_Curve* independent_Curve, Target_Curve* tar
 		measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 		measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{
-		create_Detector_GroupBox();
+		create_1D_Detector_GroupBox();
 	}
 	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
@@ -27,7 +28,7 @@ Common_Part::Common_Part(Independent_Curve* independent_Curve, Target_Curve* tar
 	connecting();
 }
 
-void Common_Part::create_Detector_GroupBox()
+void Common_Part::create_1D_Detector_GroupBox()
 {
 	QGroupBox* detector_GroupBox = new QGroupBox("Detector");
 	main_Layout->addWidget(detector_GroupBox);
@@ -52,7 +53,7 @@ void Common_Part::create_Detector_GroupBox()
 			detector_Type_ComboBox->addItem(detectors[Slit]);
 			detector_Type_ComboBox->addItem(detectors[Crystal]);
 			detector_Type_ComboBox->setCurrentText(measurement.detector_1D.detector_Type);
-			detector_Type_ComboBox->setFixedWidth(100);
+			detector_Type_ComboBox->setFixedWidth(70);
 		detector_Type_Layout->addWidget(detector_Type_ComboBox,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -69,24 +70,49 @@ void Common_Part::create_Detector_GroupBox()
 			detector_Distance_SpinBox->setValue(measurement.detector_1D.distance_To_Sample);
 			detector_Distance_SpinBox->setSingleStep(1);
 			detector_Distance_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			detector_Distance_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			detector_Distance_SpinBox->setProperty(min_Size_Property,45);
 		detector_Type_Layout->addWidget(detector_Distance_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(detector_Distance_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* mm_Distance_Label = new QLabel("mm");
+		QLabel* mm_Distance_Label = new QLabel("mm    ");
 		detector_Type_Layout->addWidget(mm_Distance_Label,0,Qt::AlignLeft);
+	}
+	if(!is_Independent)
+	{
+		QHBoxLayout* merge_Layout = new QHBoxLayout;
+		merge_Layout->setAlignment(Qt::AlignLeft);
+		detector_GroupBox_Layout->addLayout(merge_Layout,0,1,Qt::AlignLeft);
+
+		use_Binning_Checkbox = new QCheckBox("Merge points");
+			use_Binning_Checkbox->setChecked(measurement.detector_1D.use_Binning);
+		merge_Layout->addWidget(use_Binning_Checkbox,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+		binning_Factor_Label = new QLabel("n =");
+			binning_Factor_Label->setEnabled(measurement.detector_1D.use_Binning);
+//		merge_Layout->addWidget(binning_Factor_Label,0,Qt::AlignLeft);
+
+		binning_Factor_Spinbox = new QSpinBox;
+			binning_Factor_Spinbox->setRange(1, MAX_BINNING_FACTOR);
+			binning_Factor_Spinbox->setSingleStep(1);
+			binning_Factor_Spinbox->setValue(measurement.detector_1D.binning_Factor);
+			binning_Factor_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			binning_Factor_Spinbox->setFixedWidth(30);
+			binning_Factor_Spinbox->setEnabled(measurement.detector_1D.use_Binning);
+		merge_Layout->addWidget(binning_Factor_Spinbox,0,Qt::AlignLeft);
+	}
+	// pages
+	{
 		detectors_Stack = new QStackedWidget;
 		if(is_Independent)
 		{
 			detector_GroupBox_Layout->addWidget(detectors_Stack,1,0);
 		} else
 		{
-			detector_GroupBox_Layout->addWidget(detectors_Stack,0,1);
+			detector_GroupBox_Layout->addWidget(detectors_Stack,0,2);
 		}
 	}
 	// slit
@@ -147,7 +173,7 @@ void Common_Part::create_Detector_GroupBox()
 			crystal_Resolution_SpinBox->setValue(measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/arg_Coeff);
 			crystal_Resolution_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			crystal_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			crystal_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_AT_FIXED_WIDTH);
+			crystal_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		crystal_Layout->addWidget(crystal_Resolution_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(crystal_Resolution_SpinBox);
 
@@ -158,7 +184,7 @@ void Common_Part::create_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* crystal_Resolution_Function_Label = new QLabel("       Function");
+		QLabel* crystal_Resolution_Function_Label = new QLabel("      Function");
 		crystal_Layout->addWidget(crystal_Resolution_Function_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -204,8 +230,17 @@ void Common_Part::create_2D_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* slit_Distance_Label = new QLabel("        Distance from detector to sample");
-		detector_Type_Layout->addWidget(slit_Distance_Label,0,Qt::AlignLeft);
+		QHBoxLayout* detector_Distance_Layout = new QHBoxLayout;
+		detector_Distance_Layout->setAlignment(Qt::AlignLeft);
+		if(is_Independent)	{detector_GroupBox_Layout->addLayout(detector_Distance_Layout,0,1,Qt::AlignLeft);}
+		else				{detector_GroupBox_Layout->addLayout(detector_Distance_Layout,1,0,Qt::AlignLeft);}
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		QString space = "";
+		if(is_Independent)	space = "        ";
+		QLabel* slit_Distance_Label = new QLabel(space+"Distance from detector to sample");
+		detector_Distance_Layout->addWidget(slit_Distance_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -216,24 +251,61 @@ void Common_Part::create_2D_Detector_GroupBox()
 			detector_Distance_SpinBox->setValue(measurement.detector_2D.distance_To_Sample);
 			detector_Distance_SpinBox->setSingleStep(1);
 			detector_Distance_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			detector_Distance_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		detector_Type_Layout->addWidget(detector_Distance_SpinBox,0,Qt::AlignLeft);
+			detector_Distance_SpinBox->setProperty(min_Size_Property,45);
+		detector_Distance_Layout->addWidget(detector_Distance_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(detector_Distance_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		QLabel* mm_Distance_Label = new QLabel("mm");
-		detector_Type_Layout->addWidget(mm_Distance_Label,0,Qt::AlignLeft);
+		detector_Distance_Layout->addWidget(mm_Distance_Label,0,Qt::AlignLeft);
+	}
+	// binning
+	if(!is_Independent)
+	{
+		use_Binning_Checkbox = new QCheckBox("Merge pixels");
+			use_Binning_Checkbox->setChecked(measurement.detector_2D.use_Binning);
+		detector_GroupBox_Layout->addWidget(use_Binning_Checkbox,0,1,2,1,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+		theta_Binning_Factor_Label = new QLabel(Theta_Sym + " pixels");
+			theta_Binning_Factor_Label->setEnabled(measurement.detector_2D.use_Binning);
+		detector_GroupBox_Layout->addWidget(theta_Binning_Factor_Label,0,2,1,1,Qt::AlignLeft);
+
+		theta_Binning_Factor_Spinbox = new QSpinBox;
+			theta_Binning_Factor_Spinbox->setRange(1, MAX_BINNING_FACTOR);
+			theta_Binning_Factor_Spinbox->setSingleStep(1);
+			theta_Binning_Factor_Spinbox->setValue(measurement.detector_2D.theta_Binning_Factor);
+			theta_Binning_Factor_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			theta_Binning_Factor_Spinbox->setFixedWidth(30);
+			theta_Binning_Factor_Spinbox->setEnabled(measurement.detector_2D.use_Binning);
+		detector_GroupBox_Layout->addWidget(theta_Binning_Factor_Spinbox,0,3,1,1,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		phi_Binning_Factor_Label = new QLabel(Phi_Sym + " pixels");
+			phi_Binning_Factor_Label->setEnabled(measurement.detector_2D.use_Binning);
+		detector_GroupBox_Layout->addWidget(phi_Binning_Factor_Label,1,2,1,1,Qt::AlignLeft);
+
+		phi_Binning_Factor_Spinbox = new QSpinBox;
+			phi_Binning_Factor_Spinbox->setRange(1, MAX_BINNING_FACTOR);
+			phi_Binning_Factor_Spinbox->setSingleStep(1);
+			phi_Binning_Factor_Spinbox->setValue(measurement.detector_2D.phi_Binning_Factor);
+			phi_Binning_Factor_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			phi_Binning_Factor_Spinbox->setFixedWidth(30);
+			phi_Binning_Factor_Spinbox->setEnabled(measurement.detector_2D.use_Binning);
+		detector_GroupBox_Layout->addWidget(phi_Binning_Factor_Spinbox,1,3,1,1,Qt::AlignLeft);
+	}
+	// pages
+	{
 		detectors_Stack = new QStackedWidget;
 		if(is_Independent)
 		{
-			detector_GroupBox_Layout->addWidget(detectors_Stack,1,0);
+			detector_GroupBox_Layout->addWidget(detectors_Stack,1,0,1,2);
 		} else
 		{
-			detector_GroupBox_Layout->addWidget(detectors_Stack,0,1);
+			detector_GroupBox_Layout->addWidget(detectors_Stack,0,5,2,1);
 		}
 	}
 	// matrix
@@ -259,7 +331,7 @@ void Common_Part::create_2D_Detector_GroupBox()
 //				pixel_Polar_Height_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				pixel_Polar_Height_SpinBox->setSingleStep(1);
 				pixel_Polar_Height_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-				pixel_Polar_Height_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH_SUB);
+				pixel_Polar_Height_SpinBox->setProperty(min_Size_Property,45);
 			matrix_Layout->addWidget(pixel_Polar_Height_SpinBox,0,1,Qt::AlignLeft);
 			Global_Variables::resize_Line_Edit(pixel_Polar_Height_SpinBox);
 
@@ -283,7 +355,7 @@ void Common_Part::create_2D_Detector_GroupBox()
 //				pixel_Azimuthal_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				pixel_Azimuthal_Width_SpinBox->setSingleStep(1);
 				pixel_Azimuthal_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-				pixel_Azimuthal_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH_SUB);
+				pixel_Azimuthal_Width_SpinBox->setProperty(min_Size_Property,45);
 			matrix_Layout->addWidget(pixel_Azimuthal_Width_SpinBox,1,1,Qt::AlignLeft);
 			Global_Variables::resize_Line_Edit(pixel_Azimuthal_Width_SpinBox);
 
@@ -317,7 +389,7 @@ void Common_Part::create_2D_Detector_GroupBox()
 				theta_Resolution_SpinBox->setValue(measurement.detector_2D.detector_Theta_Resolution.FWHM_distribution/arg_Coeff);
 				theta_Resolution_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				theta_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-				theta_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_AT_FIXED_WIDTH);
+				theta_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 			spherical_Layout->addWidget(theta_Resolution_SpinBox,0,1,Qt::AlignLeft);
 			Global_Variables::resize_Line_Edit(theta_Resolution_SpinBox);
 
@@ -342,7 +414,7 @@ void Common_Part::create_2D_Detector_GroupBox()
 				phi_Resolution_SpinBox->setValue(measurement.detector_2D.detector_Phi_Resolution.FWHM_distribution/arg_Coeff);
 				phi_Resolution_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				phi_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-				phi_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_AT_FIXED_WIDTH);
+				phi_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 			spherical_Layout->addWidget(phi_Resolution_SpinBox,1,1,Qt::AlignLeft);
 			Global_Variables::resize_Line_Edit(phi_Resolution_SpinBox);
 
@@ -1010,6 +1082,27 @@ void Common_Part::connecting()
 			measurement.detector_1D.distance_To_Sample = detector_Distance_SpinBox->value();
 			global_Multilayer_Approach->global_Recalculate();
 		});
+		// binning
+		if(!is_Independent)
+		{
+			connect(use_Binning_Checkbox,&QCheckBox::toggled, this, [=]
+			{
+				measurement.detector_1D.use_Binning = use_Binning_Checkbox->isChecked();
+
+				binning_Factor_Label->setEnabled(measurement.detector_1D.use_Binning);
+				binning_Factor_Spinbox->setEnabled(measurement.detector_1D.use_Binning);
+
+				target_Curve_Editor->binning_Changed();
+				global_Multilayer_Approach->global_Recalculate();
+			});
+			connect(binning_Factor_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+			{
+				measurement.detector_1D.binning_Factor = binning_Factor_Spinbox->value();
+
+				target_Curve_Editor->binning_Changed();
+				global_Multilayer_Approach->global_Recalculate();
+			});
+		}
 		// 1D slit width
 		connect(slit_Width_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{
@@ -1044,7 +1137,37 @@ void Common_Part::connecting()
 		{
 			measurement.detector_2D.distance_To_Sample = detector_Distance_SpinBox->value();
 			global_Multilayer_Approach->global_Recalculate();
-		});
+		});		
+		// binning
+		if(!is_Independent)
+		{
+			connect(use_Binning_Checkbox,&QCheckBox::toggled, this, [=]
+			{
+				measurement.detector_2D.use_Binning = use_Binning_Checkbox->isChecked();
+
+				theta_Binning_Factor_Label->setEnabled(measurement.detector_2D.use_Binning);
+				theta_Binning_Factor_Spinbox->setEnabled(measurement.detector_2D.use_Binning);
+				phi_Binning_Factor_Label->setEnabled(measurement.detector_2D.use_Binning);
+				phi_Binning_Factor_Spinbox->setEnabled(measurement.detector_2D.use_Binning);
+
+				target_Curve_Editor->binning_Changed();
+				global_Multilayer_Approach->global_Recalculate();
+			});
+			connect(theta_Binning_Factor_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+			{
+				measurement.detector_2D.theta_Binning_Factor = theta_Binning_Factor_Spinbox->value();
+
+				target_Curve_Editor->binning_Changed();
+				global_Multilayer_Approach->global_Recalculate();
+			});
+			connect(phi_Binning_Factor_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+			{
+				measurement.detector_2D.phi_Binning_Factor = phi_Binning_Factor_Spinbox->value();
+
+				target_Curve_Editor->binning_Changed();
+				global_Multilayer_Approach->global_Recalculate();
+			});
+		}
 		// 2D pixel polar height
 		connect(pixel_Polar_Height_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{

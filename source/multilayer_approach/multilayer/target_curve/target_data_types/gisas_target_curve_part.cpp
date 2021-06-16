@@ -1,8 +1,9 @@
 #include "gisas_target_curve_part.h"
 
-GISAS_Target_Curve_Part::GISAS_Target_Curve_Part(Target_Curve *target_Curve, Target_Curve_Plot* target_Curve_Plot, QWidget *parent) :
+GISAS_Target_Curve_Part::GISAS_Target_Curve_Part(Target_Curve *target_Curve, Target_Curve_Editor* target_Curve_Editor, QWidget *parent) :
 	target_Curve(target_Curve),
-	target_Curve_Plot(target_Curve_Plot),
+	target_Curve_Editor(target_Curve_Editor),
+	target_Curve_Plot(target_Curve_Editor->target_Curve_Plot),
 	QWidget(parent)
 {
 	main_Layout = new QVBoxLayout(this);
@@ -14,7 +15,7 @@ GISAS_Target_Curve_Part::GISAS_Target_Curve_Part(Target_Curve *target_Curve, Tar
 	create_Beam_GroupBox();
 
 	Independent_Curve* independent_Curve;
-	target_Common_Part = new Common_Part(independent_Curve, target_Curve);
+	target_Common_Part = new Common_Part(independent_Curve, target_Curve, false, target_Curve_Editor);
 	main_Layout->addWidget(target_Common_Part);
 
 	connecting();

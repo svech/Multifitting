@@ -808,10 +808,6 @@ void Multilayer_Approach::open(QString filename)
 		return;
 	}
 
-	// only here approve last file
-	last_file = preliminary_last_file;
-	last_directory = preliminary_last_directory;
-
 	// read version
 	in >> loaded_Version_Major;
 	in >> loaded_Version_Minor;
@@ -843,6 +839,10 @@ void Multilayer_Approach::open(QString filename)
 							 + Locale.toString(VERSION_BUILD));
 		return;
 	}
+
+	// only here approve last file
+	last_file = preliminary_last_file;
+	last_directory = preliminary_last_directory;
 
 	// close table of structures
 	bool reopen_Table = runned_Tables_Of_Structures.contains(table_Of_Structures_Key);

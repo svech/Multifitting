@@ -86,6 +86,14 @@ void Target_Curve_Editor::read_Data_File(QString filepath)
 	target_Curve_Plot->plot_Data();
 }
 
+void Target_Curve_Editor::binning_Changed()
+{
+	target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+//	reset_Subinterval();
+	target_Curve->refresh_Description_Label();
+	target_Curve_Plot->plot_Data();
+}
+
 void Target_Curve_Editor::browse_Data_File()
 {
 	QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find Measured Curve", filepath_ComboBox->lineEdit()->text(), "Text data (*.txt *.dat *.xy);;All files (*.*)"));
@@ -297,27 +305,27 @@ void Target_Curve_Editor::create_Data_GroupBox()
 {
 	if(	target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
-		specular_Target_Curve_Part = new Specular_Target_Curve_Part(target_Curve, target_Curve_Plot);
+		specular_Target_Curve_Part = new Specular_Target_Curve_Part(target_Curve, this);
 			bottom_Part_Layout->addWidget(specular_Target_Curve_Part);
 	}
 	if(	target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] )
 	{
-		detector_Target_Curve_Part = new Detector_Target_Curve_Part(target_Curve, target_Curve_Plot);
+		detector_Target_Curve_Part = new Detector_Target_Curve_Part(target_Curve, this);
 			bottom_Part_Layout->addWidget(detector_Target_Curve_Part);
 	}
 	if(	target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
-		rocking_Target_Curve_Part = new Rocking_Target_Curve_Part(target_Curve, target_Curve_Plot);
+		rocking_Target_Curve_Part = new Rocking_Target_Curve_Part(target_Curve, this);
 			bottom_Part_Layout->addWidget(rocking_Target_Curve_Part);
 	}
 	if(	target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{
-		offset_Target_Curve_Part = new Offset_Target_Curve_Part(target_Curve, target_Curve_Plot);
+		offset_Target_Curve_Part = new Offset_Target_Curve_Part(target_Curve, this);
 			bottom_Part_Layout->addWidget(offset_Target_Curve_Part);
 	}
 	if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
-		gisas_Target_Curve_Part = new GISAS_Target_Curve_Part(target_Curve, target_Curve_Plot);
+		gisas_Target_Curve_Part = new GISAS_Target_Curve_Part(target_Curve, this);
 			bottom_Part_Layout->addWidget(gisas_Target_Curve_Part);
 	}
 }

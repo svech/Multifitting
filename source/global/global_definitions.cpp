@@ -265,20 +265,27 @@ QDataStream& operator <<( QDataStream& stream, const Detector_1D& detector_1D )
 {
 	return stream << detector_1D.detector_Type
 				  << detector_1D.slit_Width << detector_1D.distance_To_Sample
-				  << detector_1D.detector_Theta_Resolution;
+				  << detector_1D.detector_Theta_Resolution
+				  << detector_1D.use_Binning << detector_1D.binning_Factor;
 }
 QDataStream& operator >>( QDataStream& stream,		 Detector_1D& detector_1D )
 {
-	return stream >> detector_1D.detector_Type
-				  >> detector_1D.slit_Width >> detector_1D.distance_To_Sample
-				  >> detector_1D.detector_Theta_Resolution;
+	stream >> detector_1D.detector_Type
+		   >> detector_1D.slit_Width >> detector_1D.distance_To_Sample
+		   >> detector_1D.detector_Theta_Resolution;
+	if(Global_Variables::check_Loaded_Version(1,11,19))
+	{
+		stream >> detector_1D.use_Binning >> detector_1D.binning_Factor;
+	}
+	return stream;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Detector_2D& detector_2D )
 {
 	return stream << detector_2D.detector_Type
 				  << detector_2D.pixel_Azimuthal_Width << detector_2D.pixel_Polar_Height << detector_2D.distance_To_Sample
-				  << detector_2D.detector_Theta_Resolution << detector_2D.detector_Phi_Resolution;
+				  << detector_2D.detector_Theta_Resolution << detector_2D.detector_Phi_Resolution
+				  << detector_2D.use_Binning << detector_2D.theta_Binning_Factor << detector_2D.phi_Binning_Factor;
 }
 QDataStream& operator >>( QDataStream& stream,		 Detector_2D& detector_2D )
 {
@@ -288,6 +295,11 @@ QDataStream& operator >>( QDataStream& stream,		 Detector_2D& detector_2D )
 	{stream >> detector_2D.pixel_Azimuthal_Width >> detector_2D.pixel_Polar_Height >> detector_2D.distance_To_Sample;}
 
 	stream >> detector_2D.detector_Theta_Resolution >> detector_2D.detector_Phi_Resolution;
+
+	if(Global_Variables::check_Loaded_Version(1,11,19))
+	{
+		stream >> detector_2D.use_Binning >> detector_2D.theta_Binning_Factor >> detector_2D.phi_Binning_Factor;
+	}
 	return stream;
 }
 

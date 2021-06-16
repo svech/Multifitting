@@ -1116,6 +1116,9 @@ void Structure_Toolbar::if_Selected()
 				if(structure_Tree->tree->topLevelItem(position+1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type!=item_Type_Substrate)
 				{
 					toolbar->actions()[Move_Down]->setDisabled(false);	// move_Down
+				} else
+				{
+					toolbar->actions()[Move_Down]->setDisabled(true);	// move_Down
 				}
 				// if second
 				if(position == 1)
@@ -1127,26 +1130,27 @@ void Structure_Toolbar::if_Selected()
 				}
 			} else
 			{ // if at end
-				if(if_Substrate)
-				{
+				/// substrate only can be at the end
+//				if(if_Substrate)
+//				{
 					toolbar->actions()[Cut]->setDisabled(true);		// cut
 					toolbar->actions()[Copy]->setDisabled(true);	// copy
 					toolbar->actions()[Move_Up]->setDisabled(true);	// move_Up
 					toolbar->actions()[Remove]->setDisabled(true);	// remove
-				} else
-				{
-					// if second
-					if(position == 1)
-					{
-						toolbar->actions()[Move_Up]->setDisabled(true);	// move_Up
-					} else
-					{
-						toolbar->actions()[Move_Up]->setDisabled(false);	// move_Up
-					}
-					toolbar->actions()[Cut]->setDisabled(false);	// cut
-					toolbar->actions()[Copy]->setDisabled(false);	// copy
-				}
-				toolbar->actions()[Move_Down]->setDisabled(true);	// move_Down
+//				} else
+//				{
+//					// if second
+//					if(position == 1)
+//					{
+//						toolbar->actions()[Move_Up]->setDisabled(true);	// move_Up
+//					} else
+//					{
+//						toolbar->actions()[Move_Up]->setDisabled(false);	// move_Up
+//					}
+//					toolbar->actions()[Cut]->setDisabled(false);	// cut
+//					toolbar->actions()[Copy]->setDisabled(false);	// copy
+//				}
+//				toolbar->actions()[Move_Down]->setDisabled(true);	// move_Down
 			}
 		}
 	}

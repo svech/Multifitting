@@ -368,26 +368,67 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 {
 	if(loaded_And_Ready)
 	{
-		// shifted data filling. shift has the same units as main data
-		curve.shifted_Argument.resize(curve.argument.size());
-		curve.shifted_Values.resize(curve.argument.size());
-		curve.shifted_Values_No_Scaling_And_Offset.resize(curve.argument.size());
+		int curve_Size = curve.argument.size();
+		int binning_Factor = min(measurement.detector_1D.binning_Factor, curve_Size/2);
+		if(measurement.detector_1D.use_Binning)
+		{
+			curve_Size = 1 + ((curve.argument.size() - 1) / measurement.detector_1D.binning_Factor);
+		}
 
-		vector<double> intensity_Factor(curve.argument.size(),1);
-		double delta = (curve.beam_Intensity_Final - curve.beam_Intensity_Initial)/max(int(curve.argument.size())-1,1);
+
+		/// resizing
+		curve.shifted_Argument.resize(curve_Size);
+		curve.shifted_Values.resize(curve_Size);
+		curve.shifted_Values_No_Scaling_And_Offset.resize(curve_Size);
+
+		/// intensity factor
+		vector<double> intensity_Factor(curve_Size, 1);
+		double delta = (curve.beam_Intensity_Final - curve.beam_Intensity_Initial)/max(curve_Size-1,1);
 		if(curve.divide_On_Beam_Intensity)
 		{
-			for(int i=0; i<curve.argument.size(); ++i)
+			for(int i=0; i<curve_Size; ++i)
 			{
 				intensity_Factor[i] = curve.beam_Time*(curve.beam_Intensity_Initial + i*delta);
 			}
 		}
 
-		for(int i=0; i<curve.argument.size(); ++i)
+		/// from curve to shifted curve
+		if(measurement.detector_1D.use_Binning)
 		{
-			curve.shifted_Argument[i] = curve.argument[i]                     * curve.horizontal_Arg_Factor + curve.horizontal_Arg_Shift;
-			curve.shifted_Values  [i] = curve.values  [i]/intensity_Factor[i] * curve.val_Factor.value      + curve.val_Shift;
-			curve.shifted_Values_No_Scaling_And_Offset[i] = curve.values[i]/intensity_Factor[i];
+			int last_Curve_Index = curve.argument.size()-1;
+			for(int i=0; i<curve_Size; ++i)
+			{
+				curve.shifted_Argument[i] = 0;
+				curve.shifted_Values  [i] = 0;
+				curve.shifted_Values_No_Scaling_And_Offset[i] = 0;
+
+				// points summation
+				for(int k=0; k<measurement.detector_1D.binning_Factor; k++)
+				{
+					if(i < curve_Size-1)
+					{
+						curve.shifted_Argument[i] += curve.argument[i*binning_Factor + k];
+						curve.shifted_Values  [i] += curve.values  [i*binning_Factor + k];
+					} else
+					// last point
+					{
+						curve.shifted_Argument[i] += curve.argument[last_Curve_Index - k];
+						curve.shifted_Values  [i] += curve.values  [last_Curve_Index - k];
+					}
+				}
+				curve.shifted_Argument[i] = curve.shifted_Argument[i]/binning_Factor * curve.horizontal_Arg_Factor + curve.horizontal_Arg_Shift;
+				curve.shifted_Values_No_Scaling_And_Offset[i] = curve.shifted_Values[i]/binning_Factor/intensity_Factor[i];
+				curve.shifted_Values  [i] = curve.shifted_Values  [i]/binning_Factor/intensity_Factor[i] * curve.val_Factor.value      + curve.val_Shift;
+			}
+		} else
+		// no binning
+		{
+			for(int i=0; i<curve_Size; ++i)
+			{
+				curve.shifted_Argument[i] = curve.argument[i]                     * curve.horizontal_Arg_Factor + curve.horizontal_Arg_Shift;
+				curve.shifted_Values  [i] = curve.values  [i]/intensity_Factor[i] * curve.val_Factor.value      + curve.val_Shift;
+				curve.shifted_Values_No_Scaling_And_Offset[i] = curve.values[i]/intensity_Factor[i];
+			}
 		}
 	}
 }
@@ -396,22 +437,82 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_2D_Data()
 {
 	if(loaded_And_Ready)
 	{
-		curve.value_2D_Shifted.resize(curve.value_2D.size());
-		curve.value_2D_No_Scaling_And_Offset.resize(curve.value_2D.size());
-		for(int i=0; i<curve.value_2D.size(); i++)
+		int row_Size = curve.value_2D.size();
+		int col_Size = curve.value_2D.front().size();
+
+		int last_Row_Index = curve.value_2D.size()-1;
+		int last_Col_Index = curve.value_2D.front().size()-1;
+
+		int row_Binning_Factor = min(measurement.detector_2D.phi_Binning_Factor,   row_Size/2);
+		int col_Binning_Factor = min(measurement.detector_2D.theta_Binning_Factor, col_Size/2);
+
+		if(measurement.detector_2D.use_Binning)
 		{
-			curve.value_2D_Shifted[i].resize(curve.value_2D[i].size());
-			curve.value_2D_No_Scaling_And_Offset[i].resize(curve.value_2D[i].size());
+			row_Size = 1 + ((curve.value_2D.size()         - 1) / row_Binning_Factor);
+			col_Size = 1 + ((curve.value_2D.front().size() - 1) / col_Binning_Factor);
 		}
 
+		/// resizing
+		curve.value_2D_Shifted.resize(row_Size);
+		curve.value_2D_No_Scaling_And_Offset.resize(row_Size);
+		for(int i=0; i<row_Size; i++)
+		{
+			curve.value_2D_Shifted[i].resize(col_Size);
+			curve.value_2D_No_Scaling_And_Offset[i].resize(col_Size);
+		}
+
+		/// intensity factor
 		double intensity_Factor = 1;
 		if(curve.divide_On_Beam_Intensity) {intensity_Factor = curve.beam_Time*curve.beam_Intensity_Initial;}
-		for(int row=0; row<curve.value_2D.size(); row++)
+
+		/// from curve to shifted curve
+		if(measurement.detector_2D.use_Binning)
 		{
-			for(int col=0; col<curve.value_2D.front().size(); col++)
+			for(int row=0; row<row_Size; row++)
 			{
-				curve.value_2D_Shifted			    [row][col] = curve.value_2D[row][col]/intensity_Factor * curve.val_Factor.value + curve.val_Shift;
-				curve.value_2D_No_Scaling_And_Offset[row][col] = curve.value_2D[row][col]/intensity_Factor;
+				for(int col=0; col<col_Size; col++)
+				{
+					curve.value_2D_Shifted			    [row][col] = 0;
+					curve.value_2D_No_Scaling_And_Offset[row][col] = 0;
+
+					for(int r=0; r<row_Binning_Factor; r++)
+					{
+						for(int c=0; c<col_Binning_Factor; c++)
+						{
+							if(row < row_Size-1)
+							{
+								if(col < col_Size-1)
+								{
+									curve.value_2D_Shifted			    [row][col] += curve.value_2D[row*row_Binning_Factor+r][col*col_Binning_Factor+c];
+								} else
+								{
+									curve.value_2D_Shifted			    [row][col] += curve.value_2D[row*row_Binning_Factor+r][last_Col_Index-c];
+								}
+							} else
+							{
+								if(col < col_Size-1)
+								{
+									curve.value_2D_Shifted			    [row][col] += curve.value_2D[last_Row_Index-r][col*col_Binning_Factor+c];
+								} else
+								{
+									curve.value_2D_Shifted			    [row][col] += curve.value_2D[last_Row_Index-r][last_Col_Index-c];
+								}
+							}
+						}
+					}
+					curve.value_2D_No_Scaling_And_Offset[row][col] = curve.value_2D_Shifted[row][col]/col_Binning_Factor/intensity_Factor;
+					curve.value_2D_Shifted			    [row][col] = curve.value_2D_Shifted[row][col]/row_Binning_Factor/intensity_Factor * curve.val_Factor.value + curve.val_Shift;
+				}
+			}
+		} else
+		{
+			for(int row=0; row<row_Size; row++)
+			{
+				for(int col=0; col<col_Size; col++)
+				{
+					curve.value_2D_No_Scaling_And_Offset[row][col] = curve.value_2D[row][col]/intensity_Factor;
+					curve.value_2D_Shifted			    [row][col] = curve.value_2D[row][col]/intensity_Factor * curve.val_Factor.value + curve.val_Shift;
+				}
 			}
 		}
 	}
@@ -426,13 +527,9 @@ void Target_Curve::rotate_Data_From_Previous_State(QString left_Right)
 
 	// resize
 	QVector<QVector<double>>temp_Value_2D					   (new_Row_Count);
-	vector<vector<double>>  temp_Value_2D_Shifted			   (new_Row_Count);
-	vector<vector<double>>  temp_Value_2D_No_Scaling_And_Offset(new_Row_Count);
 	for(int row=0; row<temp_Value_2D.size(); row++)
 	{
 		temp_Value_2D					   [row].resize(new_Col_Count);
-		temp_Value_2D_Shifted			   [row].resize(new_Col_Count);
-		temp_Value_2D_No_Scaling_And_Offset[row].resize(new_Col_Count);
 	}
 
 	// fill
@@ -443,8 +540,6 @@ void Target_Curve::rotate_Data_From_Previous_State(QString left_Right)
 			for(int col=0; col<new_Col_Count; col++)
 			{
 				temp_Value_2D						[row][col]	= curve.value_2D					  [col][new_Last_Row-row];
-				temp_Value_2D_Shifted				[row][col]	= curve.value_2D_Shifted			  [col][new_Last_Row-row];
-				temp_Value_2D_No_Scaling_And_Offset	[row][col]	= curve.value_2D_No_Scaling_And_Offset[col][new_Last_Row-row];
 			}
 		}
 	}
@@ -455,16 +550,12 @@ void Target_Curve::rotate_Data_From_Previous_State(QString left_Right)
 			for(int col=0; col<new_Col_Count; col++)
 			{
 				temp_Value_2D						[row][col]	= curve.value_2D					  [new_Last_Col-col][row];
-				temp_Value_2D_Shifted				[row][col]	= curve.value_2D_Shifted			  [new_Last_Col-col][row];
-				temp_Value_2D_No_Scaling_And_Offset	[row][col]	= curve.value_2D_No_Scaling_And_Offset[new_Last_Col-col][row];
 			}
 		}
 	}
 
 	// change
 	curve.value_2D = temp_Value_2D;
-	curve.value_2D_Shifted = temp_Value_2D_Shifted;
-	curve.value_2D_No_Scaling_And_Offset = temp_Value_2D_No_Scaling_And_Offset;
 }
 
 void Target_Curve::refresh_Description_Label()
@@ -822,12 +913,15 @@ void Target_Curve::calc_Measured_cos2_k(double angle_Shift, double lambda_Shift,
 				measurement.detector_Theta_Cos2_Vec. resize(num_Points_Theta);
 
 				double angle_Step = (measurement.detector_Theta_Angle.independent.max - measurement.detector_Theta_Angle.independent.min) / (num_Points_Theta - 1);
+				double theta_Binning_Shift = 0;
+				// no need?
+//				if(measurement.detector_2D.use_Binning)	{theta_Binning_Shift = 0.5*(measurement.detector_2D.theta_Binning_Factor-1)*angle_Step;}
 				double angle_Temp =  measurement.detector_Theta_Angle.independent.min;
 				for(int i=0; i<num_Points_Theta; ++i)
 				{
-					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
-					measurement.detector_Theta_Cos_Vec [i] = cos(qDegreesToRadians(angle_Temp));
-					measurement.detector_Theta_Sin_Vec [i] = cos(qDegreesToRadians(angle_Temp));
+					measurement.detector_Theta_Angle_Vec[i] = angle_Temp + theta_Binning_Shift;
+					measurement.detector_Theta_Cos_Vec [i] = cos(qDegreesToRadians(measurement.detector_Theta_Angle_Vec[i]));
+					measurement.detector_Theta_Sin_Vec [i] = cos(qDegreesToRadians(measurement.detector_Theta_Angle_Vec[i]));
 					measurement.detector_Theta_Cos2_Vec[i] = pow(measurement.detector_Theta_Cos_Vec [i],2);
 					angle_Temp += angle_Step;
 				}
@@ -843,12 +937,15 @@ void Target_Curve::calc_Measured_cos2_k(double angle_Shift, double lambda_Shift,
 				double maximum = max(measurement.detector_Phi_Angle.independent.max,measurement.detector_Phi_Angle.independent.min);
 
 				double angle_Step = (maximum - minimum) / (num_Points_Phi - 1);
+				double phi_Binning_Shift = 0;
+				// no need? also problems with interpolation somewhere in calculation
+//				if(measurement.detector_2D.use_Binning)	{phi_Binning_Shift = 0.5*(measurement.detector_2D.phi_Binning_Factor-1)*angle_Step;}
 				double angle_Temp =  minimum;
 				for(size_t i=0; i<num_Points_Phi; ++i)
 				{
-					measurement.detector_Phi_Cos_Vec[i] = cos(qDegreesToRadians(angle_Temp));
-					measurement.detector_Phi_Sin_Vec[i] = sin(qDegreesToRadians(angle_Temp));
-					measurement.detector_Phi_Angle_Vec[i] = angle_Temp;
+					measurement.detector_Phi_Angle_Vec[i] = angle_Temp + phi_Binning_Shift;
+					measurement.detector_Phi_Cos_Vec[i] = cos(qDegreesToRadians(measurement.detector_Phi_Angle_Vec[i]));
+					measurement.detector_Phi_Sin_Vec[i] = sin(qDegreesToRadians(measurement.detector_Phi_Angle_Vec[i]));
 					angle_Temp += angle_Step;
 				}
 

@@ -131,7 +131,7 @@ void Target_Curve_Plot::plot_Data_1D()
 {
 	if(target_Curve->loaded_And_Ready)
 	{
-		int data_Count = target_Curve->curve.argument.size();
+		int data_Count = target_Curve->curve.shifted_Argument.size();
 		QVector<QCPGraphData> data_To_Plot(data_Count);
 		double min = DBL_MAX;
 		double max = -DBL_MAX;
@@ -399,6 +399,7 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_2D()
 				target_Curve->plot_Options_Calculated.rotation_Angle   = (target_Curve->plot_Options_Calculated.rotation_Angle  +2*360)%360;
 
 				target_Curve->rotate_Data_From_Previous_State(left);
+				target_Curve->fill_Measurement_And_Curve_With_Shifted_2D_Data();
 				plot_Data_2D();
 //				global_Multilayer_Approach->calculate(true);
 			}
@@ -418,6 +419,7 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_2D()
 				target_Curve->plot_Options_Calculated.rotation_Angle   = (target_Curve->plot_Options_Calculated.rotation_Angle  +2*360)%360;
 
 				target_Curve->rotate_Data_From_Previous_State(right);
+				target_Curve->fill_Measurement_And_Curve_With_Shifted_2D_Data();
 				plot_Data_2D();
 //				global_Multilayer_Approach->calculate(true);
 			}

@@ -39,6 +39,7 @@ public:
 		void create_Buttons();
 
 	void read_Data_File(QString filepath);
+	void binning_Changed();
 	void browse_Data_File();
 	void export_Data_File();
 	void write_Window_Geometry();

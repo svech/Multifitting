@@ -7,14 +7,15 @@
 #include "multilayer_approach/multilayer/target_curve/target_curve.h"
 
 class Multilayer_Approach;
+class Target_Curve_Editor;
 
 class Common_Part : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Common_Part(Independent_Curve* independent_Curve, Target_Curve* target_Curve, bool is_Independent = false, QWidget *parent = nullptr);
+	explicit Common_Part(Independent_Curve* independent_Curve, Target_Curve* target_Curve, bool is_Independent = false, Target_Curve_Editor* target_Curve_Editor = nullptr, QWidget *parent = nullptr);
 
-	void create_Detector_GroupBox();
+	void create_1D_Detector_GroupBox();
 	void create_2D_Detector_GroupBox();
 	void create_Footptint_GroupBox();
 	void create_Beam_Plot();
@@ -31,6 +32,7 @@ public:
 
 	bool is_Independent = true;
 
+	Target_Curve_Editor* target_Curve_Editor;
 	Data& measurement;
 	QString& angular_Units;
 	QString& spectral_Units;
@@ -42,10 +44,13 @@ public:
 	MyDoubleSpinBox* detector_Distance_SpinBox;
 	QStackedWidget* detectors_Stack;
 	QComboBox* resolution_Function_ComboBox;
+	QCheckBox* use_Binning_Checkbox;
 	// 1D
 	MyDoubleSpinBox* slit_Width_SpinBox;
 	MyDoubleSpinBox* crystal_Resolution_SpinBox;
 	QLabel* crystal_Resolution_Units_Label;
+	QLabel* binning_Factor_Label;
+	QSpinBox* binning_Factor_Spinbox;
 	// 2D
 	MyDoubleSpinBox* pixel_Polar_Height_SpinBox;
 	MyDoubleSpinBox* pixel_Azimuthal_Width_SpinBox;
@@ -53,6 +58,10 @@ public:
 	QLabel* theta_Resolution_Units_Label;
 	MyDoubleSpinBox* phi_Resolution_SpinBox;
 	QLabel* phi_Resolution_Units_Label;
+	QLabel* theta_Binning_Factor_Label;
+	QSpinBox* theta_Binning_Factor_Spinbox;
+	QLabel* phi_Binning_Factor_Label;
+	QSpinBox* phi_Binning_Factor_Spinbox;
 
 	// footprint
 	MyDoubleSpinBox* beam_Footprint_Width_SpinBox;	
