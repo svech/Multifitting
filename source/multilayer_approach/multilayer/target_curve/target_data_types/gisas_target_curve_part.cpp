@@ -274,7 +274,7 @@ void GISAS_Target_Curve_Part::create_Value_GroupBox()
 
 		val_Shift_SpinBox = new MyDoubleSpinBox;
 			val_Shift_SpinBox->setAccelerated(true);
-			val_Shift_SpinBox->setDecimals(4);
+			val_Shift_SpinBox->setDecimals(6);
 			val_Shift_SpinBox->setRange(-100000, MAX_DOUBLE);
 			val_Shift_SpinBox->setValue(target_Curve->curve.val_Shift);
 			val_Shift_SpinBox->setSingleStep(0.0001);
@@ -292,7 +292,7 @@ void GISAS_Target_Curve_Part::create_Value_GroupBox()
 
 		val_Factor_SpinBox = new MyDoubleSpinBox;
 			val_Factor_SpinBox->setAccelerated(true);
-			val_Factor_SpinBox->setDecimals(4);
+			val_Factor_SpinBox->setDecimals(6);
 			val_Factor_SpinBox->setRange(0, MAX_DOUBLE);
 			val_Factor_SpinBox->setValue(target_Curve->curve.val_Factor.value);
 			val_Factor_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);

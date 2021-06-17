@@ -33,19 +33,17 @@ void Common_Part::create_1D_Detector_GroupBox()
 	QGroupBox* detector_GroupBox = new QGroupBox("Detector");
 	main_Layout->addWidget(detector_GroupBox);
 
-	QGridLayout* detector_GroupBox_Layout = new QGridLayout(detector_GroupBox);
+	QVBoxLayout* detector_GroupBox_Layout = new QVBoxLayout(detector_GroupBox);
 	detector_GroupBox_Layout->setAlignment(Qt::AlignLeft);
+
+	QHBoxLayout* first_Row_Layout = new QHBoxLayout;
+		first_Row_Layout->setAlignment(Qt::AlignLeft);
+	detector_GroupBox_Layout->addLayout(first_Row_Layout,Qt::AlignLeft);
 
 	// detector type
 	{
-		QHBoxLayout* detector_Type_Layout = new QHBoxLayout;
-		detector_Type_Layout->setAlignment(Qt::AlignLeft);
-		detector_GroupBox_Layout->addLayout(detector_Type_Layout,0,0,Qt::AlignLeft);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 		QLabel* detector_Type_Label = new QLabel("Detector type");
-		detector_Type_Layout->addWidget(detector_Type_Label,0,Qt::AlignLeft);
+		first_Row_Layout->addWidget(detector_Type_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -54,12 +52,12 @@ void Common_Part::create_1D_Detector_GroupBox()
 			detector_Type_ComboBox->addItem(detectors[Crystal]);
 			detector_Type_ComboBox->setCurrentText(measurement.detector_1D.detector_Type);
 			detector_Type_ComboBox->setFixedWidth(70);
-		detector_Type_Layout->addWidget(detector_Type_ComboBox,0,Qt::AlignLeft);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+		first_Row_Layout->addWidget(detector_Type_ComboBox,0,Qt::AlignLeft);
+	}
+	// detector distance
+	{
 		QLabel* slit_Distance_Label = new QLabel("        Distance from detector to sample");
-		detector_Type_Layout->addWidget(slit_Distance_Label,0,Qt::AlignLeft);
+		first_Row_Layout->addWidget(slit_Distance_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -71,29 +69,26 @@ void Common_Part::create_1D_Detector_GroupBox()
 			detector_Distance_SpinBox->setSingleStep(1);
 			detector_Distance_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			detector_Distance_SpinBox->setProperty(min_Size_Property,45);
-		detector_Type_Layout->addWidget(detector_Distance_SpinBox,0,Qt::AlignLeft);
+		first_Row_Layout->addWidget(detector_Distance_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(detector_Distance_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		QLabel* mm_Distance_Label = new QLabel("mm    ");
-		detector_Type_Layout->addWidget(mm_Distance_Label,0,Qt::AlignLeft);
+		first_Row_Layout->addWidget(mm_Distance_Label,0,Qt::AlignLeft);
 	}
+	// binning
 	if(!is_Independent)
 	{
-		QHBoxLayout* merge_Layout = new QHBoxLayout;
-		merge_Layout->setAlignment(Qt::AlignLeft);
-		detector_GroupBox_Layout->addLayout(merge_Layout,0,1,Qt::AlignLeft);
-
 		use_Binning_Checkbox = new QCheckBox("Merge points");
 			use_Binning_Checkbox->setChecked(measurement.detector_1D.use_Binning);
-		merge_Layout->addWidget(use_Binning_Checkbox,0,Qt::AlignLeft);
+		first_Row_Layout->addWidget(use_Binning_Checkbox,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		binning_Factor_Label = new QLabel("n =");
 			binning_Factor_Label->setEnabled(measurement.detector_1D.use_Binning);
-//		merge_Layout->addWidget(binning_Factor_Label,0,Qt::AlignLeft);
+//		detector_Type_Layout->addWidget(binning_Factor_Label,0,Qt::AlignLeft);
 
 		binning_Factor_Spinbox = new QSpinBox;
 			binning_Factor_Spinbox->setRange(1, MAX_BINNING_FACTOR);
@@ -102,18 +97,43 @@ void Common_Part::create_1D_Detector_GroupBox()
 			binning_Factor_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			binning_Factor_Spinbox->setFixedWidth(30);
 			binning_Factor_Spinbox->setEnabled(measurement.detector_1D.use_Binning);
-		merge_Layout->addWidget(binning_Factor_Spinbox,0,Qt::AlignLeft);
+		first_Row_Layout->addWidget(binning_Factor_Spinbox,0,Qt::AlignLeft);
+	}
+
+	QHBoxLayout* second_Row_Layout = new QHBoxLayout;
+		second_Row_Layout->setAlignment(Qt::AlignLeft);
+	detector_GroupBox_Layout->addLayout(second_Row_Layout,Qt::AlignLeft);
+
+	// slit length
+	{
+		finite_Slit_Length_Checkbox = new QCheckBox("Slit length");
+			finite_Slit_Length_Checkbox->setChecked(measurement.detector_1D.finite_Slit);
+		second_Row_Layout->addWidget(finite_Slit_Length_Checkbox,0,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		slit_Length_SpinBox = new MyDoubleSpinBox;
+			slit_Length_SpinBox->setEnabled(measurement.detector_1D.finite_Slit);
+			slit_Length_SpinBox->setAccelerated(true);
+			slit_Length_SpinBox->setRange(0, MAX_DOUBLE);
+			slit_Length_SpinBox->setDecimals(1);
+			slit_Length_SpinBox->setValue(measurement.detector_1D.slit_Length);
+			slit_Length_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			slit_Length_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			slit_Length_SpinBox->setProperty(min_Size_Property,40);
+		second_Row_Layout->addWidget(slit_Length_SpinBox,0,Qt::AlignLeft);
+		Global_Variables::resize_Line_Edit(slit_Length_SpinBox);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		slit_Length_Units_Label = new QLabel("mm");
+			slit_Length_Units_Label->setEnabled(measurement.detector_1D.finite_Slit);
+		second_Row_Layout->addWidget(slit_Length_Units_Label,0,Qt::AlignLeft);
 	}
 	// pages
 	{
 		detectors_Stack = new QStackedWidget;
-		if(is_Independent)
-		{
-			detector_GroupBox_Layout->addWidget(detectors_Stack,1,0);
-		} else
-		{
-			detector_GroupBox_Layout->addWidget(detectors_Stack,0,2);
-		}
+		second_Row_Layout->addWidget(detectors_Stack);
 	}
 	// slit
 	{
@@ -125,7 +145,7 @@ void Common_Part::create_1D_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* slit_Width_Label = new QLabel("    Slit width");
+		QLabel* slit_Width_Label = new QLabel("          Slit width");
 		slit_Layout->addWidget(slit_Width_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -159,7 +179,8 @@ void Common_Part::create_1D_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* crystal_Resolution_Label = new QLabel("    Angular resolution, FWHM, "+Delta_Big_Sym+Theta_Sym);
+		QLabel* crystal_Resolution_Label = new QLabel("   Angular resolution, FWHM, "+Delta_Big_Sym+Theta_Sym);
+		if(!is_Independent) crystal_Resolution_Label->setText("       "+crystal_Resolution_Label->text());
 		crystal_Layout->addWidget(crystal_Resolution_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -173,7 +194,7 @@ void Common_Part::create_1D_Detector_GroupBox()
 			crystal_Resolution_SpinBox->setValue(measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/arg_Coeff);
 			crystal_Resolution_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			crystal_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			crystal_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			crystal_Resolution_SpinBox->setProperty(min_Size_Property, 55);
 		crystal_Layout->addWidget(crystal_Resolution_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(crystal_Resolution_SpinBox);
 
@@ -184,7 +205,8 @@ void Common_Part::create_1D_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* crystal_Resolution_Function_Label = new QLabel("      Function");
+		QLabel* crystal_Resolution_Function_Label = new QLabel(" ");
+		if(!is_Independent) crystal_Resolution_Function_Label->setText("     Function");
 		crystal_Layout->addWidget(crystal_Resolution_Function_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1103,6 +1125,21 @@ void Common_Part::connecting()
 				global_Multilayer_Approach->global_Recalculate();
 			});
 		}
+		// slit length
+		connect(finite_Slit_Length_Checkbox,&QCheckBox::toggled, this, [=]
+		{
+			measurement.detector_1D.finite_Slit = finite_Slit_Length_Checkbox->isChecked();
+
+			slit_Length_SpinBox->setEnabled(measurement.detector_1D.finite_Slit);
+			slit_Length_Units_Label->setEnabled(measurement.detector_1D.finite_Slit);
+
+			global_Multilayer_Approach->global_Recalculate();
+		});
+		connect(slit_Length_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			measurement.detector_1D.slit_Length = slit_Length_SpinBox->value();
+			global_Multilayer_Approach->global_Recalculate();
+		});
 		// 1D slit width
 		connect(slit_Width_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{

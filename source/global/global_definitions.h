@@ -17,7 +17,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 19
+#define VERSION_BUILD 20
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -220,7 +220,7 @@ class Node;
 #define TARGET_LINE_EDIT_WIDTH_BEAM 53		// for target_Curve_Editor
 #define TARGET_LINE_EDIT_WIDTH 63			// for target_Curve_Editor
 #define TARGET_LINE_AT_FIXED_WIDTH 105		// for target_Curve_Editor
-#define TARGET_LINE_RESOLUTION_WIDTH 80		// for target_Curve_Editor
+#define TARGET_LINE_RESOLUTION_WIDTH 70		// for target_Curve_Editor
 #define TARGET_BEAM_INTENSITY_WIDTH 25		// for target_Curve_Editor
 #define INDEPENDENT_LINE_EDIT_WIDTH 50		// for independent_Variables_Editor
 #define MIN_CONFIDENCE_POINTS	3			// for confidence interval
@@ -591,6 +591,9 @@ struct Detector_1D				{ QString detector_Type;
 
 								  // slit
 								  double slit_Width = 0.1;
+
+								  bool finite_Slit = false;
+								  double slit_Length = 10;
 								  double distance_To_Sample = 300;
 
 								  // crystal

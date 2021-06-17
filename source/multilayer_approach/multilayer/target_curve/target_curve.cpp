@@ -991,14 +991,22 @@ Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve
 	filename = referent_Target_Curve.filename;	// should be empty
 	filepath = referent_Target_Curve.filepath;	// should be empty
 	loaded_And_Ready = referent_Target_Curve.loaded_And_Ready;
+	calc_Functions = referent_Target_Curve.calc_Functions;
 	plot_Options_Experimental = referent_Target_Curve.plot_Options_Experimental;
 	plot_Options_Calculated = referent_Target_Curve.plot_Options_Calculated;
-	graph_2D_Positions = referent_Target_Curve.graph_2D_Positions;
+
 	lines_List = referent_Target_Curve.lines_List;
+	header = referent_Target_Curve.header;
+
 	label_Text = referent_Target_Curve.label_Text;
 	index = referent_Target_Curve.index;
 	name = referent_Target_Curve.name+" (Copy)";
 	index_Name = referent_Target_Curve.index_Name;
+
+	angular_Units = referent_Target_Curve.angular_Units;
+	spectral_Units = referent_Target_Curve.spectral_Units;
+
+	graph_2D_Positions = referent_Target_Curve.graph_2D_Positions;
 
 	return *this;
 }

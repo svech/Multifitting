@@ -68,7 +68,7 @@ void Detector_Target_Curve_Part::create_Argument_GroupBox()
 		arg_Shift_SpinBox = new MyDoubleSpinBox;
 			arg_Shift_SpinBox->setAccelerated(true);
 			arg_Shift_SpinBox->setRange(-100000, MAX_DOUBLE);
-			arg_Shift_SpinBox->setDecimals(4);
+			arg_Shift_SpinBox->setDecimals(6);
 			arg_Shift_SpinBox->setValue(target_Curve->curve.horizontal_Arg_Shift);
 			arg_Shift_SpinBox->setSingleStep(0.0001);
 			arg_Shift_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -86,7 +86,7 @@ void Detector_Target_Curve_Part::create_Argument_GroupBox()
 		arg_Factor_SpinBox = new MyDoubleSpinBox;
 			arg_Factor_SpinBox->setAccelerated(true);
 			arg_Factor_SpinBox->setRange(0, MAX_DOUBLE);
-			arg_Factor_SpinBox->setDecimals(4);
+			arg_Factor_SpinBox->setDecimals(6);
 			arg_Factor_SpinBox->setValue(target_Curve->curve.horizontal_Arg_Factor);
 			arg_Factor_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			arg_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -185,7 +185,7 @@ void Detector_Target_Curve_Part::create_Value_GroupBox()
 
 		val_Shift_SpinBox = new MyDoubleSpinBox;
 			val_Shift_SpinBox->setAccelerated(true);
-			val_Shift_SpinBox->setDecimals(4);
+			val_Shift_SpinBox->setDecimals(6);
 			val_Shift_SpinBox->setRange(-100000, MAX_DOUBLE);
 			val_Shift_SpinBox->setValue(target_Curve->curve.val_Shift);
 			val_Shift_SpinBox->setSingleStep(0.0001);
@@ -203,7 +203,7 @@ void Detector_Target_Curve_Part::create_Value_GroupBox()
 
 		val_Factor_SpinBox = new MyDoubleSpinBox;
 			val_Factor_SpinBox->setAccelerated(true);
-			val_Factor_SpinBox->setDecimals(4);
+			val_Factor_SpinBox->setDecimals(6);
 			val_Factor_SpinBox->setRange(0, MAX_DOUBLE);
 			val_Factor_SpinBox->setValue(target_Curve->curve.val_Factor.value);
 			val_Factor_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
@@ -348,7 +348,7 @@ void Detector_Target_Curve_Part::create_Beam_GroupBox()
 			at_Fixed_Wavelength_SpinBox->setSingleStep(0.01);
 			at_Fixed_Wavelength_SpinBox->setValue(Global_Variables::wavelength_Energy(target_Curve->spectral_Units,target_Curve->measurement.wavelength.value)/coeff);
 			at_Fixed_Wavelength_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			at_Fixed_Wavelength_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
+			at_Fixed_Wavelength_SpinBox->setProperty(min_Size_Property, TARGET_LINE_RESOLUTION_WIDTH);
 		beam_GroupBox_Layout->addWidget(at_Fixed_Wavelength_SpinBox,0,2,1,2,Qt::AlignRight);
 		Global_Variables::resize_Line_Edit(at_Fixed_Wavelength_SpinBox);
 
@@ -376,7 +376,7 @@ void Detector_Target_Curve_Part::create_Beam_GroupBox()
 			at_Fixed_Beam_Theta_0_SpinBox->setSingleStep(0.01);
 			at_Fixed_Beam_Theta_0_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Angle.value/coeff);
 			at_Fixed_Beam_Theta_0_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			at_Fixed_Beam_Theta_0_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
+			at_Fixed_Beam_Theta_0_SpinBox->setProperty(min_Size_Property, TARGET_LINE_RESOLUTION_WIDTH);
 		beam_GroupBox_Layout->addWidget(at_Fixed_Beam_Theta_0_SpinBox,1,2,1,2,Qt::AlignRight);
 		Global_Variables::resize_Line_Edit(at_Fixed_Beam_Theta_0_SpinBox);
 

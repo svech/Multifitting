@@ -45,6 +45,10 @@ public:
 	QStackedWidget* detectors_Stack;
 	QComboBox* resolution_Function_ComboBox;
 	QCheckBox* use_Binning_Checkbox;
+	QCheckBox* finite_Slit_Length_Checkbox;
+	MyDoubleSpinBox* slit_Length_SpinBox;
+	QLabel* slit_Length_Units_Label;
+
 	// 1D
 	MyDoubleSpinBox* slit_Width_SpinBox;
 	MyDoubleSpinBox* crystal_Resolution_SpinBox;
