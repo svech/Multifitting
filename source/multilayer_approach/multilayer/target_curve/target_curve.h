@@ -128,6 +128,7 @@ public:
 	QString label_Text = "<no description>";
 	QString index;
 	QString name = "";
+	bool mark_As_Copy = true;
 	QString index_Name;
 
 	// units

@@ -672,7 +672,9 @@ Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
 	for(int target_Index=0; target_Index<referent_Multilayer.target_Profiles_Vector.size(); target_Index++)
 	{
 		add_Target_Curve(target_Index, true);
+		target_Profiles_Vector[target_Index]->mark_As_Copy = false; // without marking as copy
 		*target_Profiles_Vector[target_Index] = *referent_Multilayer.target_Profiles_Vector[target_Index];
+		target_Profiles_Vector[target_Index]->mark_As_Copy = true;
 		target_Profiles_Vector[target_Index]->refresh_Description_Label();
 	}
 

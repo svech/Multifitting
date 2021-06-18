@@ -1000,7 +1000,7 @@ Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve
 
 	label_Text = referent_Target_Curve.label_Text;
 	index = referent_Target_Curve.index;
-	name = referent_Target_Curve.name+" (Copy)";
+	name = referent_Target_Curve.name;	if(mark_As_Copy) name += " (Copy)";
 	index_Name = referent_Target_Curve.index_Name;
 
 	angular_Units = referent_Target_Curve.angular_Units;
