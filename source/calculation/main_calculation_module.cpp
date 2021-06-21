@@ -2764,6 +2764,8 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 				if(!parent_Data.regular_Components[child_Index].is_Common_Sigma     && parameter->indicator.whats_This == whats_This_Sigma_Diffuse) { go = false; }
 			}
 
+			if(	parameter->indicator.whats_This == whats_This_Gamma && struct_Data.num_Repetition.value() != 2)	{go = false;}
+
 			if(go)
 			{
 				// fixed
