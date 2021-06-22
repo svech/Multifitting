@@ -3976,21 +3976,34 @@ double Unwrapped_Reflection::calc_G2_Field_Sum(QString polarization, int thread_
 
 double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, double cos_Theta_0, int point_Index)
 {
-	double delta = abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0);
+	double cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
+	double delta = abs(cos_Theta-cos_Theta_0);
 	double phi_Min = 0, phi_Max = max_Phi_Azimuthal_Integration;
+
+	// finite slit length: set phi_Max
+	if(measurement.detector_1D.finite_Slit)
+	{
+		double R = measurement.detector_1D.distance_To_Sample;
+		double l = measurement.detector_1D.slit_Length;
+		phi_Max = qRadiansToDegrees(atan(l/(2*R*cos_Theta+DBL_EPSILON)));
+	}
 	double result = 0;
 	/// ----------------------------------------------------------------------------------------------------------------------
 
-	if((multilayer->imperfections_Model.add_Gauss_Peak || (multilayer->imperfections_Model.add_Measured_PSD_2D && multilayer->imperfections_Model.PSD_2D.is_Loaded())) && !set_PSD_to_1)
+	// partition
+	vector<double> phi_Inter_1 = {phi_Min, 0.002, 0.01, 0.1, 1, 5, 10, 20};
+	vector<double> phi_Inter_2 = {phi_Min, 0.05,  0.3,       2, 7,     20};
+
+	// add peak points
+	if(multilayer->imperfections_Model.add_Gauss_Peak && !set_PSD_to_1)
 	{
-		// peak
 		double max_Peak_Frequency =     substrate.roughness_Model.peak_Frequency.value + 2*substrate.roughness_Model.peak_Frequency_Width.value;
 		double min_Peak_Frequency = max(substrate.roughness_Model.peak_Frequency.value - 2*substrate.roughness_Model.peak_Frequency_Width.value, 0.);
 
 		double cos_Phi_Max_Peak = (cos_Theta_0*cos_Theta_0 + measurement.detector_Theta_Cos2_Vec[point_Index] - pow(measurement.lambda_Value*max_Peak_Frequency,2))/
-								  (2*cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]);
+								  (2*cos_Theta_0*cos_Theta);
 		double cos_Phi_Min_Peak = (cos_Theta_0*cos_Theta_0 + measurement.detector_Theta_Cos2_Vec[point_Index] - pow(measurement.lambda_Value*min_Peak_Frequency,2))/
-								  (2*cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]);
+								  (2*cos_Theta_0*cos_Theta);
 
 		cos_Phi_Max_Peak = min(cos_Phi_Max_Peak, 1.);
 		cos_Phi_Min_Peak = min(cos_Phi_Min_Peak, 1.);
@@ -4001,14 +4014,23 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 		double phi_Max_Peak = qRadiansToDegrees(acos(cos_Phi_Max_Peak));
 		double phi_Min_Peak = qRadiansToDegrees(acos(cos_Phi_Min_Peak));
 
-		// PSD 2D measured
+		// add points
+		phi_Inter_1.push_back(phi_Min_Peak);
+		phi_Inter_1.push_back(phi_Max_Peak);
+
+		phi_Inter_2.push_back(phi_Min_Peak);
+		phi_Inter_2.push_back(phi_Max_Peak);
+	}
+	// add measured points
+	if(multilayer->imperfections_Model.add_Measured_PSD_2D && multilayer->imperfections_Model.PSD_2D.is_Loaded() && !set_PSD_to_1)
+	{
 		double max_Measured_2D_Frequency = multilayer->imperfections_Model.PSD_2D.argument.front();
 		double min_Measured_2D_Frequency = multilayer->imperfections_Model.PSD_2D.argument.back();
 
 		double cos_Measured_2D_Max = (cos_Theta_0*cos_Theta_0 + measurement.detector_Theta_Cos2_Vec[point_Index] - pow(measurement.lambda_Value*max_Measured_2D_Frequency,2))/
-									 (2*cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]);
+									 (2*cos_Theta_0*cos_Theta);
 		double cos_Measured_2D_Min = (cos_Theta_0*cos_Theta_0 + measurement.detector_Theta_Cos2_Vec[point_Index] - pow(measurement.lambda_Value*min_Measured_2D_Frequency,2))/
-									 (2*cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]);
+									 (2*cos_Theta_0*cos_Theta);
 
 		cos_Measured_2D_Max = min(cos_Measured_2D_Max, 1.);
 		cos_Measured_2D_Min = min(cos_Measured_2D_Min, 1.);
@@ -4019,97 +4041,92 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 		double phi_Measured_2D_Max = qRadiansToDegrees(acos(cos_Measured_2D_Max));
 		double phi_Measured_2D_Min = qRadiansToDegrees(acos(cos_Measured_2D_Min));
 
+		// add points
+		phi_Inter_1.push_back(phi_Measured_2D_Max);
+		phi_Inter_1.push_back(phi_Measured_2D_Min);
 
-		vector<double> phi_Inter_1 = {phi_Min, 0.002, 0.01, 0.1, 1, 5, 10, 20, phi_Max};
-		vector<double> phi_Inter_2 = {phi_Min, 0.05,  0.3,       2, 7,     20, phi_Max};
+		phi_Inter_2.push_back(phi_Measured_2D_Max);
+		phi_Inter_2.push_back(phi_Measured_2D_Min);
+	}
 
-		if(multilayer->imperfections_Model.add_Gauss_Peak)
-		{
-			phi_Inter_1.push_back(phi_Min_Peak);
-			phi_Inter_1.push_back(phi_Max_Peak);
+	// choose and sort points
+	vector<double> phi_Inter;
+	if(delta<1e-4) {
+		phi_Inter = phi_Inter_1;
+	} else {
+		phi_Inter = phi_Inter_2;
+	}
+	std::sort(phi_Inter.begin(), phi_Inter.end());
 
-			phi_Inter_2.push_back(phi_Min_Peak);
-			phi_Inter_2.push_back(phi_Max_Peak);
-		}
-		if(multilayer->imperfections_Model.add_Measured_PSD_2D && multilayer->imperfections_Model.PSD_2D.is_Loaded())
-		{
-			phi_Inter_1.push_back(phi_Measured_2D_Max);
-			phi_Inter_1.push_back(phi_Measured_2D_Min);
-
-			phi_Inter_2.push_back(phi_Measured_2D_Max);
-			phi_Inter_2.push_back(phi_Measured_2D_Min);
-		}
-
-		// choose and sort points
-		vector<double> phi_Inter;
-		if(delta<1e-4) {
-			phi_Inter = phi_Inter_1;
-		} else {
-			phi_Inter = phi_Inter_2;
-		}
-		std::sort(phi_Inter.begin(), phi_Inter.end());
-
-		// integration
-		auto f = [&](double phi){return function->function(phi, function->params);};
-		tanh_sinh<double> integrator;
-		double integrator_Tolerance = 1E-2;
-		for(size_t i=0; i<phi_Inter.size()-1; i++)
-		{
-			if(phi_Inter[i]<phi_Inter[i+1])
-			{
-//				result += integrator.integrate(f, phi_Inter[i],	phi_Inter[i+1], integrator_Tolerance); // too slow
-				if(i==0) {
-					result += integrator.integrate(f, phi_Inter[i],	phi_Inter[i+1], integrator_Tolerance);
-//					result += gauss_kronrod<double,15>::integrate(f, phi_Inter[i], phi_Inter[i+1], 0, integrator_Tolerance);
-				} else {
-					result += gauss_kronrod<double,5>::integrate(f, phi_Inter[i], phi_Inter[i+1], 0, integrator_Tolerance);
-				}
-			}
-		}
-	} else
+	// restrict phi by phi_Max
+	for(int i=phi_Inter.size()-1; i>=0; i--)
 	{
-		auto f = [&](double phi){return function->function(phi, function->params);};
-		double error;
-		if(delta<1e-4)
+		if(phi_Inter[i]>=phi_Max) phi_Inter.erase(phi_Inter.begin()+i);
+	}
+	phi_Inter.push_back(phi_Max);
+
+	// integration
+	auto f = [&](double phi){return function->function(phi, function->params);};
+	tanh_sinh<double> integrator;
+	double integrator_Tolerance = 1E-2;
+	for(size_t i=0; i<phi_Inter.size()-1; i++)
+	{
+		if(phi_Inter[i]<phi_Inter[i+1])
 		{
-			double phi_Inter_1 = 0.002, phi_Inter_2 = 0.01, phi_Inter_3 = 0.1, phi_Inter_4 = 1, phi_Inter_5 = 5, phi_Inter_6 = 20;
-			result += gauss_kronrod<double,15>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
-			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
-			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
-			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
-//			if(mouse_wheel_spinbox_structure_table)
-			{
-				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
-				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Inter_6, 0, 1e-7, &error);
-				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_6, phi_Max,	   0, 1e-7, &error);
-			}
-		} else
-		if(delta<5e-4)
-		{
-			double phi_Inter_1 = 0.05, phi_Inter_2 = 0.3, phi_Inter_3 = 1, phi_Inter_4 = 7, phi_Inter_5 = 20;
-			result += gauss_kronrod<double,11>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
-			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
-			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
-//			if(mouse_wheel_spinbox_structure_table)
-			{
-				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
-				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
-				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Max,	   0, 1e-7, &error);
-			}
-		} else
-		{
-			double phi_Inter_1 = 0.05, phi_Inter_2 = 0.2, phi_Inter_3 = 1, phi_Inter_4 = 10, phi_Inter_5 = 20;
-			result += gauss_kronrod<double, 5>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
-			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
-			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
-//			if(mouse_wheel_spinbox_structure_table)
-			{
-				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
-				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
-				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Max,	   0, 1e-7, &error);
+//			result += integrator.integrate(f, phi_Inter[i],	phi_Inter[i+1], integrator_Tolerance); // too slow
+			if(i==0) {
+				result += integrator.integrate(f, phi_Inter[i],	phi_Inter[i+1], integrator_Tolerance);
+//				result += gauss_kronrod<double,15>::integrate(f, phi_Inter[i], phi_Inter[i+1], 0, integrator_Tolerance);
+			} else {
+				result += gauss_kronrod<double,5>::integrate(f, phi_Inter[i], phi_Inter[i+1], 0, integrator_Tolerance);
 			}
 		}
 	}
+
+	/// previous realization, less flexible
+//	{
+//		auto f = [&](double phi){return function->function(phi, function->params);};
+//		double error;
+//		if(delta<1e-4)
+//		{
+//			double phi_Inter_1 = 0.002, phi_Inter_2 = 0.01, phi_Inter_3 = 0.1, phi_Inter_4 = 1, phi_Inter_5 = 5, phi_Inter_6 = 20;
+//			result += gauss_kronrod<double,15>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
+//			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
+//			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
+//			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
+////			if(mouse_wheel_spinbox_structure_table)
+//			{
+//				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
+//				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Inter_6, 0, 1e-7, &error);
+//				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_6, phi_Max,	   0, 1e-7, &error);
+//			}
+//		} else
+//		if(delta<5e-4)
+//		{
+//			double phi_Inter_1 = 0.05, phi_Inter_2 = 0.3, phi_Inter_3 = 1, phi_Inter_4 = 7, phi_Inter_5 = 20;
+//			result += gauss_kronrod<double,11>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
+//			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
+//			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
+////			if(mouse_wheel_spinbox_structure_table)
+//			{
+//				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
+//				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
+//				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Max,	   0, 1e-7, &error);
+//			}
+//		} else
+//		{
+//			double phi_Inter_1 = 0.05, phi_Inter_2 = 0.2, phi_Inter_3 = 1, phi_Inter_4 = 10, phi_Inter_5 = 20;
+//			result += gauss_kronrod<double, 5>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
+//			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
+//			result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
+////			if(mouse_wheel_spinbox_structure_table)
+//			{
+//				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
+//				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
+//				result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Max,	   0, 1e-7, &error);
+//			}
+//		}
+//	}
 	/// ----------------------------------------------------------------------------------------------------------------------
 
 	// slower

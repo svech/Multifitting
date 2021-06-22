@@ -1325,6 +1325,12 @@ double Global_Variables::PSD_ABC_1D_from_nu(double factor, double xi, double alp
 	return /*4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi*/ factor / pow(1+val*val, alpha+0.5);
 }
 
+double Global_Variables::PSD_ABC_1D_Finite_from_nu(double factor, double xi, double alpha, double p, gsl_spline *spline, gsl_interp_accel *acc)
+{
+	double coef = 4*M_PI*M_PI*xi*xi;
+	return gsl_sf_hyperg_2F1(0.5, 1.+alpha, 1.5, coef);
+}
+
 double Global_Variables::PSD_ABC_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(spline)
