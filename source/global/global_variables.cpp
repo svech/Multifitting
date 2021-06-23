@@ -1325,10 +1325,20 @@ double Global_Variables::PSD_ABC_1D_from_nu(double factor, double xi, double alp
 	return /*4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi*/ factor / pow(1+val*val, alpha+0.5);
 }
 
-double Global_Variables::PSD_ABC_1D_Finite_from_nu(double factor, double xi, double alpha, double p, gsl_spline *spline, gsl_interp_accel *acc)
+double Global_Variables::PSD_ABC_1D_Finite_from_nu(double sigma, double xi, double alpha, double p, double a, gsl_spline *spline, gsl_interp_accel *acc)
 {
-	double coef = 4*M_PI*M_PI*xi*xi;
-	return gsl_sf_hyperg_2F1(0.5, 1.+alpha, 1.5, coef);
+	double x = 4*M_PI*M_PI*xi*xi;
+	double r = a*a-p*p;
+	double coef = 16*sqrt(r)*M_PI*alpha*xi*xi*sigma*sigma/pow(1.+p*p*x,1.+alpha);
+	double z = -r*x/(1.+p*p*x); // z is non-positive
+	double zz = z/(z-1);
+	zz = min(zz,1.-DBL_EPSILON);
+	double b = 0.5-alpha;
+	if(abs(b)<DBL_EPSILON) b = DBL_EPSILON;
+//	return coef*gsl_sf_hyperg_2F1(0.5, 1.+alpha, 1.5, z);
+//	return coef*pow(1.-z,-1.-alpha)*gsl_sf_hyperg_2F1(1, 1.+alpha, 1.5, zz);
+	return coef*pow(1.-z,-0.5)*gsl_sf_hyperg_2F1(0.5, b, 1.5, zz);
+//	return coef*pow(1.-z,-1.-alpha)*boost::math::hypergeometric_pFq({1., 1.+alpha}, {1.5}, zz);
 }
 
 double Global_Variables::PSD_ABC_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)

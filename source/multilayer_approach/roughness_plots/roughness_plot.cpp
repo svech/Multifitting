@@ -813,6 +813,15 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 		double sigma_2 = current_Node->combined_Effective_Sigma_2(multilayer->imperfections_Model, sigma, xi, alpha, calc_Nu_Min, calc_Nu_Max, multilayer->roughness_Plot_Options.PSD_Type, integrator);
 		sigma_Eff = sqrt(sigma_2);
 
+		for(double p = 1E-8; p<101; p *= 10)
+		{
+			double a = current_Data.relative_Density.value;
+			qInfo() << p << Global_Variables::PSD_ABC_1D_Finite_from_nu(sigma,  xi, alpha, p, a, nullptr, nullptr) << endl;
+			qInfo() << p << Global_Variables::PSD_ABC_1D_from_nu       (factor, xi, alpha, p,    nullptr, nullptr) << endl;
+			qInfo() << endl;
+		}
+		qInfo() << endl;
+
 		/// clear FG splines
 		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
 			current_Node->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);

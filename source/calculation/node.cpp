@@ -829,7 +829,7 @@ double Node::ABC_Combined_1D_Effective_Sigma_2(const Imperfections_Model& imperf
 	{
 		// ABC first part
 		double nu1 = min(nu_Max, imperfections_Model.PSD_1D.argument.front());
-		double z = -pow(2*M_PI*nu1*xi,2); // z is non-negative
+		double z = -pow(2*M_PI*nu1*xi,2); // z is negative
 		double zz = z/(z-1);
 		if(abs(zz)>=1) {qInfo() << "Node::ABC_Combined_Total_Sigma  : a :  abs(zz)>=1, nu =" << nu1 << endl;}
 		double pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
@@ -842,13 +842,13 @@ double Node::ABC_Combined_1D_Effective_Sigma_2(const Imperfections_Model& imperf
 		double nu2 = imperfections_Model.PSD_1D.argument.back();
 		if(nu2 < nu_Max)
 		{
-			z = -pow(2*M_PI*nu_Max*xi,2); // z is non-negative
+			z = -pow(2*M_PI*nu_Max*xi,2); // z is negative
 			zz = z/(z-1);
 			if(abs(zz)>=1) {qInfo() << "Node::ABC_Combined_Total_Sigma  : b :  abs(zz)>=1, nu =" << nu_Max << endl;}
 			pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
 			total_Sigma_2 += 2*(2*M_PI*nu_Max)*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
 
-			z = -pow(2*M_PI*nu2*xi,2); // z is non-negative
+			z = -pow(2*M_PI*nu2*xi,2); // z is negative
 			zz = z/(z-1);
 			if(abs(zz)>=1) {qInfo() << "Node::ABC_Combined_Total_Sigma  : c :  abs(zz)>=1, nu =" << nu2 << endl;}
 			pFq = 1./sqrt(1-z) * gsl_sf_hyperg_2F1(0.5, 1.-alpha+1E-10, 1.5, zz);
@@ -2229,6 +2229,93 @@ void Node::clear_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfec
 
 	gsl_spline_free(spline_PSD_FG_1D);
 	gsl_interp_accel_free(acc_PSD_FG_1D);
+}
+
+void Node::create_Spline_PSD_Fractal_Gauss_1D_Finite(const Imperfections_Model& imperfections_Model)
+{
+	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
+	if(struct_Data.item_Type == item_Type_Ambient ) return;
+	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+
+	// in other cases ( substrate or layer-with-individual-function ) go further
+
+//	auto start = std::chrono::system_clock::now();
+
+	double sigma = struct_Data.roughness_Model.sigma.value;
+	double xi =    struct_Data.roughness_Model.cor_radius.value;
+	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+	double p_Max = imperfections_Model.nu_Limit*3.1;		// for 1D spline nu_Limit is enough
+	double p_Start = Global_Variables::fill_Nu_Start_From_Xi(xi);
+
+	int num_Spline_Points = 500;
+	vector<double> arg(num_Spline_Points);
+	vector<double> val(num_Spline_Points);
+
+	/// filling argument points with log-scale step
+	Global_Variables::fill_Vector_With_Log_Step(arg, p_Start, p_Max, num_Spline_Points);
+
+	/// correlation function
+	auto f = [&](double r) {return sigma*sigma * exp(-pow(r/xi,2*alpha));};
+	const double tolerance = 1E-5;
+	const int depth = 2;
+
+	/// asymptotics
+	ooura_fourier_cos<double> cos_Integrator(tolerance, depth);
+	double nu_Asymp = get_Asymptotics_Nu(xi, alpha);
+	double factor_Asymp = 4*cos_Integrator.integrate(f, nu_Asymp).first /
+						  Global_Variables::PSD_Fractal_Gauss_1D_Asymp_from_nu(1, alpha, nu_Asymp);
+
+	/// integrate with parallelization
+	if(abs(1-alpha)>DBL_EPSILON/* && abs(0.5-alpha)>DBL_EPSILON*/)	// integrate even for alpha == 0.5, but for alpha<1
+	{
+		Global_Variables::parallel_For(num_Spline_Points, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
+		{
+			Q_UNUSED(thread_Index)
+			ooura_fourier_cos<double> cos_Integrator(tolerance,depth);
+			for(int i = n_Min; i<n_Max; i++)
+			{
+				if(arg[i] < nu_Asymp) {
+					val[i] = 4*cos_Integrator.integrate(f, arg[i]).first;
+				} else {
+					val[i] = Global_Variables::PSD_Fractal_Gauss_1D_Asymp_from_nu(factor_Asymp, alpha, arg[i]);
+				}
+			}
+		});
+	}
+
+	/// prepend zero point
+	{
+		arg.insert(arg.begin(), 0);
+		val.insert(val.begin(), 4*sigma*sigma*xi*tgamma(1.+1/(2*alpha)));
+	}
+
+	/// append last points
+	{
+		arg.push_back(p_Max*(1+1E-5));
+		arg.push_back(MAX_DOUBLE);
+
+		val.push_back(0);
+		val.push_back(0);
+	}
+
+	/// create spline
+	acc_PSD_FG_1D = gsl_interp_accel_alloc();
+	spline_PSD_FG_1D = gsl_spline_alloc(gsl_interp_steffen, val.size());
+	gsl_spline_init(spline_PSD_FG_1D, arg.data(), val.data(), val.size());
+
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "	FG 1D spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
+}
+void Node::clear_Spline_PSD_Fractal_Gauss_1D_Finite(const Imperfections_Model& imperfections_Model)
+{
+	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
+	if(struct_Data.item_Type == item_Type_Ambient ) return;
+	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+
+	gsl_spline_free(spline_PSD_FG_1D_Finite);
+	gsl_interp_accel_free(acc_PSD_FG_1D_Finite);
 }
 
 void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfections_Model)
