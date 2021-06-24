@@ -3983,9 +3983,7 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 	// finite slit length: set phi_Max
 	if(measurement.detector_1D.finite_Slit)
 	{
-		double R = measurement.detector_1D.distance_To_Sample;
-		double l = measurement.detector_1D.slit_Length;
-		phi_Max = qRadiansToDegrees(atan(l/(2*R*cos_Theta+DBL_EPSILON)));
+		phi_Max = qRadiansToDegrees(Global_Variables::get_Phi_Max_From_Finite_Slit(measurement, point_Index));
 	}
 	double result = 0;
 	/// ----------------------------------------------------------------------------------------------------------------------

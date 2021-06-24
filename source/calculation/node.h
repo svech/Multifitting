@@ -72,7 +72,7 @@ public:
 	gsl_spline* spline_PSD_FG_1D;
 	gsl_interp_accel* acc_PSD_FG_1D;
 
-	void create_Spline_PSD_Fractal_Gauss_1D_Finite(const Imperfections_Model& imperfections_Model);
+	void create_Spline_PSD_Fractal_Gauss_1D_Finite(const Imperfections_Model& imperfections_Model, const Data& measurement);
 	void clear_Spline_PSD_Fractal_Gauss_1D_Finite(const Imperfections_Model& imperfections_Model);
 
 	gsl_spline* spline_PSD_FG_1D_Finite;
@@ -99,7 +99,7 @@ public:
 	gsl_spline* spline_PSD_Combined_1D;
 	gsl_interp_accel* acc_PSD_Combined_1D;
 
-	void create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model);
+	void create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model, const Data& measurement);
 	void clear_Spline_PSD_Peak (const Imperfections_Model& imperfections_Model);
 
 	gsl_spline* spline_PSD_Peak;

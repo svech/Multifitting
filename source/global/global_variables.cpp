@@ -1375,6 +1375,15 @@ double Global_Variables::PSD_Real_Gauss_1D_from_nu(double factor, double xi, dou
 	return /*2*sqrt(M_PI) * sigma*sigma*xi*/ factor * exp(-val*val);
 }
 
+double Global_Variables::PSD_Real_Gauss_1D_Finite_from_nu(double factor, double xi, double alpha, double p, double a, gsl_spline *spline, gsl_interp_accel *acc)
+{
+	Q_UNUSED(alpha)
+	Q_UNUSED(spline)
+	Q_UNUSED(acc)
+	double val = M_PI*p*xi;
+	return /*2*sqrt(M_PI) * sigma*sigma*xi*/ factor * exp(-val*val) * erf(sqrt(a*a-p*p)*M_PI*xi);
+}
+
 double Global_Variables::PSD_Real_Gauss_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(alpha)
@@ -1656,6 +1665,34 @@ double Global_Variables::real_Gauss_2D_Integral_0_Nu(double sigma, double xi, do
 {
 	double val = M_PI*nu*xi;
 	return sigma*sigma*(1.-exp(-val*val));
+}
+
+double Global_Variables::get_Phi_Max_From_Finite_Slit(const Data& measurement, int point_Index)
+{
+	double cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
+	double R = measurement.detector_1D.distance_To_Sample;
+	double l = measurement.detector_1D.slit_Length;
+	double phi_Max = atan(l/(2*R*cos_Theta+DBL_EPSILON));			// in radians
+	return phi_Max;
+}
+
+double Global_Variables::get_Nu_Max_From_Finite_Slit(double p, const Data& measurement, int point_Index)
+{
+	double cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
+	double cos_Theta_0 = measurement.beam_Theta_0_Cos_Value;
+	if( measurement.measurement_Type == measurement_Types[Offset_Scan] ||
+		measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+	{
+		cos_Theta_0 = measurement.beam_Theta_0_Cos_Vec[i];
+	}
+
+	// phi_Max
+	double phi_Max = get_Phi_Max_From_Finite_Slit(measurement, point_Index);
+
+	// max frequency
+	double lambda_2 = pow(measurement.lambda_Value,2);
+	double nu_Max = sqrt(p*p + 2./lambda_2 * cos_Theta*cos_Theta_0*(1.-cos(phi_Max)));
+	return nu_Max;
 }
 
 double Global_Variables::Cor_Fractal_Gauss(double xi, double alpha, double r)
