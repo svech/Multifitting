@@ -121,6 +121,7 @@ public:
 		Particles_Model particles_Model;
 
 		double PSD_ABC_1D_Factor;			// without saving
+		double PSD_ABC_1D_Finite_Factor;	// without saving
 		double PSD_ABC_2D_Factor;			// without saving
 		double PSD_FG_1D_Asymp_Factor;		// without saving
 		double PSD_Real_Gauss_1D_Factor;	// without saving

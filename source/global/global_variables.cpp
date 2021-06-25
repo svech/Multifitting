@@ -1325,11 +1325,12 @@ double Global_Variables::PSD_ABC_1D_from_nu(double factor, double xi, double alp
 	return /*4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi*/ factor / pow(1+val*val, alpha+0.5);
 }
 
-double Global_Variables::PSD_ABC_1D_Finite_from_nu(double sigma, double xi, double alpha, double p, double a, gsl_spline *spline, gsl_interp_accel *acc)
+double Global_Variables::PSD_ABC_1D_Finite_from_nu(double factor, double xi, double alpha, double p, double a, gsl_spline *spline, gsl_interp_accel *acc)
 {
 	double x = 4*M_PI*M_PI*xi*xi;
 	double r = a*a-p*p;
-	double coef = 16*sqrt(r)*M_PI*alpha*xi*xi*sigma*sigma/pow(1.+p*p*x,1.+alpha);
+//	double coef = 16*sqrt(r)*alpha*(M_PI*xi*xi*sigma*sigma)/pow(1.+p*p*x,1.+alpha);
+	double coef = 16*sqrt(r)*alpha*         factor         /pow(1.+p*p*x,1.+alpha);
 	double z = -r*x/(1.+p*p*x); // z is non-positive
 	double zz = z/(z-1);
 	zz = min(zz,1.-DBL_EPSILON);
@@ -1381,7 +1382,7 @@ double Global_Variables::PSD_Real_Gauss_1D_Finite_from_nu(double factor, double 
 	Q_UNUSED(spline)
 	Q_UNUSED(acc)
 	double val = M_PI*p*xi;
-	return /*2*sqrt(M_PI) * sigma*sigma*xi*/ factor * exp(-val*val) * erf(sqrt(a*a-p*p)*M_PI*xi);
+	return /*2*sqrt(M_PI) * sigma*sigma*xi*/ factor * exp(-val*val) * erf(sqrt(abs(a*a-p*p))*M_PI*xi);
 }
 
 double Global_Variables::PSD_Real_Gauss_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)
@@ -1416,7 +1417,14 @@ double Global_Variables::PSD_Fractal_Gauss_1D_from_nu(double factor, double xi, 
 	Q_UNUSED(factor)
 	Q_UNUSED(xi)
 	Q_UNUSED(alpha)
-	return gsl_spline_eval(spline, 2*M_PI*p, acc);
+	return gsl_spline_eval(spline, p, acc);
+}
+
+double Global_Variables::PSD_Fractal_Gauss_1D_Finite_from_nu(double factor, double xi, double alpha, double p, double a, gsl_spline *spline, gsl_interp_accel *acc)
+{
+	Q_UNUSED(a)
+	// same function. finite slit is accounted in splining
+	return Global_Variables::PSD_Fractal_Gauss_1D_from_nu(factor, xi, alpha, p, spline, acc);
 }
 
 double Global_Variables::PSD_Fractal_Gauss_1D_Asymp_from_nu(double factor, double alpha, double p)
@@ -1667,9 +1675,35 @@ double Global_Variables::real_Gauss_2D_Integral_0_Nu(double sigma, double xi, do
 	return sigma*sigma*(1.-exp(-val*val));
 }
 
-double Global_Variables::get_Phi_Max_From_Finite_Slit(const Data& measurement, int point_Index)
+double Global_Variables::integral_1D_0_p_Finite_Slit(double factor, double xi, double alpha, double nu, double a, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model)
 {
-	double cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
+	Q_UNUSED(integrator)
+	// choose model function and dimension
+	double (*func_Integral_0_Nu)(double, double, double, double, double, gsl_spline*, gsl_interp_accel*);
+	if(PSD_Model == ABC_Model)
+	{
+		func_Integral_0_Nu = &Global_Variables::PSD_ABC_1D_Finite_from_nu;
+	}
+	if(PSD_Model == fractal_Gauss_Model)
+	{
+		if(abs(alpha-1)>DBL_EPSILON) {
+			func_Integral_0_Nu = &Global_Variables::PSD_Fractal_Gauss_1D_Finite_from_nu;
+		} else {
+			func_Integral_0_Nu = &Global_Variables::PSD_Real_Gauss_1D_Finite_from_nu;
+		}
+	}
+	auto f = [&](double p)		{
+		return func_Integral_0_Nu(factor, xi, alpha, p, a, spline, acc);
+	};
+
+	tanh_sinh<double> tanh_sinh_integrator;
+	double integrator_Tolerance = 1E-3;
+	double result = tanh_sinh_integrator.integrate(f, 0, nu, integrator_Tolerance);
+	return result;
+}
+
+double Global_Variables::get_Phi_Max_From_Finite_Slit(const Data& measurement, double cos_Theta)
+{
 	double R = measurement.detector_1D.distance_To_Sample;
 	double l = measurement.detector_1D.slit_Length;
 	double phi_Max = atan(l/(2*R*cos_Theta+DBL_EPSILON));			// in radians
@@ -1678,20 +1712,31 @@ double Global_Variables::get_Phi_Max_From_Finite_Slit(const Data& measurement, i
 
 double Global_Variables::get_Nu_Max_From_Finite_Slit(double p, const Data& measurement, int point_Index)
 {
-	double cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
 	double cos_Theta_0 = measurement.beam_Theta_0_Cos_Value;
+	double cos_Theta = measurement.detector_Theta_Cos_Value;
+	if( measurement.measurement_Type == measurement_Types[Specular_Scan])
+	{
+		cos_Theta_0 = measurement.beam_Theta_0_Cos_Vec[point_Index];
+		cos_Theta = cos_Theta_0;
+	} else
+	if( measurement.measurement_Type == measurement_Types[Detector_Scan])
+	{
+		cos_Theta_0 = measurement.beam_Theta_0_Cos_Value;
+		cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
+	} else
 	if( measurement.measurement_Type == measurement_Types[Offset_Scan] ||
 		measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
 		cos_Theta_0 = measurement.beam_Theta_0_Cos_Vec[point_Index];
+		cos_Theta   = measurement.detector_Theta_Cos_Vec[point_Index];
 	}
 
 	// phi_Max
-	double phi_Max = get_Phi_Max_From_Finite_Slit(measurement, point_Index);
+	double phi_Max = get_Phi_Max_From_Finite_Slit(measurement, cos_Theta);
 
 	// max frequency
 	double lambda_2 = pow(measurement.lambda_Value,2);
-	double nu_Max = sqrt(p*p + 2./lambda_2 * cos_Theta*cos_Theta_0*(1.-cos(phi_Max)));
+	double nu_Max = sqrt(abs(p*p + 2./lambda_2 * cos_Theta*cos_Theta_0*(1.-cos(phi_Max))));
 	return nu_Max;
 }
 

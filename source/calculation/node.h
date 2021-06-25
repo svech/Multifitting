@@ -44,7 +44,7 @@ public:
 	vector<double> specular_Debye_Waller_Weak_Factor_R;
 
 	// new realizations
-	double combined_Effective_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha, double nu_Min, double nu_Max, QString PSD_Type, ooura_fourier_sin<double>& integrator);
+	double combined_Effective_Sigma_2(const Data& measurement, const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha, double nu_Min, double nu_Max, QString PSD_Type, ooura_fourier_sin<double>& integrator);
 	double combined_Effective_Sigma_2_From_Spline(const Imperfections_Model& imperfections_Model, double nu_Min, double nu_Max, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Type, tanh_sinh<double>& integrator);
 	double combined_Effective_Sigma_2_Peak(double nu_Min, double nu_Max, QString PSD_Type, tanh_sinh<double>& integrator);
 
@@ -52,31 +52,17 @@ public:
 	void calc_Debye_Waller_Total_Sigma(const Imperfections_Model& imperfections_Model);
 	void calc_Debye_Waller_Sigma      (const Imperfections_Model& imperfections_Model, const Data& measurement);
 
-	// deprecated
-	//-------------------------------------------------------
-	// old realizations
-	double ABC_Combined_1D_Effective_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha, double nu_Max);
-	double ABC_Combined_Total_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha);
-	double FG_Combined_1D_Effective_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha, double nu_Max);
-	double FG_Combined_Total_Sigma_2(const Imperfections_Model& imperfections_Model, double sigma, double xi, double alpha);
-	void calc_Combined_Delta_Sigma_2_Spline(const vector<double>& p0, gsl_spline*& spline_Delta_Sigma_2);
 	//-------------------------------------------------------
 
 	void calc_Integral_Intensity_Near_Specular(const Imperfections_Model& imperfections_Model, Data& measurement, const Calc_Functions& calc_Functions);
 	/// ------------------------------------------------
 
 	double get_Asymptotics_Nu(double xi, double alpha);
-	void create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model);
+	void create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model, const Data& measurement);
 	void clear_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model);
 
 	gsl_spline* spline_PSD_FG_1D;
 	gsl_interp_accel* acc_PSD_FG_1D;
-
-	void create_Spline_PSD_Fractal_Gauss_1D_Finite(const Imperfections_Model& imperfections_Model, const Data& measurement);
-	void clear_Spline_PSD_Fractal_Gauss_1D_Finite(const Imperfections_Model& imperfections_Model);
-
-	gsl_spline* spline_PSD_FG_1D_Finite;
-	gsl_interp_accel* acc_PSD_FG_1D_Finite;
 
 	void create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfections_Model);
 	void clear_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfections_Model);

@@ -116,11 +116,11 @@ void Common_Part::create_1D_Detector_GroupBox()
 			slit_Length_SpinBox->setEnabled(measurement.detector_1D.finite_Slit);
 			slit_Length_SpinBox->setAccelerated(true);
 			slit_Length_SpinBox->setRange(0, MAX_DOUBLE);
-			slit_Length_SpinBox->setDecimals(1);
+			slit_Length_SpinBox->setDecimals(3);
 			slit_Length_SpinBox->setValue(measurement.detector_1D.slit_Length);
 			slit_Length_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			slit_Length_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			slit_Length_SpinBox->setProperty(min_Size_Property,40);
+			slit_Length_SpinBox->setProperty(min_Size_Property,50);
 		second_Row_Layout->addWidget(slit_Length_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(slit_Length_SpinBox);
 
@@ -158,7 +158,7 @@ void Common_Part::create_1D_Detector_GroupBox()
 //			slit_Width_SpinBox->setSingleStep(0.01);
 			slit_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			slit_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			slit_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			slit_Width_SpinBox->setProperty(min_Size_Property,50);
 		slit_Layout->addWidget(slit_Width_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(slit_Width_SpinBox);
 
