@@ -1683,7 +1683,7 @@ double Global_Variables::get_Nu_Max_From_Finite_Slit(double p, const Data& measu
 	if( measurement.measurement_Type == measurement_Types[Offset_Scan] ||
 		measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
-		cos_Theta_0 = measurement.beam_Theta_0_Cos_Vec[i];
+		cos_Theta_0 = measurement.beam_Theta_0_Cos_Vec[point_Index];
 	}
 
 	// phi_Max

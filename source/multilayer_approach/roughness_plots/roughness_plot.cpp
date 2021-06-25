@@ -740,6 +740,9 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 
 	material = current_Data.material;
 
+	Data fake_Measurement;
+	fake_Measurement.measurement_Type = measurement_Types[Specular_Scan];
+
 	double tolerance = 1E-3;
 	double depth = 2;
 	ooura_fourier_sin<double> integrator(tolerance,depth);
@@ -812,15 +815,6 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 		/// sigma_effective calculation
 		double sigma_2 = current_Node->combined_Effective_Sigma_2(multilayer->imperfections_Model, sigma, xi, alpha, calc_Nu_Min, calc_Nu_Max, multilayer->roughness_Plot_Options.PSD_Type, integrator);
 		sigma_Eff = sqrt(sigma_2);
-
-		for(double p = 1E-8; p<101; p *= 10)
-		{
-			double a = current_Data.relative_Density.value;
-			qInfo() << p << Global_Variables::PSD_ABC_1D_Finite_from_nu(sigma,  xi, alpha, p, a, nullptr, nullptr) << endl;
-			qInfo() << p << Global_Variables::PSD_ABC_1D_from_nu       (factor, xi, alpha, p,    nullptr, nullptr) << endl;
-			qInfo() << endl;
-		}
-		qInfo() << endl;
 
 		/// clear FG splines
 		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
@@ -913,7 +907,7 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 
 		/// creating peak spline
 		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-			current_Node->create_Spline_PSD_Peak(multilayer->imperfections_Model);
+			current_Node->create_Spline_PSD_Peak(multilayer->imperfections_Model, fake_Measurement);
 		} else {
 			/* do nothing */
 		}
@@ -980,7 +974,7 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 			substrate_Node->create_Spline_PSD_Fractal_Gauss_1D	(multilayer->imperfections_Model);
 			substrate_Node->create_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
 			substrate_Node->create_Spline_PSD_Combined_1D		(multilayer->imperfections_Model);
-			substrate_Node->create_Spline_PSD_Peak				(multilayer->imperfections_Model);
+			substrate_Node->create_Spline_PSD_Peak				(multilayer->imperfections_Model, fake_Measurement);
 			substrate_Node->create_Spline_PSD_Measured			(multilayer->imperfections_Model);
 			substrate_Node->create_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model, media_Data_Map_Vector, interface_Index-1);
 			substrate_Node->create_Spline_PSD_Linear_Growth_1D	(multilayer->imperfections_Model);

@@ -2287,11 +2287,9 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D_Finite(const Imperfections_Model& 
 				dp = (p+1E-40)*1E-12;
 				double pdp = p+dp;
 
-				double nu_Max = Global_Variables::get_Nu_Max_From_Finite_Slit(p, measurement, i);
-				nu_Max = max(nu_Max, pdp);
-
-				/// nu parts for integration
-				double nu_End = min(nu_a, max_Frequency_For_2D_Spline);
+				double nu_End = Global_Variables::get_Nu_Max_From_Finite_Slit(p, measurement, i);
+				nu_End = max(nu_End, pdp);
+				nu_End = min(nu_End, max_Frequency_For_2D_Spline);
 
 				result  = integral_p_dp();
 				result += integrator.integrate(f, pdp, nu_End, integrator_Tolerance);
@@ -2822,9 +2820,9 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 			size_t limit = 1000;
 			gsl_integration_workspace* w = gsl_integration_workspace_alloc(limit);
 
-			double p_Thread = 0;
+			double p = 0;
 			Frequency_Params frequency_Params;
-			frequency_Params.pa = &p_Thread;
+			frequency_Params.pa = &p;
 			frequency_Params.peak_Frequency = peak_Frequency;
 			frequency_Params.peak_Width = peak_Width;
 
@@ -2832,8 +2830,9 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 			F.function = &func;
 			F.params = &frequency_Params;
 
+//			double nu_Max = min(p_Max, max_Frequency_For_2D_Spline);
 			size_t npts = 2;
-			vector<double> pts = {p_Thread, p_Max*(1.+1E-5)};
+			vector<double> pts = {p, p_Max};
 
 			/// -----------------------------------
 			// for tanh_sinh integration
@@ -2841,13 +2840,19 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 			tanh_sinh<double> integrator;
 			double integrator_Tolerance = 1E-4;
 			auto f = [&](double nu) {
-				return exp(-pow((nu-peak_Frequency)/peak_Width,2)) * nu / sqrt(nu*nu - p_Thread*p_Thread);
+				return exp(-pow((nu-peak_Frequency)/peak_Width,2)) * nu / sqrt(nu*nu - p*p);
 			};
 			/// -----------------------------------
 
 			for(int i=n_Min; i<n_Max; ++i)
 			{
-				p_Thread = interpoints_Argum_Vec[i];
+				p = interpoints_Argum_Vec[i];
+
+//				if(measurement.detector_1D.finite_Slit) {
+//					double local_Nu_Max = Global_Variables::get_Nu_Max_From_Finite_Slit(p, measurement, i);
+//					pts[1] = min(nu_Max, local_Nu_Max);
+//				}
+
 				if(p_Min_Integration < interpoints_Argum_Vec[i])
 				{
 					pts[0] = interpoints_Argum_Vec[i];
