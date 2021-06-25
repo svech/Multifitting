@@ -742,6 +742,7 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 
 	Data fake_Measurement;
 	fake_Measurement.measurement_Type = measurement_Types[Specular_Scan];
+	fake_Measurement.detector_1D.finite_Slit = false;
 
 	double tolerance = 1E-3;
 	double depth = 2;
@@ -813,7 +814,7 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 		}
 
 		/// sigma_effective calculation
-		double sigma_2 = current_Node->combined_Effective_Sigma_2(multilayer->imperfections_Model, sigma, xi, alpha, calc_Nu_Min, calc_Nu_Max, multilayer->roughness_Plot_Options.PSD_Type, integrator);
+		double sigma_2 = current_Node->combined_Effective_Sigma_2(fake_Measurement, multilayer->imperfections_Model, sigma, xi, alpha, calc_Nu_Min, calc_Nu_Max, multilayer->roughness_Plot_Options.PSD_Type, integrator);
 		sigma_Eff = sqrt(sigma_2);
 
 		/// clear FG splines
@@ -891,7 +892,7 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 			}
 
 			/// sigma_effective calculation
-			double sigma_2 = current_Node->combined_Effective_Sigma_2(multilayer->imperfections_Model, sigma, xi, alpha, calc_Nu_Min, calc_Nu_Max, multilayer->roughness_Plot_Options.PSD_Type, integrator);
+			double sigma_2 = current_Node->combined_Effective_Sigma_2(fake_Measurement, multilayer->imperfections_Model, sigma, xi, alpha, calc_Nu_Min, calc_Nu_Max, multilayer->roughness_Plot_Options.PSD_Type, integrator);
 			sigma_Eff = sqrt(sigma_2);
 		}
 		/// clear measured spline

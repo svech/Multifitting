@@ -1325,12 +1325,11 @@ double Global_Variables::PSD_ABC_1D_from_nu(double factor, double xi, double alp
 	return /*4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi*/ factor / pow(1+val*val, alpha+0.5);
 }
 
-double Global_Variables::PSD_ABC_1D_Finite_from_nu(double factor, double xi, double alpha, double p, double a, gsl_spline *spline, gsl_interp_accel *acc)
+double Global_Variables::PSD_ABC_1D_Finite_from_nu(double sigma, double xi, double alpha, double p, double a, gsl_spline *spline, gsl_interp_accel *acc)
 {
 	double x = 4*M_PI*M_PI*xi*xi;
-	double r = a*a-p*p;
-//	double coef = 16*sqrt(r)*alpha*(M_PI*xi*xi*sigma*sigma)/pow(1.+p*p*x,1.+alpha);
-	double coef = 16*sqrt(r)*alpha*         factor         /pow(1.+p*p*x,1.+alpha);
+	double r = abs(a*a-p*p);
+	double coef = 16*sqrt(r)*alpha*(M_PI*xi*xi*sigma*sigma)/pow(1.+p*p*x,1.+alpha);
 	double z = -r*x/(1.+p*p*x); // z is non-positive
 	double zz = z/(z-1);
 	zz = min(zz,1.-DBL_EPSILON);
@@ -1376,13 +1375,13 @@ double Global_Variables::PSD_Real_Gauss_1D_from_nu(double factor, double xi, dou
 	return /*2*sqrt(M_PI) * sigma*sigma*xi*/ factor * exp(-val*val);
 }
 
-double Global_Variables::PSD_Real_Gauss_1D_Finite_from_nu(double factor, double xi, double alpha, double p, double a, gsl_spline *spline, gsl_interp_accel *acc)
+double Global_Variables::PSD_Real_Gauss_1D_Finite_from_nu(double sigma, double xi, double alpha, double p, double a, gsl_spline *spline, gsl_interp_accel *acc)
 {
 	Q_UNUSED(alpha)
 	Q_UNUSED(spline)
 	Q_UNUSED(acc)
 	double val = M_PI*p*xi;
-	return /*2*sqrt(M_PI) * sigma*sigma*xi*/ factor * exp(-val*val) * erf(sqrt(abs(a*a-p*p))*M_PI*xi);
+	return 2*sqrt(M_PI) * sigma*sigma*xi * exp(-val*val) * erf(sqrt(abs(a*a-p*p))*M_PI*xi);
 }
 
 double Global_Variables::PSD_Real_Gauss_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc)
@@ -1420,11 +1419,11 @@ double Global_Variables::PSD_Fractal_Gauss_1D_from_nu(double factor, double xi, 
 	return gsl_spline_eval(spline, p, acc);
 }
 
-double Global_Variables::PSD_Fractal_Gauss_1D_Finite_from_nu(double factor, double xi, double alpha, double p, double a, gsl_spline *spline, gsl_interp_accel *acc)
+double Global_Variables::PSD_Fractal_Gauss_1D_Finite_from_nu(double sigma, double xi, double alpha, double p, double a, gsl_spline *spline, gsl_interp_accel *acc)
 {
 	Q_UNUSED(a)
 	// same function. finite slit is accounted in splining
-	return Global_Variables::PSD_Fractal_Gauss_1D_from_nu(factor, xi, alpha, p, spline, acc);
+	return Global_Variables::PSD_Fractal_Gauss_1D_from_nu(sigma, xi, alpha, p, spline, acc);
 }
 
 double Global_Variables::PSD_Fractal_Gauss_1D_Asymp_from_nu(double factor, double alpha, double p)
@@ -1579,7 +1578,7 @@ double Global_Variables::zero_PSD_2D_from_nu(double factor, double xi, double al
 	return 0;
 }
 
-double Global_Variables::ABC_1D_Integral_0_Nu(double sigma, double xi, double alpha, double nu, ooura_fourier_sin<double>& integrator)
+double Global_Variables::ABC_1D_Integral_0_Nu(double sigma, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model)
 {
 	double z = -pow(2*M_PI*nu*xi,2); // z is non-negative
 	double zz = z/(z-1);
@@ -1592,13 +1591,13 @@ double Global_Variables::ABC_1D_Integral_0_Nu(double sigma, double xi, double al
 	return 2*(2*M_PI*nu)*xi*sigma*sigma*tgamma(alpha+0.5) * pFq / (sqrt(M_PI) * tgamma(alpha));
 }
 
-double Global_Variables::ABC_2D_Integral_0_Nu(double sigma, double xi, double alpha, double nu, ooura_fourier_sin<double>& integrator)
+double Global_Variables::ABC_2D_Integral_0_Nu(double sigma, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model)
 {
 	double val = (2*M_PI*nu*xi);
 	return sigma*sigma*(1.-pow(1 + val*val,-alpha));
 }
 
-double Global_Variables::FG_1D_Integral_0_Nu(double sigma, double xi, double alpha, double nu, ooura_fourier_sin<double>& integrator)
+double Global_Variables::FG_1D_Integral_0_Nu(double sigma, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model)
 {
 	if(nu>DBL_EPSILON)
 	{
@@ -1613,7 +1612,7 @@ double Global_Variables::FG_1D_Integral_0_Nu(double sigma, double xi, double alp
 	}
 }
 
-double Global_Variables::FG_2D_Integral_0_Nu(double sigma, double xi, double alpha, double nu, ooura_fourier_sin<double>& integrator)
+double Global_Variables::FG_2D_Integral_0_Nu(double sigma, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model)
 {
 	if(nu>DBL_EPSILON)
 	{
@@ -1663,19 +1662,19 @@ double Global_Variables::FG_2D_Integral_0_Nu(double sigma, double xi, double alp
 	}
 }
 
-double Global_Variables::real_Gauss_1D_Integral_0_Nu(double sigma, double xi, double alpha, double nu, ooura_fourier_sin<double>& integrator)
+double Global_Variables::real_Gauss_1D_Integral_0_Nu(double sigma, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model)
 {
 	double val = M_PI*nu*xi;
 	return sigma*sigma*erf(val*val);
 }
 
-double Global_Variables::real_Gauss_2D_Integral_0_Nu(double sigma, double xi, double alpha, double nu, ooura_fourier_sin<double>& integrator)
+double Global_Variables::real_Gauss_2D_Integral_0_Nu(double sigma, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model)
 {
 	double val = M_PI*nu*xi;
 	return sigma*sigma*(1.-exp(-val*val));
 }
 
-double Global_Variables::integral_1D_0_p_Finite_Slit(double factor, double xi, double alpha, double nu, double a, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model)
+double Global_Variables::integral_1D_0_p_Finite_Slit(double factor, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model)
 {
 	Q_UNUSED(integrator)
 	// choose model function and dimension
@@ -1692,7 +1691,8 @@ double Global_Variables::integral_1D_0_p_Finite_Slit(double factor, double xi, d
 			func_Integral_0_Nu = &Global_Variables::PSD_Real_Gauss_1D_Finite_from_nu;
 		}
 	}
-	auto f = [&](double p)		{
+	auto f = [&](double p)	{
+		double a = sqrt(abs(p*p + dp2));
 		return func_Integral_0_Nu(factor, xi, alpha, p, a, spline, acc);
 	};
 

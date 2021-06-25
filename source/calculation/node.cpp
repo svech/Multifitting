@@ -660,14 +660,15 @@ double Node::combined_Effective_Sigma_2(const Data& measurement, const Imperfect
 			func_Integral_0_Nu = (PSD_Type == PSD_Type_1D ? &Global_Variables::real_Gauss_1D_Integral_0_Nu : &Global_Variables::real_Gauss_2D_Integral_0_Nu );
 		}
 	}
-//	double a = 0;
+	// if finite slit length
+	double lambda_2 = pow(measurement.lambda_Value,2);
+	double phi_Max = M_PI_2;
+	double dp2 = 2./lambda_2 * 1*1*(1.-cos(phi_Max));
 	if(PSD_Type == PSD_Type_1D && measurement.detector_1D.finite_Slit)
 	{
+		phi_Max = Global_Variables::get_Phi_Max_From_Finite_Slit(measurement, 1);
+		dp2 = 2./lambda_2 * 1*1*(1.-cos(phi_Max));
 		func_Integral_0_Nu = &Global_Variables::integral_1D_0_p_Finite_Slit;
-
-//		a = Global_Variables::get_Nu_Max_From_Finite_Slit(p, measurement, i);
-//		nu_End = max(nu_End, pdp);
-//		nu_End = min(nu_End, max_Frequency_For_2D_Spline);
 	}
 
 	bool add_Measured_PSD    = (PSD_Type == PSD_Type_1D ? imperfections_Model.add_Measured_PSD_1D : imperfections_Model.add_Measured_PSD_2D);
@@ -690,10 +691,9 @@ double Node::combined_Effective_Sigma_2(const Data& measurement, const Imperfect
 	// no measured PSD at all
 	if(no_Measured_PSD)
 	{
-//		(sigma, xi, alpha, nu, double a, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
-		sigma_2 = func_Integral_0_Nu(sigma, xi, alpha, nu_Max, integrator);
+		sigma_2 = func_Integral_0_Nu(sigma, xi, alpha, nu_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
 		if(nu_Min>nu_Min_Theshold)  {
-			sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, nu_Min, integrator);
+			sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, nu_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
 		}
 	} else
 	// with measured PSD
@@ -709,28 +709,28 @@ double Node::combined_Effective_Sigma_2(const Data& measurement, const Imperfect
 		if( arg_Min <= nu_Min && arg_Max < nu_Max )	 /// arg_Min < nu_Min < arg_Max < nu_Max
 		{
 			sigma_2 = pow(psd_Data.calc_Sigma_Effective(nu_Min, arg_Max)*sigma_Factor,2);
-			sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, nu_Max, integrator);
+			sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, nu_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
 			if(nu_Min>nu_Min_Theshold)  {
-				sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, arg_Max, integrator);
+				sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, arg_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
 			}
 		}
 		if( arg_Min > nu_Min && arg_Max >= nu_Max )	 /// nu_Min < arg_Min < nu_Max < arg_Max
 		{
 			sigma_2 = pow(psd_Data.calc_Sigma_Effective(arg_Min, nu_Max)*sigma_Factor,2);
-			sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, arg_Min, integrator);
+			sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, arg_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
 			if(nu_Min>nu_Min_Theshold)  {
-				sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, nu_Min, integrator);
+				sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, nu_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
 			}
 		}
 		if( arg_Min > nu_Min && arg_Max < nu_Max )	 /// nu_Min < arg_Min < arg_Max < nu_Max
 		{
 			sigma_2 = pow(psd_Data.calc_Sigma_Full()*sigma_Factor,2);
-			sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, arg_Min, integrator);
+			sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, arg_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
 			if(nu_Min>nu_Min_Theshold)  {
-				sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, nu_Min, integrator);
+				sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, nu_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
 			}
-			sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, nu_Max, integrator);
-			sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, arg_Max, integrator);
+			sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, nu_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+			sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, arg_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
 		}
 	}
 	return sigma_2;
@@ -1011,8 +1011,8 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 				vector<double> val(local_Points, 0);
 				for(int j=0; j<local_Points; j++)
 				{
-					arg[j] = p0[n_Min] + j*step;
-					val[j] = combined_Effective_Sigma_2(imperfections_Model, sigma, xi, alpha, 0, arg[j], PSD_Type_1D, integrator);
+					arg[j] = p0[n_Min] + j*step;					
+					val[j] = combined_Effective_Sigma_2(measurement, imperfections_Model, sigma, xi, alpha, 0, arg[j], PSD_Type_1D, integrator);
 				}
 				arg.insert(arg.begin(), 0);
 				arg.push_back(MAX_DOUBLE);
@@ -1028,6 +1028,8 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 //					sigma_2[i]  = total_Sigma_2 - combined_Effective_Sigma_2(imperfections_Model, sigma, xi, alpha, 0, p0[i], PSD_Type_1D, integrator);
 					sigma_2[i]  = total_Sigma_2 - gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2);
 					sigma_2[i] -= delta_Peak_Sigma_2[i];
+
+//					qInfo() << total_Sigma_2 << gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2) << delta_Peak_Sigma_2[i] << endl;
 				}
 			});
 		}
@@ -1558,7 +1560,9 @@ void Node::calc_Debye_Waller_Total_Sigma(const Imperfections_Model& imperfection
 		double tolerance = 1E-3;
 		double depth = 2;
 		ooura_fourier_sin<double> integrator(tolerance,depth);
-		specular_Debye_Waller_Total_Sigma = combined_Effective_Sigma_2(imperfections_Model, sigma, xi, alpha, 0, imperfections_Model.nu_Limit, PSD_Type, integrator);
+		Data fake_Measurement;
+		fake_Measurement.detector_1D.finite_Slit = false;
+		specular_Debye_Waller_Total_Sigma = combined_Effective_Sigma_2(fake_Measurement, imperfections_Model, sigma, xi, alpha, 0, imperfections_Model.nu_Limit, PSD_Type, integrator);
 		specular_Debye_Waller_Total_Sigma += peak_Sigma*peak_Sigma;
 	}
 	specular_Debye_Waller_Total_Sigma = sqrt(specular_Debye_Waller_Total_Sigma);
@@ -1938,7 +1942,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 
 	// in other cases ( substrate or layer-with-individual-function ) go further
 
-//	auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
 
 	double sigma = struct_Data.roughness_Model.sigma.value;
 	double xi =    struct_Data.roughness_Model.cor_radius.value;
@@ -1956,6 +1960,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 
 	if(measurement.detector_1D.finite_Slit)
 	{
+		qInfo() << "finite_Slit" << endl;
 		/// zero point here is also integrated
 		{
 			arg.insert(arg.begin(), 0); // zero point
@@ -1975,10 +1980,10 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 				double integrator_Tolerance = 1E-4;
 
 				auto f = [&](double nu)		{
-					return 4 * gsl_spline_eval(spline_PSD_FG_2D, nu, acc_PSD_FG_2D) * nu / sqrt(nu*nu - p*p);
+					return 4 * gsl_spline_eval(spline_PSD_FG_2D, 2*M_PI*nu, acc_PSD_FG_2D) * nu / sqrt(nu*nu - p*p);
 				};
 				auto integral_p_dp = [&]()		{
-					return 4 * gsl_spline_eval(spline_PSD_FG_2D, p, acc_PSD_FG_2D) * sqrt(2*p*dp);
+					return 4 * gsl_spline_eval(spline_PSD_FG_2D, 2*M_PI*p, acc_PSD_FG_2D) * sqrt(2*p*dp);
 				};
 
 				for(int i=n_Min; i<n_Max; ++i)
@@ -1993,6 +1998,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 					nu_End = min(nu_End, max_Frequency_For_2D_Spline);
 
 					result  = integral_p_dp();
+//					qInfo() << f(nu_End) << pdp << nu_End << endl;;
 					result += integrator.integrate(f, pdp, nu_End, integrator_Tolerance);
 
 					val[i] = result;
@@ -2052,9 +2058,9 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 	spline_PSD_FG_1D = gsl_spline_alloc(gsl_interp_steffen, val.size());
 	gsl_spline_init(spline_PSD_FG_1D, arg.data(), val.data(), val.size());
 
-//	auto end = std::chrono::system_clock::now();
-//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "	FG 1D spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "	FG 1D spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 }
 void Node::clear_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model)
 {
@@ -2074,7 +2080,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 
 	// in other cases ( substrate or layer-with-individual-function ) go further
 
-//	auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
 
 	double sigma = struct_Data.roughness_Model.sigma.value;
 	double xi =    struct_Data.roughness_Model.cor_radius.value;
@@ -2180,9 +2186,9 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 	spline_PSD_FG_2D = gsl_spline_alloc(gsl_interp_steffen, val.size());
 	gsl_spline_init(spline_PSD_FG_2D, arg.data(), val.data(), val.size());
 
-//	auto end = std::chrono::system_clock::now();
-//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "	FG 2D spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "	FG 2D spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 }
 void Node::clear_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfections_Model)
 {
@@ -2568,10 +2574,10 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 			{
 				double result = 0;
 				p = interpoints_Argum_Vec[i];
-				dp = (p+1E-40)*1E-12;
+				dp = (p+1E-40)*1E-6;
 				double pdp = p+dp;
 
-				double nu_End = p_Max+dp;
+				double nu_End = interpoints_Argum_Vec.back()+dp;
 				if(measurement.detector_1D.finite_Slit) {
 					nu_End = min(nu_End, Global_Variables::get_Nu_Max_From_Finite_Slit(pdp, measurement, i));
 				}

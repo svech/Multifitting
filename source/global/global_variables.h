@@ -377,17 +377,17 @@ public:
 	static void new_Layer_Particles_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model);
 	static double PSD_ABC_1D						 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
 	static double PSD_ABC_1D_from_nu				 (double factor, double xi, double alpha, double p, gsl_spline* spline, gsl_interp_accel* acc);
-	static double PSD_ABC_1D_Finite_from_nu			 (double factor, double xi, double alpha, double p, double a, gsl_spline* spline, gsl_interp_accel* acc);
+	static double PSD_ABC_1D_Finite_from_nu			 (double sigma,  double xi, double alpha, double p, double a, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_ABC_2D						 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_ABC_2D_from_nu				 (double factor, double xi, double alpha, double nu, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Real_Gauss_1D					 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
 	static double PSD_Real_Gauss_1D_from_nu			 (double factor, double xi, double alpha, double p, gsl_spline* spline, gsl_interp_accel* acc);
-	static double PSD_Real_Gauss_1D_Finite_from_nu	 (double factor, double xi, double alpha, double p, double a, gsl_spline* spline, gsl_interp_accel* acc);
+	static double PSD_Real_Gauss_1D_Finite_from_nu	 (double sigma,  double xi, double alpha, double p, double a, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Real_Gauss_2D					 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Real_Gauss_2D_from_nu			 (double factor, double xi, double alpha, double nu, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Fractal_Gauss_1D				 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Fractal_Gauss_1D_from_nu		 (double factor, double xi, double alpha, double p, gsl_spline* spline, gsl_interp_accel* acc);
-	static double PSD_Fractal_Gauss_1D_Finite_from_nu(double factor, double xi, double alpha, double p, double a, gsl_spline* spline, gsl_interp_accel* acc);
+	static double PSD_Fractal_Gauss_1D_Finite_from_nu(double sigma, double xi, double alpha, double p, double a, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Fractal_Gauss_1D_Asymp_from_nu (double factor, double alpha, double p);
 	static double PSD_Fractal_Gauss_2D				 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 	static double PSD_Fractal_Gauss_2D_from_nu		 (double factor, double xi, double alpha, double nu, gsl_spline* spline, gsl_interp_accel* acc);
@@ -405,13 +405,13 @@ public:
 	static double zero_PSD_2D						 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi, gsl_spline* spline, gsl_interp_accel* acc);
 	static double zero_PSD_2D_from_nu				 (double factor, double xi, double alpha, double nu, gsl_spline* spline, gsl_interp_accel* acc);
 
-	static double ABC_1D_Integral_0_Nu				 (double sigma, double xi, double alpha, double nu, double a, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
-	static double ABC_2D_Integral_0_Nu				 (double sigma, double xi, double alpha, double nu, double a, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
-	static double FG_1D_Integral_0_Nu				 (double sigma, double xi, double alpha, double nu, double a, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
-	static double FG_2D_Integral_0_Nu				 (double sigma, double xi, double alpha, double nu, double a, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
-	static double real_Gauss_1D_Integral_0_Nu		 (double sigma, double xi, double alpha, double nu, double a, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
-	static double real_Gauss_2D_Integral_0_Nu		 (double sigma, double xi, double alpha, double nu, double a, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
-	static double integral_1D_0_p_Finite_Slit		 (double factor,double xi, double alpha, double nu, double a, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
+	static double ABC_1D_Integral_0_Nu				 (double sigma, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
+	static double ABC_2D_Integral_0_Nu				 (double sigma, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
+	static double FG_1D_Integral_0_Nu				 (double sigma, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
+	static double FG_2D_Integral_0_Nu				 (double sigma, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
+	static double real_Gauss_1D_Integral_0_Nu		 (double sigma, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
+	static double real_Gauss_2D_Integral_0_Nu		 (double sigma, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
+	static double integral_1D_0_p_Finite_Slit		 (double factor,double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
 
 	static double get_Phi_Max_From_Finite_Slit		 (const Data& measurement, double cos_Theta);
 	static double get_Nu_Max_From_Finite_Slit		 (double p, const Data& measurement, int point_Index);
