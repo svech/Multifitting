@@ -413,8 +413,8 @@ public:
 	static double real_Gauss_2D_Integral_0_Nu		 (double sigma, double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
 	static double integral_1D_0_p_Finite_Slit		 (double factor,double xi, double alpha, double nu, double dp2, ooura_fourier_sin<double>& integrator, gsl_spline* spline, gsl_interp_accel* acc, QString PSD_Model);
 
-	static double get_Phi_Max_From_Finite_Slit		 (const Data& measurement, double cos_Theta);
-	static double get_Nu_Max_From_Finite_Slit		 (double p, const Data& measurement, int point_Index);
+	static double get_Phi_Max_From_Finite_Slit		 (const Data& measurement, double cos_Theta = 1);
+	static double get_Nu_Max_From_Finite_Slit		 (double p, const Data& measurement);
 
 	static double Cor_Fractal_Gauss					 (				 double xi, double alpha, double r);
 	static double Cor_ABC							 (				 double xi, double alpha, double r);

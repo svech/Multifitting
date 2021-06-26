@@ -742,7 +742,8 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 
 	Data fake_Measurement;
 	fake_Measurement.measurement_Type = measurement_Types[Specular_Scan];
-	fake_Measurement.detector_1D.finite_Slit = false;
+	fake_Measurement.detector_1D.finite_Slit = refill_dependent_structure_table;
+	fake_Measurement.detector_1D.slit_Length = current_Data.relative_Density.value;
 
 	double tolerance = 1E-3;
 	double depth = 2;
@@ -757,6 +758,9 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 
 		/// creating FG splines. additional checks inside
 		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
+			if(fake_Measurement.detector_1D.finite_Slit) {
+				current_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
+			}
 			current_Node->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, fake_Measurement);
 		} else {
 			current_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
@@ -847,9 +851,9 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 
 			if(current_Node->spline_PSD_Combined_1D_Condition(multilayer->imperfections_Model))
 			{
-				current_Node->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, fake_Measurement);
 				current_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
-				current_Node->create_Spline_PSD_Combined_1D(multilayer->imperfections_Model);
+				current_Node->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, fake_Measurement);
+				current_Node->create_Spline_PSD_Combined_1D(multilayer->imperfections_Model, fake_Measurement);
 
 				for(int i=0; i<num_Plot_Points; i++)
 				{
@@ -972,9 +976,9 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D)
 		{
 			/// 1D
-			substrate_Node->create_Spline_PSD_Fractal_Gauss_1D	(multilayer->imperfections_Model, fake_Measurement);
 			substrate_Node->create_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
-			substrate_Node->create_Spline_PSD_Combined_1D		(multilayer->imperfections_Model);
+			substrate_Node->create_Spline_PSD_Fractal_Gauss_1D	(multilayer->imperfections_Model, fake_Measurement);
+			substrate_Node->create_Spline_PSD_Combined_1D		(multilayer->imperfections_Model, fake_Measurement);
 			substrate_Node->create_Spline_PSD_Peak				(multilayer->imperfections_Model, fake_Measurement);
 			substrate_Node->create_Spline_PSD_Measured			(multilayer->imperfections_Model);
 			substrate_Node->create_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model, media_Data_Map_Vector, interface_Index-1);

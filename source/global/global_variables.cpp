@@ -1407,7 +1407,7 @@ double Global_Variables::PSD_Fractal_Gauss_1D(double factor, double xi, double a
 	Q_UNUSED(factor)
 	Q_UNUSED(xi)
 	Q_UNUSED(alpha)
-	double p = k*abs(cos_Theta - cos_Theta_0);
+	double p = k*abs(cos_Theta - cos_Theta_0)/(2*M_PI); // here we need real frequency
 	return gsl_spline_eval(spline, p, acc);
 }
 
@@ -1710,29 +1710,29 @@ double Global_Variables::get_Phi_Max_From_Finite_Slit(const Data& measurement, d
 	return phi_Max;
 }
 
-double Global_Variables::get_Nu_Max_From_Finite_Slit(double p, const Data& measurement, int point_Index)
+double Global_Variables::get_Nu_Max_From_Finite_Slit(double p, const Data& measurement)
 {
-	double cos_Theta_0 = measurement.beam_Theta_0_Cos_Value;
-	double cos_Theta = measurement.detector_Theta_Cos_Value;
-	if( measurement.measurement_Type == measurement_Types[Specular_Scan])
-	{
-		cos_Theta_0 = measurement.beam_Theta_0_Cos_Vec[point_Index];
-		cos_Theta = cos_Theta_0;
-	} else
-	if( measurement.measurement_Type == measurement_Types[Detector_Scan])
-	{
-		cos_Theta_0 = measurement.beam_Theta_0_Cos_Value;
-		cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
-	} else
-	if( measurement.measurement_Type == measurement_Types[Offset_Scan] ||
-		measurement.measurement_Type == measurement_Types[Rocking_Curve] )
-	{
-		cos_Theta_0 = measurement.beam_Theta_0_Cos_Vec[point_Index];
-		cos_Theta   = measurement.detector_Theta_Cos_Vec[point_Index];
-	}
+	double cos_Theta_0 = 1;//measurement.beam_Theta_0_Cos_Value;
+	double cos_Theta = 1;//measurement.detector_Theta_Cos_Value;
+//	if( measurement.measurement_Type == measurement_Types[Specular_Scan])
+//	{
+//		cos_Theta_0 = measurement.beam_Theta_0_Cos_Vec[point_Index];
+//		cos_Theta = cos_Theta_0;
+//	}
+//	if( measurement.measurement_Type == measurement_Types[Detector_Scan])
+//	{
+//		cos_Theta_0 = measurement.beam_Theta_0_Cos_Value;
+//		cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
+//	}
+//	if( measurement.measurement_Type == measurement_Types[Offset_Scan] ||
+//		measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+//	{
+//		cos_Theta_0 = measurement.beam_Theta_0_Cos_Vec[point_Index];
+//		cos_Theta   = measurement.detector_Theta_Cos_Vec[point_Index];
+//	}
 
 	// phi_Max
-	double phi_Max = get_Phi_Max_From_Finite_Slit(measurement, cos_Theta);
+	double phi_Max = get_Phi_Max_From_Finite_Slit(measurement);
 
 	// max frequency
 	double lambda_2 = pow(measurement.lambda_Value,2);

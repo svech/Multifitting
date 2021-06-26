@@ -617,7 +617,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 							if(!measurement.detector_1D.finite_Slit) {
 								short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
 							}
-							short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Combined_1D		(multilayer->imperfections_Model);
+							short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Combined_1D		(multilayer->imperfections_Model, measurement);
 						}
 					}
 					if(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
@@ -692,7 +692,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_2D    (multilayer->imperfections_Model);
 					short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D    (multilayer->imperfections_Model, measurement);
 				}
-				short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Combined_1D(multilayer->imperfections_Model);
+				short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Combined_1D(multilayer->imperfections_Model, measurement);
 				if(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation &&
 				   (multilayer->imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model ||
 					multilayer->imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model))
