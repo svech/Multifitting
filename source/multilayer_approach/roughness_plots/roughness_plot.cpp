@@ -641,6 +641,7 @@ void Roughness_Plot::calculate_Profile()
 	double sigma_Eff;
 	double length_Coeff = length_Coefficients_Map.value(length_units);
 
+
 	if(use_Top_Surface)
 	{
 		bool go_Further = true;
@@ -837,11 +838,17 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 		double sigma_2 = current_Node->combined_Effective_Sigma_2(fake_Measurement, multilayer->imperfections_Model, sigma, xi, alpha, calc_Nu_Min, calc_Nu_Max, multilayer->roughness_Plot_Options.PSD_Type, integrator);
 		sigma_Eff = sqrt(sigma_2);
 
-		/// clear FG splines
-		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-			current_Node->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
-		} else {
-			current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
+		/// clear FG splines, but not for substrate
+		if(interface_Index != media_Counter-1) // not clear here for substrate
+		{
+			if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
+				current_Node->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
+				if(fake_Measurement.detector_1D.finite_Slit) {
+					current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
+				}
+			} else {
+				current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
+			}
 		}
 	}
 
@@ -867,8 +874,10 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 
 			if(current_Node->spline_PSD_Combined_1D_Condition(multilayer->imperfections_Model))
 			{
-				current_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
-				current_Node->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, fake_Measurement);
+				if(!fake_Measurement.detector_1D.finite_Slit) {	// if finite slit, already created and not deleted for substrate
+					current_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
+//					current_Node->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, fake_Measurement);
+				}
 				current_Node->create_Spline_PSD_Combined_1D(multilayer->imperfections_Model, fake_Measurement);
 
 				for(int i=0; i<num_Plot_Points; i++)
@@ -885,8 +894,10 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 				sigma_Eff = sqrt(sigma_2);
 
 				current_Node->clear_Spline_PSD_Combined_1D(multilayer->imperfections_Model);
-				current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
-				current_Node->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
+				if(!fake_Measurement.detector_1D.finite_Slit) {	// if finite slit, clear later for substrate
+					current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
+//					current_Node->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
+				}
 			}
 		} else
 		{
@@ -917,6 +928,17 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 		}
 		/// clear measured spline
 		current_Node->clear_Spline_PSD_Measured(multilayer->imperfections_Model);
+
+		/// clear FG splines
+		// clear here for substrate
+		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
+			current_Node->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
+			if(fake_Measurement.detector_1D.finite_Slit) {
+				current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
+			}
+		} else {
+			current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
+		}
 	}
 
 	/// gaussian peak

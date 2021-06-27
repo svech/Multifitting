@@ -647,7 +647,7 @@ double Node::combined_Effective_Sigma_2(const Data& measurement, const Imperfect
 	nu_Max = min(nu_Max, imperfections_Model.nu_Limit);
 
 	// choose model function and dimension
-	double (*func_Integral_0_Nu)(double, double, double, double, double, ooura_fourier_sin<double>&, gsl_spline*, gsl_interp_accel*, QString);
+	double (*func_Integral_0_Nu)(double, double, double, double, double, double, ooura_fourier_sin<double>&, gsl_spline*, gsl_interp_accel*, QString);
 	if(imperfections_Model.PSD_Model == ABC_Model)
 	{
 		func_Integral_0_Nu = (PSD_Type == PSD_Type_1D ? &Global_Variables::ABC_1D_Integral_0_Nu : &Global_Variables::ABC_2D_Integral_0_Nu );
@@ -691,9 +691,9 @@ double Node::combined_Effective_Sigma_2(const Data& measurement, const Imperfect
 	// no measured PSD at all
 	if(no_Measured_PSD)
 	{
-		sigma_2 = func_Integral_0_Nu(sigma, xi, alpha, nu_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+		sigma_2 = func_Integral_0_Nu(sigma, xi, alpha, 0, nu_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
 		if(nu_Min>nu_Min_Theshold)  {
-			sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, nu_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+			sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, 0, nu_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
 		}
 	} else
 	// with measured PSD
@@ -709,28 +709,44 @@ double Node::combined_Effective_Sigma_2(const Data& measurement, const Imperfect
 		if( arg_Min <= nu_Min && arg_Max < nu_Max )	 /// arg_Min < nu_Min < arg_Max < nu_Max
 		{
 			sigma_2 = pow(psd_Data.calc_Sigma_Effective(nu_Min, arg_Max)*sigma_Factor,2);
-			sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, nu_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
-			if(nu_Min>nu_Min_Theshold)  {
-				sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, arg_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+			if(PSD_Type == PSD_Type_1D && measurement.detector_1D.finite_Slit)
+			{
+				sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, arg_Max, nu_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+			} else {
+				sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, 0, nu_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+				if(arg_Max>nu_Min_Theshold)  {
+					sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, 0, arg_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+				}
 			}
 		}
 		if( arg_Min > nu_Min && arg_Max >= nu_Max )	 /// nu_Min < arg_Min < nu_Max < arg_Max
 		{
 			sigma_2 = pow(psd_Data.calc_Sigma_Effective(arg_Min, nu_Max)*sigma_Factor,2);
-			sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, arg_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
-			if(nu_Min>nu_Min_Theshold)  {
-				sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, nu_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+			if(PSD_Type == PSD_Type_1D && measurement.detector_1D.finite_Slit)
+			{
+				sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, nu_Min, arg_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+			} else {
+				sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, 0, arg_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+				if(nu_Min>nu_Min_Theshold)  {
+					sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, 0, nu_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+				}
 			}
 		}
 		if( arg_Min > nu_Min && arg_Max < nu_Max )	 /// nu_Min < arg_Min < arg_Max < nu_Max
 		{
 			sigma_2 = pow(psd_Data.calc_Sigma_Full()*sigma_Factor,2);
-			sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, arg_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
-			if(nu_Min>nu_Min_Theshold)  {
-				sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, nu_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+			if(PSD_Type == PSD_Type_1D && measurement.detector_1D.finite_Slit)
+			{
+				sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, nu_Min, arg_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+				sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, arg_Max, nu_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+			} else {
+				sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, 0, arg_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+				if(nu_Min>nu_Min_Theshold)  {
+					sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, 0, nu_Min, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+				}
+				sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, 0, nu_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
+				sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, 0, arg_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
 			}
-			sigma_2 += func_Integral_0_Nu(sigma, xi, alpha, nu_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
-			sigma_2 -= func_Integral_0_Nu(sigma, xi, alpha, arg_Max, dp2, integrator, spline_PSD_FG_1D, acc_PSD_FG_1D, imperfections_Model.PSD_Model);
 		}
 	}
 	return sigma_2;
@@ -793,7 +809,7 @@ double Node::combined_Effective_Sigma_2_Peak(double nu_Min, double nu_Max, QStri
 
 	if(PSD_Type == PSD_Type_1D)
 	{		
-		double integrator_Tolerance = 1E-3;
+		double integrator_Tolerance = 1E-4;
 
 		auto psd_Peak = [&](double p){return gsl_spline_eval(spline_PSD_Peak, p, acc_PSD_Peak);};
 
@@ -966,7 +982,7 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 					tanh_sinh<double> integrator;
 
 					// local splining
-					int local_Points = min(50, n_Max - n_Min);
+					int local_Points = min(30, n_Max - n_Min);
 					double step = (p0[n_Max-1]-p0[n_Min]) / (local_Points-1);
 					vector<double> arg(local_Points);
 					vector<double> val(local_Points, 0);
@@ -1028,8 +1044,6 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 //					sigma_2[i]  = total_Sigma_2 - combined_Effective_Sigma_2(imperfections_Model, sigma, xi, alpha, 0, p0[i], PSD_Type_1D, integrator);
 					sigma_2[i]  = total_Sigma_2 - gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2);
 					sigma_2[i] -= delta_Peak_Sigma_2[i];
-
-//					qInfo() << total_Sigma_2 << gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2) << delta_Peak_Sigma_2[i] << endl;
 				}
 			});
 		}
