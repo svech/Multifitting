@@ -1942,7 +1942,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 
 	// in other cases ( substrate or layer-with-individual-function ) go further
 
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 
 	double sigma = struct_Data.roughness_Model.sigma.value;
 	double xi =    struct_Data.roughness_Model.cor_radius.value;
@@ -1976,7 +1976,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 				double p = 0;
 				double dp = 0;
 				tanh_sinh<double> integrator;
-				double integrator_Tolerance = 1E-4;
+				double integrator_Tolerance = 1E-3;
 
 				auto f = [&](double nu)		{
 					return 4 * gsl_spline_eval(spline_PSD_FG_2D, 2*M_PI*nu, acc_PSD_FG_2D) * nu / sqrt(nu*nu - p*p);
@@ -1992,8 +1992,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 					dp = (p+1E-40)*1E-14;
 					double pdp = p+dp;
 
-					double nu_End = Global_Variables::get_Nu_Max_From_Finite_Slit(pdp, measurement);
-					nu_End = min(nu_End, max_Frequency_For_2D_Spline);
+					double nu_End = min(max_Frequency_For_2D_Spline, Global_Variables::get_Nu_Max_From_Finite_Slit(pdp, measurement))+dp;
 
 					result  = integral_p_dp();
 					result += integrator.integrate(f, pdp, nu_End, integrator_Tolerance);
@@ -2013,7 +2012,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 		/// asymptotics
 		ooura_fourier_cos<double> cos_Integrator(tolerance, depth);
 		double nu_Asymp = get_Asymptotics_Nu(xi, alpha);
-		double factor_Asymp = 4*cos_Integrator.integrate(f, nu_Asymp).first /
+		double factor_Asymp = 4*cos_Integrator.integrate(f, 2*M_PI*nu_Asymp).first /
 							  Global_Variables::PSD_Fractal_Gauss_1D_Asymp_from_nu(1, alpha, nu_Asymp);
 
 		/// integrate with parallelization
@@ -2055,9 +2054,9 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 	spline_PSD_FG_1D = gsl_spline_alloc(gsl_interp_steffen, val.size());
 	gsl_spline_init(spline_PSD_FG_1D, arg.data(), val.data(), val.size());
 
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "	FG 1D spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "	FG 1D spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 }
 void Node::clear_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model)
 {
@@ -2337,7 +2336,6 @@ void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfection
 	double p_Max = imperfections_Model.nu_Limit*3.1;				// for 1D spline nu_Limit is enough
 	double p_Start = Global_Variables::fill_Nu_Start_From_Xi(xi);
 
-	double nu_Max_Integration_2D = max_Frequency_For_2D_Spline;		// for 2D PSD
 	double arg_Min = imperfections_Model.PSD_2D.argument.front();	// for 2D
 	double arg_Max = imperfections_Model.PSD_2D.argument.back();	// for 2D
 
@@ -2349,8 +2347,8 @@ void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfection
 	Global_Variables::fill_Vector_With_Log_Step(arg, p_Start, p_Max, num_Spline_Points);
 
 	/// choosing base PSD 2D functions
-	double (*PSD_1D_Func_from_nu)(double, double, double, double, gsl_spline*, gsl_interp_accel*);
-	double (*PSD_2D_Func_from_nu)(double, double, double, double, gsl_spline*, gsl_interp_accel*);
+	double (*PSD_1D_Func_from_nu)(double, double, double, double, double, gsl_spline*, gsl_interp_accel*);
+	double (*PSD_2D_Func_from_nu)(double, double, double, double, double, gsl_spline*, gsl_interp_accel*);
 	double factor_1D = 1;
 	double factor_2D = 1;
 
@@ -2388,6 +2386,7 @@ void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfection
 
 		double p = 0;
 		double dp = 0;
+		double nu_Max_Local = max_Frequency_For_2D_Spline;
 
 		tanh_sinh<double> integrator;
 		double integrator_Tolerance = 1E-3;
@@ -2396,9 +2395,10 @@ void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfection
 		/// condition  p < nu_Max is met automatically
 
 		// piece function
-		auto PSD_2D_Func = [&](double nu)	{
+		auto PSD_2D_Func = [&](double nu)
+		{
 			if(nu<=arg_Min || nu>=arg_Max)	{
-				return PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, spline_PSD_FG_2D, acc_PSD_FG_2D);
+				return PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, nu_Max_Local, spline_PSD_FG_2D, acc_PSD_FG_2D);
 			} else {
 				return gsl_spline_eval(spline_PSD_Meas_2D, nu, acc_PSD_Meas_2D);
 			}
@@ -2407,7 +2407,7 @@ void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfection
 			return 4 * PSD_2D_Func(p) * sqrt(2*p*dp);
 		};
 		auto f_Model = [&](double nu)		{
-			return 4 * PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, spline_PSD_FG_2D, acc_PSD_FG_2D) * nu / sqrt(nu*nu - p*p);
+			return 4 * PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, nu_Max_Local, spline_PSD_FG_2D, acc_PSD_FG_2D) * nu / sqrt(nu*nu - p*p);
 		};
 		auto f_Measured = [&](double nu)	{
 			return 4 * gsl_spline_eval(spline_PSD_Meas_2D, nu, acc_PSD_Meas_2D) * nu / sqrt(nu*nu - p*p);
@@ -2422,51 +2422,50 @@ void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfection
 			
 			if(measurement.detector_1D.finite_Slit)
 			{
-				
+				nu_Max_Local = min(max_Frequency_For_2D_Spline, Global_Variables::get_Nu_Max_From_Finite_Slit(pdp, measurement))+dp;
 			}
-			
 
 			if(p<arg_Max)
 			{
 				result = integral_p_dp();
 				if(pdp<arg_Min)
 				{
-					if(arg_Min<nu_Max_Integration_2D)
+					if(arg_Min<nu_Max_Local)
 					{
 						result += integrator.integrate(f_Model, pdp, arg_Min, integrator_Tolerance);
-						if(arg_Max<nu_Max_Integration_2D)
+						if(arg_Max<nu_Max_Local)
 						{
 							result += integrator.integrate(f_Measured, arg_Min, arg_Max, integrator_Tolerance);
-							result += integrator.integrate(f_Model,    arg_Max, nu_Max_Integration_2D, integrator_Tolerance);
+							result += integrator.integrate(f_Model,    arg_Max, nu_Max_Local, integrator_Tolerance);
 						} else
 						{
-							result += integrator.integrate(f_Measured, arg_Min, nu_Max_Integration_2D, integrator_Tolerance);
+							result += integrator.integrate(f_Measured, arg_Min, nu_Max_Local, integrator_Tolerance);
 						}
 					} else
 					{
 						// arg_Min >= nu_Max_Integration_2D   ->   no measured PSD al all  ->  pure model 1D case
-						result = PSD_1D_Func_from_nu(factor_1D, xi, alpha, p, spline_PSD_FG_1D, acc_PSD_FG_1D);
+						result = PSD_1D_Func_from_nu(factor_1D, xi, alpha, p, nu_Max_Local, spline_PSD_FG_1D, acc_PSD_FG_1D);
 					}
 				} else
 				if(pdp<arg_Max)
 				{
-					if(arg_Max<nu_Max_Integration_2D)
+					if(arg_Max<nu_Max_Local)
 					{
 						result += integrator.integrate(f_Measured, pdp, arg_Max, integrator_Tolerance);
-						result += integrator.integrate(f_Model,    arg_Max, nu_Max_Integration_2D, /*0.1**/integrator_Tolerance);
+						result += integrator.integrate(f_Model,    arg_Max, nu_Max_Local, /*0.1**/integrator_Tolerance);
 					} else
 					{
-						result += integrator.integrate(f_Measured, pdp, nu_Max_Integration_2D, integrator_Tolerance);
+						result += integrator.integrate(f_Measured, pdp, nu_Max_Local, integrator_Tolerance);
 					}
 				} else
 				// p < arg_Max < pdp < nu_Max
 				{
-					result += integrator.integrate(f_Model, pdp, nu_Max_Integration_2D, integrator_Tolerance);
+					result += integrator.integrate(f_Model, pdp, nu_Max_Local, integrator_Tolerance);
 				}
 			} else
 			{
 				// p >= arg_Max -> pure model 1D case
-				result = PSD_1D_Func_from_nu(factor_1D, xi, alpha, p, spline_PSD_FG_1D, acc_PSD_FG_1D);
+				result = PSD_1D_Func_from_nu(factor_1D, xi, alpha, p, nu_Max_Local, spline_PSD_FG_1D, acc_PSD_FG_1D);
 			}
 			val[i] = result;
 		}
@@ -2572,7 +2571,7 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 
 				double nu_End = interpoints_Argum_Vec.back()+dp;
 				if(measurement.detector_1D.finite_Slit) {
-					nu_End = min(nu_End, Global_Variables::get_Nu_Max_From_Finite_Slit(pdp, measurement));
+					nu_End = min(nu_End, Global_Variables::get_Nu_Max_From_Finite_Slit(pdp, measurement))+dp;
 				}
 
 				if(p_Min_Integration < pdp)
@@ -2638,7 +2637,7 @@ void Node::clear_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model)
 	gsl_interp_accel_free(acc_PSD_Peak);
 }
 
-void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfections_Model, const vector<Data>& media_Data_Map_Vector, int interface_Index)
+void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfections_Model, const Data& measurement, const vector<Data>& media_Data_Map_Vector, int interface_Index)
 {
 	if(imperfections_Model.vertical_Correlation != partial_Correlation) return;
 	if(imperfections_Model.inheritance_Model != linear_Growth_Alpha_Inheritance_Model &&
@@ -2669,7 +2668,7 @@ void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfe
 	}
 
 	/// choosing base PSD functions
-	double (*PSD_2D_Func_from_nu)(double, double, double, double, gsl_spline*, gsl_interp_accel*);
+	double (*PSD_2D_Func_from_nu)(double, double, double, double, double, gsl_spline*, gsl_interp_accel*);
 	double factor_2D = 1;
 
 	if(imperfections_Model.PSD_Model == ABC_Model)	{
@@ -2690,8 +2689,13 @@ void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfe
 	{
 		double nu_Start = imperfections_Model.PSD_2D.argument.front();
 		double nu_End   = imperfections_Model.PSD_2D.argument.back();
+		double nu_Max_Local = max_Frequency_For_2D_Spline*3.1;
+		if(measurement.detector_1D.finite_Slit)
+		{
+			nu_Max_Local = min(max_Frequency_For_2D_Spline*3.1, Global_Variables::get_Nu_Max_From_Finite_Slit(nu, measurement));
+		}
 		if(nu<=nu_Start || nu>=nu_End)	{
-			return PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, spline_PSD_FG_2D, acc_PSD_FG_2D);
+			return PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, nu_Max_Local, spline_PSD_FG_2D, acc_PSD_FG_2D);
 		} else
 		if(nu_Start<nu && nu<nu_End)	{
 			return gsl_spline_eval(spline_PSD_Meas_2D, nu, acc_PSD_Meas_2D);
@@ -2722,6 +2726,11 @@ void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfe
 			double nu4 = nu2*nu2;
 
 			double nu_nu_0 = nu/imperfections_Model.vertical_Inheritance_Frequency;
+			double nu_Max_Local = max_Frequency_For_2D_Spline*3.1;
+			if(measurement.detector_1D.finite_Slit)
+			{
+				nu_Max_Local = min(max_Frequency_For_2D_Spline*3.1, Global_Variables::get_Nu_Max_From_Finite_Slit(nu, measurement));
+			}
 
 			PSD_2D_Vec[i] = 0;
 			growth_PSD_Vec[i] = 0;
@@ -2732,7 +2741,7 @@ void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfe
 				PSD_2D_Vec[i] = combined_PSD_2D_Func(nu);
 			} else
 			{
-				PSD_2D_Vec[i] = PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, spline_PSD_FG_2D, acc_PSD_FG_2D);
+				PSD_2D_Vec[i] = PSD_2D_Func_from_nu(factor_2D, xi, alpha, nu, nu_Max_Local, spline_PSD_FG_2D, acc_PSD_FG_2D);
 			}
 			// + peak, if we have it
 			PSD_2D_Vec[i] += PSD_2D_Peak_Func_from_nu(peak_Factor_2D, peak_Frequency, peak_Frequency_Width, nu, nullptr, nullptr);
@@ -2792,12 +2801,17 @@ void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfe
 			growth_PSD += omega*thickness;
 		}
 		double PSD_2D_zero = growth_PSD;
+		double nu_Max_Local = max_Frequency_For_2D_Spline*3.1;
+		if(measurement.detector_1D.finite_Slit)
+		{
+			nu_Max_Local = min(max_Frequency_For_2D_Spline*3.1, Global_Variables::get_Nu_Max_From_Finite_Slit(0, measurement));
+		}
 		if(imperfections_Model.add_Measured_PSD_2D && imperfections_Model.PSD_2D.is_Loaded())
 		{
 			PSD_2D_zero += combined_PSD_2D_Func(0);
 		} else
 		{
-			PSD_2D_zero += PSD_2D_Func_from_nu(factor_2D, xi, alpha, 0, spline_PSD_FG_2D, acc_PSD_FG_2D);
+			PSD_2D_zero += PSD_2D_Func_from_nu(factor_2D, xi, alpha, 0, nu_Max_Local, spline_PSD_FG_2D, acc_PSD_FG_2D);
 		}
 		PSD_2D_zero += PSD_2D_Peak_Func_from_nu(peak_Factor_2D, peak_Frequency, peak_Frequency_Width, 0, nullptr, nullptr);
 
@@ -2858,7 +2872,7 @@ void Node::clear_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfec
 	gsl_interp_accel_free(acc_PSD_Linear_Inheritance_2D);
 }
 
-void Node::create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfections_Model)
+void Node::create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfections_Model, const Data& measurement)
 {
 	if(imperfections_Model.vertical_Correlation != partial_Correlation) return;
 	if(imperfections_Model.inheritance_Model != linear_Growth_Alpha_Inheritance_Model &&
@@ -2874,7 +2888,6 @@ void Node::create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfe
 
 	double p_Max = imperfections_Model.nu_Limit*3.1;				// for 1D spline nu_Limit is enough
 	double p_Start = Global_Variables::fill_Nu_Start_From_Xi(xi);
-	double nu_Max_Integration_2D = max_Frequency_For_2D_Spline;		// for 2D PSD
 
 	int num_Spline_Points = 500;
 	vector<double> arg(num_Spline_Points);
@@ -2887,38 +2900,11 @@ void Node::create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfe
 		Global_Variables::fill_Vector_With_Log_Step(arg, p_Start, p_Max, num_Spline_Points);
 	}
 
-	double max_Peak_Frequency = max(struct_Data.roughness_Model.peak_Frequency.value + 2*struct_Data.roughness_Model.peak_Frequency_Width.value, DBL_EPSILON);
-	double min_Peak_Frequency = max(struct_Data.roughness_Model.peak_Frequency.value - 2*struct_Data.roughness_Model.peak_Frequency_Width.value, DBL_EPSILON);
-	max_Peak_Frequency = min(max_Peak_Frequency, max_Frequency_For_2D_Spline);
-	min_Peak_Frequency = min(min_Peak_Frequency, max_Frequency_For_2D_Spline);
-
 	/// zero point here is also integrated
 	{
 		arg.insert(arg.begin(), 0); // zero point
 		val.insert(val.begin(), 0); // zero point
 		num_Spline_Points += 1;
-	}
-
-	/// nu parts for integration
-	vector<double> nu_Points = {0, nu_Max_Integration_2D};
-	if(imperfections_Model.add_Measured_PSD_2D && imperfections_Model.PSD_2D.is_Loaded())
-	{
-		nu_Points.push_back(imperfections_Model.PSD_2D.argument.front());
-		nu_Points.push_back(imperfections_Model.PSD_2D.argument.back());
-	}
-	if(imperfections_Model.add_Gauss_Peak)
-	{
-		nu_Points.push_back(min_Peak_Frequency);
-		nu_Points.push_back(max_Peak_Frequency);
-	}
-	// sort out
-	std::sort(nu_Points.begin(), nu_Points.end());
-	for(int i=nu_Points.size()-1; i>0; i--)
-	{
-		if(nu_Points[i]>max_Frequency_For_2D_Spline)
-		{
-			nu_Points.erase(nu_Points.begin()+i);
-		}
 	}
 
 	/// integrate with parallelization
@@ -2934,9 +2920,9 @@ void Node::create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfe
 		auto f = [&](double nu)		{
 			return 4 * gsl_spline_eval(spline_PSD_Linear_Growth_2D, nu, acc_PSD_Linear_Growth_2D) * nu / sqrt(nu*nu - p*p);
 		};
-		auto integral_p_nu = [&](double nu)		{
-			return 4 * gsl_spline_eval(spline_PSD_Linear_Growth_2D, p, acc_PSD_Linear_Growth_2D) * sqrt(2*p*(nu-p));
-		};
+//		auto integral_p_nu = [&](double nu)		{
+//			return 4 * gsl_spline_eval(spline_PSD_Linear_Growth_2D, p, acc_PSD_Linear_Growth_2D) * sqrt(2*p*(nu-p));
+//		};
 		auto integral_p_dp = [&]()		{
 			return 4 * gsl_spline_eval(spline_PSD_Linear_Growth_2D, p, acc_PSD_Linear_Growth_2D) * sqrt(2*p*dp);
 		};
@@ -2955,7 +2941,38 @@ void Node::create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfe
 			dp = (p+1E-40)*1E-14;
 			double pdp = p+dp;
 
-			if(pdp<p_Max)
+			/// nu parts for integration
+			double nu_Max_Integration_2D = max_Frequency_For_2D_Spline;		// for 2D PSD
+			if(measurement.detector_1D.finite_Slit)
+			{
+				nu_Max_Integration_2D = min(max_Frequency_For_2D_Spline, Global_Variables::get_Nu_Max_From_Finite_Slit(pdp, measurement))+dp;
+			}
+
+			vector<double> nu_Points = {0};
+			if(imperfections_Model.add_Measured_PSD_2D && imperfections_Model.PSD_2D.is_Loaded())
+			{
+				nu_Points.push_back(imperfections_Model.PSD_2D.argument.front());
+				nu_Points.push_back(imperfections_Model.PSD_2D.argument.back());
+			}
+			if(imperfections_Model.add_Gauss_Peak)
+			{
+				double max_Peak_Frequency = max(struct_Data.roughness_Model.peak_Frequency.value + 2*struct_Data.roughness_Model.peak_Frequency_Width.value, DBL_EPSILON);
+				double min_Peak_Frequency = max(struct_Data.roughness_Model.peak_Frequency.value - 2*struct_Data.roughness_Model.peak_Frequency_Width.value, DBL_EPSILON);
+
+				nu_Points.push_back(min_Peak_Frequency);
+				nu_Points.push_back(max_Peak_Frequency);
+			}
+			// sort out
+			std::sort(nu_Points.begin(), nu_Points.end());
+			for(int i=nu_Points.size()-1; i>0; i--)
+			{
+				if(nu_Points[i]>=nu_Max_Integration_2D)
+				{
+					nu_Points.erase(nu_Points.begin()+i);
+				}
+			}
+			nu_Points.push_back(nu_Max_Integration_2D);
+
 			{
 				result = integral_p_dp();
 //				result += integrator.integrate(f, pdp, max_Frequency_For_2D_Spline, integrator_Tolerance);
@@ -2973,10 +2990,8 @@ void Node::create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfe
 				for(int q=i0; q<nu_Points.size()-1; q++)	{
 					result += integrator.integrate(f, nu_Points[q], nu_Points[q+1], integrator_Tolerance);
 				}
-			} else
-			{
-				result = integral_p_nu(p_Max);
 			}
+
 			val[i] = result;
 		}
 	});

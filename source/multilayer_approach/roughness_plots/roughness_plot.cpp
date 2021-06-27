@@ -742,8 +742,8 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 
 	Data fake_Measurement;
 	fake_Measurement.measurement_Type = measurement_Types[Specular_Scan];
-	fake_Measurement.detector_1D.finite_Slit = refill_dependent_structure_table;
-	fake_Measurement.detector_1D.slit_Length = current_Data.relative_Density.value;
+//	fake_Measurement.detector_1D.finite_Slit = refill_dependent_structure_table;
+//	fake_Measurement.detector_1D.slit_Length = current_Data.relative_Density.value;
 
 	double tolerance = 1E-3;
 	double depth = 2;
@@ -767,15 +767,20 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 		}
 
 		/// choosing base PSD functions
-		double (*PSD_Func_from_nu)(double, double, double, double, gsl_spline*, gsl_interp_accel*);
+		double (*PSD_Func_from_nu)(double, double, double, double, double, gsl_spline*, gsl_interp_accel*);
 		double factor = 1;
 		gsl_spline* spline_PSD_FG;
 		gsl_interp_accel* acc_PSD_FG;
 
 		if(multilayer->imperfections_Model.PSD_Model == ABC_Model) {
 			if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-				PSD_Func_from_nu = &Global_Variables::PSD_ABC_1D_from_nu;
-				factor = current_Data.PSD_ABC_1D_Factor;
+				if(fake_Measurement.detector_1D.finite_Slit) {
+					PSD_Func_from_nu = &Global_Variables::PSD_ABC_1D_Finite_from_nu;
+					factor = current_Data.roughness_Model.sigma.value;
+				} else {
+					PSD_Func_from_nu = &Global_Variables::PSD_ABC_1D_from_nu;
+					factor = current_Data.PSD_ABC_1D_Factor;
+				}
 			} else {
 				PSD_Func_from_nu = &Global_Variables::PSD_ABC_2D_from_nu;
 				factor = current_Data.PSD_ABC_2D_Factor;
@@ -798,8 +803,13 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 				}
 			} else {
 				if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-					PSD_Func_from_nu = &Global_Variables::PSD_Real_Gauss_1D_from_nu;
-					factor = current_Data.PSD_Real_Gauss_1D_Factor;
+					if(fake_Measurement.detector_1D.finite_Slit) {
+						PSD_Func_from_nu = &Global_Variables::PSD_Real_Gauss_1D_Finite_from_nu;
+						factor = current_Data.roughness_Model.sigma.value;
+					} else {
+						PSD_Func_from_nu = &Global_Variables::PSD_Real_Gauss_1D_from_nu;
+						factor = current_Data.PSD_Real_Gauss_1D_Factor;
+					}
 				} else {
 					PSD_Func_from_nu = &Global_Variables::PSD_Real_Gauss_2D_from_nu;
 					factor = current_Data.PSD_Real_Gauss_2D_Factor;
@@ -811,7 +821,13 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 		for(int i=0; i<num_Plot_Points; i++)
 		{
 			if(arg[i] <= multilayer->imperfections_Model.nu_Limit) {
-				value_Vector[i] = PSD_Func_from_nu(factor, xi, alpha, arg[i], spline_PSD_FG, acc_PSD_FG);
+
+				double nu_Max_Integration_2D = max_Frequency_For_2D_Spline;
+				if(fake_Measurement.detector_1D.finite_Slit)
+				{
+					nu_Max_Integration_2D = min(max_Frequency_For_2D_Spline, Global_Variables::get_Nu_Max_From_Finite_Slit(arg[i], fake_Measurement));
+				}
+				value_Vector[i] = PSD_Func_from_nu(factor, xi, alpha, arg[i], nu_Max_Integration_2D, spline_PSD_FG, acc_PSD_FG);
 			} else {
 				value_Vector[i] = 0;
 			}
@@ -981,8 +997,8 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 			substrate_Node->create_Spline_PSD_Combined_1D		(multilayer->imperfections_Model, fake_Measurement);
 			substrate_Node->create_Spline_PSD_Peak				(multilayer->imperfections_Model, fake_Measurement);
 			substrate_Node->create_Spline_PSD_Measured			(multilayer->imperfections_Model);
-			substrate_Node->create_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model, media_Data_Map_Vector, interface_Index-1);
-			substrate_Node->create_Spline_PSD_Linear_Growth_1D	(multilayer->imperfections_Model);
+			substrate_Node->create_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model, fake_Measurement, media_Data_Map_Vector, interface_Index-1);
+			substrate_Node->create_Spline_PSD_Linear_Growth_1D	(multilayer->imperfections_Model, fake_Measurement);
 
 			///--------------------------------------------------------------------------------------------------------
 			for(int i=0; i<num_Plot_Points; i++)
@@ -1011,7 +1027,7 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 			/// 2D
 			substrate_Node->create_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
 			substrate_Node->create_Spline_PSD_Measured			(multilayer->imperfections_Model);
-			substrate_Node->create_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model, media_Data_Map_Vector, interface_Index-1);
+			substrate_Node->create_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model, fake_Measurement, media_Data_Map_Vector, interface_Index-1);
 
 			///--------------------------------------------------------------------------------------------------------
 			for(int i=0; i<num_Plot_Points; i++)

@@ -91,7 +91,7 @@ public:
 	gsl_spline* spline_PSD_Peak;
 	gsl_interp_accel* acc_PSD_Peak;
 
-	void create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfections_Model, const vector<Data>& media_Data_Map_Vector, int interface_Index); // index starts from 0 on top surface
+	void create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfections_Model, const Data& measurement, const vector<Data>& media_Data_Map_Vector, int interface_Index); // index starts from 0 on top surface
 	void clear_Spline_PSD_Linear_Growth_2D (const Imperfections_Model& imperfections_Model);
 
 	gsl_spline* spline_PSD_Linear_Growth_2D;
@@ -101,7 +101,7 @@ public:
 	gsl_spline* spline_PSD_Linear_Inheritance_2D;
 	gsl_interp_accel* acc_PSD_Linear_Inheritance_2D;
 
-	void create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfections_Model);
+	void create_Spline_PSD_Linear_Growth_1D(const Imperfections_Model& imperfections_Model, const Data& measurement);
 	void clear_Spline_PSD_Linear_Growth_1D (const Imperfections_Model& imperfections_Model);
 
 	gsl_spline* spline_PSD_Linear_Growth_1D;

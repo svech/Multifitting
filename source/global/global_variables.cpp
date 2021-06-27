@@ -1317,10 +1317,11 @@ double Global_Variables::PSD_ABC_1D(double factor, double xi, double alpha, doub
 	return /*4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi*/ factor / pow(1+p*p*xi*xi, alpha+0.5);
 }
 
-double Global_Variables::PSD_ABC_1D_from_nu(double factor, double xi, double alpha, double p, gsl_spline *spline, gsl_interp_accel *acc)
+double Global_Variables::PSD_ABC_1D_from_nu(double factor, double xi, double alpha, double p, double a, gsl_spline *spline, gsl_interp_accel *acc)
 {
 	Q_UNUSED(spline)
 	Q_UNUSED(acc)
+	Q_UNUSED(a)
 	double val = 2*M_PI*p*xi;
 	return /*4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi*/ factor / pow(1+val*val, alpha+0.5);
 }
@@ -1349,10 +1350,11 @@ double Global_Variables::PSD_ABC_2D(double factor, double xi, double alpha, doub
 	return /*4*M_PI * sigma*sigma * xi*xi * alpha*/ factor / pow(1+nu2*xi*xi, alpha+1);
 }
 
-double Global_Variables::PSD_ABC_2D_from_nu(double factor, double xi, double alpha, double nu, gsl_spline* spline, gsl_interp_accel* acc)
+double Global_Variables::PSD_ABC_2D_from_nu(double factor, double xi, double alpha, double nu, double a, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(spline)
 	Q_UNUSED(acc)
+	Q_UNUSED(a)
 	double val = 2*M_PI*nu*xi;
 	return /*4*M_PI * sigma*sigma * xi*xi * alpha*/ factor / pow(1+val*val, alpha+1);
 }
@@ -1366,11 +1368,12 @@ double Global_Variables::PSD_Real_Gauss_1D(double factor, double xi, double alph
 	return /*2*sqrt(M_PI) * sigma*sigma*xi*/ factor * exp(-p*p*xi*xi);
 }
 
-double Global_Variables::PSD_Real_Gauss_1D_from_nu(double factor, double xi, double alpha, double p, gsl_spline* spline, gsl_interp_accel* acc)
+double Global_Variables::PSD_Real_Gauss_1D_from_nu(double factor, double xi, double alpha, double p, double a, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(alpha)
 	Q_UNUSED(spline)
 	Q_UNUSED(acc)
+	Q_UNUSED(a)
 	double val = M_PI*p*xi;
 	return /*2*sqrt(M_PI) * sigma*sigma*xi*/ factor * exp(-val*val);
 }
@@ -1393,11 +1396,12 @@ double Global_Variables::PSD_Real_Gauss_2D(double factor, double xi, double alph
 	return /*M_PI * sigma*sigma*xi*xi*/ factor * exp(-nu2*xi*xi);
 }
 
-double Global_Variables::PSD_Real_Gauss_2D_from_nu(double factor, double xi, double alpha, double nu, gsl_spline* spline, gsl_interp_accel* acc)
+double Global_Variables::PSD_Real_Gauss_2D_from_nu(double factor, double xi, double alpha, double nu, double a, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(alpha)
 	Q_UNUSED(spline)
 	Q_UNUSED(acc)
+	Q_UNUSED(a)
 	double val = M_PI*nu*xi;
 	return /*M_PI * sigma*sigma*xi*xi*/ factor * exp(-val*val);
 }
@@ -1411,19 +1415,19 @@ double Global_Variables::PSD_Fractal_Gauss_1D(double factor, double xi, double a
 	return gsl_spline_eval(spline, p, acc);
 }
 
-double Global_Variables::PSD_Fractal_Gauss_1D_from_nu(double factor, double xi, double alpha, double p, gsl_spline* spline, gsl_interp_accel* acc)
+double Global_Variables::PSD_Fractal_Gauss_1D_from_nu(double factor, double xi, double alpha, double p, double a, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(factor)
 	Q_UNUSED(xi)
 	Q_UNUSED(alpha)
+	Q_UNUSED(a)
 	return gsl_spline_eval(spline, p, acc);
 }
 
 double Global_Variables::PSD_Fractal_Gauss_1D_Finite_from_nu(double sigma, double xi, double alpha, double p, double a, gsl_spline *spline, gsl_interp_accel *acc)
 {
-	Q_UNUSED(a)
 	// same function. finite slit is accounted in splining
-	return Global_Variables::PSD_Fractal_Gauss_1D_from_nu(sigma, xi, alpha, p, spline, acc);
+	return Global_Variables::PSD_Fractal_Gauss_1D_from_nu(sigma, xi, alpha, p, a, spline, acc);
 }
 
 double Global_Variables::PSD_Fractal_Gauss_1D_Asymp_from_nu(double factor, double alpha, double p)
@@ -1440,11 +1444,12 @@ double Global_Variables::PSD_Fractal_Gauss_2D(double factor, double xi, double a
 	return gsl_spline_eval(spline, nu, acc);
 }
 
-double Global_Variables::PSD_Fractal_Gauss_2D_from_nu(double factor, double xi, double alpha, double nu, gsl_spline* spline, gsl_interp_accel* acc)
+double Global_Variables::PSD_Fractal_Gauss_2D_from_nu(double factor, double xi, double alpha, double nu, double a, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(factor)
 	Q_UNUSED(xi)
 	Q_UNUSED(alpha)
+	Q_UNUSED(a)
 	return gsl_spline_eval(spline, 2*M_PI*nu, acc);
 }
 
