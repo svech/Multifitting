@@ -44,18 +44,50 @@ void Fits_Selector::create_Main_Layout()
 //			button_Layout->setAlignment(Qt::AlignCenter);
 			button_Layout->setSpacing(5);
 
-		done_Button = new QPushButton("Close");
-			done_Button->setMaximumWidth(50);
-			done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			done_Button->setFocus();
-			done_Button->setDefault(true);
-			done_Button->setShortcut(Qt::Key_D | Qt::CTRL);
-		button_Layout->addWidget(done_Button);
-
 		clear_Button = new QPushButton("Clear");
 			clear_Button->setMaximumWidth(50);
 			clear_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		button_Layout->addWidget(clear_Button);
+
+		QHBoxLayout* move_Layout = new QHBoxLayout;
+			move_Layout->setSpacing(2);
+		button_Layout->addLayout(move_Layout);
+
+		QPixmap move_Up	(Paths_Icon_Path + "shift_up.bmp");
+		move_Up_Button = new QToolButton;
+			move_Up_Button->setIcon(QIcon(move_Up));
+			move_Up_Button->setToolTip("Move up selected fit");
+			move_Up_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		move_Layout->addWidget(move_Up_Button,0);
+		connect(move_Up_Button, &QToolButton::clicked, this, [=]
+		{
+			int current_Position = fits_List->currentRow();
+			if(current_Position>0)
+			{
+				QListWidgetItem* current_Item = fits_List->takeItem(current_Position);
+				fits_List->insertItem(current_Position-1, current_Item);
+				fits_List->setCurrentRow(current_Position-1);
+				std::swap(fitted_Structures[current_Position-1],fitted_Structures[current_Position]);
+			}
+		});
+
+		QPixmap move_Down(Paths_Icon_Path + "shift_down.bmp");
+		move_Down_Button = new QToolButton;
+			move_Down_Button->setIcon(QIcon(move_Down));
+			move_Down_Button->setToolTip("Move down selected fit");
+			move_Down_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		move_Layout->addWidget(move_Down_Button,0);
+		connect(move_Down_Button, &QToolButton::clicked, this, [=]
+		{
+			int current_Position = fits_List->currentRow();
+			if(current_Position<fitted_Structures.size()-1)
+			{
+				QListWidgetItem* current_Item = fits_List->takeItem(current_Position);
+				fits_List->insertItem(current_Position+1, current_Item);
+				fits_List->setCurrentRow(current_Position+1);
+				std::swap(fitted_Structures[current_Position+1],fitted_Structures[current_Position]);
+			}
+		});
 
 		save_Button = new QPushButton("Save");
 			save_Button->setMaximumWidth(50);
@@ -64,7 +96,6 @@ void Fits_Selector::create_Main_Layout()
 
 		main_Layout->addLayout(button_Layout);
 
-		connect(done_Button,  &QPushButton::clicked, this, &Fits_Selector::close);
 		connect(clear_Button, &QPushButton::clicked, this, &Fits_Selector::clear_Fits);
 		connect(save_Button,  &QPushButton::clicked, this, &Fits_Selector::save_Trees);
 	}

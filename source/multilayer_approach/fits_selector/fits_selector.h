@@ -31,8 +31,9 @@ public:
 		QListWidget* fits_List;
 		QVector<Fitted_Structure>& fitted_Structures;
 
-		QPushButton* done_Button;
 		QPushButton* clear_Button;
+		QToolButton* move_Up_Button;
+		QToolButton* move_Down_Button;
 		QPushButton* save_Button;
 
 };
