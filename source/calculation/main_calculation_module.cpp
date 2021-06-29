@@ -754,6 +754,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 	Global_Variables::plot_All_Data_in_Graphs();
 	Global_Variables::plot_All_Data_in_Profiles();
 	Global_Variables::plot_All_Data_in_Roughness();
+	Global_Variables::plot_All_Data_in_Particles();
 
 	if(print_And_Verbose)
 	{

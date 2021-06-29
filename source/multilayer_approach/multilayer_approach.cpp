@@ -101,6 +101,7 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 			if(runned_Profile_Plots_Window.contains(profile_Plots_Key))		  {profile_Plots_Window		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 			if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key)){calculation_Settings_Editor->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 			if(runned_Roughness_Plots_Window.contains(roughness_Plots_Key))	  {roughness_Plots_Window     ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
+			if(runned_Particles_Plots_Window.contains(particles_Plots_Key))	  {particles_Plots_Window     ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 		}
 	});
 }
@@ -161,6 +162,9 @@ void Multilayer_Approach::fast_Hide_Windows()
 	}
 	if(runned_Roughness_Plots_Window.contains(roughness_Plots_Key))	{
 		roughness_Plots_Window->close();
+	}
+	if(runned_Particles_Plots_Window.contains(particles_Plots_Key))	{
+		particles_Plots_Window->close();
 	}
 	if(runned_Fits_Selectors.contains(fits_Selector_Key))	{
 		fits_Selector->close();
@@ -337,6 +341,23 @@ void Multilayer_Approach::open_Table_Of_Structures()
 	}
 }
 
+void Multilayer_Approach::open_Profile_Plots()
+{
+	if(!runned_Profile_Plots_Window.contains(profile_Plots_Key))
+	{
+		runned_Profile_Plots_Window.insert(profile_Plots_Key, profile_Plots_Window);
+		profile_Plots_Window = new Profile_Plots_Window();//(this);
+			profile_Plots_Window->setWindowFlags(Qt::Window);
+			profile_Plots_Window->show();
+
+		runned_Profile_Plots_Window.clear();
+		runned_Profile_Plots_Window.insert(profile_Plots_Key, profile_Plots_Window);
+	} else
+	{
+		profile_Plots_Window->activateWindow();
+	}
+}
+
 void Multilayer_Approach::open_Optical_Graphs_1D(QString keep_Splitter)
 {	
 	if(!runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
@@ -371,23 +392,6 @@ void Multilayer_Approach::open_Optical_Graphs_2D(QString keep_Splitter)
 	}
 }
 
-void Multilayer_Approach::open_Profile_Plots()
-{
-	if(!runned_Profile_Plots_Window.contains(profile_Plots_Key))
-	{
-		runned_Profile_Plots_Window.insert(profile_Plots_Key, profile_Plots_Window);
-		profile_Plots_Window = new Profile_Plots_Window();//(this);
-			profile_Plots_Window->setWindowFlags(Qt::Window);
-			profile_Plots_Window->show();
-
-		runned_Profile_Plots_Window.clear();
-		runned_Profile_Plots_Window.insert(profile_Plots_Key, profile_Plots_Window);
-	} else
-	{
-		profile_Plots_Window->activateWindow();
-	}
-}
-
 void Multilayer_Approach::open_Roughness_Plots()
 {
 	if(!runned_Roughness_Plots_Window.contains(roughness_Plots_Key))
@@ -406,20 +410,21 @@ void Multilayer_Approach::open_Roughness_Plots()
 	}
 }
 
-void Multilayer_Approach::open_Fits_Selector()
+void Multilayer_Approach::open_Particles_Plots()
 {
-	if(!runned_Fits_Selectors.contains(fits_Selector_Key))
+	if(!runned_Particles_Plots_Window.contains(particles_Plots_Key))
 	{
-		runned_Fits_Selectors.insert(fits_Selector_Key, fits_Selector);
-		fits_Selector = new Fits_Selector;//(this);
-			fits_Selector->setWindowFlags(Qt::Window);
-			fits_Selector->show();
+		runned_Particles_Plots_Window.insert(particles_Plots_Key, particles_Plots_Window);
 
-		runned_Fits_Selectors.clear();
-		runned_Fits_Selectors.insert(fits_Selector_Key, fits_Selector);
+		particles_Plots_Window = new Particles_Plots_Window();//(this);
+			particles_Plots_Window->setWindowFlags(Qt::Window);
+			particles_Plots_Window->show();
+
+		runned_Particles_Plots_Window.clear();
+		runned_Particles_Plots_Window.insert(particles_Plots_Key, particles_Plots_Window);
 	} else
 	{
-		fits_Selector->activateWindow();
+		particles_Plots_Window->activateWindow();
 	}
 }
 
@@ -454,6 +459,23 @@ void Multilayer_Approach::open_General_Settings()
 	} else
 	{
 		general_Settings_Editor->activateWindow();
+	}
+}
+
+void Multilayer_Approach::open_Fits_Selector()
+{
+	if(!runned_Fits_Selectors.contains(fits_Selector_Key))
+	{
+		runned_Fits_Selectors.insert(fits_Selector_Key, fits_Selector);
+		fits_Selector = new Fits_Selector;//(this);
+			fits_Selector->setWindowFlags(Qt::Window);
+			fits_Selector->show();
+
+		runned_Fits_Selectors.clear();
+		runned_Fits_Selectors.insert(fits_Selector_Key, fits_Selector);
+	} else
+	{
+		fits_Selector->activateWindow();
 	}
 }
 
@@ -507,6 +529,18 @@ void Multilayer_Approach::reopen_Roughness_Plots(bool keep_Tab_Index)
 		runned_Roughness_Plots_Window.value(roughness_Plots_Key)->close();
 		open_Roughness_Plots();
 		if(keep_Tab_Index) runned_Roughness_Plots_Window.value(roughness_Plots_Key)->main_Tabs->setCurrentIndex(active_Tab);
+	}
+}
+
+void Multilayer_Approach::reopen_Particles_Plots(bool keep_Tab_Index)
+{
+	if(runned_Particles_Plots_Window.contains(particles_Plots_Key))
+	{
+		int active_Tab;
+		if(keep_Tab_Index) active_Tab = runned_Particles_Plots_Window.value(particles_Plots_Key)->main_Tabs->currentIndex();
+		runned_Particles_Plots_Window.value(particles_Plots_Key)->close();
+		open_Particles_Plots();
+		if(keep_Tab_Index) runned_Particles_Plots_Window.value(particles_Plots_Key)->main_Tabs->setCurrentIndex(active_Tab);
 	}
 }
 
@@ -631,6 +665,7 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 		   runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key) ||
 		   runned_Profile_Plots_Window.contains(profile_Plots_Key) ||
 		   runned_Roughness_Plots_Window.contains(roughness_Plots_Key) ||
+		   runned_Particles_Plots_Window.contains(particles_Plots_Key) ||
 		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
 			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
@@ -690,6 +725,7 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 		   !runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key) &&
 		   !runned_Profile_Plots_Window.contains(profile_Plots_Key) &&
 		   !runned_Roughness_Plots_Window.contains(roughness_Plots_Key) &&
+		   !runned_Particles_Plots_Window.contains(particles_Plots_Key) &&
 		   !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
 			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(false);
@@ -898,6 +934,15 @@ void Multilayer_Approach::open(QString filename)
 		runned_Roughness_Plots_Window.value(roughness_Plots_Key)->close();
 	}
 
+	// close particles
+	bool reopen_Particles_Plots = runned_Particles_Plots_Window.contains(particles_Plots_Key);
+	int active_Tab_Particles_Plots = -2019;
+	if(reopen_Particles_Plots)
+	{
+		active_Tab_Particles_Plots = runned_Particles_Plots_Window.value(particles_Plots_Key)->main_Tabs->currentIndex();
+		runned_Particles_Plots_Window.value(particles_Plots_Key)->close();
+	}
+
 	// close fitting settings
 	bool reopen_Fit_Settings = runned_Fitting_Settings_Editor.contains(fit_Settings_Key);
 	if(reopen_Fit_Settings)
@@ -1078,6 +1123,10 @@ void Multilayer_Approach::open(QString filename)
 		if(Global_Variables::check_Loaded_Version(1,11,18))
 		{in >> multilayer->roughness_Plot_Options;}			// since 1.11.18
 
+		/// particles plot
+		if(Global_Variables::check_Loaded_Version(1,11,23))
+		{in >> multilayer->particles_Plot_Options;}			// since 1.11.23
+
 		/// discretization
 		if(Global_Variables::check_Loaded_Version(1,10,2))
 		{in >> multilayer->discretization_Parameters;}		// since 1.10.2
@@ -1216,6 +1265,12 @@ void Multilayer_Approach::open(QString filename)
 	if(reopen_Roughness_Plots)
 	{
 		open_Roughness_Plots();
+	}
+
+	// reopen particles
+	if(reopen_Particles_Plots)
+	{
+		open_Particles_Plots();
 	}
 
 	// reopen fitting settings
@@ -1363,6 +1418,9 @@ void Multilayer_Approach::save(QString filename)
 		/// roughness plot
 		out << multilayer->roughness_Plot_Options;		// since 1.11.18
 
+		/// particles plot
+		out << multilayer->particles_Plot_Options;		// since 1.11.23
+
 		/// discretization
 		out << multilayer->discretization_Parameters;	  // since 1.10.2
 
@@ -1495,6 +1553,7 @@ void Multilayer_Approach::recalculate_From_Table(bool silent)
 	{
 		Global_Variables::plot_All_Data_in_Profiles();
 		Global_Variables::plot_All_Data_in_Roughness();
+		Global_Variables::plot_All_Data_in_Particles();
 	}
 }
 

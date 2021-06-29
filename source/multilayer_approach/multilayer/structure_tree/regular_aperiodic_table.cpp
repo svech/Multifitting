@@ -744,6 +744,7 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 	} else {
 		Global_Variables::plot_All_Data_in_Profiles();
 		Global_Variables::plot_All_Data_in_Roughness();
+		Global_Variables::plot_All_Data_in_Particles();
 	}
 }
 

@@ -773,6 +773,20 @@ Data::Data(QString item_Type_Passed)
 			particles_Model.domain_Size.confidence.max = particles_Model.domain_Size.fit.max;
 			particles_Model.domain_Size.confidence.num_Points = default_num_confidence_points;
 		}
+		// particle correlation depth
+		{
+			particles_Model.particle_Correlation_Depth.value = default_particles_correlation_depth;
+			particles_Model.particle_Correlation_Depth.fit.is_Fitable = false;
+			particles_Model.particle_Correlation_Depth.fit.min = default_particles_correlation_depth_min;
+			particles_Model.particle_Correlation_Depth.fit.max = default_particles_correlation_depth_max;
+			particles_Model.particle_Correlation_Depth.indicator.whats_This = whats_This_Particle_Correlation_Depth;
+			particles_Model.particle_Correlation_Depth.indicator.item_Id = id;
+
+			particles_Model.particle_Correlation_Depth.confidence.calc_Conf_Interval = false;
+			particles_Model.particle_Correlation_Depth.confidence.min = particles_Model.particle_Correlation_Depth.fit.min;
+			particles_Model.particle_Correlation_Depth.confidence.max = particles_Model.particle_Correlation_Depth.fit.max;
+			particles_Model.particle_Correlation_Depth.confidence.num_Points = default_num_confidence_points;
+		}
 		// particle z position
 		{
 			particles_Model.particle_Z_Position.value = default_particles_z_position;
@@ -915,15 +929,19 @@ void Data::reset_All_IDs()
 		thickness.indicator.id = Global_Definitions::generate_Id(); thickness.indicator.item_Id = id;		thickness.coupled.clear_Coupled();
 
 		// particles
+		for(auto& stoich : particles_Model.particle_Composition) {
+			stoich.composition.indicator.id = Global_Definitions::generate_Id(); stoich.composition.indicator.item_Id = id;	stoich.composition	.coupled.clear_Coupled();
+		}
 		particles_Model.particle_Absolute_Density		 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Absolute_Density.			indicator.item_Id = id;		particles_Model.particle_Absolute_Density.			coupled.clear_Coupled();
 		particles_Model.particle_Relative_Density		 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Relative_Density.			indicator.item_Id = id;		particles_Model.particle_Relative_Density.			coupled.clear_Coupled();
-		particles_Model.particle_Radius					 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Radius.						indicator.item_Id = id;		particles_Model.particle_Radius.						coupled.clear_Coupled();
-		particles_Model.particle_Height					 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Height.						indicator.item_Id = id;		particles_Model.particle_Height.						coupled.clear_Coupled();
+		particles_Model.particle_Radius					 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Radius.					indicator.item_Id = id;		particles_Model.particle_Radius.					coupled.clear_Coupled();
+		particles_Model.particle_Height					 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Height.					indicator.item_Id = id;		particles_Model.particle_Height.					coupled.clear_Coupled();
 		particles_Model.particle_Average_Distance		 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Average_Distance.			indicator.item_Id = id;		particles_Model.particle_Average_Distance.			coupled.clear_Coupled();
-		particles_Model.particle_Radial_Distance			 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Radial_Distance.			indicator.item_Id = id;		particles_Model.particle_Radial_Distance.			coupled.clear_Coupled();
-		particles_Model.particle_Radial_Distance_Deviation.indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Radial_Distance_Deviation.	indicator.item_Id = id;		particles_Model.particle_Radial_Distance_Deviation.	coupled.clear_Coupled();
-		particles_Model.domain_Size						 .indicator.id = Global_Definitions::generate_Id(); particles_Model.domain_Size.							indicator.item_Id = id;		particles_Model.domain_Size.							coupled.clear_Coupled();
-		particles_Model.particle_Z_Position				 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Z_Position.					indicator.item_Id = id;		particles_Model.particle_Z_Position.					coupled.clear_Coupled();
+		particles_Model.particle_Radial_Distance		 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Radial_Distance.			indicator.item_Id = id;		particles_Model.particle_Radial_Distance.			coupled.clear_Coupled();
+		particles_Model.particle_Radial_Distance_Deviation.indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Radial_Distance_Deviation.indicator.item_Id = id;		particles_Model.particle_Radial_Distance_Deviation.	coupled.clear_Coupled();
+		particles_Model.domain_Size						 .indicator.id = Global_Definitions::generate_Id(); particles_Model.domain_Size.						indicator.item_Id = id;		particles_Model.domain_Size.						coupled.clear_Coupled();
+		particles_Model.particle_Correlation_Depth		 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Correlation_Depth.			indicator.item_Id = id;		particles_Model.particle_Correlation_Depth.			coupled.clear_Coupled();
+		particles_Model.particle_Z_Position				 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Z_Position.				indicator.item_Id = id;		particles_Model.particle_Z_Position.				coupled.clear_Coupled();
 		particles_Model.particle_Z_Position_Deviation	 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Z_Position_Deviation.		indicator.item_Id = id;		particles_Model.particle_Z_Position_Deviation.		coupled.clear_Coupled();
 
 		// thickness drift
@@ -1203,17 +1221,6 @@ double Data::get_Max_Delta_Theta_Detector() const
 	return max_Delta_Theta_Detector;
 }
 
-QString Data::get_Composed_Material()
-{
-	QString composed;
-	for(int i=0; i<composition.size(); ++i)
-	{
-		composed += composition[i].type;
-		if(abs(composition[i].composition.value-1)>DBL_EPSILON) composed += Locale.toString(composition[i].composition.value,line_edit_short_double_format,line_edit_composition_precision);
-	}
-	return composed;
-}
-
 double Data::average_Layer_density() const
 {
 	if(particles_Model.is_Enabled && particles_Model.is_Used && thickness.value>DBL_EPSILON)
@@ -1423,14 +1430,25 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 		if(imperfections_Model.use_Particles && particles_Model.is_Enabled && particles_Model.is_Used)	 // automatically imperfections_Model.use_Particles == particles_Model.is_Enabled
 		{
 			// particles
-			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Absolute_Density);
-			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Relative_Density);
+			if(particles_Model.particle_Composition.size()>1 && composed_Material)
+			{
+				for(Stoichiometry& stoichiometry : particles_Model.particle_Composition)
+				{
+					potentially_Fitable_Parameters.push_back(&stoichiometry.composition);
+				}
+			}
+			if(composed_Material) {
+				potentially_Fitable_Parameters.push_back(&particles_Model.particle_Absolute_Density);
+			} else {
+				potentially_Fitable_Parameters.push_back(&particles_Model.particle_Relative_Density);
+			}
 			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radius);
 			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Height);
 			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Average_Distance);
 			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radial_Distance);
 			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radial_Distance_Deviation);
 			potentially_Fitable_Parameters.push_back(&particles_Model.domain_Size);
+			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Correlation_Depth);
 			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Z_Position);
 			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Z_Position_Deviation);
 		}
@@ -1642,14 +1660,25 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 		if(imperfections_Model.use_Particles)
 		{
 			// particles
-			table_Showed_Parameters.push_back(&particles_Model.particle_Absolute_Density);
-			table_Showed_Parameters.push_back(&particles_Model.particle_Relative_Density);
+			if(particles_Model.particle_Composition.size()>1 && composed_Material)
+			{
+				for(Stoichiometry& stoichiometry : particles_Model.particle_Composition)
+				{
+					table_Showed_Parameters.push_back(&stoichiometry.composition);
+				}
+			}
+			if(composed_Material) {
+				table_Showed_Parameters.push_back(&particles_Model.particle_Absolute_Density);
+			} else {
+				table_Showed_Parameters.push_back(&particles_Model.particle_Relative_Density);
+			}
 			table_Showed_Parameters.push_back(&particles_Model.particle_Radius);
 			table_Showed_Parameters.push_back(&particles_Model.particle_Height);
 			table_Showed_Parameters.push_back(&particles_Model.particle_Average_Distance);
 			table_Showed_Parameters.push_back(&particles_Model.particle_Radial_Distance);
 			table_Showed_Parameters.push_back(&particles_Model.particle_Radial_Distance_Deviation);
 			table_Showed_Parameters.push_back(&particles_Model.domain_Size);
+			table_Showed_Parameters.push_back(&particles_Model.particle_Correlation_Depth);
 			table_Showed_Parameters.push_back(&particles_Model.particle_Z_Position);
 			table_Showed_Parameters.push_back(&particles_Model.particle_Z_Position_Deviation);
 		}
@@ -1758,6 +1787,9 @@ void Data::prepare_Layer_For_Regular_Component()
 //---------------------------------------------
 	make_Free(thickness);
 
+	for(Stoichiometry& comp : particles_Model.particle_Composition)	{
+		make_Free(comp.composition);
+	}
 	make_Free(particles_Model.particle_Absolute_Density);
 	make_Free(particles_Model.particle_Relative_Density);
 	make_Free(particles_Model.particle_Radius);
@@ -1766,6 +1798,7 @@ void Data::prepare_Layer_For_Regular_Component()
 	make_Free(particles_Model.particle_Radial_Distance);
 	make_Free(particles_Model.particle_Radial_Distance_Deviation);
 	make_Free(particles_Model.domain_Size);
+	make_Free(particles_Model.particle_Correlation_Depth);
 	make_Free(particles_Model.particle_Z_Position);
 	make_Free(particles_Model.particle_Z_Position_Deviation);
 

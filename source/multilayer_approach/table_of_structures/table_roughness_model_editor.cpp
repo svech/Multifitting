@@ -794,32 +794,32 @@ void Table_Roughness_Model_Editor::create_Particles_Groupbox()
 	QHBoxLayout* groupbox_Layout = new QHBoxLayout(particles_Groupbox);
 
 	// --------------------------------------------
-	// initial common particles shape
+	// full, partial or zero vertical correlation
 	// --------------------------------------------
 
-		QVBoxLayout* shape_Layout = new QVBoxLayout;
-			shape_Layout->setAlignment(Qt::AlignTop);
-		groupbox_Layout->addLayout(shape_Layout);
+		QVBoxLayout* vertical_Correlation_Layout = new QVBoxLayout;
+			vertical_Correlation_Layout->setAlignment(Qt::AlignTop);
+		groupbox_Layout->addLayout(vertical_Correlation_Layout);
 
-		QLabel* shape_Label = new QLabel("Particle shape");
-		shape_Layout->addWidget(shape_Label);
+		QLabel* vertical_Correlation_Label = new QLabel("Vertical\ncorrelation");
+		vertical_Correlation_Layout->addWidget(vertical_Correlation_Label);
 
-		QRadioButton* full_Sphere_Radiobutton = new QRadioButton("Spheres ");
-			full_Sphere_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Particle_Shape == full_Sphere);
-		shape_Layout->addWidget(full_Sphere_Radiobutton);
+		QRadioButton* full_Radiobutton = new QRadioButton("Full");
+			full_Radiobutton->setChecked(multilayer->imperfections_Model.particle_Vertical_Correlation == full_Correlation);
+		vertical_Correlation_Layout->addWidget(full_Radiobutton);
 
-		QRadioButton* full_Spheroid_Radiobutton = new QRadioButton("Spheroids ");
-			full_Spheroid_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Particle_Shape == full_Spheroid);
-		shape_Layout->addWidget(full_Spheroid_Radiobutton);
+		QRadioButton* partial_Radiobutton = new QRadioButton("Partial");
+			partial_Radiobutton->setChecked(multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation);
+		vertical_Correlation_Layout->addWidget(partial_Radiobutton);
 
-		QRadioButton* full_Cylinder_Radiobutton = new QRadioButton("Cylinders ");
-			full_Cylinder_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Particle_Shape == cylinder);
-		shape_Layout->addWidget(full_Cylinder_Radiobutton);
+		QRadioButton* zero_Radiobutton = new QRadioButton("Zero");
+			zero_Radiobutton->setChecked(multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation);
+		vertical_Correlation_Layout->addWidget(zero_Radiobutton);
 
-		QButtonGroup* shape_Group = new QButtonGroup;
-			shape_Group->addButton(full_Sphere_Radiobutton);
-			shape_Group->addButton(full_Spheroid_Radiobutton);
-			shape_Group->addButton(full_Cylinder_Radiobutton);
+		QButtonGroup* vertical_Correlation_Group = new QButtonGroup;
+			vertical_Correlation_Group->addButton(full_Radiobutton);
+			vertical_Correlation_Group->addButton(partial_Radiobutton);
+			vertical_Correlation_Group->addButton(zero_Radiobutton);
 
 	// --------------------------------------------
 	// initial common in-layer interference function
@@ -843,6 +843,11 @@ void Table_Roughness_Model_Editor::create_Particles_Groupbox()
 		QButtonGroup* interference_Function_Group = new QButtonGroup;
 			interference_Function_Group->addButton(disorder_Radiobutton);
 			interference_Function_Group->addButton(radial_Paracrystal_Radiobutton);
+
+		// common parameters
+		QCheckBox* common_Checkbox = new QCheckBox("Common parameters\nfor all layers");
+			common_Checkbox->setChecked (multilayer->imperfections_Model.use_Common_Particle_Function);
+		interference_Function_Layout->addWidget(common_Checkbox);
 
 	// --------------------------------------------
 	// initial common model
@@ -872,66 +877,111 @@ void Table_Roughness_Model_Editor::create_Particles_Groupbox()
 			model_Group->addButton(square_Radiobutton);
 //			model_Group->addButton(pure_Radial_Radiobutton);
 
+
+	// --------------------------------------------
+	// initial common particles shape
+	// --------------------------------------------
+
+		QVBoxLayout* shape_Layout = new QVBoxLayout;
+			shape_Layout->setAlignment(Qt::AlignTop);
+		groupbox_Layout->addLayout(shape_Layout);
+
+		QLabel* shape_Label = new QLabel("Particle shape");
+		shape_Layout->addWidget(shape_Label);
+
+		QRadioButton* full_Sphere_Radiobutton = new QRadioButton("Spheres ");
+			full_Sphere_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Particle_Shape == full_Sphere);
+		shape_Layout->addWidget(full_Sphere_Radiobutton);
+
+		QRadioButton* full_Spheroid_Radiobutton = new QRadioButton("Spheroids ");
+			full_Spheroid_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Particle_Shape == full_Spheroid);
+		shape_Layout->addWidget(full_Spheroid_Radiobutton);
+
+		QRadioButton* full_Cylinder_Radiobutton = new QRadioButton("Cylinders ");
+			full_Cylinder_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Particle_Shape == cylinder);
+		shape_Layout->addWidget(full_Cylinder_Radiobutton);
+
+		QButtonGroup* shape_Group = new QButtonGroup;
+			shape_Group->addButton(full_Sphere_Radiobutton);
+			shape_Group->addButton(full_Spheroid_Radiobutton);
+			shape_Group->addButton(full_Cylinder_Radiobutton);
+
 	/// connections
-	// shape
-	connect(full_Sphere_Radiobutton, &QRadioButton::toggled, this, [=]
+
+	connect(full_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(full_Sphere_Radiobutton->isChecked())
-		{
-			multilayer->imperfections_Model.initial_Particle_Shape = full_Sphere;
+		if(full_Radiobutton->isChecked())	{
+			multilayer->imperfections_Model.particle_Vertical_Correlation = full_Correlation;
 		}
 	});
-	connect(full_Spheroid_Radiobutton, &QRadioButton::toggled, this, [=]
+	connect(partial_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(full_Spheroid_Radiobutton->isChecked())
-		{
-			multilayer->imperfections_Model.initial_Particle_Shape = full_Spheroid;
+		if(partial_Radiobutton->isChecked())	{
+			multilayer->imperfections_Model.particle_Vertical_Correlation = partial_Correlation;
 		}
 	});
-	connect(full_Cylinder_Radiobutton, &QRadioButton::toggled, this, [=]
+	connect(zero_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(full_Cylinder_Radiobutton->isChecked())
-		{
-			multilayer->imperfections_Model.initial_Particle_Shape = cylinder;
+		if(zero_Radiobutton->isChecked())	{
+			multilayer->imperfections_Model.particle_Vertical_Correlation = zero_Correlation;
 		}
 	});
 
 	// interference
 	connect(disorder_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(disorder_Radiobutton->isChecked())
-		{
+		if(disorder_Radiobutton->isChecked())	{
 			multilayer->imperfections_Model.initial_Interference_Function = disorder;
 		}
 	});
 	connect(radial_Paracrystal_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(radial_Paracrystal_Radiobutton->isChecked())
-		{
+		if(radial_Paracrystal_Radiobutton->isChecked())	{
 			multilayer->imperfections_Model.initial_Interference_Function = radial_Paracrystal;
 		}
+	});
+	connect(common_Checkbox, &QCheckBox::toggled, this, [=]
+	{
+		multilayer->imperfections_Model.use_Common_Particle_Function = common_Checkbox->isChecked();
 	});
 
 	// model
 	connect(hexagonal_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(hexagonal_Radiobutton->isChecked())
-		{
+		if(hexagonal_Radiobutton->isChecked())	{
 			multilayer->imperfections_Model.initial_Geometric_Model = hexagonal_Model;
 		}
 	});
 	connect(square_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(square_Radiobutton->isChecked())
-		{
+		if(square_Radiobutton->isChecked())	{
 			multilayer->imperfections_Model.initial_Geometric_Model = square_Model;
 		}
 	});
 	connect(pure_Radial_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(pure_Radial_Radiobutton->isChecked())
-		{
+		if(pure_Radial_Radiobutton->isChecked())	{
 			multilayer->imperfections_Model.initial_Geometric_Model = pure_Radial_Model;
+		}
+	});
+
+	// shape
+	connect(full_Sphere_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(full_Sphere_Radiobutton->isChecked())	{
+			multilayer->imperfections_Model.initial_Particle_Shape = full_Sphere;
+		}
+	});
+	connect(full_Spheroid_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(full_Spheroid_Radiobutton->isChecked())	{
+			multilayer->imperfections_Model.initial_Particle_Shape = full_Spheroid;
+		}
+	});
+	connect(full_Cylinder_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(full_Cylinder_Radiobutton->isChecked())	{
+			multilayer->imperfections_Model.initial_Particle_Shape = cylinder;
 		}
 	});
 }

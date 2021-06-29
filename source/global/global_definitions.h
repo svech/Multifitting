@@ -17,7 +17,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 20
+#define VERSION_BUILD 23
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -73,6 +73,7 @@ class Node;
 	#define Graphs_Window_Geometry					"Graphs_Window_Geometry"
 	#define Profile_Plots_Window_Geometry			"Profile_Plots_Window_Geometry"
 	#define Roughness_Plots_Window_Geometry			"Roughness_Plots_Window_Geometry"
+	#define Particles_Plots_Window_Geometry			"Particles_Plots_Window_Geometry"
 	#define Fitting_Settings_Window_Geometry		"Fitting_Settings_Window_Geometry"
 	#define Calculation_Settings_Window_Geometry	"Calculation_Settings_Window_Geometry"
 	#define General_Settings_Window_Geometry		"General_Settings_Window_Geometry"
@@ -267,9 +268,6 @@ class Node;
 #define hexagonal_Model		"Hexagon"
 #define pure_Radial_Model	"Radial"
 
-// particle cross-layer interference
-#define no_Cross_Layer_Interference		"no cross layer interference"
-
 // roughness scattering approximations
 #define PT_approximation	"PT approximation"
 #define DWBA_approximation	"DWBA approximation"
@@ -341,6 +339,7 @@ class Node;
 #define whats_This_Period						"Period"
 #define whats_This_Gamma						"Gamma"
 
+#define whats_This_Particle_Composition					"Particle_Composition"
 #define whats_This_Particle_Absolute_Density			"Particle Absolute Density"
 #define whats_This_Particle_Relative_Density			"Particle Relative Density"
 #define whats_This_Particle_Radius						"Particle Radius"
@@ -349,6 +348,7 @@ class Node;
 #define whats_This_Particle_Radial_Distance				"Particle Radial Distance"
 #define whats_This_Particle_Radial_Distance_Deviation	"Particle Radial Distance Deviation"
 #define whats_This_Domain_Size							"Domain_Size"
+#define whats_This_Particle_Correlation_Depth			"Particle Correlation Depth"
 #define whats_This_Particle_Z_Position					"Particle Z Position"
 #define whats_This_Particle_Z_Position_Deviation		"Particle Z Position Deviation"
 
@@ -467,6 +467,7 @@ class Node;
 #define optical_Graphs_2D_Key	"optical_Graphs_2D_Key"
 #define profile_Plots_Key		"profile_Plots_Key"
 #define roughness_Plots_Key		"roughness_Plots_Key"
+#define particles_Plots_Key		"particles_Plots_Key"
 #define fits_Selector_Key		"fits_Selector_Key"
 #define calc_Settings_Key		"calc_Settings_Key"
 #define general_Settings_Key	"general_Settings_Key"
@@ -781,6 +782,32 @@ struct Roughness_Plot_Options	{QString PSD_Type = PSD_Type_1D;
 								 QString local_PSD_2D_units = Angstrom_Sym+Tetra_Sym;
 								};
 
+// particles plot options
+struct Particles_Plot_Options	{bool A_show_Layer_With_Number = true;
+								 bool B_show_Layer_With_Number = true;
+								 int A_layer_Number_To_Show = 1;
+								 int B_layer_Number_To_Show = 1;
+								 bool show_Cursor_Position = true;
+
+								 bool rescale_X = true;
+								 bool rescale_Y = true;
+
+								 double x_Min = 1E-7; // A^-1
+								 double x_Max   = 1E-1; // A^-1
+								 double old_X_Begin = 1E-7; // A^-1
+								 double old_X_End   = 1E-1; // A^-1
+
+								 double orders_To_Show = 10;
+								 double old_Y_Begin = 0;
+								 double old_Y_End   = 1;
+
+								 QString x_Scale = lin_Scale;
+								 QString y_Scale = log_Scale;
+
+								 QString local_frequency_units = Angstrom_Sym+Minus_One_Sym;
+								 QString local_value_units = Angstrom_Sym+Tetra_Sym;
+								};
+
 // calculated values for profile plotting
 struct Material_Profile			{QString material;
 								 QColor color;
@@ -946,11 +973,16 @@ struct Roughness_Model			{
 struct Particles_Model		{
 								bool is_Enabled = false;
 								bool is_Used = true;
+								bool set_Another_Material = false;
 
-								// particle
 								QString particle_Shape = full_Spheroid;
+
+								QString particle_Material;
+								QString particle_Approved_Material;
+								QList<Stoichiometry> particle_Composition;
 								Parameter particle_Absolute_Density;
 								Parameter particle_Relative_Density;
+
 								Parameter particle_Radius;
 								Parameter particle_Height;
 
@@ -967,6 +999,7 @@ struct Particles_Model		{
 								Parameter particle_Radial_Distance;
 								Parameter particle_Radial_Distance_Deviation;
 								Parameter domain_Size;
+								Parameter particle_Correlation_Depth;
 
 								// common
 								Parameter particle_Z_Position;
@@ -1033,12 +1066,13 @@ struct Imperfections_Model		{
 
 								// particles
 								bool use_Particles = false;
+								bool use_Particles_Material = false;
 
-								QString cross_Layer_Interference = no_Cross_Layer_Interference;
-
+								QString particle_Vertical_Correlation = zero_Correlation;
 								QString initial_Particle_Shape = full_Spheroid;
 								QString initial_Interference_Function = radial_Paracrystal;
 								QString initial_Geometric_Model = hexagonal_Model;
+								bool use_Common_Particle_Function = true;
 								};
 
 // independent calculation functions
@@ -1201,6 +1235,9 @@ QDataStream& operator >>( QDataStream& stream,		 Profile_Plot_Options& profile_P
 
 QDataStream& operator <<( QDataStream& stream, const Roughness_Plot_Options& roughness_Plot_Options );
 QDataStream& operator >>( QDataStream& stream,		 Roughness_Plot_Options& roughness_Plot_Options );
+
+QDataStream& operator <<( QDataStream& stream, const Particles_Plot_Options& particles_Plot_Options );
+QDataStream& operator >>( QDataStream& stream,		 Particles_Plot_Options& particles_Plot_Options );
 
 QDataStream& operator <<( QDataStream& stream, const Material_Profile& material_Profile );
 QDataStream& operator >>( QDataStream& stream,		 Material_Profile& material_Profile );

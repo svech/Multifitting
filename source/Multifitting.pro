@@ -121,6 +121,8 @@ SOURCES += \
     multilayer_approach/multilayer/target_curve/target_data_types/offset_target_curve_part.cpp \
     multilayer_approach/multilayer/target_curve/target_data_types/rocking_target_curve_part.cpp \
     multilayer_approach/multilayer/target_curve/target_data_types/specular_target_curve_part.cpp \
+    multilayer_approach/particles_plots/particles_plot.cpp \
+    multilayer_approach/particles_plots/particles_plots_window.cpp \
     multilayer_approach/profile_plots/profile_plot.cpp \
     multilayer_approach/profile_plots/profile_plots_window.cpp \
     multilayer_approach/roughness_plots/roughness_plot.cpp \
@@ -187,6 +189,8 @@ HEADERS += \
     multilayer_approach/multilayer/target_curve/target_data_types/offset_target_curve_part.h \
     multilayer_approach/multilayer/target_curve/target_data_types/rocking_target_curve_part.h \
     multilayer_approach/multilayer/target_curve/target_data_types/specular_target_curve_part.h \
+    multilayer_approach/particles_plots/particles_plot.h \
+    multilayer_approach/particles_plots/particles_plots_window.h \
     multilayer_approach/profile_plots/profile_plot.h \
     multilayer_approach/profile_plots/profile_plots_window.h \
     multilayer_approach/roughness_plots/roughness_plot.h \

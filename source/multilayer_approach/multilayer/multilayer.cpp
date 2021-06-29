@@ -86,7 +86,6 @@ void Multilayer::create_Main_Tools()
 	roughness_Plots_Button = new QPushButton("Roughness plot");
 		layout->addWidget(roughness_Plots_Button,2,0);
 	particles_Plots_Button = new QPushButton("Particles plot");
-		particles_Plots_Button->setDisabled(true);
 		layout->addWidget(particles_Plots_Button,2,1);
 
 
@@ -103,18 +102,19 @@ void Multilayer::create_Main_Tools()
 
 	Multilayer_Approach* parent_Multilayer_Approach = qobject_cast<Multilayer_Approach*>(parent);
 	connect(structure_Table_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Table_Of_Structures);
-
-	connect(roughness_Plots_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Roughness_Plots);
 	connect(profile_Plots_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Profile_Plots);
 
 	connect(optical_Graphs_1D_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, [=]{parent_Multilayer_Approach->open_Optical_Graphs_1D();});
 	connect(optical_Graphs_2D_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, [=]{parent_Multilayer_Approach->open_Optical_Graphs_2D();});
 
+	connect(roughness_Plots_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Roughness_Plots);
+	connect(particles_Plots_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Particles_Plots);
+
 	connect(calculation_Settings_Button, &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Calculation_Settings);
 	connect(general_Settings_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_General_Settings);
 
-	connect(fits_Selector_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Fits_Selector);
 	connect(fitting_Settings_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Fitting_Settings);
+	connect(fits_Selector_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Fits_Selector);
 }
 
 void Multilayer::create_Independent_Variables_Tabs()
@@ -686,6 +686,7 @@ Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
 	graph_Options_2D = referent_Multilayer.graph_Options_2D;
 	profile_Plot_Options = referent_Multilayer.profile_Plot_Options;
 	roughness_Plot_Options = referent_Multilayer.roughness_Plot_Options;
+	particles_Plot_Options = referent_Multilayer.particles_Plot_Options;
 
 	discretization_Parameters = referent_Multilayer.discretization_Parameters;
 	imperfections_Model = referent_Multilayer.imperfections_Model;

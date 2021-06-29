@@ -108,7 +108,6 @@ public:
 
 		// material composition
 		QList<Stoichiometry> composition;
-		QString get_Composed_Material();
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer, Substrate

@@ -516,6 +516,28 @@ QDataStream& operator >>( QDataStream& stream,		 Roughness_Plot_Options& roughne
 				  >> roughness_Plot_Options.local_frequency_units >> roughness_Plot_Options.local_PSD_1D_units >> roughness_Plot_Options.local_PSD_2D_units;
 }
 
+QDataStream& operator <<( QDataStream& stream, const Particles_Plot_Options& particles_Plot_Options )
+{
+	return stream << particles_Plot_Options.A_show_Layer_With_Number << particles_Plot_Options.B_show_Layer_With_Number
+				  << particles_Plot_Options.A_layer_Number_To_Show << particles_Plot_Options.B_layer_Number_To_Show << particles_Plot_Options.show_Cursor_Position
+				  << particles_Plot_Options.rescale_X << particles_Plot_Options.rescale_Y
+				  << particles_Plot_Options.x_Min << particles_Plot_Options.x_Max
+				  << particles_Plot_Options.old_X_Begin << particles_Plot_Options.old_X_End
+				  << particles_Plot_Options.orders_To_Show << particles_Plot_Options.old_Y_Begin << particles_Plot_Options.old_Y_End
+				  << particles_Plot_Options.x_Scale << particles_Plot_Options.y_Scale
+				  << particles_Plot_Options.local_frequency_units << particles_Plot_Options.local_value_units;
+}
+QDataStream& operator >>( QDataStream& stream,		 Particles_Plot_Options& particles_Plot_Options )
+{
+	return stream >> particles_Plot_Options.A_show_Layer_With_Number >> particles_Plot_Options.B_show_Layer_With_Number
+				  >> particles_Plot_Options.A_layer_Number_To_Show >> particles_Plot_Options.B_layer_Number_To_Show >> particles_Plot_Options.show_Cursor_Position
+				  >> particles_Plot_Options.rescale_X >> particles_Plot_Options.rescale_Y
+				  >> particles_Plot_Options.x_Min >> particles_Plot_Options.x_Max
+				  >> particles_Plot_Options.old_X_Begin >> particles_Plot_Options.old_X_End
+				  >> particles_Plot_Options.orders_To_Show >> particles_Plot_Options.old_Y_Begin << particles_Plot_Options.old_Y_End
+				  >> particles_Plot_Options.x_Scale >> particles_Plot_Options.y_Scale
+				  >> particles_Plot_Options.local_frequency_units >> particles_Plot_Options.local_value_units;}
+
 QDataStream& operator <<( QDataStream& stream, const Material_Profile& material_Profile )
 {
 	return stream << material_Profile.material << material_Profile.color << material_Profile.relative_Concentration;
@@ -609,26 +631,40 @@ QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Mode
 
 QDataStream& operator <<(QDataStream& stream, const Particles_Model& particles_Model )
 {
-	return stream << particles_Model.is_Enabled << particles_Model.is_Used
+	return stream << particles_Model.is_Enabled << particles_Model.is_Used << particles_Model.set_Another_Material
 
 				  << particles_Model.particle_Shape
-				  << particles_Model.particle_Absolute_Density << particles_Model.particle_Relative_Density << particles_Model.particle_Radius << particles_Model.particle_Height
+				  << particles_Model.particle_Material << particles_Model.particle_Approved_Material << particles_Model.particle_Composition
+				  << particles_Model.particle_Absolute_Density << particles_Model.particle_Relative_Density
+				  << particles_Model.particle_Radius << particles_Model.particle_Height
 
 				  << particles_Model.particle_Interference_Function << particles_Model.geometric_Model
 				  << particles_Model.particle_Average_Distance
 				  << particles_Model.particle_Radial_Distance << particles_Model.particle_Radial_Distance_Deviation << particles_Model.domain_Size
+				  << particles_Model.particle_Correlation_Depth
 				  << particles_Model.particle_Z_Position << particles_Model.particle_Z_Position_Deviation;
 }
 QDataStream& operator >>( QDataStream& stream,		 Particles_Model& particles_Model )
 {
-	return stream >> particles_Model.is_Enabled >> particles_Model.is_Used
-				  >> particles_Model.particle_Shape
-				  >> particles_Model.particle_Absolute_Density >> particles_Model.particle_Relative_Density >> particles_Model.particle_Radius >> particles_Model.particle_Height
+	stream >> particles_Model.is_Enabled >> particles_Model.is_Used;
+	if(Global_Variables::check_Loaded_Version(1,11,21))
+	{stream>> particles_Model.set_Another_Material;}
 
-				  >> particles_Model.particle_Interference_Function >> particles_Model.geometric_Model
-				  >> particles_Model.particle_Average_Distance
-				  >> particles_Model.particle_Radial_Distance >> particles_Model.particle_Radial_Distance_Deviation >> particles_Model.domain_Size
-				  >> particles_Model.particle_Z_Position >> particles_Model.particle_Z_Position_Deviation;
+	stream >> particles_Model.particle_Shape;
+
+	if(Global_Variables::check_Loaded_Version(1,11,21))
+	{stream >> particles_Model.particle_Material >> particles_Model.particle_Approved_Material >> particles_Model.particle_Composition;}
+
+	stream >> particles_Model.particle_Absolute_Density >> particles_Model.particle_Relative_Density
+		   >> particles_Model.particle_Radius >> particles_Model.particle_Height
+
+		   >> particles_Model.particle_Interference_Function >> particles_Model.geometric_Model
+		   >> particles_Model.particle_Average_Distance
+		   >> particles_Model.particle_Radial_Distance >> particles_Model.particle_Radial_Distance_Deviation >> particles_Model.domain_Size;
+	if(Global_Variables::check_Loaded_Version(1,11,21))
+	{stream>> particles_Model.particle_Correlation_Depth;}
+	stream >> particles_Model.particle_Z_Position >> particles_Model.particle_Z_Position_Deviation;
+	return stream;
 }
 
 QDataStream& operator <<( QDataStream& stream, const PSD_Data& psd_Data )
@@ -660,8 +696,8 @@ QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperf
 
 				  << imperfections_Model.PSD_1D << imperfections_Model.PSD_2D
 
-				  << imperfections_Model.use_Particles << imperfections_Model.cross_Layer_Interference << imperfections_Model.initial_Particle_Shape
-				  << imperfections_Model.initial_Interference_Function << imperfections_Model.initial_Geometric_Model;
+				  << imperfections_Model.use_Particles << imperfections_Model.use_Particles_Material << imperfections_Model.particle_Vertical_Correlation << imperfections_Model.initial_Particle_Shape
+				  << imperfections_Model.initial_Interference_Function << imperfections_Model.initial_Geometric_Model << imperfections_Model.use_Common_Particle_Function;
 }
 QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfections_Model )
 {
@@ -705,8 +741,15 @@ QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfecti
 	if(Global_Variables::check_Loaded_Version(1,11,10))
 	{stream >> imperfections_Model.PSD_1D >> imperfections_Model.PSD_2D;}
 
-	stream >> imperfections_Model.use_Particles >> imperfections_Model.cross_Layer_Interference >> imperfections_Model.initial_Particle_Shape
+	stream >> imperfections_Model.use_Particles;
+	if(Global_Variables::check_Loaded_Version(1,11,22))
+	{stream>> imperfections_Model.use_Particles_Material;}
+
+	stream >> imperfections_Model.particle_Vertical_Correlation >> imperfections_Model.initial_Particle_Shape
 		   >> imperfections_Model.initial_Interference_Function >> imperfections_Model.initial_Geometric_Model;
+
+	if(Global_Variables::check_Loaded_Version(1,11,22))
+	{stream >> imperfections_Model.use_Common_Particle_Function;}
 
 	return stream;
 }

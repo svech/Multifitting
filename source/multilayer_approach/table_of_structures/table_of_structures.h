@@ -41,7 +41,6 @@ public:
 		void refresh_Reload_Colorize(QString refresh_Reload, QWidget* back_Widget, Parameter* parameter);
 
 	// for material only
-	QString material_From_Composition(const QList<Stoichiometry>& composition);
 	void create_Combo_Elements		(My_Table_Widget* table, int,			int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
 	void create_Stoich_Line_Edit	(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString val_Type);
 	void create_Stoich_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, int r_S, int r_F, int c_S, int c_F);
@@ -193,7 +192,7 @@ public:
 
 	QList<QLineEdit*> material_Line_Edits;
 	QMap<QComboBox*,QTreeWidgetItem*> elements_Map;
-	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;	// lineEdit
+	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;		// lineEdit
 	QMap<MyDoubleSpinBox*,QTreeWidgetItem*> spin_Boxes_Map;	// spinBox
 	QMap<QCheckBox*,QTreeWidgetItem*> check_Boxes_Map;
 
@@ -211,7 +210,7 @@ public:
 	QMap<QCheckBox*,id_Type>		check_Boxes_Fit_Map;
 	QMap<QWidget*,id_Type>			back_Widgets_Fit_Map;
 	QMap<MyDoubleSpinBox*,id_Type>	spin_Boxes_ID_Map;
-	QList<QCheckBox*>				check_Boxes_Particles_Usage_List;
+	QList<QList<QCheckBox*>>		check_Boxes_Particles_Usage_List;
 
 	// refresh/reload regular aperiodic
 	QList<QList<QWidget*>>			regular_Aperiodic_Widgets_To_Reload;

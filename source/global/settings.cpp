@@ -60,6 +60,12 @@ int roughness_plots_y_corner;
 int roughness_plots_width;
 int roughness_plots_height;
 
+// particles plots window geometry
+int particles_plots_x_corner;
+int particles_plots_y_corner;
+int particles_plots_width;
+int particles_plots_height;
+
 // fitting settings window geometry
 int fitting_settings_x_corner;
 int fitting_settings_y_corner;
@@ -274,6 +280,10 @@ double	default_particles_distance_deviation_max;
 double	default_particles_domain_size;
 double	default_particles_domain_size_min;
 double	default_particles_domain_size_max;
+
+double	default_particles_correlation_depth;
+double	default_particles_correlation_depth_min;
+double	default_particles_correlation_depth_max;
 
 double	default_particles_z_position;
 double	default_particles_z_position_min;
@@ -612,6 +622,13 @@ void Settings::read_Windows_Geometry_Settings(bool reset_to_default)
 		roughness_plots_height	= windows_Geometry_Settings.value( "roughness_plots_height",	300 ).toInt();
 	windows_Geometry_Settings.endGroup();
 
+	windows_Geometry_Settings.beginGroup( Particles_Plots_Window_Geometry );
+		particles_plots_x_corner= windows_Geometry_Settings.value( "particles_plots_x_corner",	800 ).toInt();
+		particles_plots_y_corner= windows_Geometry_Settings.value( "particles_plots_y_corner",	100 ).toInt();
+		particles_plots_width	= windows_Geometry_Settings.value( "particles_plots_width",		700 ).toInt();
+		particles_plots_height	= windows_Geometry_Settings.value( "particles_plots_height",	300 ).toInt();
+	windows_Geometry_Settings.endGroup();
+
 	windows_Geometry_Settings.beginGroup( Fitting_Settings_Window_Geometry );
 		fitting_settings_x_corner	= windows_Geometry_Settings.value( "fitting_settings_x_corner",	768 ).toInt();
 		fitting_settings_y_corner	= windows_Geometry_Settings.value( "fitting_settings_y_corner",	0	).toInt();
@@ -702,6 +719,13 @@ void Settings::save_Windows_Geometry_Settings()
 		windows_Geometry_Settings.setValue( "roughness_plots_y_corner",		roughness_plots_y_corner	);
 		windows_Geometry_Settings.setValue( "roughness_plots_width",		roughness_plots_width		);
 		windows_Geometry_Settings.setValue( "roughness_plots_height",		roughness_plots_height		);
+	windows_Geometry_Settings.endGroup();
+
+	windows_Geometry_Settings.beginGroup( Particles_Plots_Window_Geometry );
+		windows_Geometry_Settings.setValue( "particles_plots_x_corner",		particles_plots_x_corner	);
+		windows_Geometry_Settings.setValue( "particles_plots_y_corner",		particles_plots_y_corner	);
+		windows_Geometry_Settings.setValue( "particles_plots_width",		particles_plots_width		);
+		windows_Geometry_Settings.setValue( "particles_plots_height",		particles_plots_height		);
 	windows_Geometry_Settings.endGroup();
 
 	windows_Geometry_Settings.beginGroup( Fitting_Settings_Window_Geometry );
@@ -917,13 +941,17 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		default_particles_distance_deviation_min	= structure_Default_Values.value( "default_particles_distance_deviation_min",0.5	  ).toDouble();
 		default_particles_distance_deviation_max	= structure_Default_Values.value( "default_particles_distance_deviation_max",90    ).toDouble();
 
-		default_particles_domain_size						= structure_Default_Values.value( "default_particles_domain_size",				1e5		).toDouble();
-		default_particles_domain_size_min					= structure_Default_Values.value( "default_particles_domain_size_min",			1E2		).toDouble();
-		default_particles_domain_size_max					= structure_Default_Values.value( "default_particles_domain_size_max",			9E6		).toDouble();
+		default_particles_domain_size					= structure_Default_Values.value( "default_particles_domain_size",				1e5		).toDouble();
+		default_particles_domain_size_min				= structure_Default_Values.value( "default_particles_domain_size_min",			1E2		).toDouble();
+		default_particles_domain_size_max				= structure_Default_Values.value( "default_particles_domain_size_max",			9E6		).toDouble();
 
-		default_particles_z_position						= structure_Default_Values.value( "default_particles_z_position",					  0		).toDouble();
-		default_particles_z_position_min					= structure_Default_Values.value( "default_particles_z_position_min",				-10		).toDouble();
-		default_particles_z_position_max					= structure_Default_Values.value( "default_particles_z_position_max",				 10		).toDouble();
+		default_particles_correlation_depth				= structure_Default_Values.value( "default_particles_correlation_depth",				200		).toDouble();
+		default_particles_correlation_depth_min			= structure_Default_Values.value( "default_particles_correlation_depth_min",			100		).toDouble();
+		default_particles_correlation_depth_max			= structure_Default_Values.value( "default_particles_correlation_depth_max",			1000	).toDouble();
+
+		default_particles_z_position					= structure_Default_Values.value( "default_particles_z_position",					  0		).toDouble();
+		default_particles_z_position_min				= structure_Default_Values.value( "default_particles_z_position_min",				-10		).toDouble();
+		default_particles_z_position_max				= structure_Default_Values.value( "default_particles_z_position_max",				 10		).toDouble();
 
 		default_particles_z_position_deviation			= structure_Default_Values.value( "default_particles_z_position_deviation",		  0		).toDouble();
 		default_particles_z_position_deviation_min		= structure_Default_Values.value( "default_particles_z_position_deviation_min",	  0		).toDouble();
@@ -1174,17 +1202,21 @@ void Settings::save_Structure_Default_Values()
 		structure_Default_Values.setValue( "default_particles_height_min",				default_particles_height_min	);
 		structure_Default_Values.setValue( "default_particles_height_max",				default_particles_height_max	);
 
-		structure_Default_Values.setValue( "default_particles_distance",					default_particles_distance		);
-		structure_Default_Values.setValue( "default_particles_distance_min",				default_particles_distance_min	);
-		structure_Default_Values.setValue( "default_particles_distance_max",				default_particles_distance_max	);
+		structure_Default_Values.setValue( "default_particles_distance",				default_particles_distance		);
+		structure_Default_Values.setValue( "default_particles_distance_min",			default_particles_distance_min	);
+		structure_Default_Values.setValue( "default_particles_distance_max",			default_particles_distance_max	);
 
 		structure_Default_Values.setValue( "default_particles_distance_deviation",		default_particles_distance_deviation		);
 		structure_Default_Values.setValue( "default_particles_distance_deviation_min",	default_particles_distance_deviation_min	);
 		structure_Default_Values.setValue( "default_particles_distance_deviation_max",	default_particles_distance_deviation_max	);
 
-		structure_Default_Values.setValue( "default_particles_domain_size",						default_particles_domain_size					);
-		structure_Default_Values.setValue( "default_particles_domain_size_min",					default_particles_domain_size_min				);
-		structure_Default_Values.setValue( "default_particles_domain_size_max",					default_particles_domain_size_max				);
+		structure_Default_Values.setValue( "default_particles_domain_size",				default_particles_domain_size				);
+		structure_Default_Values.setValue( "default_particles_domain_size_min",			default_particles_domain_size_min			);
+		structure_Default_Values.setValue( "default_particles_domain_size_max",			default_particles_domain_size_max			);
+
+		structure_Default_Values.setValue( "default_particles_correlation_depth",		default_particles_correlation_depth			);
+		structure_Default_Values.setValue( "default_particles_correlation_depth_min",	default_particles_correlation_depth_min		);
+		structure_Default_Values.setValue( "default_particles_correlation_depth_max",	default_particles_correlation_depth_max		);
 
 		structure_Default_Values.setValue( "default_particles_z_position",						default_particles_z_position					);
 		structure_Default_Values.setValue( "default_particles_z_position_min",					default_particles_z_position_min				);

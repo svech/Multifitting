@@ -311,6 +311,8 @@ public:
 	static Parameter* get_Parameter_From_Struct_Item_by_Id		  (Data& struct_Data, id_Type id);
 	static Parameter* get_Parameter_From_Struct_Item_by_Whats_This(Data& struct_Data, QString whats_This, int* line_edit_precision = nullptr, int* thumbnail_precision = nullptr, QString* units = nullptr, double* coeff = nullptr);
 
+	static QString material_From_Composition(const QList<Stoichiometry>& composition);
+
 	static void copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree);
 	static bool check_Loaded_Version(int MAJOR, int MINOR, int BUILD);
 	static void create_Shortcuts(QWidget* this_Widget);
@@ -329,6 +331,7 @@ public:
 	static void plot_All_Data_in_2D_Graphs();
 	static void plot_All_Data_in_Profiles();
 	static void plot_All_Data_in_Roughness();
+	static void plot_All_Data_in_Particles();
 	static void variable_Drift(double& value, const Drift &drift, int period_Index, int num_Repetition, gsl_rng *r);
 	static void get_Prefix_Suffix(double& prefix, double& suffix, double max_Sigma);
 	static void discretize_Prefix_Suffix(double prefix, double suffix, int& num_Prefix_Slices, int& num_Suffix_Slices, vector<double>& discrete_Step_Vector, double default_Step);

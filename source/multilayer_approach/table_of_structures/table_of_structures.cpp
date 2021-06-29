@@ -72,6 +72,7 @@ void Table_Of_Structures::create_Main_Layout()
 			if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))	  {global_Multilayer_Approach->optical_Graphs_1D		  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
 			if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)){global_Multilayer_Approach->calculation_Settings_Editor->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
 			if(global_Multilayer_Approach->runned_Roughness_Plots_Window.contains(roughness_Plots_Key))	  {global_Multilayer_Approach->roughness_Plots_Window     ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Particles_Plots_Window.contains(particles_Plots_Key))	  {global_Multilayer_Approach->particles_Plots_Window	  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
 		}
 	});
 }
@@ -118,6 +119,7 @@ void Table_Of_Structures::create_Menu()
 			}
 		}
 		Global_Variables::plot_All_Data_in_Roughness();
+		Global_Variables::plot_All_Data_in_Particles();
 	});
 	connect(menu, &Menu::refresh, this, &Table_Of_Structures::emit_Data_Edited);
 
@@ -154,6 +156,7 @@ void Table_Of_Structures::add_Tabs()
 	{
 		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, this, this);
 		all_Widgets_To_Reload.append(QList<QWidget*>());
+		check_Boxes_Particles_Usage_List.append(QList<QCheckBox*>());
 		regular_Aperiodic_Widgets_To_Reload.append(QList<QWidget*>());
 
 		min_Max_Density_Spin_Boxes_List.append(QList<MyDoubleSpinBox*>());
@@ -162,7 +165,6 @@ void Table_Of_Structures::add_Tabs()
 
 		create_Table(new_Table, tab_Index);
 		main_Tabs->addTab(new_Table, multilayer_Tabs->tabText(tab_Index));
-		disable_enable_Structure_Items(new_Table);
 	}
 	for(int i = 0; i<main_Tabs->tabBar()->count(); i++)
 	{
@@ -178,9 +180,14 @@ void Table_Of_Structures::add_Tabs()
 		reload_All_Widgets();
 	}
 	table_Is_Fully_Created = true;
-	for(QCheckBox* check_Box_Usage : check_Boxes_Particles_Usage_List)
+	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
-		check_Box_Usage->toggled(check_Box_Usage->isChecked());
+		for(QCheckBox* check_Box_Usage : check_Boxes_Particles_Usage_List[tab_Index])
+		{
+			check_Box_Usage->toggled(check_Box_Usage->isChecked());
+		}
+		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+		disable_enable_Structure_Items(table);
 	}
 	main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());
 }
@@ -1296,7 +1303,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if(multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model) current_Column+=2;
 				QString whats_This = whats_This_PSD_Exponenta_Mu;
 				add_Columns			(new_Table, current_Column+1);
-				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Mu_Sym+" ["+mu_units+"]");
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "L"+Subscript_v_Sym+" ["+mu_units+"]");
 				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
@@ -2272,9 +2279,10 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Particle_Radius)				{precision = line_edit_particle_size_precision;					coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Radius;						}
 	if(whats_This == whats_This_Particle_Height)				{precision = line_edit_particle_size_precision;					coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Height;						}
 	if(whats_This == whats_This_Particle_Average_Distance)		{precision = line_edit_particle_lateral_distance_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Average_Distance;			}
-	if(whats_This == whats_This_Particle_Radial_Distance)		{precision = line_edit_particle_lateral_distance_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Radial_Distance;				}
+	if(whats_This == whats_This_Particle_Radial_Distance)		{precision = line_edit_particle_lateral_distance_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Radial_Distance;			}
 if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{precision = line_edit_particle_lateral_distance_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Radial_Distance_Deviation;	}
 	if(whats_This == whats_This_Domain_Size)					{precision = line_edit_cor_radius_precision;					coeff = correlation_Length_Coefficients_Map.value(correlation_length_units);	return struct_Data.particles_Model.domain_Size;							}
+	if(whats_This == whats_This_Particle_Correlation_Depth)		{precision = line_edit_mu_precision;							coeff = mu_Coefficients_Map.value(mu_units);									return struct_Data.particles_Model.particle_Correlation_Depth;			}
 	if(whats_This == whats_This_Particle_Z_Position)			{precision = line_edit_particle_z_position_precision;			coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Z_Position;					}
 	if(whats_This == whats_This_Particle_Z_Position_Deviation)	{precision = line_edit_particle_z_position_precision;			coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Z_Position_Deviation;		}
 
@@ -2636,20 +2644,6 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 
 		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
 	}
-}
-
-QString Table_Of_Structures::material_From_Composition(const QList<Stoichiometry>& composition)
-{
-	QString text;
-	for(int i=0; i<composition.size(); ++i)
-	{
-		text += composition[i].type;
-		if( abs(composition[i].composition.value - 1) > DBL_EPSILON )
-		{
-			text += Locale.toString(composition[i].composition.value, line_edit_short_double_format, thumbnail_composition_precision);
-		}
-	}
-	return text;
 }
 
 void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, int r_S, int r_F, int c_S, int c_F)
@@ -3044,7 +3038,7 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 	// storage
 	check_Boxes_Map.	       insert	   (check_Box, structure_Item);
 	all_Widgets_To_Reload[tab_Index].append(check_Box);
-	check_Boxes_Particles_Usage_List.append(check_Box);
+	check_Boxes_Particles_Usage_List[tab_Index].append(check_Box);
 
 	// set up BACK widget
 	// alignment
@@ -4419,7 +4413,7 @@ void Table_Of_Structures::create_Simple_Label(My_Table_Widget* table, int tab_In
 		if(whats_This == whats_This_Sigma_Roughness)					label->setText(Sigma_Sym+" ["+length_units+"]");
 		if(whats_This == whats_This_Correlation_Radius)					label->setText(Xi_Sym+" ["+correlation_length_units+"]");
 		if(whats_This == whats_This_Linear_PSD_Omega)					label->setText(Omega_Big_Sym+" ["+omega_units+"]");
-		if(whats_This == whats_This_PSD_Exponenta_Mu)					label->setText(Mu_Sym+" ["+mu_units+"]");
+		if(whats_This == whats_This_PSD_Exponenta_Mu)					label->setText("L"+Subscript_v_Sym+" ["+mu_units+"]");
 		if(whats_This == whats_This_Linear_A2)							label->setText("a"+Subscript_2_Sym+" ["+linear_a2_units+"]");
 		if(whats_This == whats_This_Linear_A3)							label->setText("a"+Subscript_3_Sym+" ["+linear_a3_units+"]");
 		if(whats_This == whats_This_Linear_A4)							label->setText("a"+Subscript_4_Sym+" ["+linear_a4_units+"]");
@@ -4435,6 +4429,7 @@ void Table_Of_Structures::create_Simple_Label(My_Table_Widget* table, int tab_In
 		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	label->setText(Delta_Small_Sym + "r ["+length_units+"]");
 		if(whats_This == whats_This_Domain_Size)						label->setText("D ["+correlation_length_units+"]");
 		if(whats_This == whats_This_Particle_Z_Position)				label->setText("z" + Subscript_p_Sym + " ["+length_units+"]");
+		if(whats_This == whats_This_Particle_Z_Position_Deviation)		label->setText(Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		label->setText(Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
 	});
 }
@@ -5153,7 +5148,7 @@ void Table_Of_Structures::refresh_Element(My_Table_Widget* table, QString)
 	{
 		// state update
 		comp.type = combo_Box->currentText();
-		struct_Data.material = material_From_Composition(struct_Data.composition);
+		struct_Data.material = Global_Variables::material_From_Composition(struct_Data.composition);
 		for(QCheckBox* item_Check_Box : check_Boxes_Map.keys(structure_Item))
 		{
 			if(item_Check_Box->property(item_Table_CheckBox_Property).toString() == item_Table_CheckBox_Property)
@@ -5183,7 +5178,7 @@ void Table_Of_Structures::refresh_Element(My_Table_Widget* table, QString)
 				Data& regular_Data = parent_Data.regular_Components[my_I].components[n];
 				Parameter& regular_Comp = regular_Data.composition[composition_Index].composition;
 				regular_Data.composition[composition_Index].type = combo_Box->currentText();
-				regular_Data.material = material_From_Composition(regular_Data.composition);
+				regular_Data.material = Global_Variables::material_From_Composition(regular_Data.composition);
 
 				// full name update
 				regular_Comp.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Composition, composition_Index);
@@ -5236,7 +5231,7 @@ void Table_Of_Structures::refresh_Stoich()
 		if(value_Type == MIN)	{comp.fit.min = spin_Box->value(); /*comp.confidence.min = comp.fit.min;*/}
 		if(value_Type == MAX)	{comp.fit.max = spin_Box->value(); /*comp.confidence.max = comp.fit.max;*/}
 
-		struct_Data.material = material_From_Composition(struct_Data.composition);
+		struct_Data.material = Global_Variables::material_From_Composition(struct_Data.composition);
 		for(QCheckBox* item_Check_Box : check_Boxes_Map.keys(structure_Item))
 		{
 			if(item_Check_Box->property(item_Table_CheckBox_Property).toString() == item_Table_CheckBox_Property)
@@ -5269,7 +5264,7 @@ void Table_Of_Structures::refresh_Stoich()
 				if(value_Type == MIN)	regular_Comp.fit.min = spin_Box->value();
 				if(value_Type == MAX)	regular_Comp.fit.max = spin_Box->value();
 
-				regular_Data.material = material_From_Composition(regular_Data.composition);
+				regular_Data.material = Global_Variables::material_From_Composition(regular_Data.composition);
 
 				// full name update
 				regular_Comp.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Composition, composition_Index);
@@ -5504,7 +5499,7 @@ void Table_Of_Structures::refresh_Header(QString)
 			if(whats_This == whats_This_Sigma_Roughness)					label->setText(Sigma_Sym+" ["+length_units+"]");
 			if(whats_This == whats_This_Correlation_Radius)					label->setText(Xi_Sym+   " ["+correlation_length_units+"]");
 			if(whats_This == whats_This_Linear_PSD_Omega)					label->setText(Omega_Big_Sym+" ["+omega_units+"]");
-			if(whats_This == whats_This_PSD_Exponenta_Mu)					label->setText(Mu_Sym+" ["+mu_units+"]");
+			if(whats_This == whats_This_PSD_Exponenta_Mu)					label->setText("L"+Subscript_v_Sym+" ["+mu_units+"]");
 			if(whats_This == whats_This_Linear_A2)							label->setText("a"+Subscript_2_Sym+" ["+linear_a2_units+"]");
 			if(whats_This == whats_This_Linear_A3)							label->setText("a"+Subscript_3_Sym+" ["+linear_a3_units+"]");
 			if(whats_This == whats_This_Linear_A4)							label->setText("a"+Subscript_4_Sym+" ["+linear_a4_units+"]");
@@ -6601,14 +6596,16 @@ void Table_Of_Structures::cells_On_Off(My_Table_Widget* table, bool borders, boo
 			if(widget && check_Box->parent()!=widget /* do not disable itself */)
 			{
 				// god mode always satisfies condition
-				if(can_Enable)
+				if(can_Enable) {
 					widget->setProperty("keep_Disabled_Property", keep_Disabled);
+				}
 
 				// non-god mode should check
-				if(!widget->property("keep_Disabled_Property").toBool())
+				if(!widget->property("keep_Disabled_Property").toBool()){
 					widget->setDisabled(!check_Box->isChecked());
-				else
+				} else {
 					widget->setDisabled(true);
+				}
 
 //				widget->setDisabled(!check_Box->isChecked()); // plain old version
 

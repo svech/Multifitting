@@ -66,6 +66,12 @@ extern int roughness_plots_y_corner;
 extern int roughness_plots_width;
 extern int roughness_plots_height;
 
+// particles plots window geometry
+extern int particles_plots_x_corner;
+extern int particles_plots_y_corner;
+extern int particles_plots_width;
+extern int particles_plots_height;
+
 // fitting settings window geometry
 extern int fitting_settings_x_corner;
 extern int fitting_settings_y_corner;
@@ -282,6 +288,10 @@ extern double	default_particles_distance_deviation_max;
 extern double	default_particles_domain_size;
 extern double	default_particles_domain_size_min;
 extern double	default_particles_domain_size_max;
+
+extern double	default_particles_correlation_depth;
+extern double	default_particles_correlation_depth_min;
+extern double	default_particles_correlation_depth_max;
 
 extern double	default_particles_z_position;
 extern double	default_particles_z_position_min;

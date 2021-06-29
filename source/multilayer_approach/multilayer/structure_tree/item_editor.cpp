@@ -150,6 +150,7 @@ void Item_Editor::create_Menu()
 	main_Layout->setMenuBar(menu->menu_Bar);
 	connect(menu, &Menu::refresh, this, &Item_Editor::emit_Item_Data_Edited);
 	connect(menu, &Menu::refresh, this, [=]{Global_Variables::plot_All_Data_in_Roughness();});
+	connect(menu, &Menu::refresh, this, [=]{Global_Variables::plot_All_Data_in_Particles();});
 }
 
 void Item_Editor::make_Ambient_Editor()
