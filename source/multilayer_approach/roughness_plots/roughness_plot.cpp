@@ -65,6 +65,7 @@ void Roughness_Plot::create_Left_Side()
 	///==============================================================================================
 		QVBoxLayout* left_Layout = new QVBoxLayout;
 			left_Layout->setSpacing(2);
+			left_Layout->setAlignment(Qt::AlignTop);
 			main_Layout->addLayout(left_Layout);
 
 		///------------------------------------------------------------------------------------------
@@ -72,7 +73,6 @@ void Roughness_Plot::create_Left_Side()
 		///------------------------------------------------------------------------------------------
 		value_Type_GroupBox = new QGroupBox;
 			left_Layout->addWidget(value_Type_GroupBox);
-			left_Layout->setAlignment(Qt::AlignTop);
 		QVBoxLayout* value_Type_Layout = new QVBoxLayout(value_Type_GroupBox);
 			value_Type_Layout->setSpacing(2);
 			value_Type_Layout->setContentsMargins(8,5,8,5);

@@ -534,7 +534,7 @@ QDataStream& operator >>( QDataStream& stream,		 Particles_Plot_Options& particl
 				  >> particles_Plot_Options.rescale_X >> particles_Plot_Options.rescale_Y
 				  >> particles_Plot_Options.x_Min >> particles_Plot_Options.x_Max
 				  >> particles_Plot_Options.old_X_Begin >> particles_Plot_Options.old_X_End
-				  >> particles_Plot_Options.orders_To_Show >> particles_Plot_Options.old_Y_Begin << particles_Plot_Options.old_Y_End
+				  >> particles_Plot_Options.orders_To_Show >> particles_Plot_Options.old_Y_Begin >> particles_Plot_Options.old_Y_End
 				  >> particles_Plot_Options.x_Scale >> particles_Plot_Options.y_Scale
 				  >> particles_Plot_Options.local_frequency_units >> particles_Plot_Options.local_value_units;}
 

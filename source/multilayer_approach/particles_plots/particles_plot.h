@@ -26,7 +26,7 @@ public:
 	QHBoxLayout* main_Layout;
 
 	// left side
-	QGroupBox* interface_GroupBox;
+	QGroupBox* layer_GroupBox;
 		QCheckBox* A_show_Layer_by_Number_CheckBox;
 		QComboBox* A_layer_by_Number_ComboBox;
 		QCheckBox* B_show_Layer_by_Number_CheckBox;
