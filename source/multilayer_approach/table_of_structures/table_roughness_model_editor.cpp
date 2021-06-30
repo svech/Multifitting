@@ -129,6 +129,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 					global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);
 					global_Multilayer_Approach->reopen_Calculation_Settings(true);
 					global_Multilayer_Approach->reopen_Roughness_Plots();
+					global_Multilayer_Approach->reopen_Particles_Plots();
 				}
 			}
 			if(discretization_DWBA_SA_CSA)
@@ -169,6 +170,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 //					global_Multilayer_Approach->reopen_Optical_Graphs_1D(true);
 					global_Multilayer_Approach->reopen_Calculation_Settings(true);
 					global_Multilayer_Approach->reopen_Roughness_Plots();
+					global_Multilayer_Approach->reopen_Particles_Plots();
 				}
 			}
 			if(!GISAS_DWBA_SA_CSA && !discretization_DWBA_SA_CSA)
@@ -183,6 +185,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 				global_Multilayer_Approach->reopen_Table_Of_Structures(true);
 				global_Multilayer_Approach->reopen_Calculation_Settings(true);
 				global_Multilayer_Approach->reopen_Roughness_Plots();
+				global_Multilayer_Approach->reopen_Particles_Plots();
 			}
 		} else
 		{
@@ -196,6 +199,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 			global_Multilayer_Approach->reopen_Table_Of_Structures(true);
 			global_Multilayer_Approach->reopen_Calculation_Settings(true);
 			global_Multilayer_Approach->reopen_Roughness_Plots();
+			global_Multilayer_Approach->reopen_Particles_Plots();
 		}
 	});
 }

@@ -15,7 +15,7 @@ public:
 	void create_Left_Side();
 	void create_Plot_Frame_And_Scale();
 	void calculate_Profile();
-	void calc_PSD_For_Interface(int interface_Index, QVector<double>& value_Vector, bool& use_Interface, QString& material, double& sigma_Eff, double nu_Min, double nu_Max);
+	void calc_Interference_Function_For_Layer(int layer_Index, QVector<double>& value_Vector, bool& use_Interface, QString& material, double& sigma_Eff, double nu_Min, double nu_Max);
 	void plot_Data(bool recalculate_Profile = false);
 	void lock_Interfaces();
 
@@ -53,13 +53,10 @@ public:
 		QComboBox* value_ComboBox;
 
 
-	int media_Counter = 2; // ambient is the first
+	int num_Layers = 0;
 	tree<Node> calc_Tree;
 	vector<Node*> flat_Calc_Tree;	            // contains only Ambient, Layers, Substrate
 	vector<Node*> short_Flat_Calc_Tree;	        // contains only Layers, Substrate, and no extreme layers
-	vector<Node*> media_Node_Map_Vector;
-	vector<Data>  media_Data_Map_Vector;		// without calculated epsilon, hi etc
-	vector<int>   media_Period_Index_Map_Vector;
 
 	QVector<double> boundary_Vector;
 	QVector<double> thickness_Vector;

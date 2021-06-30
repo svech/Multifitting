@@ -570,7 +570,6 @@ void Roughness_Plot::calculate_Profile()
 	current_Interface_Plot_Vector.resize(num_Plot_Points);
 	substrate_Surface_Plot_Vector.resize(num_Plot_Points);
 
-
 	double val_Coeff = 1;
 	double arg_Coeff = spatial_Frequency_Coefficients_Map.value(multilayer->roughness_Plot_Options.local_frequency_units);
 
