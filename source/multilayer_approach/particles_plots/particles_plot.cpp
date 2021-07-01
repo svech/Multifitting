@@ -648,12 +648,25 @@ void Particles_Plot::calc_Interference_Function_For_Layer(int layer_Index, vecto
 	value_Vector.resize(arg_Vector.size());
 	if(current_Data.particles_Model.is_Used)
 	{
-		for(int i=0; i<arg_Vector.size(); i++)
+		if(current_Data.particles_Model.particle_Interference_Function == radial_Paracrystal)
 		{
-			if(arg_Vector[i] <= multilayer->imperfections_Model.nu_Limit) {
-				value_Vector[i] = current_Node->G2_Type_Outer(2*M_PI*arg_Vector[i]); // what about G1? // remember about radial_Paracrystal
-			} else {
-				value_Vector[i] = 0;
+			for(int i=0; i<arg_Vector.size(); i++)
+			{
+				if(arg_Vector[i] <= multilayer->imperfections_Model.nu_Limit) {
+					value_Vector[i] = current_Node->G2_Type_Outer(2*M_PI*arg_Vector[i]); // what about G1? // remember about radial_Paracrystal
+				} else {
+					value_Vector[i] = 0;
+				}
+			}
+		} else
+		{
+			for(int i=0; i<arg_Vector.size(); i++)
+			{
+				if(arg_Vector[i] <= multilayer->imperfections_Model.nu_Limit) {
+					value_Vector[i] = 1;  // or it should depend on M and N?
+				} else {
+					value_Vector[i] = 0;
+				}
 			}
 		}
 	}
