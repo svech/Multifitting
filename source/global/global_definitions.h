@@ -792,12 +792,12 @@ struct Particles_Plot_Options	{bool A_show_Layer_With_Number = true;
 								 bool rescale_X = true;
 								 bool rescale_Y = true;
 
-								 double x_Min = 1E-7; // A^-1
+								 double x_Min = 1E-3; // A^-1
 								 double x_Max   = 1E-1; // A^-1
-								 double old_X_Begin = 1E-7; // A^-1
+								 double old_X_Begin = 1E-3; // A^-1
 								 double old_X_End   = 1E-1; // A^-1
 
-								 double orders_To_Show = 10;
+								 double orders_To_Show = 15;
 								 double old_Y_Begin = 0;
 								 double old_Y_End   = 1;
 
@@ -1093,8 +1093,8 @@ struct Calc_Functions			{bool check_Enabled = true;
 								 double field_Ambient_Distance = 0;
 								 double field_Substrate_Distance = 0;
 								 bool show_Surface = false;
-								 bool add_Specular_Peak = true;
-								 bool instrumental_Smoothing = true;
+								 bool add_Specular_Peak = false;
+								 bool instrumental_Smoothing = false;
 								 bool integrate_PSD_in_Detector = false;
 
 								 bool if_Something_Enabled_1D() const;

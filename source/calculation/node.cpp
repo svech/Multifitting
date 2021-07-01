@@ -3071,61 +3071,72 @@ double Node::G2_Type_Outer(double q)
 	return gsl_spline_eval(spline_G2, q, acc_G2);
 }
 
-void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, const Data& measurement)
+void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, const Data& measurement, vector<double>& arg_Vec)
 {
 	if(!imperfections_Model.use_Particles) return;
 	if(!struct_Data.particles_Model.is_Used) return;
 	if(struct_Data.particles_Model.particle_Interference_Function != radial_Paracrystal) return;
 	if(struct_Data.item_Type != item_Type_Layer ) return;
-	if(measurement.measurement_Type != measurement_Types[GISAS]) return;
-
 
 	// in other cases ( layer with radial paracrystal ) go further
 
-	bool negative = false;
-	double q_Max;
-	for(size_t i=0; i<measurement.detector_Theta_Cos_Vec.size(); i++)
-	{
-		if(measurement.detector_Theta_Cos_Vec[i]<0)
-		{
-			negative = true;
-			break;
-		}
-	}
-	if(negative)
-	{
-		vector<double> temp_q2(measurement.detector_Theta_Cos_Vec.size()*measurement.detector_Phi_Cos_Vec.size());
+//	auto start = std::chrono::system_clock::now();
 
-		for(size_t theta_Index=0; theta_Index<measurement.detector_Theta_Cos_Vec.size(); theta_Index++)
+	double q_Max = 2*M_PI*max_Frequency_For_2D_Spline;
+	double q_Min = 0;
+
+	// case of particle plot
+	if(measurement.measurement_Type == Particles_Values)
+	{
+		q_Min = measurement.k_Vec.front();
+		q_Max = measurement.k_Vec.back();
+	}
+	if(measurement.measurement_Type == measurement_Types[GISAS_Map])
+	{
+		bool negative = false;
+		for(size_t i=0; i<measurement.detector_Theta_Cos_Vec.size(); i++)
 		{
-			for(size_t phi_Index=0; phi_Index<measurement.detector_Phi_Cos_Vec.size(); phi_Index++)
+			if(measurement.detector_Theta_Cos_Vec[i]<0)
 			{
-				temp_q2[theta_Index*measurement.detector_Phi_Cos_Vec.size()+phi_Index] =
-									measurement.k_Value*measurement.k_Value*( measurement.detector_Theta_Cos_Vec[theta_Index]*measurement.detector_Theta_Cos_Vec[theta_Index] +
-									measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
-								  2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[theta_Index]*measurement.detector_Phi_Cos_Vec[phi_Index]);
+				negative = true;
+				break;
 			}
 		}
-		std::sort(temp_q2.begin(), temp_q2.end());
-		q_Max = sqrt(max(temp_q2.back(),DBL_EPSILON))*(1+1E-5);
-	} else
-	{
-		vector<double> temp_q2_Max(measurement.detector_Theta_Cos_Vec.size());
-		double min_Cos_Phi_0 = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
-		double max_Cos_Phi_0 = max(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
-		double min_Cos_Phi = min(min_Cos_Phi_0,max_Cos_Phi_0);
-		vector<double> detector_Theta_Cos_Sorted_Vec = measurement.detector_Theta_Cos_Vec;
-		std::sort(detector_Theta_Cos_Sorted_Vec.begin(), detector_Theta_Cos_Sorted_Vec.end());
-		for(size_t i=0; i<detector_Theta_Cos_Sorted_Vec.size(); i++)
+		if(negative)
 		{
-			temp_q2_Max[i] = measurement.k_Value*measurement.k_Value*( detector_Theta_Cos_Sorted_Vec[i]*detector_Theta_Cos_Sorted_Vec[i] +
-																	   measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
-																	 2*measurement.beam_Theta_0_Cos_Value*detector_Theta_Cos_Sorted_Vec[i]*min_Cos_Phi);
+			vector<double> temp_q2(measurement.detector_Theta_Cos_Vec.size()*measurement.detector_Phi_Cos_Vec.size());
+
+			for(size_t theta_Index=0; theta_Index<measurement.detector_Theta_Cos_Vec.size(); theta_Index++)
+			{
+				for(size_t phi_Index=0; phi_Index<measurement.detector_Phi_Cos_Vec.size(); phi_Index++)
+				{
+					temp_q2[theta_Index*measurement.detector_Phi_Cos_Vec.size()+phi_Index] =
+										measurement.k_Value*measurement.k_Value*( measurement.detector_Theta_Cos_Vec[theta_Index]*measurement.detector_Theta_Cos_Vec[theta_Index] +
+										measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
+									  2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[theta_Index]*measurement.detector_Phi_Cos_Vec[phi_Index]);
+				}
+			}
+			std::sort(temp_q2.begin(), temp_q2.end());
+			q_Max = sqrt(max(temp_q2.back(),DBL_EPSILON))*(1+1E-5);
+		} else
+		{
+			vector<double> temp_q2_Max(measurement.detector_Theta_Cos_Vec.size());
+			double min_Cos_Phi_0 = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
+			double max_Cos_Phi_0 = max(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
+			double min_Cos_Phi = min(min_Cos_Phi_0,max_Cos_Phi_0);
+			vector<double> detector_Theta_Cos_Sorted_Vec = measurement.detector_Theta_Cos_Vec;
+			std::sort(detector_Theta_Cos_Sorted_Vec.begin(), detector_Theta_Cos_Sorted_Vec.end());
+			for(size_t i=0; i<detector_Theta_Cos_Sorted_Vec.size(); i++)
+			{
+				temp_q2_Max[i] = measurement.k_Value*measurement.k_Value*( detector_Theta_Cos_Sorted_Vec[i]*detector_Theta_Cos_Sorted_Vec[i] +
+																		   measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
+																		 2*measurement.beam_Theta_0_Cos_Value*detector_Theta_Cos_Sorted_Vec[i]*min_Cos_Phi);
+			}
+			std::sort(temp_q2_Max.begin(), temp_q2_Max.end());
+			q_Max = sqrt(max(temp_q2_Max.back(),DBL_EPSILON))*(1+1E-5);
 		}
-		std::sort(temp_q2_Max.begin(), temp_q2_Max.end());
-		q_Max = sqrt(max(temp_q2_Max.back(),DBL_EPSILON))*(1+1E-5);
 	}
-	double q_Min = 0;
+	q_Max = q_Max*1.01;
 	double q_Range = q_Max-q_Min;
 	vector<double> q_Peak;
 
@@ -3234,8 +3245,8 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	double M = min(M_size, M_domain);
 	M = max(M,3.);
 	// we will use M dependent of N
-	if(struct_Data.particles_Model.geometric_Model == square_Model)		M = N;
-	if(struct_Data.particles_Model.geometric_Model == hexagonal_Model)	M = N*2/M_SQRT3;
+	if(struct_Data.particles_Model.geometric_Model == square_Model)		 M = N;
+	if(struct_Data.particles_Model.geometric_Model == hexagonal_Model)	 M = N*2/M_SQRT3;
 	if(struct_Data.particles_Model.geometric_Model == pure_Radial_Model) M = N*2/M_SQRT3;
 
 	// peak half-widths
@@ -3253,11 +3264,28 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	vector<double> q_Vec; q_Vec.reserve(100000);
 	q_Vec.push_back(q_Min);
 
-	// num points if no peaks in range
-	int num_Bare_Dense_Points = 300;
-	int num_Bare_Points = 300;
-	int num_Peak_Points = 201; // points inside FWHM * hw_Factor/2
-	int hw_Factor = 6;
+	// num points
+	int num_Bare_Dense_Points = 500;	// num points if no peaks in range
+	int num_Bare_Points = 500;
+	int num_Peak_Points = 151; // points inside FWHM * hw_Factor/2
+	double hw_Factor = 6;
+	double pw = a/sigma;
+	if(      pw <= 10 ) {hw_Factor = 6;}
+	if(10  < pw <= 30 ) {hw_Factor = 8;}
+	if(30  < pw <= 50 ) {hw_Factor = 14;}
+	if(50  < pw <= 70 ) {hw_Factor = 18;}
+	if(70  < pw <= 100) {hw_Factor = 22;}
+	if(100 < pw <= 150) {hw_Factor = 26;}
+	if(150 < pw <= 200) {hw_Factor = 30;}
+	if(200 < pw <= 250) {hw_Factor = 35;}
+	if(250 < pw <= 330) {hw_Factor = 40;}
+	if(330 < pw <= 450) {hw_Factor = 45;}
+	if(450 < pw       ) {hw_Factor = 50;}
+	hw_Factor*=2;
+	double hw_Factor_Divided = max(sqrt(1E6/struct_Data.particles_Model.domain_Size.value),1.);
+	hw_Factor *= hw_Factor_Divided;
+//	qInfo() << "pw" << pw << "hw_Factor" << hw_Factor << endl;
+//	hw_Factor = struct_Data.relative_Density.value;
 	double dq_Bare = q_Range/(num_Bare_Points-1);
 
 	// no peaks in range
@@ -3365,7 +3393,6 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	vector<double> G2_Vec(q_Vec.size());
 	vector<bool> too_Narrow(reflectivity_calc_threads);
 
-
 	if(struct_Data.particles_Model.geometric_Model == pure_Radial_Model)
 	{
 		Global_Variables::parallel_For(int(q_Vec.size()), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
@@ -3390,6 +3417,9 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	{
 		Global_Variables::parallel_For(int(q_Vec.size()), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 		{
+			double tanh_Sinh_Tolerance = 1E-3;
+			tanh_sinh<double> tanh_sinh_Integrator;
+
 			too_Narrow[thread_Index] = false;
 			vector<double> phi_Vec; phi_Vec.reserve(max_Phi_Division+1);
 			for(size_t q_Index = n_Min; q_Index<n_Max; q_Index++)
@@ -3405,10 +3435,11 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 					double arc_q = phi_Max*q;
 
 					int factor = q<1E-3 ? 2 : 1;
-					const int gk_points = 61;
+					const int gk_points = 15;
 					int phi_Division = ceil( arc_q/gk_points * num_Phi_Points_Per_hw/hw_q * factor);
 					phi_Division = max(phi_Division, 1);
 					phi_Division = min(phi_Division, max_Phi_Division); // reasonable limit
+//					phi_Division = 50;
 					if(phi_Division == max_Phi_Division) too_Narrow[thread_Index] = true;
 					phi_Vec.resize(phi_Division+1);
 					for(int i=0; i<=phi_Division; i++)
@@ -3423,7 +3454,8 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 					// threshold
 					for(int phi_Index=0; phi_Index<phi_Division; phi_Index++)
 					{
-						integral += gauss_kronrod<double,gk_points>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-7);
+						integral += gauss_kronrod<double,gk_points>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-5);
+//						integral += tanh_sinh_Integrator.integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], tanh_Sinh_Tolerance);
 					}
 					G2_Vec[q_Index] = integral;
 				} else
@@ -3442,6 +3474,8 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 			q_Vec.erase(q_Vec.begin()+i);
 			G2_Vec.erase(G2_Vec.begin()+i);
 		}
+		// general
+//		G2_Vec[i] = abs(G2_Vec[i]);
 	}
 
 	bool narrow = false;
@@ -3464,19 +3498,44 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 //	}
 //	file.close();
 
+	arg_Vec.resize(q_Vec.size());
+	for(int i=0; i<q_Vec.size(); i++)
+	{
+		arg_Vec[i] = q_Vec[i]/(2*M_PI);
+	}
+
+
+	/// prepend zero point
+//	if(q_Min>0)
+//	{
+//		q_Vec.insert(q_Min.begin(), 0);
+//		G2_Vec.insert(G2_Vec.begin(), 0);
+//	}
+	/// append last points
+	{
+		q_Vec.push_back(q_Max*(1+1E-5));
+		q_Vec.push_back(MAX_DOUBLE);
+
+		G2_Vec.push_back(0);
+		G2_Vec.push_back(0);
+	}
+
 	const gsl_interp_type* interp_type = gsl_interp_steffen;
 	acc_G2 = gsl_interp_accel_alloc();
 	spline_G2 = gsl_spline_alloc(interp_type, q_Vec.size());
 	gsl_spline_init(spline_G2, q_Vec.data(), G2_Vec.data(), q_Vec.size());
+
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "	create G2 spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 }
 
-void Node::clear_Spline_G2_2D(const Imperfections_Model& imperfections_Model, const Data& measurement)
+void Node::clear_Spline_G2_2D(const Imperfections_Model& imperfections_Model)
 {
 	if(!imperfections_Model.use_Particles) return;
 	if(!struct_Data.particles_Model.is_Used) return;
 	if(struct_Data.particles_Model.particle_Interference_Function != radial_Paracrystal) return;
 	if(struct_Data.item_Type != item_Type_Layer ) return;
-	if(measurement.measurement_Type != measurement_Types[GISAS]) return;
 
 	gsl_spline_free(spline_G2);
 	gsl_interp_accel_free(acc_G2);

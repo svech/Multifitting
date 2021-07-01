@@ -647,7 +647,11 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 			if(multilayer->imperfections_Model.use_Particles)
 			{
 				// TODO when 2D, when 1D
-				short_Flat_Calc_Tree[node_Index]->create_Spline_G2_2D(multilayer->imperfections_Model, measurement);
+				if(measurement.measurement_Type == measurement_Types[GISAS_Map])
+				{
+					vector<double> temp;
+					short_Flat_Calc_Tree[node_Index]->create_Spline_G2_2D(multilayer->imperfections_Model, measurement, temp);
+				}
 			}
 		} else
 		// here we calculate total sigma for specular direction in SPECULAR_MODE
@@ -760,7 +764,10 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 			if(multilayer->imperfections_Model.use_Particles)
 			{
 				// TODO when 2D, when 1D
-				short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D(multilayer->imperfections_Model, measurement);
+				if(measurement.measurement_Type == measurement_Types[GISAS_Map])
+				{
+					short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D(multilayer->imperfections_Model);
+				}
 			}
 		} else
 		// here we calculated total sigma for specular direction in SPECULAR_MODE

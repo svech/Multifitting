@@ -115,8 +115,8 @@ public:
 	vector<double(*)(double, double, double, double, double, double)> G2_Type;
 	vector<double(*)(double, double, double, double, double)> G2_Type_q_Zero;
 	vector<double(*)(long double, long double, long double, long double sigma, long double N, long double M)> G2_Type_long;
-	void create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, const Data& measurement);
-	void clear_Spline_G2_2D (const Imperfections_Model& imperfections_Model, const Data& measurement);
+	void create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, const Data& measurement, vector<double>& arg_Vec);
+	void clear_Spline_G2_2D (const Imperfections_Model& imperfections_Model);
 	gsl_spline* spline_G2;
 	gsl_interp_accel* acc_G2;
 };

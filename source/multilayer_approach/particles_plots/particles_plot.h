@@ -15,7 +15,7 @@ public:
 	void create_Left_Side();
 	void create_Plot_Frame_And_Scale();
 	void calculate_Profile();
-	void calc_Interference_Function_For_Layer(int layer_Index, QVector<double>& value_Vector, bool& use_Interface, QString& material, double& sigma_Eff, double nu_Min, double nu_Max);
+	void calc_Interference_Function_For_Layer(int layer_Index, vector<double>& arg_Vector, QVector<double>& value_Vector, bool& use_Interface, QString& material, double nu_Min, double nu_Max);
 	void plot_Data(bool recalculate_Profile = false);
 	void lock_Interfaces();
 
@@ -65,7 +65,8 @@ public:
 	QVector<QCPGraphData> A_Layer_Plot_Vector;
 	QVector<QCPGraphData> B_Layer_Plot_Vector;
 
-	vector<double> arg;
+	vector<double> A_arg;
+	vector<double> B_arg;
 	QVector<double> A_layer_Val;
 	QVector<double> B_layer_Val;
 

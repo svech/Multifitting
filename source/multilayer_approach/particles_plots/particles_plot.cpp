@@ -91,6 +91,7 @@ void Particles_Plot::create_Left_Side()
 		{
 			multilayer->particles_Plot_Options.A_show_Layer_With_Number = A_show_Layer_by_Number_CheckBox->isChecked();
 			use_A_layer = multilayer->particles_Plot_Options.A_show_Layer_With_Number;
+			A_layer_by_Number_ComboBox->setEnabled(multilayer->particles_Plot_Options.A_show_Layer_With_Number);
 			plot_Data(true);
 		});
 		A_layer_by_Number_ComboBox = new QComboBox;
@@ -116,6 +117,7 @@ void Particles_Plot::create_Left_Side()
 		{
 			multilayer->particles_Plot_Options.B_show_Layer_With_Number = B_show_Layer_by_Number_CheckBox->isChecked();
 			use_B_layer = multilayer->particles_Plot_Options.B_show_Layer_With_Number;
+			B_layer_by_Number_ComboBox->setEnabled(multilayer->particles_Plot_Options.B_show_Layer_With_Number);
 			plot_Data(true);
 		});
 		B_layer_by_Number_ComboBox = new QComboBox;
@@ -484,19 +486,6 @@ void Particles_Plot::calculate_Profile()
 	double nu_Min = min(multilayer->particles_Plot_Options.x_Min,multilayer->particles_Plot_Options.x_Max);
 	double nu_Max = max(multilayer->particles_Plot_Options.x_Min,multilayer->particles_Plot_Options.x_Max);
 
-	num_Plot_Points = num_roughness_plot_points;
-
-	arg.clear();
-	A_layer_Val.clear();
-	B_layer_Val.clear();
-
-	arg.resize(num_Plot_Points);
-	A_layer_Val.resize(num_Plot_Points);
-	B_layer_Val.resize(num_Plot_Points);
-
-	A_Layer_Plot_Vector.resize(num_Plot_Points);
-	B_Layer_Plot_Vector.resize(num_Plot_Points);
-
 	double val_Coeff = PSD_2D_Value_Coefficients_Map.value(multilayer->particles_Plot_Options.local_value_units);
 	double arg_Coeff = spatial_Frequency_Coefficients_Map.value(multilayer->particles_Plot_Options.local_frequency_units);
 
@@ -512,7 +501,11 @@ void Particles_Plot::calculate_Profile()
 	Calculation_Tree::short_Tree(flat_Calc_Tree, short_Flat_Calc_Tree);
 
 	num_Layers = short_Flat_Calc_Tree.size()-1;
-	qInfo() << "num_Layers" << num_Layers << endl;
+	if(num_Layers<=0)
+	{
+		use_A_layer = false;
+		use_B_layer = false;
+	}
 
 	// now we can fill interface_by_Number_ComboBox
 	A_layer_by_Number_ComboBox->blockSignals(true);
@@ -532,46 +525,30 @@ void Particles_Plot::calculate_Profile()
 
 	///--------------------------------------------------------------------------------------------------------------
 
-	// fill argument
-	if(multilayer->particles_Plot_Options.x_Scale == lin_Scale)
-	{
-		double step = (nu_Max - nu_Min) / (num_Plot_Points-1);
-
-		arg[0] = nu_Min;
-		for(int i=1; i<num_Plot_Points; i++)
-		{
-			arg[i] = arg[i-1] + step;
-		}
-	}
-	if(multilayer->particles_Plot_Options.x_Scale == log_Scale)
-	{
-		nu_Min = max(nu_Min, 1E-16);
-		Global_Variables::fill_Vector_With_Log_Step(arg, nu_Min, nu_Max, num_Plot_Points);
-	}
+	num_Plot_Points = num_particles_plot_points;
 
 	custom_Plot->clearGraphs();
 	QString material;
-	double sigma_Eff;
-	double length_Coeff = length_Coefficients_Map.value(length_units);
 
 	if(use_A_layer)
 	{
 		bool go_Further = true;
-//		calc_PSD_For_Interface(media_Counter-1, top_Surface_Val, go_Further, material, sigma_Eff, nu_Min, nu_Max);
+		calc_Interference_Function_For_Layer(multilayer->particles_Plot_Options.A_layer_Number_To_Show, A_arg, A_layer_Val, go_Further, material, nu_Min, nu_Max);
 
 		if(go_Further)
 		{
-			for(int i=0; i<num_Plot_Points; i++)
+			A_Layer_Plot_Vector.resize(A_arg.size());
+			for(int i=0; i<A_arg.size(); i++)
 			{
-				A_Layer_Plot_Vector[i].key = arg[i] / arg_Coeff;
+				A_Layer_Plot_Vector[i].key = A_arg[i] / arg_Coeff;
 				A_Layer_Plot_Vector[i].value = A_layer_Val[i] / val_Coeff;
 			}
 
 			custom_Plot->addGraph();
 			custom_Plot->graph()->data()->set(A_Layer_Plot_Vector);
-			custom_Plot->graph()->setPen(QPen(Qt::red, 2.9));
+			custom_Plot->graph()->setPen(QPen(Qt::red, 1.5));
 			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
-			custom_Plot->graph()->setName("Layer " + QString::number(multilayer->particles_Plot_Options.A_layer_Number_To_Show) + " (" + material + ")");
+			custom_Plot->graph()->setName(material + " layer (" + QString::number(multilayer->particles_Plot_Options.A_layer_Number_To_Show) + ")");
 
 			// for testing
 //			QCPScatterStyle scatter_Style;
@@ -586,21 +563,22 @@ void Particles_Plot::calculate_Profile()
 	if(use_B_layer)
 	{
 		bool go_Further = true;
-//		calc_PSD_For_Interface(media_Counter-1, top_Surface_Val, go_Further, material, sigma_Eff, nu_Min, nu_Max);
+		calc_Interference_Function_For_Layer(multilayer->particles_Plot_Options.B_layer_Number_To_Show, B_arg, B_layer_Val, go_Further, material, nu_Min, nu_Max);
 
 		if(go_Further)
 		{
-			for(int i=0; i<num_Plot_Points; i++)
+			B_Layer_Plot_Vector.resize(B_arg.size());
+			for(int i=0; i<B_arg.size(); i++)
 			{
-				B_Layer_Plot_Vector[i].key = arg[i] / arg_Coeff;
+				B_Layer_Plot_Vector[i].key = B_arg[i] / arg_Coeff;
 				B_Layer_Plot_Vector[i].value = B_layer_Val[i] / val_Coeff;
 			}
 
 			custom_Plot->addGraph();
 			custom_Plot->graph()->data()->set(B_Layer_Plot_Vector);
-			custom_Plot->graph()->setPen(QPen(Qt::black, 1.4));
+			custom_Plot->graph()->setPen(QPen(Qt::black, 1.2));
 			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
-			custom_Plot->graph()->setName("Layer " + QString::number(multilayer->particles_Plot_Options.B_layer_Number_To_Show) + " (" + material + ")");
+			custom_Plot->graph()->setName(material + " layer (" + QString::number(multilayer->particles_Plot_Options.B_layer_Number_To_Show) + ")");
 
 			custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setTextColor(Qt::black);
 			custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setSelectedTextColor(Qt::black);
@@ -610,357 +588,77 @@ void Particles_Plot::calculate_Profile()
 	custom_Plot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight|Qt::AlignTop); // legend position
 }
 
-void Particles_Plot::calc_Interference_Function_For_Layer(int layer_Index, QVector<double> &value_Vector, bool &use_Interface, QString &material, double &sigma_Eff, double nu_Min, double nu_Max)
+void Particles_Plot::calc_Interference_Function_For_Layer(int layer_Index, vector<double>& arg_Vector, QVector<double>& value_Vector, bool& use_Interface, QString& material, double nu_Min, double nu_Max)
 {
-	double calc_Nu_Min = min(nu_Min, multilayer->imperfections_Model.nu_Limit);
-	double calc_Nu_Max = min(nu_Max, multilayer->imperfections_Model.nu_Limit);
-
-	if(interface_Index >= media_Counter)
+	if(layer_Index > short_Flat_Calc_Tree.size()-1)
 	{
 		use_Interface = false;
 		return;
 	}
-	interface_Index = media_Counter - interface_Index; // new interface index, 1 on top surface, media_Counter-1 on substrate
-
-	Node* current_Node = media_Node_Map_Vector[interface_Index];
+	Node* current_Node;
+	if(!multilayer->imperfections_Model.use_Common_Particle_Function &&
+		multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation)
+	{
+		current_Node = short_Flat_Calc_Tree[layer_Index-1];
+	} else {
+		current_Node = short_Flat_Calc_Tree[short_Flat_Calc_Tree.size()-2]; // bottom layer
+	}
 	Data& current_Data = current_Node->struct_Data;
-
-	double sigma = current_Data.roughness_Model.sigma.value;
-	double xi    = current_Data.roughness_Model.cor_radius.value;
-	double alpha = current_Data.roughness_Model.fractal_alpha.value;
-
 	material = current_Data.material;
 
 	Data fake_Measurement;
-	fake_Measurement.measurement_Type = measurement_Types[Detector_Scan];
-//	fake_Measurement.detector_1D.finite_Slit = refill_dependent_structure_table;
-//	fake_Measurement.detector_1D.slit_Length = current_Data.relative_Density.value;
+	fake_Measurement.measurement_Type = Particles_Values;
+	fake_Measurement.k_Vec = {2*M_PI*nu_Min, 2*M_PI*nu_Max};
 
-	double tolerance = 1E-3;
-	double depth = 2;
-	ooura_fourier_sin<double> integrator(tolerance,depth);
-	tanh_sinh<double> integrator_Tanh_Sinh;
+	/// create spline
+	current_Node->create_Spline_G2_2D(multilayer->imperfections_Model, fake_Measurement, arg_Vector);
+	value_Vector.clear();
 
-	/// independent PSD without measured
-	if( interface_Index == media_Counter-1 ||								// if substrate or
-		!multilayer->imperfections_Model.use_Common_Roughness_Function)		// if any independent interface
+	// fill simple argument
+	vector<double> simple_Arg(num_Plot_Points);
+	if(multilayer->particles_Plot_Options.x_Scale == lin_Scale)
 	{
-		current_Node->calculate_PSD_Factor(multilayer->imperfections_Model);
+		double step = (nu_Max - nu_Min) / (num_Plot_Points-1);
 
-		/// creating FG splines. additional checks inside
-		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-			if(fake_Measurement.detector_1D.finite_Slit) {
-				current_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
-			}
-			current_Node->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, fake_Measurement);
-		} else {
-			current_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
-		}
-
-		/// choosing base PSD functions
-		double (*PSD_Func_from_nu)(double, double, double, double, double, gsl_spline*, gsl_interp_accel*);
-		double factor = 1;
-		gsl_spline* spline_PSD_FG;
-		gsl_interp_accel* acc_PSD_FG;
-
-		if(multilayer->imperfections_Model.PSD_Model == ABC_Model) {
-			if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-				if(fake_Measurement.detector_1D.finite_Slit) {
-					PSD_Func_from_nu = &Global_Variables::PSD_ABC_1D_Finite_from_nu;
-					factor = current_Data.roughness_Model.sigma.value;
-				} else {
-					PSD_Func_from_nu = &Global_Variables::PSD_ABC_1D_from_nu;
-					factor = current_Data.PSD_ABC_1D_Factor;
-				}
-			} else {
-				PSD_Func_from_nu = &Global_Variables::PSD_ABC_2D_from_nu;
-				factor = current_Data.PSD_ABC_2D_Factor;
-			}
-		}
-		if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model) {
-			const double& alpha = current_Data.roughness_Model.fractal_alpha.value;
-
-			if(abs(alpha-1)>DBL_EPSILON) {
-				if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-					PSD_Func_from_nu = &Global_Variables::PSD_Fractal_Gauss_1D_from_nu;
-					factor = 1;
-					spline_PSD_FG = current_Node->spline_PSD_FG_1D;
-					acc_PSD_FG = current_Node->acc_PSD_FG_1D;
-				} else {
-					PSD_Func_from_nu = &Global_Variables::PSD_Fractal_Gauss_2D_from_nu;
-					factor = 1;
-					spline_PSD_FG = current_Node->spline_PSD_FG_2D;
-					acc_PSD_FG = current_Node->acc_PSD_FG_2D;
-				}
-			} else {
-				if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-					if(fake_Measurement.detector_1D.finite_Slit) {
-						PSD_Func_from_nu = &Global_Variables::PSD_Real_Gauss_1D_Finite_from_nu;
-						factor = current_Data.roughness_Model.sigma.value;
-					} else {
-						PSD_Func_from_nu = &Global_Variables::PSD_Real_Gauss_1D_from_nu;
-						factor = current_Data.PSD_Real_Gauss_1D_Factor;
-					}
-				} else {
-					PSD_Func_from_nu = &Global_Variables::PSD_Real_Gauss_2D_from_nu;
-					factor = current_Data.PSD_Real_Gauss_2D_Factor;
-				}
-			}
-		}
-
-		/// PSD calculation
-		for(int i=0; i<num_Plot_Points; i++)
+		simple_Arg[0] = nu_Min;
+		for(int i=1; i<num_Plot_Points; i++)
 		{
-			if(arg[i] <= multilayer->imperfections_Model.nu_Limit) {
+			simple_Arg[i] = simple_Arg[i-1] + step;
+		}
+	}
+	if(multilayer->particles_Plot_Options.x_Scale == log_Scale)
+	{
+		nu_Min = max(nu_Min, 1E-16);
+		Global_Variables::fill_Vector_With_Log_Step(simple_Arg, nu_Min, nu_Max, num_Plot_Points);
+	}
+	// concatenate argument with peaks and simple argument
+	arg_Vector.insert( arg_Vector.end(), simple_Arg.begin(), simple_Arg.end() );
+	// sort
+	std::sort(arg_Vector.begin(), arg_Vector.end());
+	// cut
+	for(int i=arg_Vector.size()-1; i>0; i--)
+	{
+		if(arg_Vector[i]<nu_Min || arg_Vector[i]>nu_Max)
+		{
+			arg_Vector.erase(arg_Vector.begin()+i);
+		}
+	}
 
-				double nu_Max_Integration_2D = max_Frequency_For_2D_Spline;
-				if(fake_Measurement.detector_1D.finite_Slit)
-				{
-					nu_Max_Integration_2D = min(max_Frequency_For_2D_Spline, Global_Variables::get_Nu_Max_From_Finite_Slit(arg[i], fake_Measurement));
-				}
-				value_Vector[i] = PSD_Func_from_nu(factor, xi, alpha, arg[i], nu_Max_Integration_2D, spline_PSD_FG, acc_PSD_FG);
+	/// calculation
+	value_Vector.resize(arg_Vector.size());
+	if(current_Data.particles_Model.is_Used)
+	{
+		for(int i=0; i<arg_Vector.size(); i++)
+		{
+			if(arg_Vector[i] <= multilayer->imperfections_Model.nu_Limit) {
+				value_Vector[i] = current_Node->G2_Type_Outer(2*M_PI*arg_Vector[i]); // what about G1? // remember about radial_Paracrystal
 			} else {
 				value_Vector[i] = 0;
 			}
 		}
-
-		/// sigma_effective calculation
-		double sigma_2 = current_Node->combined_Effective_Sigma_2(fake_Measurement, multilayer->imperfections_Model, sigma, xi, alpha, calc_Nu_Min, calc_Nu_Max, multilayer->roughness_Plot_Options.PSD_Type, integrator);
-		sigma_Eff = sqrt(sigma_2);
-
-		/// clear FG splines, but not for substrate
-		if(interface_Index != media_Counter-1) // not clear here for substrate
-		{
-			if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-				current_Node->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
-				if(fake_Measurement.detector_1D.finite_Slit) {
-					current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
-				}
-			} else {
-				current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
-			}
-		}
 	}
-
-	/// combined PSD
-	if( interface_Index == media_Counter-1 )	// if substrate
-	{
-		PSD_Data psd_Data;
-		gsl_spline* spline_PSD_Meas;
-		gsl_interp_accel* acc_PSD_Meas;
-		bool use_Measured = false;
-
-		current_Node->calculate_PSD_Factor(multilayer->imperfections_Model);
-
-		/// create measured spline
-		current_Node->create_Spline_PSD_Measured(multilayer->imperfections_Model);
-
-		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D)
-		{
-			psd_Data = multilayer->imperfections_Model.PSD_1D;
-			spline_PSD_Meas = current_Node->spline_PSD_Meas_1D;
-			acc_PSD_Meas = current_Node->acc_PSD_Meas_1D;
-			use_Measured = multilayer->imperfections_Model.add_Measured_PSD_1D;
-
-			if(current_Node->spline_PSD_Combined_1D_Condition(multilayer->imperfections_Model))
-			{
-				if(!fake_Measurement.detector_1D.finite_Slit) {	// if finite slit, already created and not deleted for substrate
-					current_Node->create_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
-//					current_Node->create_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model, fake_Measurement);
-				}
-				current_Node->create_Spline_PSD_Combined_1D(multilayer->imperfections_Model, fake_Measurement);
-
-				for(int i=0; i<num_Plot_Points; i++)
-				{
-					if(arg[i] <= multilayer->imperfections_Model.nu_Limit) {
-						value_Vector[i] = gsl_spline_eval(current_Node->spline_PSD_Combined_1D, arg[i], current_Node->acc_PSD_Combined_1D);
-					} else {
-						value_Vector[i] = 0;
-					}
-				}
-
-				/// sigma_effective calculation
-				double sigma_2 = current_Node->combined_Effective_Sigma_2_From_Spline(multilayer->imperfections_Model, calc_Nu_Min, calc_Nu_Max, current_Node->spline_PSD_Combined_1D, current_Node->acc_PSD_Combined_1D, multilayer->roughness_Plot_Options.PSD_Type, integrator_Tanh_Sinh);
-				sigma_Eff = sqrt(sigma_2);
-
-				current_Node->clear_Spline_PSD_Combined_1D(multilayer->imperfections_Model);
-				if(!fake_Measurement.detector_1D.finite_Slit) {	// if finite slit, clear later for substrate
-					current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
-//					current_Node->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
-				}
-			}
-		} else
-		{
-			psd_Data = multilayer->imperfections_Model.PSD_2D;
-			spline_PSD_Meas = current_Node->spline_PSD_Meas_2D;
-			acc_PSD_Meas = current_Node->acc_PSD_Meas_2D;
-			use_Measured = multilayer->imperfections_Model.add_Measured_PSD_2D;
-		}
-
-		if(psd_Data.is_Loaded() && use_Measured)
-		{
-			for(int i=0; i<num_Plot_Points; i++)
-			{
-				if( arg[i]>psd_Data.argument.front() &&
-					arg[i]<psd_Data.argument.back())
-				{
-					if(arg[i] <= multilayer->imperfections_Model.nu_Limit) {
-						value_Vector[i] = gsl_spline_eval(spline_PSD_Meas, arg[i], acc_PSD_Meas);
-					} else {
-						value_Vector[i] = 0;
-					}
-				}
-			}
-
-			/// sigma_effective calculation
-			double sigma_2 = current_Node->combined_Effective_Sigma_2(fake_Measurement, multilayer->imperfections_Model, sigma, xi, alpha, calc_Nu_Min, calc_Nu_Max, multilayer->roughness_Plot_Options.PSD_Type, integrator);
-			sigma_Eff = sqrt(sigma_2);
-		}
-		/// clear measured spline
-		current_Node->clear_Spline_PSD_Measured(multilayer->imperfections_Model);
-
-		/// clear FG splines
-		// clear here for substrate
-		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-			current_Node->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
-			if(fake_Measurement.detector_1D.finite_Slit) {
-				current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
-			}
-		} else {
-			current_Node->clear_Spline_PSD_Fractal_Gauss_2D(multilayer->imperfections_Model);
-		}
-	}
-
-	/// gaussian peak
-	if( multilayer->imperfections_Model.add_Gauss_Peak &&					// if have peak
-	   (interface_Index == media_Counter-1 ||								// if substrate or
-		!multilayer->imperfections_Model.use_Common_Roughness_Function))	// if any independent interface
-	{
-		current_Node->calculate_PSD_Factor(multilayer->imperfections_Model);
-
-		/// creating peak spline
-		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-			current_Node->create_Spline_PSD_Peak(multilayer->imperfections_Model, fake_Measurement);
-		} else {
-			/* do nothing */
-		}
-
-		/// choosing base PSD functions
-		double (*PSD_Peak_from_nu)(double, double, double, double, gsl_spline*, gsl_interp_accel*);
-		double factor = 1;
-		gsl_spline* spline_PSD_Peak;
-		gsl_interp_accel* acc_PSD_Peak;
-
-		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-			PSD_Peak_from_nu = &Global_Variables::PSD_Gauss_Peak_1D_from_nu;
-			factor = 1;
-			spline_PSD_Peak = current_Node->spline_PSD_Peak;
-			acc_PSD_Peak = current_Node->acc_PSD_Peak;
-		} else {
-			PSD_Peak_from_nu = &Global_Variables::PSD_Gauss_Peak_2D_from_nu;
-			factor = current_Data.PSD_Gauss_Peak_2D_Factor;
-			spline_PSD_Peak = nullptr;
-			acc_PSD_Peak = nullptr;
-		}
-
-		/// PSD calculation
-		double peak_Frequency =		current_Data.roughness_Model.peak_Frequency.value;
-		double peak_Frequency_Width =current_Data.roughness_Model.peak_Frequency_Width.value;
-		for(int i=0; i<num_Plot_Points; i++)
-		{
-			if(arg[i] <= multilayer->imperfections_Model.nu_Limit) {
-				value_Vector[i] += PSD_Peak_from_nu(factor, peak_Frequency, peak_Frequency_Width, arg[i], spline_PSD_Peak, acc_PSD_Peak);
-			} else {
-				value_Vector[i] += 0;
-			}
-		}
-
-		/// sigma_effective peak addition calculation
-		double sigma_2 = current_Node->combined_Effective_Sigma_2_Peak(calc_Nu_Min, calc_Nu_Max, multilayer->roughness_Plot_Options.PSD_Type, integrator_Tanh_Sinh);
-		sigma_Eff = sqrt(sigma_Eff*sigma_Eff + sigma_2);
-
-		/// clear peak spline
-		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D) {
-			current_Node->clear_Spline_PSD_Peak(multilayer->imperfections_Model);
-		} else {
-			/* do nothing */
-		}
-	}
-
-	/// ------------------------------------------------------------------------------------------------------------------
-	/// for linear growth of layers
-	/// ------------------------------------------------------------------------------------------------------------------
-
-	if( interface_Index < media_Counter-1 &&	// not for substrate
-		multilayer->imperfections_Model.vertical_Correlation == partial_Correlation &&
-	   (multilayer->imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model ||
-		multilayer->imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model))
-	{
-		// for legacy reasons we should calculate splines in substrate node
-		Node* substrate_Node = media_Node_Map_Vector[media_Counter-1];
-//		Data& substrate_Data = substrate_Node->struct_Data;
-
-		substrate_Node->calculate_PSD_Factor(multilayer->imperfections_Model);
-		if(multilayer->roughness_Plot_Options.PSD_Type == PSD_Type_1D)
-		{
-			/// 1D
-			substrate_Node->create_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
-			substrate_Node->create_Spline_PSD_Fractal_Gauss_1D	(multilayer->imperfections_Model, fake_Measurement);
-			substrate_Node->create_Spline_PSD_Combined_1D		(multilayer->imperfections_Model, fake_Measurement);
-			substrate_Node->create_Spline_PSD_Peak				(multilayer->imperfections_Model, fake_Measurement);
-			substrate_Node->create_Spline_PSD_Measured			(multilayer->imperfections_Model);
-			substrate_Node->create_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model, fake_Measurement, media_Data_Map_Vector, interface_Index-1);
-			substrate_Node->create_Spline_PSD_Linear_Growth_1D	(multilayer->imperfections_Model, fake_Measurement);
-
-			///--------------------------------------------------------------------------------------------------------
-			for(int i=0; i<num_Plot_Points; i++)
-			{
-				if(arg[i] <= multilayer->imperfections_Model.nu_Limit) {
-					value_Vector[i] = gsl_spline_eval(substrate_Node->spline_PSD_Linear_Growth_1D, arg[i], substrate_Node->acc_PSD_Linear_Growth_1D);
-				} else {
-					value_Vector[i] = 0;
-				}
-			}
-
-			/// sigma_effective calculation
-			double sigma_2 = substrate_Node->combined_Effective_Sigma_2_From_Spline(multilayer->imperfections_Model, calc_Nu_Min, calc_Nu_Max, substrate_Node->spline_PSD_Linear_Growth_1D, substrate_Node->acc_PSD_Linear_Growth_1D, multilayer->roughness_Plot_Options.PSD_Type, integrator_Tanh_Sinh);
-			sigma_Eff = sqrt(sigma_2);
-			///--------------------------------------------------------------------------------------------------------
-
-			substrate_Node->clear_Spline_PSD_Linear_Growth_1D	(multilayer->imperfections_Model);
-			substrate_Node->clear_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model);
-			substrate_Node->clear_Spline_PSD_Measured			(multilayer->imperfections_Model);
-			substrate_Node->clear_Spline_PSD_Peak				(multilayer->imperfections_Model);
-			substrate_Node->clear_Spline_PSD_Combined_1D		(multilayer->imperfections_Model);
-			substrate_Node->clear_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
-			substrate_Node->clear_Spline_PSD_Fractal_Gauss_1D	(multilayer->imperfections_Model);
-		} else
-		{
-			/// 2D
-			substrate_Node->create_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
-			substrate_Node->create_Spline_PSD_Measured			(multilayer->imperfections_Model);
-			substrate_Node->create_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model, fake_Measurement, media_Data_Map_Vector, interface_Index-1);
-
-			///--------------------------------------------------------------------------------------------------------
-			for(int i=0; i<num_Plot_Points; i++)
-			{
-				if(arg[i] <= multilayer->imperfections_Model.nu_Limit) {
-					value_Vector[i] = gsl_spline_eval(substrate_Node->spline_PSD_Linear_Growth_2D, arg[i], substrate_Node->acc_PSD_Linear_Growth_2D);
-				} else {
-					value_Vector[i] = 0;
-				}
-			}
-
-			/// sigma_effective calculation
-			double sigma_2 = substrate_Node->combined_Effective_Sigma_2_From_Spline(multilayer->imperfections_Model, calc_Nu_Min, calc_Nu_Max, substrate_Node->spline_PSD_Linear_Growth_2D, substrate_Node->acc_PSD_Linear_Growth_2D, multilayer->roughness_Plot_Options.PSD_Type, integrator_Tanh_Sinh);
-			sigma_Eff = sqrt(sigma_2);
-			///--------------------------------------------------------------------------------------------------------
-
-			substrate_Node->clear_Spline_PSD_Fractal_Gauss_2D	(multilayer->imperfections_Model);
-			substrate_Node->clear_Spline_PSD_Measured			(multilayer->imperfections_Model);
-			substrate_Node->clear_Spline_PSD_Linear_Growth_2D	(multilayer->imperfections_Model);
-		}
-	}
+	/// clear spline
+	current_Node->clear_Spline_G2_2D(multilayer->imperfections_Model);
 }
 
 void Particles_Plot::plot_Data(bool recalculate_Profile)
@@ -1021,7 +719,7 @@ void Particles_Plot::plot_Data(bool recalculate_Profile)
 	double arg_Coeff = spatial_Frequency_Coefficients_Map.value(multilayer->particles_Plot_Options.local_frequency_units);
 	double val_Coeff = PSD_2D_Value_Coefficients_Map.     value(multilayer->particles_Plot_Options.local_value_units);
 
-	if(multilayer->particles_Plot_Options.rescale_X){ custom_Plot->xAxis->setRange(arg.front()/arg_Coeff, arg.back()/arg_Coeff);	}
+	if(multilayer->particles_Plot_Options.rescale_X){ custom_Plot->xAxis->setRange(multilayer->particles_Plot_Options.x_Min/arg_Coeff, multilayer->particles_Plot_Options.x_Max/arg_Coeff);	}
 	else											{ custom_Plot->xAxis->setRange(multilayer->particles_Plot_Options.old_X_Begin, multilayer->particles_Plot_Options.old_X_End);}
 	if(multilayer->particles_Plot_Options.rescale_Y){ custom_Plot->yAxis->setRange(minimum/val_Coeff, maximum/val_Coeff);			}
 	else											{ custom_Plot->yAxis->setRange(multilayer->particles_Plot_Options.old_Y_Begin, multilayer->particles_Plot_Options.old_Y_End);}

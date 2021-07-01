@@ -756,7 +756,7 @@ void Curve_Plot_2D::plot_Data(bool rescale_Axes)
 	// z range
 	//color_Map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
 	if(plot_Options.z_Scale == log_Scale) { min_Val = max(min_Val,max_Val/pow(10,plot_Options.orders_To_Show)); max_Val*=1.3;} // no more than "orders_To_Show" orders
-//	if(plot_Options.rescale)
+	if(plot_Options.rescale)
 	{
 		color_Map->setDataRange(QCPRange(min_Val,max_Val));
 	}
