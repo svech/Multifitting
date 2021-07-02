@@ -879,7 +879,7 @@ void Table_Roughness_Model_Editor::create_Particles_Groupbox()
 		QButtonGroup* model_Group = new QButtonGroup;
 			model_Group->addButton(hexagonal_Radiobutton);
 			model_Group->addButton(square_Radiobutton);
-//			model_Group->addButton(pure_Radial_Radiobutton);
+			model_Group->addButton(pure_Radial_Radiobutton);
 
 
 	// --------------------------------------------

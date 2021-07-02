@@ -653,7 +653,7 @@ void Particles_Plot::calc_Interference_Function_For_Layer(int layer_Index, vecto
 			for(int i=0; i<arg_Vector.size(); i++)
 			{
 				if(arg_Vector[i] <= multilayer->imperfections_Model.nu_Limit) {
-					value_Vector[i] = current_Node->G2_Type_Outer(2*M_PI*arg_Vector[i]); // what about G1? // remember about radial_Paracrystal
+					value_Vector[i] = current_Node->G2_Type_Outer(2*M_PI*arg_Vector[i]);
 				} else {
 					value_Vector[i] = 0;
 				}

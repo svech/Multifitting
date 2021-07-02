@@ -3080,7 +3080,7 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 
 	// in other cases ( layer with radial paracrystal ) go further
 
-//	auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
 
 	double q_Max = 2*M_PI*max_Frequency_For_2D_Spline;
 	double q_Min = 0;
@@ -3228,8 +3228,7 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 		{
 			double q = 2*M_PI/a*n;
 			if(	(q < q_Max) &&
-				(q > q_Min)
-			  )
+				(q > q_Min)  )
 			{
 				q_Peak.push_back(q);
 			}
@@ -3265,25 +3264,25 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	q_Vec.push_back(q_Min);
 
 	// num points
-	int num_Bare_Dense_Points = 500;	// num points if no peaks in range
-	int num_Bare_Points = 500;
-	int num_Peak_Points = 151; // points inside FWHM * hw_Factor/2
-	double hw_Factor = 6;
-	double pw = a/sigma;
-	if(      pw <= 10 ) {hw_Factor = 6;}
-	if(10  < pw <= 30 ) {hw_Factor = 8;}
-	if(30  < pw <= 50 ) {hw_Factor = 14;}
-	if(50  < pw <= 70 ) {hw_Factor = 18;}
-	if(70  < pw <= 100) {hw_Factor = 22;}
-	if(100 < pw <= 150) {hw_Factor = 26;}
-	if(150 < pw <= 200) {hw_Factor = 30;}
-	if(200 < pw <= 250) {hw_Factor = 35;}
-	if(250 < pw <= 330) {hw_Factor = 40;}
-	if(330 < pw <= 450) {hw_Factor = 45;}
-	if(450 < pw       ) {hw_Factor = 50;}
-	hw_Factor*=2;
-	double hw_Factor_Divided = max(sqrt(1E6/struct_Data.particles_Model.domain_Size.value),1.);
-	hw_Factor *= hw_Factor_Divided;
+	int num_Bare_Dense_Points = 300;	// num points if no peaks in range
+	int num_Bare_Points = 300;
+	int num_Peak_Points = 121; // points inside FWHM * hw_Factor/2
+	double hw_Factor = 8;
+//	double pw = a/sigma;
+//	if(      pw <= 10 ) {hw_Factor = 6;}
+//	if(10  < pw <= 30 ) {hw_Factor = 8;}
+//	if(30  < pw <= 50 ) {hw_Factor = 14;}
+//	if(50  < pw <= 70 ) {hw_Factor = 18;}
+//	if(70  < pw <= 100) {hw_Factor = 22;}
+//	if(100 < pw <= 150) {hw_Factor = 26;}
+//	if(150 < pw <= 200) {hw_Factor = 30;}
+//	if(200 < pw <= 250) {hw_Factor = 35;}
+//	if(250 < pw <= 330) {hw_Factor = 40;}
+//	if(330 < pw <= 450) {hw_Factor = 45;}
+//	if(450 < pw       ) {hw_Factor = 50;}
+//	hw_Factor*=2;
+//	double hw_Factor_Divided = max(sqrt(1E6/struct_Data.particles_Model.domain_Size.value),1.);
+//	hw_Factor *= hw_Factor_Divided;
 //	qInfo() << "pw" << pw << "hw_Factor" << hw_Factor << endl;
 //	hw_Factor = struct_Data.relative_Density.value;
 	double dq_Bare = q_Range/(num_Bare_Points-1);
@@ -3435,11 +3434,10 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 					double arc_q = phi_Max*q;
 
 					int factor = q<1E-3 ? 2 : 1;
-					const int gk_points = 15;
+					const int gk_points = 121;
 					int phi_Division = ceil( arc_q/gk_points * num_Phi_Points_Per_hw/hw_q * factor);
 					phi_Division = max(phi_Division, 1);
 					phi_Division = min(phi_Division, max_Phi_Division); // reasonable limit
-//					phi_Division = 50;
 					if(phi_Division == max_Phi_Division) too_Narrow[thread_Index] = true;
 					phi_Vec.resize(phi_Division+1);
 					for(int i=0; i<=phi_Division; i++)
@@ -3525,9 +3523,9 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	spline_G2 = gsl_spline_alloc(interp_type, q_Vec.size());
 	gsl_spline_init(spline_G2, q_Vec.data(), G2_Vec.data(), q_Vec.size());
 
-//	auto end = std::chrono::system_clock::now();
-//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "	create G2 spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "	create G2 spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 }
 
 void Node::clear_Spline_G2_2D(const Imperfections_Model& imperfections_Model)

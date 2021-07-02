@@ -3270,7 +3270,7 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 		QButtonGroup* model_Group = new QButtonGroup;
 			model_Group->addButton(hexagonal_Radiobutton);
 			model_Group->addButton(square_Radiobutton);
-//			model_Group->addButton(pure_Radial_Radiobutton);
+			model_Group->addButton(pure_Radial_Radiobutton);
 
 
 		// connections
