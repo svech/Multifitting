@@ -128,10 +128,9 @@ void Structure_Toolbar::add_Layer()
 
 	buffered_Copy_Type = copy_Type_Cut;
 	add_Buffered_Layer(new_Layer);
-//	Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model, is_Last_Layer);
 	Global_Variables::new_Layer_Particles_Model     (layer, structure_Tree->multilayer->imperfections_Model);
 	structure_Tree->refresh_Tree_Roughness();
-
+	structure_Tree->refresh_Tree_Particles();
 	delete new_Layer;
 }
 
@@ -201,6 +200,7 @@ void Structure_Toolbar::add_Multilayer()
 	buffered_Copy_Type = copy_Type_Cut;
 	add_Buffered_Layer(new_Multilayer);
 	structure_Tree->refresh_Tree_Roughness();
+	structure_Tree->refresh_Tree_Particles();
 	delete new_Multilayer;
 }
 
@@ -373,6 +373,7 @@ void Structure_Toolbar::add_Aperiodic()
 			delete new_Aperiodic;
 			last_data_directory = filename.absolutePath();
 			structure_Tree->refresh_Tree_Roughness();
+			structure_Tree->refresh_Tree_Particles();
 		}
 	}
 }
@@ -509,6 +510,7 @@ void Structure_Toolbar::remove()
 	}*/
 
 	structure_Tree->refresh_Tree_Roughness();
+	structure_Tree->refresh_Tree_Particles();
 	refresh_Toolbar();
 }
 
@@ -548,6 +550,7 @@ void Structure_Toolbar::cut()
 	}
 
 	structure_Tree->refresh_Tree_Roughness();
+	structure_Tree->refresh_Tree_Particles();
 	refresh_Toolbar();
 }
 
@@ -565,6 +568,7 @@ void Structure_Toolbar::paste()
 		add_Buffered_Layer(buffered);
 		buffered_Copy_Type = copy_Type_Copy;	 // next copies should have changed IDs
 		structure_Tree->refresh_Tree_Roughness();
+		structure_Tree->refresh_Tree_Particles();
 	}
 }
 
@@ -594,6 +598,7 @@ void Structure_Toolbar::move_Up()
 	}
 
 	structure_Tree->refresh_Tree_Roughness();
+	structure_Tree->refresh_Tree_Particles();
 	refresh_Toolbar();
 }
 
@@ -623,6 +628,7 @@ void Structure_Toolbar::move_Down()
 	}
 
 	structure_Tree->refresh_Tree_Roughness();
+	structure_Tree->refresh_Tree_Particles();
 	refresh_Toolbar();
 }
 
@@ -631,6 +637,7 @@ void Structure_Toolbar::group()
 	// TODO group_toolbutton
 	qInfo() << "group is not implemented" << endl;
 	structure_Tree->refresh_Tree_Roughness();
+	structure_Tree->refresh_Tree_Particles();
 	refresh_Toolbar();
 }
 
@@ -658,19 +665,8 @@ void Structure_Toolbar::ungroup()
 	}
 
 	structure_Tree->refresh_Tree_Roughness();
+	structure_Tree->refresh_Tree_Particles();
 	refresh_Toolbar();
-}
-
-void Structure_Toolbar::thickness_Plot()
-{
-	// TODO thickness_Plot_toolbutton
-	qInfo() << "thickness_Plot is not implemented" << endl;
-}
-
-void Structure_Toolbar::sigma_Plot()
-{
-	// TODO sigma_Plot_toolbutton
-	qInfo() << "sigma_Plot is not implemented" << endl;
 }
 
 void Structure_Toolbar::destroy()
@@ -686,6 +682,7 @@ void Structure_Toolbar::destroy()
 //		toolbar->actions()[Add_Substrate]->setDisabled(false);		// add_Substrate
 		refresh_Toolbar();
 		structure_Tree->refresh_Tree_Roughness();
+		structure_Tree->refresh_Tree_Particles();
 	}
 }
 

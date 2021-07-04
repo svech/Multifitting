@@ -573,7 +573,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-			bool is_Last_Layer = Global_Variables::if_Last_Layer(list_Of_Trees[tab_Index]->tree, structure_Item);
+			bool is_Last_Layer        = Global_Variables::if_Last_Layer       (list_Of_Trees[tab_Index]->tree, structure_Item);
+			bool is_Second_Last_Layer = Global_Variables::if_Second_Last_Layer(list_Of_Trees[tab_Index]->tree, structure_Item);
 
 			if( struct_Data.item_Type == item_Type_Multilayer	||
 				struct_Data.item_Type == item_Type_Ambient		||
@@ -1715,7 +1716,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// usage, shape and interference function
 			bool show_Usage_Buttons = false;
-			if(	multilayer->imperfections_Model.use_Particles )
+			if(	multilayer->imperfections_Model.use_Particles && struct_Data.item_Type == item_Type_Layer)
 			{
 				show_Usage_Buttons = true;
 			}
@@ -1727,6 +1728,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Shape_Button  (new_Table,            current_Row+2, current_Column, structure_Item);
 					create_Pattern_Button(new_Table,            current_Row+3, current_Column, structure_Item);
 					create_Model_Button	 (new_Table,            current_Row+4, current_Column, structure_Item);
+				} else
+				{
+					new_Table->setSpan(current_Row,current_Column,5,1);
 				}
 				// last
 				create_Check_Box_Usage (new_Table, tab_Index, current_Row,   current_Column, structure_Item, "on/off", 0, 4, 0, 2020); // more than table size, it is like inf
@@ -1853,7 +1857,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// particle average distance
 			bool show_Particle_Average_Distance = false;
-			if(	struct_Data.particles_Model.is_Enabled && is_Last_Layer)
+			if(	struct_Data.particles_Model.is_Enabled)
 			{
 				if( struct_Data.particles_Model.particle_Interference_Function == disorder)
 				{

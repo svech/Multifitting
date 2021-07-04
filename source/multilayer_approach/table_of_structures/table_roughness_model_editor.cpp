@@ -39,9 +39,9 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 	connect(ok_Button, &QPushButton::clicked, this, [=]
 	{
 		multilayer->structure_Tree->refresh_Tree_Roughness();
-		refresh_Tree_Particles(old_Common_Particle_Shape        != multilayer->imperfections_Model.initial_Particle_Shape,
-							   old_Common_Interference_Function != multilayer->imperfections_Model.initial_Interference_Function,
-							   old_Common_Geometric_Model       != multilayer->imperfections_Model.initial_Geometric_Model);
+		multilayer->structure_Tree->refresh_Tree_Particles(old_Common_Particle_Shape        != multilayer->imperfections_Model.initial_Particle_Shape,
+														   old_Common_Interference_Function != multilayer->imperfections_Model.initial_Interference_Function,
+														   old_Common_Geometric_Model       != multilayer->imperfections_Model.initial_Geometric_Model);
 
 		// common
 		bool have_Scattering = false;
@@ -648,8 +648,6 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			// unlock measured PSD
 			measured_PSD_1D_Checkbox->setEnabled(true);
 			measured_PSD_2D_Checkbox->setEnabled(true);
-
-			multilayer->structure_Tree->refresh_Tree_Roughness();
 		}
 	});
 	connect(partial_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -778,7 +776,7 @@ void Table_Roughness_Model_Editor::create_Particles_Groupbox()
 	connect(particles_Groupbox, &QGroupBox::toggled, this, [=]
 	{
 		multilayer->imperfections_Model.use_Particles = particles_Groupbox->isChecked();
-		refresh_Tree_Particles();
+		multilayer->structure_Tree->refresh_Tree_Particles();
 	});
 
 	QHBoxLayout* groupbox_Layout = new QHBoxLayout(particles_Groupbox);
@@ -1053,34 +1051,34 @@ void Table_Roughness_Model_Editor::refresh_Tree_Drift(QString whats_This, bool s
 //	}
 //}
 
-void Table_Roughness_Model_Editor::refresh_Tree_Particles(bool refresh_Shape, bool refresh_Interference_Function, bool refresh_Geometry)
-{
-	QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
-	while(*it)
-	{
-		QTreeWidgetItem* item = *it;
-		Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-		if( struct_Data.item_Type == item_Type_Layer )
-		{
-			Global_Variables::enable_Disable_Particles_Model(struct_Data, multilayer->imperfections_Model);
+//void Table_Roughness_Model_Editor::refresh_Tree_Particles(bool refresh_Shape, bool refresh_Interference_Function, bool refresh_Geometry)
+//{
+//	QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
+//	while(*it)
+//	{
+//		QTreeWidgetItem* item = *it;
+//		Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+//		if( struct_Data.item_Type == item_Type_Layer )
+//		{
+//			Global_Variables::enable_Disable_Particles_Model(struct_Data, multilayer->imperfections_Model);
 
-			if(refresh_Shape)
-			{
-				struct_Data.particles_Model.particle_Shape = multilayer->imperfections_Model.initial_Particle_Shape;
-			}
-			if(refresh_Interference_Function)
-			{
-				struct_Data.particles_Model.particle_Interference_Function = multilayer->imperfections_Model.initial_Interference_Function;
-			}
-			if(refresh_Geometry)
-			{
-				struct_Data.particles_Model.geometric_Model = multilayer->imperfections_Model.initial_Geometric_Model;
-			}
+//			if(refresh_Shape)
+//			{
+//				struct_Data.particles_Model.particle_Shape = multilayer->imperfections_Model.initial_Particle_Shape;
+//			}
+//			if(refresh_Interference_Function)
+//			{
+//				struct_Data.particles_Model.particle_Interference_Function = multilayer->imperfections_Model.initial_Interference_Function;
+//			}
+//			if(refresh_Geometry)
+//			{
+//				struct_Data.particles_Model.geometric_Model = multilayer->imperfections_Model.initial_Geometric_Model;
+//			}
 
-			QVariant var;
-			var.setValue( struct_Data );
-			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		}
-		++it;
-	}
-}
+//			QVariant var;
+//			var.setValue( struct_Data );
+//			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+//		}
+//		++it;
+//	}
+//}

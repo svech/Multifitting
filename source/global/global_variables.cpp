@@ -1313,43 +1313,43 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 	}
 }
 
-void Global_Variables::enable_Disable_Particles_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model, bool last_Layer)
+void Global_Variables::enable_Disable_Particles_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model, bool last_Two_Layers)
 {
 	// common
 	if( struct_Data.item_Type == item_Type_Layer )
 	{
 		struct_Data.particles_Model.is_Enabled = imperfections_Model.use_Particles;
 
-//		if( imperfections_Model.particle_Vertical_Correlation == full_Correlation )
-//		{
-//			if(imperfections_Model.use_Common_Particle_Function && !last_Layer)
-//			{
-//				struct_Data.particles_Model.is_Enabled = false; // no usual parameters for layers except last layer if common function
-//			} else
-//			{
-//				// nothing
-//			}
-//		}
-//		if( imperfections_Model.particle_Vertical_Correlation == zero_Correlation )
-//		{
-//			if(imperfections_Model.use_Common_Particle_Function && !last_Layer)
-//			{
-//				struct_Data.particles_Model.is_Enabled = false; // no usual parameters for layers except last layer if common function
-//			} else
-//			{
-//				// nothing
-//			}
-//		}
-//		if(imperfections_Model.particle_Vertical_Correlation == partial_Correlation)
-//		{
-//			if(imperfections_Model.use_Common_Particle_Function && !last_Layer)
-//			{
-//				struct_Data.particles_Model.is_Enabled = false; // no usual parameters for layers except last layer if common function
-//			} else
-//			{
-//				// nothing
-//			}
-//		}
+		if( imperfections_Model.particle_Vertical_Correlation == full_Correlation )
+		{
+			if(imperfections_Model.use_Common_Particle_Function && !last_Two_Layers)
+			{
+				struct_Data.particles_Model.is_Enabled = false; // no usual parameters for layers except last two layers if common function
+			} else
+			{
+				// nothing
+			}
+		}
+		if( imperfections_Model.particle_Vertical_Correlation == zero_Correlation )
+		{
+			if(imperfections_Model.use_Common_Particle_Function && !last_Two_Layers)
+			{
+				struct_Data.particles_Model.is_Enabled = false; // no usual parameters for layers except last two layers if common function
+			} else
+			{
+				// nothing
+			}
+		}
+		if(imperfections_Model.particle_Vertical_Correlation == partial_Correlation)
+		{
+			if(imperfections_Model.use_Common_Particle_Function && !last_Two_Layers)
+			{
+				struct_Data.particles_Model.is_Enabled = false; // no usual parameters for layers except last two layers if common function
+			} else
+			{
+				// nothing
+			}
+		}
 	}
 }
 
@@ -3313,6 +3313,38 @@ bool Global_Variables::if_Last_Layer(QTreeWidget* tree, QTreeWidgetItem* potenti
 				if(next_Struct_Data.item_Type == item_Type_Substrate)
 				{
 					return true;
+				}
+			}
+		}
+		++it;
+	}
+	return false;
+}
+
+bool Global_Variables::if_Second_Last_Layer(QTreeWidget* tree, QTreeWidgetItem* potential_Layer)
+{
+	QTreeWidgetItemIterator it(tree);
+	while(*it)
+	{
+		QTreeWidgetItem* item = *it;
+		if(item == potential_Layer)
+		{
+			Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			if( struct_Data.item_Type == item_Type_Layer)
+			{
+				QTreeWidgetItemIterator next_It = it;
+				++next_It;
+				QTreeWidgetItem* next_Item = *next_It;
+				Data next_Struct_Data = next_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				if(next_Struct_Data.item_Type == item_Type_Layer)
+				{
+					++next_It;
+					QTreeWidgetItem* next_Next_Item = *next_It;
+					Data next_Next_Struct_Data = next_Next_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+					if(next_Next_Struct_Data.item_Type == item_Type_Substrate)
+					{
+						return true;
+					}
 				}
 			}
 		}

@@ -31,8 +31,6 @@ public:
 	void move_Down		 ();
 	void group			 ();
 	void ungroup		 ();
-	void thickness_Plot	 ();
-	void sigma_Plot		 ();
 	void destroy		 ();
 	void export_Structure();
 

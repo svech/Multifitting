@@ -339,6 +339,7 @@ void Structure_Tree::if_DoubleClicked(QTreeWidgetItem* item)
 		runned_Editors.insert(item,item_Editor);
 	}
 	refresh_Tree_Roughness();
+	refresh_Tree_Particles();
 }
 
 void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item, int i)
@@ -511,6 +512,72 @@ void Structure_Tree::refresh_Tree_Roughness()
 				}
 			}
 			Global_Variables::enable_Disable_Roughness_Model(struct_Data, multilayer->imperfections_Model, is_Last_Layer);
+
+			QVariant var;
+			var.setValue( struct_Data );
+			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
+		++it;
+	}
+}
+
+void Structure_Tree::refresh_Tree_Particles(bool refresh_Shape, bool refresh_Interference_Function, bool refresh_Geometry)
+{
+	QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
+	while(*it)
+	{
+		QTreeWidgetItem* item = *it;
+		Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if( struct_Data.item_Type == item_Type_Layer )
+		{
+			bool is_Last_Layer = false;
+			bool is_Last_Two_Layers = false;
+			// if last layer
+			{
+				QTreeWidgetItemIterator next_It = it;
+				++next_It;
+				QTreeWidgetItem* next_Item = *next_It;
+				Data next_Struct_Data = next_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				if(next_Struct_Data.item_Type == item_Type_Substrate)
+				{
+					is_Last_Two_Layers = true;
+					is_Last_Layer = true;
+				} else
+				{
+					if(next_Struct_Data.item_Type == item_Type_Layer)
+					{
+						++next_It;
+						QTreeWidgetItem* next_Next_Item = *next_It;
+						Data next_Next_Struct_Data = next_Next_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+						if(next_Next_Struct_Data.item_Type == item_Type_Substrate)
+						{
+							is_Last_Two_Layers = true;
+						}
+					}
+				}
+			}
+			if( multilayer->imperfections_Model.particle_Vertical_Correlation == full_Correlation ||
+				multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation )
+			{
+				Global_Variables::enable_Disable_Particles_Model(struct_Data, multilayer->imperfections_Model, is_Last_Layer);
+			}
+			if( multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation )
+			{
+				Global_Variables::enable_Disable_Particles_Model(struct_Data, multilayer->imperfections_Model, is_Last_Two_Layers);
+			}
+
+			if(refresh_Shape)
+			{
+				struct_Data.particles_Model.particle_Shape = multilayer->imperfections_Model.initial_Particle_Shape;
+			}
+			if(refresh_Interference_Function)
+			{
+				struct_Data.particles_Model.particle_Interference_Function = multilayer->imperfections_Model.initial_Interference_Function;
+			}
+			if(refresh_Geometry)
+			{
+				struct_Data.particles_Model.geometric_Model = multilayer->imperfections_Model.initial_Geometric_Model;
+			}
 
 			QVariant var;
 			var.setValue( struct_Data );

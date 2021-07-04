@@ -375,9 +375,10 @@ public:
 	static void color_Scheme_Example(QCustomPlot* plot, QCPColorGradient::GradientPreset preset);
 
 	// roughness & particles
-	static bool if_Last_Layer(QTreeWidget* tree, QTreeWidgetItem* potential_Layer);
+	static bool if_Last_Layer       (QTreeWidget* tree, QTreeWidgetItem* potential_Layer);
+	static bool if_Second_Last_Layer(QTreeWidget* tree, QTreeWidgetItem* potential_Layer);
 	static void enable_Disable_Roughness_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model, bool last_Layer = false);
-	static void enable_Disable_Particles_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model, bool last_Layer = false);
+	static void enable_Disable_Particles_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model, bool last_Two_Layers = false);
 	static void new_Layer_Particles_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model);
 	static double PSD_ABC_1D						 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
 	static double PSD_ABC_1D_from_nu				 (double factor, double xi, double alpha, double p, double a, gsl_spline* spline, gsl_interp_accel* acc);

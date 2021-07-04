@@ -33,6 +33,7 @@ public:
 	void set_Item_Parent_Type(QTreeWidgetItem* item);
 
 	void refresh_Tree_Roughness();
+	void refresh_Tree_Particles(bool refresh_Shape = false, bool refresh_Interference_Function = false, bool refresh_Geometry = false);
 
 	void iterate_Over_Layers(QTreeWidgetItem* item = nullptr);
 		void refresh_If_Layer(QTreeWidgetItem* this_Item, int i=0);
