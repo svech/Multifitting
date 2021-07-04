@@ -122,15 +122,16 @@ void Structure_Toolbar::add_Layer()
 			layer.interlayer_Composition[interlayer_Index].enabled = false;
 		}
 	}
-	Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model);
-	Global_Variables::new_Layer_Particles_Model  (layer, structure_Tree->multilayer->imperfections_Model);
-
 
 	var.setValue( layer );
 	new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	buffered_Copy_Type = copy_Type_Cut;
 	add_Buffered_Layer(new_Layer);
+//	Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model, is_Last_Layer);
+	Global_Variables::new_Layer_Particles_Model     (layer, structure_Tree->multilayer->imperfections_Model);
+	structure_Tree->refresh_Tree_Roughness();
+
 	delete new_Layer;
 }
 
@@ -181,8 +182,8 @@ void Structure_Toolbar::add_Multilayer()
 				layer.interlayer_Composition[interlayer_Index].enabled = false;
 			}
 		}
-		Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model);
-		Global_Variables::new_Layer_Particles_Model  (layer, structure_Tree->multilayer->imperfections_Model);
+//		Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model, is_Last_Layer);
+		Global_Variables::new_Layer_Particles_Model     (layer, structure_Tree->multilayer->imperfections_Model);
 
 		QVariant var;
 		var.setValue( layer );
@@ -199,6 +200,7 @@ void Structure_Toolbar::add_Multilayer()
 
 	buffered_Copy_Type = copy_Type_Cut;
 	add_Buffered_Layer(new_Multilayer);
+	structure_Tree->refresh_Tree_Roughness();
 	delete new_Multilayer;
 }
 
@@ -311,8 +313,8 @@ void Structure_Toolbar::add_Aperiodic()
 						layer.interlayer_Composition[interlayer_Index].enabled = false;
 					}
 				}
-				Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model);
-				Global_Variables::new_Layer_Particles_Model  (layer, structure_Tree->multilayer->imperfections_Model);
+//				Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model);
+				Global_Variables::new_Layer_Particles_Model     (layer, structure_Tree->multilayer->imperfections_Model);
 
 				layer.common_Sigma_Diffuse = true;
 				layer.material = materials[layer_Index];
@@ -368,8 +370,9 @@ void Structure_Toolbar::add_Aperiodic()
 			// insert aperiodic item to tree
 			buffered_Copy_Type = copy_Type_Cut;
 			add_Buffered_Layer(new_Aperiodic);
-
+			delete new_Aperiodic;
 			last_data_directory = filename.absolutePath();
+			structure_Tree->refresh_Tree_Roughness();
 		}
 	}
 }
@@ -390,7 +393,7 @@ void Structure_Toolbar::add_Substrate()
 			data.interlayer_Composition[interlayer_Index].enabled = false;
 		}
 	}
-	Global_Variables::enable_Disable_Roughness_Model(data, structure_Tree->multilayer->imperfections_Model);
+//	Global_Variables::enable_Disable_Roughness_Model(data, structure_Tree->multilayer->imperfections_Model);
 
 	var.setValue( data );
 	new_Substrate->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -400,12 +403,13 @@ void Structure_Toolbar::add_Substrate()
 //	toolbar->actions()[Add_Substrate]->setDisabled(true);
 	structure_Tree->set_Structure_Item_Text(new_Substrate);
 	structure_Tree->set_Item_Parent_Type(new_Substrate);
+	structure_Tree->refresh_Tree_Roughness();
 	refresh_Toolbar();
 }
 
 void Structure_Toolbar::edit()
 {
-	structure_Tree->if_DoubleClicked();
+	structure_Tree->if_DoubleClicked();	
 }
 
 bool Structure_Toolbar::ask_Parent_Multilayer()
@@ -504,6 +508,7 @@ void Structure_Toolbar::remove()
 		}
 	}*/
 
+	structure_Tree->refresh_Tree_Roughness();
 	refresh_Toolbar();
 }
 
@@ -542,6 +547,7 @@ void Structure_Toolbar::cut()
 		if(!ask_Parent_Multilayer()) delete current;
 	}
 
+	structure_Tree->refresh_Tree_Roughness();
 	refresh_Toolbar();
 }
 
@@ -558,6 +564,7 @@ void Structure_Toolbar::paste()
 	{
 		add_Buffered_Layer(buffered);
 		buffered_Copy_Type = copy_Type_Copy;	 // next copies should have changed IDs
+		structure_Tree->refresh_Tree_Roughness();
 	}
 }
 
@@ -586,6 +593,7 @@ void Structure_Toolbar::move_Up()
 		structure_Tree->tree->insertTopLevelItem(position, taken);
 	}
 
+	structure_Tree->refresh_Tree_Roughness();
 	refresh_Toolbar();
 }
 
@@ -614,6 +622,7 @@ void Structure_Toolbar::move_Down()
 		structure_Tree->tree->insertTopLevelItem(position, taken);
 	}
 
+	structure_Tree->refresh_Tree_Roughness();
 	refresh_Toolbar();
 }
 
@@ -621,6 +630,7 @@ void Structure_Toolbar::group()
 {
 	// TODO group_toolbutton
 	qInfo() << "group is not implemented" << endl;
+	structure_Tree->refresh_Tree_Roughness();
 	refresh_Toolbar();
 }
 
@@ -647,6 +657,7 @@ void Structure_Toolbar::ungroup()
 		delete current;
 	}
 
+	structure_Tree->refresh_Tree_Roughness();
 	refresh_Toolbar();
 }
 
@@ -674,6 +685,7 @@ void Structure_Toolbar::destroy()
 		add_Substrate();
 //		toolbar->actions()[Add_Substrate]->setDisabled(false);		// add_Substrate
 		refresh_Toolbar();
+		structure_Tree->refresh_Tree_Roughness();
 	}
 }
 

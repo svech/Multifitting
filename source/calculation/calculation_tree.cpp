@@ -129,6 +129,7 @@ void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget
 	{
 		qInfo()  << endl << "Calculation_Tree::fill_Tree_From_Scratch  :  last item is not a substrate!" << endl << endl;
 		Data substrate = calc_Tree.child(calc_Tree.begin(), 0).node->data.struct_Data;
+		substrate.item_Type = item_Type_Substrate;
 
 		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
 		{
@@ -136,13 +137,12 @@ void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget
 			{
 				substrate.interlayer_Composition[interlayer_Index].enabled = false;
 			}
-		}
-		Global_Variables::enable_Disable_Roughness_Model   (substrate, multilayer->imperfections_Model);
+		}		
+		Global_Variables::enable_Disable_Roughness_Model(substrate, multilayer->imperfections_Model);
 		Global_Variables::enable_Disable_Particles_Model(substrate, multilayer->imperfections_Model);
 
 		// change id
 		substrate.reset_All_IDs();
-		substrate.item_Type = item_Type_Substrate;
 
 		// create Item and make Node from it
 		QTreeWidgetItem substrate_Item;

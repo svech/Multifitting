@@ -338,6 +338,7 @@ void Structure_Tree::if_DoubleClicked(QTreeWidgetItem* item)
 		structure_Toolbar->toolbar->setDisabled(true);
 		runned_Editors.insert(item,item_Editor);
 	}
+	refresh_Tree_Roughness();
 }
 
 void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item, int i)
@@ -485,6 +486,38 @@ void Structure_Tree::set_Item_Parent_Type(QTreeWidgetItem *item)
 	}
 	QVariant var; var.setValue(data);
 	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+}
+
+void Structure_Tree::refresh_Tree_Roughness()
+{
+	QTreeWidgetItemIterator it(tree);
+	while(*it)
+	{
+		QTreeWidgetItem* item = *it;
+		Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if( struct_Data.item_Type == item_Type_Layer ||
+			struct_Data.item_Type == item_Type_Substrate )
+		{
+			bool is_Last_Layer = false;
+			if( struct_Data.item_Type == item_Type_Layer)
+			{
+				QTreeWidgetItemIterator next_It = it;
+				++next_It;
+				QTreeWidgetItem* next_Item = *next_It;
+				Data next_Struct_Data = next_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				if(next_Struct_Data.item_Type == item_Type_Substrate)
+				{
+					is_Last_Layer = true;
+				}
+			}
+			Global_Variables::enable_Disable_Roughness_Model(struct_Data, multilayer->imperfections_Model, is_Last_Layer);
+
+			QVariant var;
+			var.setValue( struct_Data );
+			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
+		++it;
+	}
 }
 
 void Structure_Tree::editor_Close()

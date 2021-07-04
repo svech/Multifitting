@@ -219,10 +219,10 @@ void Unwrapped_Structure::fill_Thickness_And_Boundaries_Position()
 void Unwrapped_Structure::fill_Roughness_Parameters()
 {
 	sigma_Roughness.resize(num_Boundaries);
+	alpha.resize(num_Boundaries);
 	omega.resize(num_Layers);
 	mu.resize(num_Layers);
 	omega_pow23.resize(num_Layers);
-	alpha.resize(num_Boundaries);
 	beta.resize(num_Layers);
 	a1.resize(num_Layers);
 	a2.resize(num_Layers);
@@ -259,46 +259,34 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 	// substrate
 	if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
-//		double s = media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma.value;
 		double s =  media_Node_Map_Vector[num_Layers+1]->specular_Debye_Waller_Total_Sigma;
-//		qInfo() << "sub s" << s << endl;
-
 		sigma_Roughness[num_Layers] = s;
-//		if(imperfections_Model.add_Gauss_Peak)
-//		{
-//			double p = media_Data_Map_Vector[num_Layers+1]->roughness_Model.peak_Sigma.value;
-//			sigma_Roughness[num_Layers] = sqrt(s*s + p*p);
-//		}
 	}
-//	if(imperfections_Model.PSD_Model == measured_PSD)
-//	{
-//		if( measurement.measurement_Type == measurement_Types[Specular_Scan] ||
-//			measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-//			measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-//			measurement.measurement_Type == measurement_Types[Offset_Scan]   )
-//		{
-//			if( imperfections_Model.vertical_Correlation == zero_Correlation ||
-//				imperfections_Model.vertical_Correlation == full_Correlation ) {
-//				sigma_Roughness[num_Layers] = imperfections_Model.PSD_1D.calc_Sigma_Full() * media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma_Factor_PSD_1D.value;
-//			}
-//			if( imperfections_Model.vertical_Correlation == partial_Correlation )	{
-//				sigma_Roughness[num_Layers] = imperfections_Model.PSD_2D.calc_Sigma_Full() * media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma_Factor_PSD_2D.value;
-//			}
-//		}
-//		if( measurement.measurement_Type == measurement_Types[GISAS_Map])
-//		{
-//			sigma_Roughness[num_Layers] = imperfections_Model.PSD_2D.calc_Sigma_Full() * media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma_Factor_PSD_2D.value;
-//		}
-//	}
 	alpha[num_Layers] = media_Data_Map_Vector[num_Layers+1].roughness_Model.fractal_alpha.value;
 
 	// common sigma for partial correlation. for full correlation we use only substrate
-	if(imperfections_Model.use_Common_Roughness_Function)
-//	if(imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model) // for linear growth too, for a while
+	if(imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)
 	{
 		for(int boundary_Index=0; boundary_Index<num_Boundaries; boundary_Index++)
 		{
 			sigma_Roughness[boundary_Index] = sigma_Roughness.back();
+		}
+	}
+	// common partial roughness for use_Common_Roughness_Function
+	if(imperfections_Model.use_Common_Roughness_Function)
+	{
+		for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
+		{
+			mu			[layer_Index] = mu.back();
+			omega		[layer_Index] = omega.back();
+			alpha		[layer_Index] = alpha[num_Layers-1];
+			beta		[layer_Index] = beta.back();
+			omega_pow23	[layer_Index] = omega_pow23.back();
+
+			a1[layer_Index] = a1.back();
+			a2[layer_Index] = a2.back();
+			a3[layer_Index] = a3.back();
+			a4[layer_Index] = a4.back();
 		}
 	}
 

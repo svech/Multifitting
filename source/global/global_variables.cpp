@@ -1268,7 +1268,7 @@ QString Global_Variables::material_From_Composition(const QList<Stoichiometry>& 
 	return text;
 }
 
-void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model)
+void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model, bool last_Layer)
 {
 	// common
 	if( struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate )
@@ -1298,7 +1298,10 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 		}
 		if(imperfections_Model.vertical_Correlation == partial_Correlation)
 		{
-			if(imperfections_Model.use_Common_Roughness_Function) // always
+			if(imperfections_Model.use_Common_Roughness_Function)
+			{
+				if(!last_Layer) struct_Data.roughness_Model.is_Enabled = false; // do not use layers except last layer if common function
+			} else
 			{
 				// nothing
 			}
@@ -3259,4 +3262,30 @@ void Global_Variables::color_Scheme_Example(QCustomPlot* plot, QCPColorGradient:
 	map->rescaleAxes();
 	map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
 	plot->replot();
+}
+
+bool Global_Variables::if_Last_Layer(QTreeWidget* tree, QTreeWidgetItem* potential_Layer)
+{
+	QTreeWidgetItemIterator it(tree);
+	while(*it)
+	{
+		QTreeWidgetItem* item = *it;
+		if(item == potential_Layer)
+		{
+			Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			if( struct_Data.item_Type == item_Type_Layer)
+			{
+				QTreeWidgetItemIterator next_It = it;
+				++next_It;
+				QTreeWidgetItem* next_Item = *next_It;
+				Data next_Struct_Data = next_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				if(next_Struct_Data.item_Type == item_Type_Substrate)
+				{
+					return true;
+				}
+			}
+		}
+		++it;
+	}
+	return false;
 }

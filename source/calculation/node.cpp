@@ -899,7 +899,8 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
 	if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
-		if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return; // if use_Common_Roughness_Function we calculate DW factor only for substrate
+		if(struct_Data.item_Type == item_Type_Layer &&
+		  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return; // if use_Common_Roughness_Function (or partial correlation) we calculate DW factor only for substrate
 	}
 
 	/// max real frequency inside detector
@@ -1525,7 +1526,8 @@ void Node::calc_Debye_Waller_Total_Sigma(const Imperfections_Model& imperfection
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
 	if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
 	{
-		if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return; // if use_Common_Roughness_Function we calculate DW factor only for substrate
+		if(struct_Data.item_Type == item_Type_Layer &&
+		  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return; // if use_Common_Roughness_Function (or partial correlation) we calculate DW factor only for substrate
 	}
 	specular_Debye_Waller_Total_Sigma = 0;
 
@@ -1952,7 +1954,8 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 {
 	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
-	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+	if(struct_Data.item_Type == item_Type_Layer &&
+	  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return;
 
 	// in other cases ( substrate or layer-with-individual-function ) go further
 
@@ -2076,7 +2079,8 @@ void Node::clear_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfec
 {
 	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
-	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+	if(struct_Data.item_Type == item_Type_Layer &&
+	  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return; // if use_Common_Roughness_Function (or partial correlation) we calculate DW factor only for substrate
 
 	gsl_spline_free(spline_PSD_FG_1D);
 	gsl_interp_accel_free(acc_PSD_FG_1D);
@@ -2086,7 +2090,8 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 {
 	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
-	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+	if(struct_Data.item_Type == item_Type_Layer &&
+	  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return; // if use_Common_Roughness_Function (or partial correlation) we calculate DW factor only for substrate
 
 	// in other cases ( substrate or layer-with-individual-function ) go further
 
@@ -2204,7 +2209,8 @@ void Node::clear_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfec
 {
 	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
-	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+	if(struct_Data.item_Type == item_Type_Layer &&
+	  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return; // if use_Common_Roughness_Function (or partial correlation) we calculate DW factor only for substrate
 
 	gsl_spline_free(spline_PSD_FG_2D);
 	gsl_interp_accel_free(acc_PSD_FG_2D);
@@ -2531,7 +2537,8 @@ void Node::create_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model
 {
 	if(!imperfections_Model.add_Gauss_Peak) return;
 	if(struct_Data.item_Type == item_Type_Ambient) return;
-	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+	if(struct_Data.item_Type == item_Type_Layer &&
+	  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return; // if use_Common_Roughness_Function (or partial correlation) we calculate DW factor only for substrate
 
 //	auto start = std::chrono::system_clock::now();
 
@@ -2645,7 +2652,8 @@ void Node::clear_Spline_PSD_Peak(const Imperfections_Model& imperfections_Model)
 {
 	if(!imperfections_Model.add_Gauss_Peak) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
-	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+	if(struct_Data.item_Type == item_Type_Layer &&
+	  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return; // if use_Common_Roughness_Function (or partial correlation) we calculate DW factor only for substrate
 
 	gsl_spline_free(spline_PSD_Peak);
 	gsl_interp_accel_free(acc_PSD_Peak);

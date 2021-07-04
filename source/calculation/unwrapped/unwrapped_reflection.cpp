@@ -1121,8 +1121,8 @@ void Unwrapped_Reflection::fill_Components_From_Node_Vector(int thread_Index, in
 void Unwrapped_Reflection::fill_DW_Factors_From_Node_Vector(int thread_Index, int point_Index)
 {
 	if(measurement.measurement_Type == measurement_Types[Specular_Scan])
-	{
-		if(multilayer->imperfections_Model.use_Common_Roughness_Function)
+	{	
+		if(multilayer->imperfections_Model.use_Common_Roughness_Function || multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
 		{
 			Node* node_Substrate = short_Flat_Calc_Tree.back();
 			specular_Debye_Waller_Weak_Factor_R_Final[thread_Index] = node_Substrate->specular_Debye_Waller_Weak_Factor_R[point_Index];
@@ -1157,7 +1157,7 @@ void Unwrapped_Reflection::fill_DW_Factors_From_Node_Vector(int thread_Index, in
 			}
 			double hi = k*sin(qDegreesToRadians(angle_Theta_0));
 
-			if(multilayer->imperfections_Model.use_Common_Roughness_Function)
+			if(multilayer->imperfections_Model.use_Common_Roughness_Function || multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
 			{
 				double sigma = unwrapped_Structure->sigma_Roughness_Threaded[thread_Index].back();				
 				specular_Debye_Waller_Weak_Factor_R_Final[thread_Index] = exp( - 4. * hi*hi * sigma*sigma );
@@ -3527,6 +3527,11 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								}
 							}
 						}
+						if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
+						{
+							//if(multilayer->imperfections_Model.use_Common_Roughness_Function || multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
+							// TODO
+						}
 					}
 				}
 			} else
@@ -3671,6 +3676,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 double Unwrapped_Reflection::cor_Function_Integration(int point_Index, int thread_Index, double cos_Theta_0)
 {
 	function<double(double)> f;
+	// TODO partial correlation
 	if(multilayer->imperfections_Model.use_Common_Roughness_Function) f = [&](double r){return function_DWBA_SA_CSA_Batch_Common_Integrand    (r, thread_Index);};
 	else															  f = [&](double r){return function_DWBA_SA_CSA_Batch_Individual_Integrand(r, thread_Index);};
 	double p = measurement.k_Value*abs(cos_Theta_0-measurement.detector_Theta_Cos_Vec[point_Index]);

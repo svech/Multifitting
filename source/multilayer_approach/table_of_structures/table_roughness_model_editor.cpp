@@ -38,10 +38,10 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 	buttons_Layout->addWidget(ok_Button,0,Qt::AlignCenter);
 	connect(ok_Button, &QPushButton::clicked, this, [=]
 	{
-		// particles
+		multilayer->structure_Tree->refresh_Tree_Roughness();
 		refresh_Tree_Particles(old_Common_Particle_Shape        != multilayer->imperfections_Model.initial_Particle_Shape,
-								  old_Common_Interference_Function != multilayer->imperfections_Model.initial_Interference_Function,
-								  old_Common_Geometric_Model       != multilayer->imperfections_Model.initial_Geometric_Model);
+							   old_Common_Interference_Function != multilayer->imperfections_Model.initial_Interference_Function,
+							   old_Common_Geometric_Model       != multilayer->imperfections_Model.initial_Geometric_Model);
 
 		// common
 		bool have_Scattering = false;
@@ -371,7 +371,6 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 	connect(roughness_Groupbox, &QGroupBox::toggled, this, [=]
 	{
 		multilayer->imperfections_Model.use_Roughness = roughness_Groupbox->isChecked();
-		refresh_Tree_Roughness();
 	});
 
 	QHBoxLayout* groupbox_Layout = new QHBoxLayout(roughness_Groupbox);
@@ -486,9 +485,11 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		QCheckBox* common_Checkbox = new QCheckBox("Common PSD");
 			common_Checkbox->setChecked (multilayer->imperfections_Model.use_Common_Roughness_Function);
 			common_Checkbox->setDisabled(multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
-										 multilayer->imperfections_Model.vertical_Correlation == partial_Correlation ||
-										 multilayer->imperfections_Model.add_Measured_PSD_1D ||
-										 multilayer->imperfections_Model.add_Measured_PSD_2D);
+
+										 ( multilayer->imperfections_Model.vertical_Correlation == zero_Correlation &&
+										  (multilayer->imperfections_Model.add_Measured_PSD_1D ||
+										   multilayer->imperfections_Model.add_Measured_PSD_2D) )
+										 );
 		PSD_Model_Layout->addWidget(common_Checkbox);
 
 	// --------------------------------------------
@@ -648,7 +649,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			measured_PSD_1D_Checkbox->setEnabled(true);
 			measured_PSD_2D_Checkbox->setEnabled(true);
 
-			refresh_Tree_Roughness();
+			multilayer->structure_Tree->refresh_Tree_Roughness();
 		}
 	});
 	connect(partial_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -661,16 +662,12 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			linear_Growth_Alpha_Radiobutton->setDisabled(false);
 			linear_Growth_n_1_4_Radiobutton->setDisabled(false);
 
-			common_Checkbox->setChecked(true);
-			common_Checkbox->toggled(true);
-			common_Checkbox->setDisabled(true);
+			common_Checkbox->setDisabled(false);
 
 			// lock measured PSD 1D
 			if(measured_PSD_1D_Checkbox->isChecked())	  measured_PSD_1D_Checkbox->setChecked(false);
 			measured_PSD_1D_Checkbox->setEnabled(false);
 			measured_PSD_2D_Checkbox->setEnabled(true);
-
-			refresh_Tree_Roughness();
 		}
 	});
 	connect(zero_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -688,8 +685,6 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			// unlock measured PSD
 			measured_PSD_1D_Checkbox->setEnabled(true);
 			measured_PSD_2D_Checkbox->setEnabled(true);
-
-			refresh_Tree_Roughness();
 		}
 	});
 
@@ -699,7 +694,6 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(ABC_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.PSD_Model = ABC_Model;
-			refresh_Tree_Roughness();
 		}
 	});
 	connect(fractal_Gauss_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -707,22 +701,20 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(fractal_Gauss_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.PSD_Model = fractal_Gauss_Model;
-			refresh_Tree_Roughness();
 		}
 	});
 	connect(measured_PSD_1D_Checkbox, &QCheckBox::toggled, this, [=]
 	{
 		multilayer->imperfections_Model.add_Measured_PSD_1D = measured_PSD_1D_Checkbox->isChecked();
 
-		if( multilayer->imperfections_Model.add_Measured_PSD_1D ||
-			multilayer->imperfections_Model.add_Measured_PSD_2D ||
-			multilayer->imperfections_Model.vertical_Correlation != zero_Correlation)
+		if(((multilayer->imperfections_Model.add_Measured_PSD_1D ||
+			 multilayer->imperfections_Model.add_Measured_PSD_2D ) &&
+			 multilayer->imperfections_Model.vertical_Correlation == zero_Correlation) ||
+			 multilayer->imperfections_Model.vertical_Correlation == full_Correlation)
 		{
 			common_Checkbox->setChecked(true);
 			common_Checkbox->toggled(true);
 			common_Checkbox->setDisabled(true);
-
-			refresh_Tree_Roughness();
 		} else
 		{
 			common_Checkbox->setEnabled(true);
@@ -732,15 +724,14 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 	{
 		multilayer->imperfections_Model.add_Measured_PSD_2D = measured_PSD_2D_Checkbox->isChecked();
 
-		if( multilayer->imperfections_Model.add_Measured_PSD_1D ||
-			multilayer->imperfections_Model.add_Measured_PSD_2D ||
-			multilayer->imperfections_Model.vertical_Correlation != zero_Correlation)
+		if(((multilayer->imperfections_Model.add_Measured_PSD_1D ||
+			 multilayer->imperfections_Model.add_Measured_PSD_2D ) &&
+			 multilayer->imperfections_Model.vertical_Correlation == zero_Correlation) ||
+			 multilayer->imperfections_Model.vertical_Correlation == full_Correlation)
 		{
 			common_Checkbox->setChecked(true);
 			common_Checkbox->toggled(true);
 			common_Checkbox->setDisabled(true);
-
-			refresh_Tree_Roughness();
 		} else
 		{
 			common_Checkbox->setEnabled(true);
@@ -749,12 +740,10 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 	connect(gauss_Peak_Checkbox, &QCheckBox::toggled, this, [=]
 	{
 		multilayer->imperfections_Model.add_Gauss_Peak = gauss_Peak_Checkbox->isChecked();
-		refresh_Tree_Roughness();
 	});
 	connect(common_Checkbox, &QCheckBox::toggled, this, [=]
 	{
 		multilayer->imperfections_Model.use_Common_Roughness_Function = common_Checkbox->isChecked();
-		refresh_Tree_Roughness();
 	});
 
 	connect(replication_Factor_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -762,7 +751,6 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(replication_Factor_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.inheritance_Model = replication_Factor_Inheritance_Model;
-			refresh_Tree_Roughness();
 		}
 	});
 	connect(linear_Growth_Alpha_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -770,7 +758,6 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(linear_Growth_Alpha_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.inheritance_Model = linear_Growth_Alpha_Inheritance_Model;
-			refresh_Tree_Roughness();
 		}
 	});
 	connect(linear_Growth_n_1_4_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -778,7 +765,6 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(linear_Growth_n_1_4_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.inheritance_Model = linear_Growth_n_1_4_Inheritance_Model;
-			refresh_Tree_Roughness();
 		}
 	});
 }
@@ -1046,25 +1032,26 @@ void Table_Roughness_Model_Editor::refresh_Tree_Drift(QString whats_This, bool s
 	}
 }
 
-void Table_Roughness_Model_Editor::refresh_Tree_Roughness()
-{
-	QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
-	while(*it)
-	{
-		QTreeWidgetItem* item = *it;
-		Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-		if( struct_Data.item_Type == item_Type_Layer ||
-			struct_Data.item_Type == item_Type_Substrate )
-		{
-			Global_Variables::enable_Disable_Roughness_Model(struct_Data, multilayer->imperfections_Model);
+//void Table_Roughness_Model_Editor::refresh_Tree_Roughness()
+//{
+//	QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
+//	while(*it)
+//	{
+//		QTreeWidgetItem* item = *it;
+//		Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+//		if( struct_Data.item_Type == item_Type_Layer ||
+//			struct_Data.item_Type == item_Type_Substrate )
+//		{
+//			bool is_Last_Layer = Global_Variables::if_Last_Layer(multilayer->structure_Tree->tree, item);
+//			Global_Variables::enable_Disable_Roughness_Model(struct_Data, multilayer->imperfections_Model, is_Last_Layer);
 
-			QVariant var;
-			var.setValue( struct_Data );
-			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		}
-		++it;
-	}
-}
+//			QVariant var;
+//			var.setValue( struct_Data );
+//			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+//		}
+//		++it;
+//	}
+//}
 
 void Table_Roughness_Model_Editor::refresh_Tree_Particles(bool refresh_Shape, bool refresh_Interference_Function, bool refresh_Geometry)
 {
