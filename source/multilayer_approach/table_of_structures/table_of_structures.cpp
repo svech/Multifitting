@@ -573,6 +573,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
+			bool is_Last_Layer = Global_Variables::if_Last_Layer(list_Of_Trees[tab_Index]->tree, structure_Item);
+
 			if( struct_Data.item_Type == item_Type_Multilayer	||
 				struct_Data.item_Type == item_Type_Ambient		||
 				struct_Data.item_Type == item_Type_Layer		||
@@ -1562,7 +1564,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 				if(struct_Data.item_Type == item_Type_Layer)
 				{
-					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
+					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false || multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
 					{
 						show_Peak_Sigma = true;
 					}
@@ -1601,7 +1603,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 				if(struct_Data.item_Type == item_Type_Layer)
 				{
-					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
+					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false || multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
 					{
 						show_Peak_Frequency = true;
 					}
@@ -1641,7 +1643,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 				if(struct_Data.item_Type == item_Type_Layer)
 				{
-					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
+					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false || multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
 					{
 						show_Peak_Frequency_Width = true;
 					}
@@ -1678,8 +1680,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				{
 					if( multilayer->imperfections_Model.PSD_Model == ABC_Model || multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
 					{
-						if( multilayer->imperfections_Model.vertical_Correlation != partial_Correlation &&
-							multilayer->imperfections_Model.use_Common_Roughness_Function == true)
+						if((multilayer->imperfections_Model.vertical_Correlation != partial_Correlation &&
+							multilayer->imperfections_Model.use_Common_Roughness_Function == true) ||
+							!struct_Data.roughness_Model.is_Enabled)
 						{
 							add_Columns	(new_Table, current_Column+4+additional_Column);
 							current_Column+=5+additional_Column;
@@ -1712,17 +1715,19 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// usage, shape and interference function
 			bool show_Usage_Buttons = false;
-			if(	struct_Data.particles_Model.is_Enabled )
+			if(	multilayer->imperfections_Model.use_Particles )
 			{
 				show_Usage_Buttons = true;
 			}
 			if(show_Usage_Buttons)
 			{
-				add_Columns			 (new_Table,                           current_Column+1);
-
-				create_Shape_Button  (new_Table,            current_Row+2, current_Column, structure_Item);
-				create_Pattern_Button(new_Table,            current_Row+3, current_Column, structure_Item);
-				create_Model_Button	 (new_Table,            current_Row+4, current_Column, structure_Item);
+				add_Columns				 (new_Table,                           current_Column+1);
+				if(	struct_Data.particles_Model.is_Enabled )
+				{
+					create_Shape_Button  (new_Table,            current_Row+2, current_Column, structure_Item);
+					create_Pattern_Button(new_Table,            current_Row+3, current_Column, structure_Item);
+					create_Model_Button	 (new_Table,            current_Row+4, current_Column, structure_Item);
+				}
 				// last
 				create_Check_Box_Usage (new_Table, tab_Index, current_Row,   current_Column, structure_Item, "on/off", 0, 4, 0, 2020); // more than table size, it is like inf
 
@@ -1848,7 +1853,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// particle average distance
 			bool show_Particle_Average_Distance = false;
-			if(	struct_Data.particles_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled && is_Last_Layer)
 			{
 				if( struct_Data.particles_Model.particle_Interference_Function == disorder)
 				{

@@ -1223,7 +1223,7 @@ double Data::get_Max_Delta_Theta_Detector() const
 
 double Data::average_Layer_density() const
 {
-	if(particles_Model.is_Enabled && particles_Model.is_Used && thickness.value>DBL_EPSILON)
+	if(/*particles_Model.is_Enabled && */particles_Model.is_Used && thickness.value>DBL_EPSILON)
 	{
 		// particle shape
 		double particle_Volume = 0;
@@ -1343,7 +1343,7 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 			{	potentially_Fitable_Parameters.push_back(&sigma_Diffuse); }
 
 		}
-		if(imperfections_Model.use_Roughness && roughness_Model.is_Enabled) // automatically imperfections_Model.use_Roughness == roughness_Model.is_Enabled
+		if(imperfections_Model.use_Roughness && roughness_Model.is_Enabled)
 		{
 			// for layers
 			if( item_Type == item_Type_Layer )
@@ -1569,7 +1569,6 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 					table_Showed_Parameters.push_back(&interlayer_Composition[i].my_Sigma_Diffuse);
 				}
 			}
-
 			table_Showed_Parameters.push_back(&sigma_Diffuse);
 		}
 

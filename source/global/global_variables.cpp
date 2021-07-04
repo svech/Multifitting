@@ -1298,9 +1298,9 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 		}
 		if(imperfections_Model.vertical_Correlation == partial_Correlation)
 		{
-			if(imperfections_Model.use_Common_Roughness_Function)
+			if(imperfections_Model.use_Common_Roughness_Function && !last_Layer)
 			{
-				if(!last_Layer) struct_Data.roughness_Model.is_Enabled = false; // do not use layers except last layer if common function
+				struct_Data.roughness_Model.is_Enabled = false; // do not use layers except last layer if common function
 			} else
 			{
 				// nothing
@@ -1313,12 +1313,43 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 	}
 }
 
-void Global_Variables::enable_Disable_Particles_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model)
+void Global_Variables::enable_Disable_Particles_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model, bool last_Layer)
 {
 	// common
 	if( struct_Data.item_Type == item_Type_Layer )
 	{
 		struct_Data.particles_Model.is_Enabled = imperfections_Model.use_Particles;
+
+//		if( imperfections_Model.particle_Vertical_Correlation == full_Correlation )
+//		{
+//			if(imperfections_Model.use_Common_Particle_Function && !last_Layer)
+//			{
+//				struct_Data.particles_Model.is_Enabled = false; // no usual parameters for layers except last layer if common function
+//			} else
+//			{
+//				// nothing
+//			}
+//		}
+//		if( imperfections_Model.particle_Vertical_Correlation == zero_Correlation )
+//		{
+//			if(imperfections_Model.use_Common_Particle_Function && !last_Layer)
+//			{
+//				struct_Data.particles_Model.is_Enabled = false; // no usual parameters for layers except last layer if common function
+//			} else
+//			{
+//				// nothing
+//			}
+//		}
+//		if(imperfections_Model.particle_Vertical_Correlation == partial_Correlation)
+//		{
+//			if(imperfections_Model.use_Common_Particle_Function && !last_Layer)
+//			{
+//				struct_Data.particles_Model.is_Enabled = false; // no usual parameters for layers except last layer if common function
+//			} else
+//			{
+//				// nothing
+//			}
+//		}
 	}
 }
 
