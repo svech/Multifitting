@@ -214,6 +214,42 @@ void General_Settings_Editor::create_Interface_Tab()
 		});
 	}
 
+	//----------------------------------------------------------------------------
+
+	QGroupBox* graphs_Groupbox = new QGroupBox("Graphs");
+	layout->addWidget(graphs_Groupbox);
+	QGridLayout* graphs_Layout = new QGridLayout(graphs_Groupbox);
+	graphs_Layout->setAlignment(Qt::AlignLeft);
+	{
+		QLabel* profile_Plot_Thickness_Label = new QLabel("Profile line thickness");
+		graphs_Layout->addWidget(profile_Plot_Thickness_Label,0,0,Qt::AlignLeft);
+
+		MyDoubleSpinBox* profile_Line_Thickness_SpinBox = new MyDoubleSpinBox(nullptr, false);
+			profile_Line_Thickness_SpinBox->setAccelerated(true);
+			profile_Line_Thickness_SpinBox->setRange(0, 10);
+			profile_Line_Thickness_SpinBox->setDecimals(1);
+			profile_Line_Thickness_SpinBox->setValue(default_Profile_Line_Thickness);
+			profile_Line_Thickness_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			profile_Line_Thickness_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			profile_Line_Thickness_SpinBox->setFixedWidth(30);
+		graphs_Layout->addWidget(profile_Line_Thickness_SpinBox,0,1,Qt::AlignLeft);
+		connect(profile_Line_Thickness_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			default_Profile_Line_Thickness = profile_Line_Thickness_SpinBox->value();
+			Global_Variables::plot_All_Data_in_Profiles();
+		});
+
+
+		//----------------------------------------------------------------------------
+
+		QCheckBox* replot_Graphs_During_Fitting_CheckBox = new QCheckBox("Replot 1D graphs while fitting");
+			replot_Graphs_During_Fitting_CheckBox->setChecked(replot_graphs_during_fitting_1D);
+		graphs_Layout->addWidget(replot_Graphs_During_Fitting_CheckBox,1,0,1,2,Qt::AlignLeft);
+		connect(replot_Graphs_During_Fitting_CheckBox, &QCheckBox::toggled,	[=]{replot_graphs_during_fitting_1D = replot_Graphs_During_Fitting_CheckBox->isChecked();});
+	}
+
+	//----------------------------------------------------------------------------
+
 	QGroupBox* other_Groupbox = new QGroupBox("Other");
 	layout->addWidget(other_Groupbox);
 	QVBoxLayout* other_Layout = new QVBoxLayout(other_Groupbox);
@@ -254,13 +290,6 @@ void General_Settings_Editor::create_Interface_Tab()
 			individual_Residuals_CheckBox->setChecked(show_residuals);
 		other_Layout->addWidget(individual_Residuals_CheckBox);
 		connect(individual_Residuals_CheckBox, &QCheckBox::toggled,	[=]{show_residuals = individual_Residuals_CheckBox->isChecked();});
-
-		//----------------------------------------------------------------------------
-
-		QCheckBox* replot_Graphs_During_Fitting_CheckBox = new QCheckBox("Replot 1D graphs while fitting");
-			replot_Graphs_During_Fitting_CheckBox->setChecked(replot_graphs_during_fitting_1D);
-		other_Layout->addWidget(replot_Graphs_During_Fitting_CheckBox);
-		connect(replot_Graphs_During_Fitting_CheckBox, &QCheckBox::toggled,	[=]{replot_graphs_during_fitting_1D = replot_Graphs_During_Fitting_CheckBox->isChecked();});
 	}
 }
 

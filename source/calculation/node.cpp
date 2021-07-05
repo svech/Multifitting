@@ -3088,7 +3088,7 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 
 	// in other cases ( layer with radial paracrystal ) go further
 
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 
 	double q_Max = 2*M_PI*max_Frequency_For_2D_Spline;
 	double q_Min = 0;
@@ -3531,9 +3531,9 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	spline_G2 = gsl_spline_alloc(interp_type, q_Vec.size());
 	gsl_spline_init(spline_G2, q_Vec.data(), G2_Vec.data(), q_Vec.size());
 
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "	create G2 spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "	create G2 spline:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 }
 
 void Node::clear_Spline_G2_2D(const Imperfections_Model& imperfections_Model)

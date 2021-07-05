@@ -514,6 +514,8 @@ bool mouse_wheel_spinbox_structure_table;
 bool refill_dependent_structure_table;
 bool replot_graphs_during_fitting_1D;
 //bool replot_graphs_during_fitting_2D;
+double default_Profile_Line_Thickness;
+double selected_Profile_Line_Thickness;
 
 //int    DWBA_n_Max_Series;
 //bool use_beam_spot_in_specular_peak;
@@ -1660,6 +1662,9 @@ void Settings::read_General_Settings(bool reset_to_default)
 		replot_graphs_during_fitting_1D		= general_Settings.value( "replot_graphs_during_fitting_1D",		true	).toBool();
 //		replot_graphs_during_fitting_2D		= general_Settings.value( "replot_graphs_during_fitting_2D",		false	).toBool();
 
+		default_Profile_Line_Thickness		= general_Settings.value( "default_Profile_Line_Thickness",			1.9		).toDouble(); // A^-1 , > nu_Limit
+		selected_Profile_Line_Thickness		= general_Settings.value( "selected_Profile_Line_Thickness",		3.5		).toDouble(); // A^-1 , > nu_Limit
+
 		num_roughness_plot_points			= general_Settings.value( "num_roughness_plot_points",				2000	).toInt();
 		num_particles_plot_points			= general_Settings.value( "num_particles_plot_points",				2000	).toInt();
 		max_Frequency_For_2D_Spline			= general_Settings.value( "max_Frequency_For_2D_Spline",			100		).toDouble(); // A^-1 , > nu_Limit
@@ -1716,6 +1721,9 @@ void Settings::save_General_Settings()
 		general_Settings.setValue("individual_residuals",				show_residuals						);
 		general_Settings.setValue("replot_graphs_during_fitting_1D",	replot_graphs_during_fitting_1D		);
 //		general_Settings.setValue("replot_graphs_during_fitting_2D",	replot_graphs_during_fitting_2D		);
+
+		general_Settings.setValue("default_Profile_Line_Thickness",		default_Profile_Line_Thickness		);
+		general_Settings.setValue("selected_Profile_Line_Thickness",	selected_Profile_Line_Thickness		);
 
 		general_Settings.setValue("num_roughness_plot_points",			num_roughness_plot_points			);
 		general_Settings.setValue("num_particles_plot_points",			num_particles_plot_points			);

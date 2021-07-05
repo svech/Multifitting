@@ -1714,6 +1714,19 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			first_Particles_Column = current_Column;
 
+			bool show_Whole_Layer = is_Last_Layer || multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation &&
+													multilayer->imperfections_Model.use_Common_Particle_Function == false;
+
+			bool show_Partial_Common_Layer = is_Second_Last_Layer && multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation &&
+																	 multilayer->imperfections_Model.use_Common_Particle_Function == true;
+
+			bool show_Partial_Individual_Layer = !is_Last_Layer && multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation &&
+																   multilayer->imperfections_Model.use_Common_Particle_Function == false;
+
+			bool show_Full_Individual_Layer = !is_Last_Layer && multilayer->imperfections_Model.particle_Vertical_Correlation == full_Correlation &&
+																   multilayer->imperfections_Model.use_Common_Particle_Function == false;
+
+
 			// usage, shape and interference function
 			bool show_Usage_Buttons = false;
 			if(	multilayer->imperfections_Model.use_Particles && struct_Data.item_Type == item_Type_Layer)
@@ -1723,14 +1736,18 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(show_Usage_Buttons)
 			{
 				add_Columns				 (new_Table,                           current_Column+1);
-				if(	struct_Data.particles_Model.is_Enabled )
+				if(	struct_Data.particles_Model.is_Enabled && (
+							is_Last_Layer ||
+							multilayer->imperfections_Model.use_Common_Particle_Function == false ||
+							show_Partial_Individual_Layer ||
+							show_Full_Individual_Layer ))
 				{
 					create_Shape_Button  (new_Table,            current_Row+2, current_Column, structure_Item);
 					create_Pattern_Button(new_Table,            current_Row+3, current_Column, structure_Item);
 					create_Model_Button	 (new_Table,            current_Row+4, current_Column, structure_Item);
 				} else
 				{
-					new_Table->setSpan(current_Row,current_Column,5,1);
+					new_Table->setSpan(current_Row+1,current_Column,4,1);
 				}
 				// last
 				create_Check_Box_Usage (new_Table, tab_Index, current_Row,   current_Column, structure_Item, "on/off", 0, 4, 0, 2020); // more than table size, it is like inf
@@ -1743,7 +1760,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			bool show_Particle_Density = false;
 			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				show_Particle_Density = true;
+				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
+				{
+					show_Particle_Density = true;
+				}
 			}
 			if(show_Particle_Density)
 			{
@@ -1780,17 +1800,26 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=2;
 			}
+			if(!show_Particle_Density && struct_Data.particles_Model.is_Enabled) // keep empty place
+			{
+				add_Columns	(new_Table, current_Column+1);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
+				current_Column+=2;
+			}
 			///--------------------------------------------------------------------------------------------
 
 			// particle radius
 			bool show_Particle_Radius = false;
 			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				if( struct_Data.particles_Model.particle_Shape == full_Sphere ||
-					struct_Data.particles_Model.particle_Shape == full_Spheroid ||
-					struct_Data.particles_Model.particle_Shape == cylinder )
+				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
 				{
-					show_Particle_Radius = true;
+					if( struct_Data.particles_Model.particle_Shape == full_Sphere ||
+						struct_Data.particles_Model.particle_Shape == full_Spheroid ||
+						struct_Data.particles_Model.particle_Shape == cylinder )
+					{
+						show_Particle_Radius = true;
+					}
 				}
 			}
 			if(show_Particle_Radius)
@@ -1814,16 +1843,25 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=2;
 			}
+			if(!show_Particle_Radius && struct_Data.particles_Model.is_Enabled) // keep empty place
+			{
+				add_Columns	(new_Table, current_Column+1);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
+				current_Column+=2;
+			}
 			///--------------------------------------------------------------------------------------------
 
 			// particle height
 			bool show_Particle_Height = false;
 			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				if( struct_Data.particles_Model.particle_Shape == full_Spheroid ||
-					struct_Data.particles_Model.particle_Shape == cylinder )
+				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
 				{
-					show_Particle_Height = true;
+					if( struct_Data.particles_Model.particle_Shape == full_Spheroid ||
+						struct_Data.particles_Model.particle_Shape == cylinder )
+					{
+						show_Particle_Height = true;
+					}
 				}
 			}
 			if(show_Particle_Height)
@@ -1859,9 +1897,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			bool show_Particle_Average_Distance = false;
 			if(	struct_Data.particles_Model.is_Enabled)
 			{
-				if( struct_Data.particles_Model.particle_Interference_Function == disorder)
+				if(show_Whole_Layer)
 				{
-					show_Particle_Average_Distance = true;
+					if( struct_Data.particles_Model.particle_Interference_Function == disorder)
+					{
+						show_Particle_Average_Distance = true;
+					}
 				}
 			}
 			if(show_Particle_Average_Distance)
@@ -1886,15 +1927,24 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if(has_Particle_Distance_Deviation)	{current_Column+=2;}
 				else								{current_Column+=2;}
 			}
+			if(!has_Particle_Distance_Deviation && !show_Particle_Average_Distance && struct_Data.particles_Model.is_Enabled) // keep empty place
+			{
+				add_Columns	(new_Table, current_Column+1);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
+				current_Column+=2;
+			}
 			///--------------------------------------------------------------------------------------------
 
 			// particle radial distance
 			bool show_Particle_Radial_Distance = false;
 			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				if( struct_Data.particles_Model.particle_Interference_Function == radial_Paracrystal)
+				if(show_Whole_Layer)
 				{
-					show_Particle_Radial_Distance = true;
+					if( struct_Data.particles_Model.particle_Interference_Function == radial_Paracrystal)
+					{
+						show_Particle_Radial_Distance = true;
+					}
 				}
 			}
 			if(show_Particle_Radial_Distance)
@@ -1918,15 +1968,24 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=1;
 			}
+			if(has_Particle_Distance_Deviation && !show_Particle_Radial_Distance && struct_Data.particles_Model.is_Enabled) // keep empty place
+			{
+				add_Columns	(new_Table, current_Column+1);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
+				current_Column+=1;
+			}
 			///--------------------------------------------------------------------------------------------
 
 			// particle radial distance deviation
 			bool show_Particle_Radial_Distance_Deviation = false;
 			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				if( struct_Data.particles_Model.particle_Interference_Function == radial_Paracrystal)
+				if(show_Whole_Layer)
 				{
-					show_Particle_Radial_Distance_Deviation = true;
+					if( struct_Data.particles_Model.particle_Interference_Function == radial_Paracrystal)
+					{
+						show_Particle_Radial_Distance_Deviation = true;
+					}
 				}
 			}
 			if(show_Particle_Radial_Distance_Deviation)
@@ -1950,20 +2009,24 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=1;
 			}
-//			if(has_Particle_Distance_Deviation && !show_Particle_Radial_Distance_Deviation && struct_Data.particles_Model.is_Enabled) // keep empty place
-//			{
-//				add_Columns	(new_Table, current_Column+1);
-//				current_Column+=2;
-//			}
+			if(has_Particle_Distance_Deviation && !show_Particle_Radial_Distance_Deviation && struct_Data.particles_Model.is_Enabled) // keep empty place
+			{
+				add_Columns	(new_Table, current_Column+1);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
+				current_Column+=1;
+			}
 			///--------------------------------------------------------------------------------------------
 
 			// domain size
 			bool show_Domain_Size = false;
 			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				if( struct_Data.particles_Model.particle_Interference_Function == radial_Paracrystal)
+				if(show_Whole_Layer)
 				{
-					show_Domain_Size = true;
+					if( struct_Data.particles_Model.particle_Interference_Function == radial_Paracrystal)
+					{
+						show_Domain_Size = true;
+					}
 				}
 			}
 			if(show_Domain_Size)
@@ -1989,7 +2052,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=2;
 			}
-			if(has_Particle_Distance_Deviation && !show_Particle_Radial_Distance_Deviation && struct_Data.particles_Model.is_Enabled) // keep empty place
+			if(has_Particle_Distance_Deviation && !show_Domain_Size && struct_Data.particles_Model.is_Enabled) // keep empty place
 			{
 				add_Columns	(new_Table, current_Column+1);
 				last_Particles_Column = max(current_Column,last_Particles_Column);
@@ -2001,7 +2064,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			bool show_Particle_Z_Position = false;
 			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				show_Particle_Z_Position = true;
+				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
+				{
+					show_Particle_Z_Position = true;
+				}
 			}
 			if(show_Particle_Z_Position)
 			{
@@ -2024,13 +2090,22 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=1;
 			}
+			if(!show_Particle_Z_Position && struct_Data.particles_Model.is_Enabled) // keep empty place
+			{
+				add_Columns	(new_Table, current_Column+1);
+				last_Particles_Column = max(current_Column,last_Particles_Column);
+				current_Column+=1;
+			}
 			///--------------------------------------------------------------------------------------------
 
 			// particle z position deviation
 			bool show_Particle_Z_Position_Deviation = false;
 			if(	struct_Data.particles_Model.is_Enabled )
 			{
-				show_Particle_Z_Position_Deviation = true;
+				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
+				{
+					show_Particle_Z_Position_Deviation = true;
+				}
 			}
 			if(show_Particle_Z_Position_Deviation)
 			{
