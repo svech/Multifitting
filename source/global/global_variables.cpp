@@ -1045,6 +1045,7 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		if(whats_This == whats_This_Particle_Radial_Distance)			text = struct_Data.material + " " + brackets + " Particle radial distance, r";
 		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	text = struct_Data.material + " " + brackets + " Particle radial distance deviation, " + Delta_Small_Sym + "r";
 		if(whats_This == whats_This_Domain_Size)						text = struct_Data.material + " " + brackets + " Domain size, " + "D";
+		if(whats_This == whats_This_Particle_Correlation_Depth)			text = struct_Data.material + " " + brackets + " Particle correlation depth, " + "L"+Subscript_v_Sym+Subscript_p_Sym;
 		if(whats_This == whats_This_Particle_Z_Position)				text = struct_Data.material + " " + brackets + " Particle z position, z" + Subscript_p_Sym;
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		text = struct_Data.material + " " + brackets + " Particle z position deviation, " + Delta_Small_Sym + "z" + Subscript_p_Sym;
 	}

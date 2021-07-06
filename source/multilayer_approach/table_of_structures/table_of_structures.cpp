@@ -262,6 +262,14 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					if( struct_Data.particles_Model.particle_Interference_Function == radial_Paracrystal )
 					{
 						has_Particle_Distance_Deviation = true;
+
+//						bool is_Last_Layer = Global_Variables::if_Last_Layer(list_Of_Trees[tab_Index]->tree, structure_Item);
+//						if( //is_Last_Layer &&
+//							multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation &&
+//							multilayer->imperfections_Model.use_Common_Particle_Function)
+//						{
+//							has_Particle_Distance_Deviation = false;
+//						}
 					}
 				}
 				if(struct_Data.item_Type == item_Type_Layer    ||
@@ -558,6 +566,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		bool steps_Are_Done_Particle_Z_Position = false;
 		bool steps_Are_Done_Particle_Z_Position_Deviation = false;
 
+		Data last_Layer_Data;
 		while (*it)
 		{
 			structure_Item = *it;
@@ -575,6 +584,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			bool is_Last_Layer        = Global_Variables::if_Last_Layer       (list_Of_Trees[tab_Index]->tree, structure_Item);
 			bool is_Second_Last_Layer = Global_Variables::if_Second_Last_Layer(list_Of_Trees[tab_Index]->tree, structure_Item);
+			if(is_Last_Layer) last_Layer_Data = struct_Data;
 
 			if( struct_Data.item_Type == item_Type_Multilayer	||
 				struct_Data.item_Type == item_Type_Ambient		||
@@ -1715,7 +1725,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			first_Particles_Column = current_Column;
 
 			bool show_Whole_Layer = is_Last_Layer || multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation &&
-													multilayer->imperfections_Model.use_Common_Particle_Function == false;
+													 multilayer->imperfections_Model.use_Common_Particle_Function == false;
 
 			bool show_Partial_Common_Layer = is_Second_Last_Layer && multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation &&
 																	 multilayer->imperfections_Model.use_Common_Particle_Function == true;
@@ -1724,7 +1734,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 																   multilayer->imperfections_Model.use_Common_Particle_Function == false;
 
 			bool show_Full_Individual_Layer = !is_Last_Layer && multilayer->imperfections_Model.particle_Vertical_Correlation == full_Correlation &&
-																   multilayer->imperfections_Model.use_Common_Particle_Function == false;
+																multilayer->imperfections_Model.use_Common_Particle_Function == false;
 
 
 			// usage, shape and interference function
@@ -1736,15 +1746,15 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(show_Usage_Buttons)
 			{
 				add_Columns				 (new_Table,                           current_Column+1);
-				if(	struct_Data.particles_Model.is_Enabled && (
-							is_Last_Layer ||
-							multilayer->imperfections_Model.use_Common_Particle_Function == false ||
-							show_Partial_Individual_Layer ||
-							show_Full_Individual_Layer ))
+				if(	struct_Data.particles_Model.is_Enabled )
 				{
-					create_Shape_Button  (new_Table,            current_Row+2, current_Column, structure_Item);
-					create_Pattern_Button(new_Table,            current_Row+3, current_Column, structure_Item);
-					create_Model_Button	 (new_Table,            current_Row+4, current_Column, structure_Item);
+					if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer) {
+						create_Shape_Button  (new_Table,            current_Row+2, current_Column, structure_Item);
+					}
+					if(show_Whole_Layer) {
+						create_Pattern_Button(new_Table,            current_Row+3, current_Column, structure_Item);
+						create_Model_Button	 (new_Table,            current_Row+4, current_Column, structure_Item);
+					}
 				} else
 				{
 					new_Table->setSpan(current_Row+1,current_Column,4,1);
@@ -1893,6 +1903,31 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 			///--------------------------------------------------------------------------------------------
 
+			// particles correlation depth
+			bool show_Particle_Correlation_Depth = false;
+			if(	struct_Data.particles_Model.is_Enabled )
+			{
+				if(!is_Last_Layer && (show_Partial_Common_Layer || show_Partial_Individual_Layer))
+				{
+					show_Particle_Correlation_Depth = true;
+				}
+			}
+			if(show_Particle_Correlation_Depth)
+			{
+				QString whats_This = whats_This_Particle_Correlation_Depth;
+				add_Columns			(new_Table, current_Column+1);
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "L"+Subscript_v_Sym+Subscript_p_Sym+" ["+mu_units+"]");
+				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+				last_Particles_Column = max(current_Column,last_Particles_Column);
+				current_Column+=1;
+			}
+			///--------------------------------------------------------------------------------------------
+
 			// particle average distance
 			bool show_Particle_Average_Distance = false;
 			if(	struct_Data.particles_Model.is_Enabled)
@@ -1931,7 +1966,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				add_Columns	(new_Table, current_Column+1);
 				last_Particles_Column = max(current_Column,last_Particles_Column);
-				current_Column+=2;
+				if(!show_Particle_Correlation_Depth)	current_Column+=2;
+				else									current_Column+=1;
 			}
 			///--------------------------------------------------------------------------------------------
 
@@ -1968,7 +2004,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=1;
 			}
-			if(has_Particle_Distance_Deviation && !show_Particle_Radial_Distance && struct_Data.particles_Model.is_Enabled) // keep empty place
+			if( multilayer->imperfections_Model.particle_Vertical_Correlation != zero_Correlation &&
+				!show_Particle_Correlation_Depth &&
+				has_Particle_Distance_Deviation &&
+				!show_Particle_Radial_Distance &&
+				struct_Data.particles_Model.is_Enabled) // keep empty place
 			{
 				add_Columns	(new_Table, current_Column+1);
 				last_Particles_Column = max(current_Column,last_Particles_Column);
@@ -2009,7 +2049,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=1;
 			}
-			if(has_Particle_Distance_Deviation && !show_Particle_Radial_Distance_Deviation && struct_Data.particles_Model.is_Enabled) // keep empty place
+			if( multilayer->imperfections_Model.particle_Vertical_Correlation != zero_Correlation &&
+				has_Particle_Distance_Deviation &&
+				!show_Particle_Radial_Distance_Deviation &&
+				struct_Data.particles_Model.is_Enabled) // keep empty place
 			{
 				add_Columns	(new_Table, current_Column+1);
 				last_Particles_Column = max(current_Column,last_Particles_Column);
@@ -2185,14 +2228,35 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			new_Table->setCellWidget(first_Row, first_Particles_Column, approximation_Label);
 
 			// row 2
-			QLabel* model_Label = new QLabel("in-layer interference");
+			bool empty_Model = multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation && multilayer->imperfections_Model.use_Common_Particle_Function == false;
+			QString model_Text = "";
+			QString geometry_Text = "";
+			if(!empty_Model)
+			{
+				if(last_Layer_Data.particles_Model.particle_Interference_Function == radial_Paracrystal) {
+					model_Text = "radial paracrystal";
+				}
+				if(last_Layer_Data.particles_Model.particle_Interference_Function == disorder) {
+					model_Text = "disorder";
+				}
+				if(last_Layer_Data.particles_Model.geometric_Model == square_Model) {
+					geometry_Text = ", square model";
+				}
+				if(last_Layer_Data.particles_Model.geometric_Model == hexagonal_Model) {
+					geometry_Text = ", hexagonal model";
+				}
+				if(last_Layer_Data.particles_Model.geometric_Model == pure_Radial_Model) {
+					geometry_Text = ", pure radial model";
+				}
+			}
+			QLabel* model_Label = new QLabel(model_Text+geometry_Text);//"in-layer interference"
 				model_Label->setAlignment(Qt::AlignCenter);
 				model_Label->setFont(QFont(model_Label->font().family(), 10, QFont::Bold));
 			new_Table->setSpan(first_Row+1,first_Particles_Column,1,last_Particles_Column-first_Particles_Column+1);
 			new_Table->setCellWidget(first_Row+1, first_Particles_Column, model_Label);
 
 			// row 3
-			QLabel* ver_Cor_Label = new QLabel("zero cross-layer correlation");
+			QLabel* ver_Cor_Label = new QLabel(multilayer->imperfections_Model.particle_Vertical_Correlation);
 				ver_Cor_Label->setAlignment(Qt::AlignCenter);
 				ver_Cor_Label->setFont(QFont(ver_Cor_Label->font().family(), 10, QFont::Bold));
 			new_Table->setSpan(first_Row+2,first_Particles_Column,1,last_Particles_Column-first_Particles_Column+1);
@@ -3732,7 +3796,8 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 			spin_Box->setMinimum(10/coeff);
 			spin_Box->setMaximum(1e10/coeff);
 		}
-		if(whats_This == whats_This_PSD_Exponenta_Mu)
+		if( whats_This == whats_This_PSD_Exponenta_Mu ||
+			whats_This == whats_This_Particle_Correlation_Depth)
 		{
 			spin_Box->setMinimum(1e-1/coeff);
 			spin_Box->setMaximum(1e10/coeff);
@@ -3752,7 +3817,8 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 
 			whats_This == whats_This_Roughness_Peak_Frequency ||
 			whats_This == whats_This_Roughness_Peak_Frequency_Width ||
-			whats_This == whats_This_Domain_Size )
+			whats_This == whats_This_Domain_Size ||
+			whats_This == whats_This_Particle_Correlation_Depth )
 		{
 			spin_Box->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 		}
@@ -3832,7 +3898,8 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		whats_This == whats_This_Roughness_Peak_Sigma)	spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
 
 	if( whats_This == whats_This_Linear_PSD_Omega ||
-		whats_This == whats_This_PSD_Exponenta_Mu ||			
+		whats_This == whats_This_PSD_Exponenta_Mu ||
+		whats_This == whats_This_Particle_Correlation_Depth ||
 		whats_This == whats_This_Linear_A1 ||
 		whats_This == whats_This_Linear_A2 ||
 		whats_This == whats_This_Linear_A3 ||
@@ -4512,6 +4579,7 @@ void Table_Of_Structures::create_Simple_Label(My_Table_Widget* table, int tab_In
 		if(whats_This == whats_This_Particle_Distance)					label->setText("r ["+length_units+"]");
 		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	label->setText(Delta_Small_Sym + "r ["+length_units+"]");
 		if(whats_This == whats_This_Domain_Size)						label->setText("D ["+correlation_length_units+"]");
+		if(whats_This == whats_This_Particle_Correlation_Depth)			label->setText("L"+Subscript_v_Sym + Subscript_p_Sym+" ["+mu_units+"]");
 		if(whats_This == whats_This_Particle_Z_Position)				label->setText("z" + Subscript_p_Sym + " ["+length_units+"]");
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		label->setText(Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		label->setText(Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
@@ -5597,6 +5665,7 @@ void Table_Of_Structures::refresh_Header(QString)
 			if(whats_This == whats_This_Particle_Radial_Distance)			label->setText("r ["+length_units+"]");
 			if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	label->setText(Delta_Small_Sym + "r ["+length_units+"]");
 			if(whats_This == whats_This_Domain_Size)						label->setText("D ["+correlation_length_units+"]");
+			if(whats_This == whats_This_Particle_Correlation_Depth)			label->setText("L"+Subscript_v_Sym + Subscript_p_Sym+" ["+mu_units+"]");
 			if(whats_This == whats_This_Particle_Z_Position)				label->setText("z" + Subscript_p_Sym + " ["+length_units+"]");
 			if(whats_This == whats_This_Particle_Z_Position_Deviation)		label->setText(Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
 
@@ -6027,8 +6096,9 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			{
 				spin_Box->setMinimum(10/coeff);
 				spin_Box->setMaximum(1e10/coeff);
-			}
-			if(whats_This == whats_This_PSD_Exponenta_Mu)
+			}			
+			if(whats_This == whats_This_PSD_Exponenta_Mu ||
+			   whats_This == whats_This_Particle_Correlation_Depth )
 			{
 				spin_Box->setMinimum(1e-1/coeff);
 				spin_Box->setMaximum(1e10/coeff);
