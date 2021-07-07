@@ -888,7 +888,7 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 		angle_Theta_0.resize(num_Points);
 		for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
 		{
-			cos_Theta_0[point_Index] = measurement.beam_Theta_0_Cos2_Value;
+			cos_Theta_0  [point_Index] = measurement.beam_Theta_0_Cos_Value;
 			angle_Theta_0[point_Index] = measurement.beam_Theta_0_Angle_Value;
 		}
 	}
@@ -909,6 +909,8 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 	{
 		p0[i] = k[i]*abs(cos_Theta_0[i] - cos(qDegreesToRadians(angle_Theta_0[i] + max_Delta_Theta_Detector)))/(2*M_PI);
 	}
+	vector<double> p0_sorted = p0;
+	std::sort(p0_sorted.begin(), p0_sorted.end());
 
 	/// get total sigma
 	calc_Debye_Waller_Total_Sigma(imperfections_Model);
@@ -948,12 +950,12 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 
 				// local splining
 				int local_Points = min(30, n_Max - n_Min);
-				double step = (p0[n_Max-1]-p0[n_Min]) / (local_Points-1);
+				double step = (p0_sorted[n_Max-1]-p0_sorted[n_Min]) / (local_Points-1);
 				vector<double> arg(local_Points);
 				vector<double> val(local_Points, 0);
 				for(int j=0; j<local_Points; j++)
 				{
-					arg[j] = p0[n_Min] + j*step;
+					arg[j] = p0_sorted[n_Min] + j*step;
 					val[j] = combined_Effective_Sigma_2_From_Spline(imperfections_Model, 0, arg[j], spline_PSD, acc_PSD, PSD_Type_1D, integrator);
 				}
 				arg.insert(arg.begin(), 0);
@@ -984,12 +986,12 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 
 					// local splining
 					int local_Points = min(30, n_Max - n_Min);
-					double step = (p0[n_Max-1]-p0[n_Min]) / (local_Points-1);
+					double step = (p0_sorted[n_Max-1]-p0_sorted[n_Min]) / (local_Points-1);
 					vector<double> arg(local_Points);
 					vector<double> val(local_Points, 0);
 					for(int j=0; j<local_Points; j++)
 					{
-						arg[j] = p0[n_Min] + j*step;
+						arg[j] = p0_sorted[n_Min] + j*step;
 						val[j] = combined_Effective_Sigma_2_Peak(0, arg[j], PSD_Type_1D, integrator);
 					}
 					arg.insert(arg.begin(), 0);
@@ -1023,12 +1025,12 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 
 				// local splining
 				int local_Points = min(50, n_Max - n_Min);
-				double step = (p0[n_Max-1]-p0[n_Min]) / (local_Points-1);
+				double step = (p0_sorted[n_Max-1]-p0_sorted[n_Min]) / (local_Points-1);
 				vector<double> arg(local_Points);
 				vector<double> val(local_Points, 0);
 				for(int j=0; j<local_Points; j++)
 				{
-					arg[j] = p0[n_Min] + j*step;					
+					arg[j] = p0_sorted[n_Min] + j*step;
 					val[j] = combined_Effective_Sigma_2(measurement, imperfections_Model, sigma, xi, alpha, 0, arg[j], PSD_Type_1D, integrator);
 				}
 				arg.insert(arg.begin(), 0);
@@ -1042,7 +1044,7 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 				// filling
 				for(int i = n_Min; i<n_Max; i++)
 				{
-//					sigma_2[i]  = total_Sigma_2 - combined_Effective_Sigma_2(imperfections_Model, sigma, xi, alpha, 0, p0[i], PSD_Type_1D, integrator);
+					//sigma_2[i]  = total_Sigma_2 - combined_Effective_Sigma_2(imperfections_Model, sigma, xi, alpha, 0, p0[i], PSD_Type_1D, integrator);
 					sigma_2[i]  = total_Sigma_2 - gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2);
 					sigma_2[i] -= delta_Peak_Sigma_2[i];
 				}
