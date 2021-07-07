@@ -266,8 +266,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 						bool is_Last_Layer = Global_Variables::if_Last_Layer(list_Of_Trees[tab_Index]->tree, structure_Item);
 						if( !is_Last_Layer &&
 							(multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation &&
-							multilayer->imperfections_Model.use_Common_Particle_Function ||
-							 multilayer->imperfections_Model.particle_Vertical_Correlation != zero_Correlation) )
+						     multilayer->imperfections_Model.use_Common_Particle_Function ||
+						     multilayer->imperfections_Model.particle_Vertical_Correlation != zero_Correlation ) )
 						{
 							has_Particle_Distance_Deviation = false;
 						}
@@ -2110,7 +2110,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			if( struct_Data.particles_Model.particle_Interference_Function == disorder &&
 				multilayer->imperfections_Model.particle_Vertical_Correlation != zero_Correlation &&
-				has_Particle_Distance_Deviation )
+			    has_Particle_Distance_Deviation &&
+			    last_Layer_Data.particles_Model.particle_Interference_Function != radial_Paracrystal)
 			{
 				current_Column-=2;
 			}
@@ -3213,7 +3214,12 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 	{
 		if(table_Is_Fully_Created)
 		{
-			cells_On_Off(table, false);
+			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+			if(multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation &&
+			   multilayer->imperfections_Model.use_Common_Particle_Function  == false)
+			{
+				cells_On_Off(table, false);
+			}
 		}
 
 		Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();

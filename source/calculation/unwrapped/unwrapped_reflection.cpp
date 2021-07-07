@@ -1195,23 +1195,6 @@ inline void Unwrapped_Reflection::fill_Item_PSD_1D(int thread_Index, int point_I
 		Node* node = short_Flat_Calc_Tree[item_Index];
 		Data& item = appropriate_Item_Vec[item_Index];
 		choose_PSD_1D_Function(item, thread_Index);
-//		double value = PSD_1D_Func_Vec[thread_Index](item.main_PSD_1D_factor,
-//													 item.roughness_Model.cor_radius.value,
-//													 item.roughness_Model.fractal_alpha.value,
-//													 measurement.k_Value,
-//													 measurement.detector_Theta_Cos_Vec[point_Index],
-//													 cos_Theta_0,
-//													 node->spline_PSD_FG_1D,
-//													 node->acc_PSD_FG_1D)
-
-//		  + PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
-//													 item.roughness_Model.peak_Frequency.value,
-//													 item.roughness_Model.peak_Frequency_Width.value,
-//													 measurement.k_Value,
-//													 measurement.detector_Theta_Cos_Vec[point_Index],
-//													 cos_Theta_0,
-//													 node->spline_PSD_Peak,
-//													 node->acc_PSD_Peak);
 
 		double value = PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
 																item.roughness_Model.peak_Frequency.value,
@@ -2866,13 +2849,13 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					double (*function_Scattering_Linear_Growth_p)(double, void*);
 					double (*function_Scattering_Linear_Growth_sp)(double, void*);
 					if( multilayer->imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model)	{
-						function_Scattering_Linear_Growth_s = &function_Scattering_Linear_Growth_Alpha_2D_s;
-						function_Scattering_Linear_Growth_p = &function_Scattering_Linear_Growth_Alpha_2D_p;
+						function_Scattering_Linear_Growth_s  = &function_Scattering_Linear_Growth_Alpha_2D_s;
+						function_Scattering_Linear_Growth_p  = &function_Scattering_Linear_Growth_Alpha_2D_p;
 						function_Scattering_Linear_Growth_sp = &function_Scattering_Linear_Growth_Alpha_2D_sp;
 					}
 					if( multilayer->imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model) {
-						function_Scattering_Linear_Growth_s = &function_Scattering_Linear_Growth_n_1_4_2D_s;
-						function_Scattering_Linear_Growth_p = &function_Scattering_Linear_Growth_n_1_4_2D_p;
+						function_Scattering_Linear_Growth_s  = &function_Scattering_Linear_Growth_n_1_4_2D_s;
+						function_Scattering_Linear_Growth_p  = &function_Scattering_Linear_Growth_n_1_4_2D_p;
 						function_Scattering_Linear_Growth_sp = &function_Scattering_Linear_Growth_n_1_4_2D_sp;
 					}
 
@@ -2886,23 +2869,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 							if(multilayer->imperfections_Model.use_Common_Roughness_Function)
 							{
 								choose_PSD_1D_Function(substrate, thread_Index);
-//								double PSD_Factor = PSD_1D_Func_Vec[thread_Index](substrate.main_PSD_1D_factor,
-//																				  substrate.roughness_Model.cor_radius.value,
-//																				  substrate.roughness_Model.fractal_alpha.value,
-//																				  measurement.k_Value,
-//																				  measurement.detector_Theta_Cos_Vec[point_Index],
-//																				  cos_Theta_0,
-//																				  substrate_Node->spline_PSD_FG_1D,
-//																				  substrate_Node->acc_PSD_FG_1D)
-
-//									   + PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
-//																				  substrate.roughness_Model.peak_Frequency.value,
-//																				  substrate.roughness_Model.peak_Frequency_Width.value,
-//																				  measurement.k_Value,
-//																				  measurement.detector_Theta_Cos_Vec[point_Index],
-//																				  cos_Theta_0,
-//																				  substrate_Node->spline_PSD_Peak,
-//																				  substrate_Node->acc_PSD_Peak);
 								double PSD_Factor = PSD_Gauss_Peak_1D_Func_Vec[thread_Index](1,
 																							substrate.roughness_Model.peak_Frequency.value,
 																							substrate.roughness_Model.peak_Frequency_Width.value,
@@ -3089,26 +3055,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									double field_Term_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
-//										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.main_PSD_2D_factor,
-//																					  substrate.roughness_Model.cor_radius.value,
-//																					  substrate.roughness_Model.fractal_alpha.value,
-//																					  measurement.k_Value,
-//																					  measurement.detector_Theta_Cos_Vec[point_Index],
-//																					  measurement.beam_Theta_0_Cos_Value,
-//																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-//																					  substrate_Node->spline_PSD_FG_2D,
-//																					  substrate_Node->acc_PSD_FG_2D)
-
-//										   + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
-//																					  substrate.roughness_Model.peak_Frequency.value,
-//																					  substrate.roughness_Model.peak_Frequency_Width.value,
-//																					  measurement.k_Value,
-//																					  measurement.detector_Theta_Cos_Vec[point_Index],
-//																					  measurement.beam_Theta_0_Cos_Value,
-//																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-//																					  substrate_Node->spline_PSD_Peak,
-//																					  substrate_Node->acc_PSD_Peak);
-
 										PSD_2D_Factor =PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
 																								substrate.roughness_Model.peak_Frequency.value,
 																								substrate.roughness_Model.peak_Frequency_Width.value,
@@ -3172,26 +3118,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									double field_Term_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
-//										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.main_PSD_2D_factor,
-//																					  substrate.roughness_Model.cor_radius.value,
-//																					  substrate.roughness_Model.fractal_alpha.value,
-//																					  measurement.k_Value,
-//																					  measurement.detector_Theta_Cos_Vec[point_Index],
-//																					  measurement.beam_Theta_0_Cos_Value,
-//																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-//																					  substrate_Node->spline_PSD_FG_2D,
-//																					  substrate_Node->acc_PSD_FG_2D)
-
-//										   + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
-//																					  substrate.roughness_Model.peak_Frequency.value,
-//																					  substrate.roughness_Model.peak_Frequency_Width.value,
-//																					  measurement.k_Value,
-//																					  measurement.detector_Theta_Cos_Vec[point_Index],
-//																					  measurement.beam_Theta_0_Cos_Value,
-//																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-//																					  substrate_Node->spline_PSD_Peak,
-//																					  substrate_Node->acc_PSD_Peak);
-
 										PSD_2D_Factor =PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
 																								substrate.roughness_Model.peak_Frequency.value,
 																								substrate.roughness_Model.peak_Frequency_Width.value,
@@ -3255,26 +3181,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									double field_Term_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
-//										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.main_PSD_2D_factor,
-//																					  substrate.roughness_Model.cor_radius.value,
-//																					  substrate.roughness_Model.fractal_alpha.value,
-//																					  measurement.k_Value,
-//																					  measurement.detector_Theta_Cos_Vec[point_Index],
-//																					  measurement.beam_Theta_0_Cos_Value,
-//																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-//																					  substrate_Node->spline_PSD_FG_2D,
-//																					  substrate_Node->acc_PSD_FG_2D);
-
-//										   + PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
-//																					  substrate.roughness_Model.peak_Frequency.value,
-//																					  substrate.roughness_Model.peak_Frequency_Width.value,
-//																					  measurement.k_Value,
-//																					  measurement.detector_Theta_Cos_Vec[point_Index],
-//																					  measurement.beam_Theta_0_Cos_Value,
-//																					  measurement.detector_Phi_Cos_Vec[phi_Index],
-//																					  substrate_Node->spline_PSD_Peak,
-//																					  substrate_Node->acc_PSD_Peak);
-
 										PSD_2D_Factor =PSD_Gauss_Peak_2D_Func_Vec[thread_Index](substrate.PSD_Gauss_Peak_2D_Factor,
 																								substrate.roughness_Model.peak_Frequency.value,
 																								substrate.roughness_Model.peak_Frequency_Width.value,
@@ -3615,7 +3521,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 											for (int j = 0; j<i; j++)
 											{
 												field_With_G_2D_Factor += 2*real( C_03_03_s[thread_Index][layer_Index][i][j] *
-																				 alfa_03_03[thread_Index][item_Index][i][j]
+																				 alfa_03_03[thread_Index][item_Index ][i][j]
 																				);
 											}
 										}
