@@ -3477,9 +3477,14 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					// TODO
 				}
 				if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
-				{
-					choose_Form_Factor_2D_Function(thread_Index);
+				{					
+//					if(multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation)
+//					{
+//						choose_Form_Factor_2D_Function(thread_Index);
 
+//					}
+
+					choose_Form_Factor_2D_Function(thread_Index);
 					for(size_t item_Index = 0; item_Index<appropriate_Item_Vec.size()-1; item_Index++)
 					{
 						Data& item = appropriate_Item_Vec[item_Index];
