@@ -2127,7 +2127,7 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 	if( measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
 		measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
-		if(multilayer->imperfections_Model.use_Roughness)
+		if(multilayer->imperfections_Model.use_Roughness || multilayer->imperfections_Model.use_Particles)
 		{
 			/// first of all, remove singularities in specular direction
 			// detector theta
@@ -2176,7 +2176,7 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 	/// Detector_Scan
 	if( measurement.measurement_Type == measurement_Types[Detector_Scan])
 	{
-		if(multilayer->imperfections_Model.use_Roughness)
+		if(multilayer->imperfections_Model.use_Roughness || multilayer->imperfections_Model.use_Particles)
 		{
 			/// first of all, remove singularities in specular direction
 			// detector theta
@@ -2229,7 +2229,7 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		bool recalculated = false;
-		if(multilayer->imperfections_Model.use_Roughness)
+		if(multilayer->imperfections_Model.use_Roughness || multilayer->imperfections_Model.use_Particles)
 		{
 			// spectral distribution
 			if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
