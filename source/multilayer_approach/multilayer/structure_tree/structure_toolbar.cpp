@@ -419,12 +419,12 @@ bool Structure_Toolbar::ask_Parent_Multilayer()
 
 	// if parent periodic multilayer has 2 childs
 	if(current->parent())
-	if(current->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type == item_Type_Multilayer)
+//	if(current->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type == item_Type_Multilayer) // for regular and general aperiodic too
 	if(current->parent()->childCount()==2)
 	{
 		QString multilayer_Text = current->parent()->text(DEFAULT_COLUMN).split(", N")[0];
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", multilayer_Text + " will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-		if (reply == QMessageBox::Yes)
+		if(reply == QMessageBox::Yes)
 		{
 			QTreeWidgetItem* parent = current->parent();
 			delete current;
@@ -443,6 +443,9 @@ bool Structure_Toolbar::ask_Parent_Multilayer()
 				structure_Tree->tree->insertTopLevelItem(parent_Position, survived_Child);
 				delete parent;
 			}
+			return true;
+		} else
+		{
 			return true;
 		}
 	}
