@@ -593,7 +593,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
     acc_Vec(num_Threads),
     GISAS_Slice(num_Threads),
 	phi_Slice(num_Threads),
-	q_Spline_Points(43)
+	q_Spline_Points(63)
 {
 	s_Weight = (1. + measurement.polarization) / 2.;
 	p_Weight = (1. - measurement.polarization) / 2.;
