@@ -182,12 +182,22 @@ public:
 	vector<vector<vector<vector<complex<double>>>>> C_03_03_p;	//	[thread][layer][0-3][0-3]
 	vector<vector<vector<double>>>					C_03_p_norm;//	[thread][layer][0-3]
 
-	vector<vector<complex<double>(*)(double, complex<double>, double, double, double)>> form_Factor_2D_Func_Vec; // [thread][item_Index]
-	vector<vector<vector<complex<double>>>> F_03;	//	[thread][item_Index][0-3]
-	vector<vector<vector<complex<double>>>> w_03;	//	[thread][item_Index][0-3]
+	vector<vector<complex<double>(*)(        const complex<double>&, double, double, double)>> prefactor_2D_Func_Vec; // [thread][item_Index]
+	vector<vector<complex<double>(*)(double, const complex<double>&, double, double, double)>> q_Factor_2D_Func_Vec; // [thread][item_Index]
+	vector<vector<complex<double>(*)(double, const complex<double>&, double, double, double)>> form_Factor_2D_Func_Vec; // [thread][item_Index]
+	vector<vector<vector<complex<double>>>> F_03;		//	[thread][item_Index][0-3]
+	vector<vector<vector<complex<double>>>> F_pre_03;	//	[thread][item_Index][0-3]
+	vector<vector<vector<complex<double>>>> w_03;		//	[thread][item_Index][0-3]
 	vector<vector<vector<vector<complex<double>>>>> g_03_03;		//	[thread][item_Index][0-3][0-3]
 	vector<vector<vector<vector<complex<double>>>>> alfa_03_03;		//	[thread][item_Index][0-3][0-3]
 	vector<vector<vector<double>>>                  alfa_nn_03;		//	[thread][item_Index][0-3]
+
+	int q_Spline_Points;
+	vector<vector<vector<gsl_spline*>>> spline_F_03_Real;	//	[thread][item_Index][0-3]
+	vector<vector<vector<gsl_spline*>>> spline_F_03_Imag;	//	[thread][item_Index][0-3]
+	vector<vector<vector<gsl_interp_accel*>>> acc_F_03_Real;//	[thread][item_Index][0-3]
+	vector<vector<vector<gsl_interp_accel*>>> acc_F_03_Imag;//	[thread][item_Index][0-3]
+	bool delete_F_03_Spline = false;
 
 	///---------------------------------------------------------------------
 
@@ -266,11 +276,14 @@ public:
 	void calc_Omega_Factor			(						int thread_Index);
 	void calc_Gamma_Factor			(						int thread_Index);
 
-	void choose_Form_Factor_2D_Function	(int thread_Index);
-	void calc_Item_Form_Factor			(int thread_Index, size_t item_Index, double q, Data& item);
-	void choose_disorder_Paracrystal	(int thread_Index);
-	void calc_Item_Alfa_Factor_With_G2	(int thread_Index, size_t item_Index, double q, double G1_Type_Value, Node* node);
-	void calc_Item_Alfa_Factor_No_G2	(int thread_Index, size_t item_Index, double q, double G1_Type_Value);
+	void choose_Form_Factor_2D_Function		(int thread_Index);
+	void calc_Item_Pre_Form_Factor			(int thread_Index, int item_Index, Data& item);
+	void calc_Item_Form_Factor				(int thread_Index, int item_Index, double q, Data& item);
+	void calc_Item_Form_Factor_From_Spline	(int thread_Index, int item_Index, double q);
+	void calc_Item_Form_Factor_Splines		(int thread_Index, int item_Index, Data& item, double cos_Theta_0, double cos_Theta);
+	void choose_disorder_Paracrystal		(int thread_Index);
+	void calc_Item_Alfa_Factor_With_G2		(int thread_Index, int item_Index, double q, double G1_Type_Value, Node* node);
+	void calc_Item_Alfa_Factor_No_G2		(int thread_Index, int item_Index, double q, double G1_Type_Value);
 	double calc_G1_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
 	double calc_G2_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
 

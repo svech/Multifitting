@@ -592,7 +592,8 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
     spline_Vec(num_Threads),
     acc_Vec(num_Threads),
     GISAS_Slice(num_Threads),
-    phi_Slice(num_Threads)
+	phi_Slice(num_Threads),
+	q_Spline_Points(43)
 {
 	s_Weight = (1. + measurement.polarization) / 2.;
 	p_Weight = (1. - measurement.polarization) / 2.;
@@ -955,13 +956,22 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 				exp_03.resize(num_Threads);
 				k_03.resize(num_Threads);
 
+				prefactor_2D_Func_Vec.resize(num_Threads);
+				q_Factor_2D_Func_Vec.resize(num_Threads);
 				form_Factor_2D_Func_Vec.resize(num_Threads);
+
 				F_03.resize(num_Threads);
+				F_pre_03.resize(num_Threads);
 				w_03.resize(num_Threads);
 				g_03_03.resize(num_Threads);
 
 				alfa_03_03.resize(num_Threads);
 				alfa_nn_03.resize(num_Threads);
+
+				spline_F_03_Real.resize(num_Threads);
+				spline_F_03_Imag.resize(num_Threads);
+				acc_F_03_Real.resize(num_Threads);
+				acc_F_03_Imag.resize(num_Threads);
 
 				for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 				{
@@ -974,28 +984,48 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 
 					int num_Layer_Items = short_Flat_Calc_Tree.size()-1;
 					k_03[thread_Index].resize(num_Layer_Items);
+					prefactor_2D_Func_Vec[thread_Index].resize(num_Layer_Items);
+					q_Factor_2D_Func_Vec[thread_Index].resize(num_Layer_Items);
 					form_Factor_2D_Func_Vec[thread_Index].resize(num_Layer_Items);
 					F_03[thread_Index].resize(num_Layer_Items);
+					F_pre_03[thread_Index].resize(num_Layer_Items);
 					w_03[thread_Index].resize(num_Layer_Items);
 					g_03_03[thread_Index].resize(num_Layer_Items);
 
 					alfa_03_03[thread_Index].resize(num_Layer_Items);
 					alfa_nn_03[thread_Index].resize(num_Layer_Items);
 
+					spline_F_03_Real[thread_Index].resize(num_Layer_Items);
+					spline_F_03_Imag[thread_Index].resize(num_Layer_Items);
+					acc_F_03_Real[thread_Index].resize(num_Layer_Items);
+					acc_F_03_Imag[thread_Index].resize(num_Layer_Items);
+
 					for(int item_Index=0; item_Index<num_Layer_Items; item_Index++)
 					{
 						k_03[thread_Index][item_Index].resize(4);
 						F_03[thread_Index][item_Index].resize(4);
+						F_pre_03[thread_Index][item_Index].resize(4);
 						w_03[thread_Index][item_Index].resize(4);
 						g_03_03[thread_Index][item_Index].resize(4);
 
 						alfa_03_03[thread_Index][item_Index].resize(4);
 						alfa_nn_03[thread_Index][item_Index].resize(4);
 
+						spline_F_03_Real[thread_Index][item_Index].resize(4);
+						spline_F_03_Imag[thread_Index][item_Index].resize(4);
+						acc_F_03_Real[thread_Index][item_Index].resize(4);
+						acc_F_03_Imag[thread_Index][item_Index].resize(4);
+
 						for(int i=0; i<4; i++)
 						{
 							g_03_03[thread_Index][item_Index][i].resize(4);
 							alfa_03_03[thread_Index][item_Index][i].resize(4);
+
+							acc_F_03_Real[thread_Index][item_Index][i] = gsl_interp_accel_alloc();
+							acc_F_03_Imag[thread_Index][item_Index][i] = gsl_interp_accel_alloc();
+
+							spline_F_03_Real[thread_Index][item_Index][i] = gsl_spline_alloc(gsl_interp_steffen, q_Spline_Points); // plus zero + two last points
+							spline_F_03_Imag[thread_Index][item_Index][i] = gsl_spline_alloc(gsl_interp_steffen, q_Spline_Points);
 						}
 					}
 				}
@@ -1068,8 +1098,21 @@ Unwrapped_Reflection::~Unwrapped_Reflection()
 	{
 		for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
 		{
+			// GISAXS
 			gsl_spline_free(spline_Vec[thread_Index]);
 			gsl_interp_accel_free(acc_Vec[thread_Index]);
+
+			// particles
+			for(int item_Index=0; item_Index<short_Flat_Calc_Tree.size()-1; item_Index++)
+			{
+				for(int i=0; i<4; i++)
+				{
+					gsl_spline_free(spline_F_03_Real[thread_Index][item_Index][i]);
+					gsl_spline_free(spline_F_03_Imag[thread_Index][item_Index][i]);
+					gsl_interp_accel_free(acc_F_03_Real[thread_Index][item_Index][i]);
+					gsl_interp_accel_free(acc_F_03_Imag[thread_Index][item_Index][i]);
+				}
+			}
 		}
 	}
 }
@@ -3484,39 +3527,36 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					{
 						choose_Form_Factor_2D_Function(thread_Index);
 
-						Data& last_Item = appropriate_Item_Vec[short_Flat_Calc_Tree.size()-2];
-						Node* last_Node = short_Flat_Calc_Tree[short_Flat_Calc_Tree.size()-2];
+						int last_Item_Index = short_Flat_Calc_Tree.size()-2;
+						Data& last_Item = appropriate_Item_Vec[last_Item_Index];
+						Node* last_Node = short_Flat_Calc_Tree[last_Item_Index];
 
 						double cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
 						double cos_Theta_0 = measurement.beam_Theta_0_Cos_Value;
 
-						for(size_t item_Index = 0; item_Index<appropriate_Item_Vec.size()-1; item_Index++)
+						for(int item_Index = last_Item_Index; item_Index>=0; item_Index--)
 						{
 							Data& item = appropriate_Item_Vec[item_Index];
 
 							if(item.particles_Model.is_Used)
 							{
 								Node* node = short_Flat_Calc_Tree[item_Index];
-								Node* G2_node    = common ? last_Node : node;
-								Data& order_Item = common ? last_Item : item;
+								Node* G2_node        = common ? last_Node       : node;
+								Data& order_Item     = common ? last_Item       : item;
 
 								double d_Eps_Norm = norm(node->delta_Epsilon_Contrast);
-
 								double G1_Type_Value = node->G1_Type_Outer();
 
-								if(point_Index == 0)
-								{
-									qInfo() << "num" << measurement.end_Phi_Number - measurement.start_Phi_Index << endl;
-									qInfo() << order_Item.material << order_Item.particles_Model.is_Used << order_Item.particles_Model.particle_Interference_Function << endl
-											<<       item.material <<       item.particles_Model.is_Used <<       item.particles_Model.particle_Interference_Function << endl;
-								}
+								//calc_Item_Pre_Form_Factor  (thread_Index, item_Index, item); // without splining
+								calc_Item_Form_Factor_Splines(thread_Index, item_Index, item, cos_Theta_0, cos_Theta);
 
 								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 								{
 									double cos_Phi = measurement.detector_Phi_Cos_Vec[phi_Index];
 									double q = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
 
-									calc_Item_Form_Factor(thread_Index, item_Index, q, item);
+									//calc_Item_Form_Factor          (thread_Index, item_Index, q, item); // without splining
+									calc_Item_Form_Factor_From_Spline(thread_Index, item_Index, q);
 									if(order_Item.particles_Model.particle_Interference_Function == radial_Paracrystal)
 									{
 										calc_Item_Alfa_Factor_With_G2(thread_Index, item_Index, q, G1_Type_Value, G2_node);
@@ -3780,24 +3820,51 @@ void Unwrapped_Reflection::choose_Form_Factor_2D_Function(int thread_Index)
 
 		if(item.particles_Model.particle_Shape == full_Sphere)
 		{
+			prefactor_2D_Func_Vec  [thread_Index][item_Index] = Global_Variables::full_Sphere_FF_Prefactor;
+			q_Factor_2D_Func_Vec   [thread_Index][item_Index] = Global_Variables::full_Sphere_FF_q_Factor;
 			form_Factor_2D_Func_Vec[thread_Index][item_Index] = Global_Variables::full_Sphere_FF;
 		} else
 		if(item.particles_Model.particle_Shape == full_Spheroid)
 		{
+			prefactor_2D_Func_Vec  [thread_Index][item_Index] = Global_Variables::full_Spheroid_FF_Prefactor;
+			q_Factor_2D_Func_Vec   [thread_Index][item_Index] = Global_Variables::full_Spheroid_FF_q_Factor;
 			form_Factor_2D_Func_Vec[thread_Index][item_Index] = Global_Variables::full_Spheroid_FF;
 		} else
 		if(item.particles_Model.particle_Shape == cylinder)
 		{
+			prefactor_2D_Func_Vec  [thread_Index][item_Index] = Global_Variables::cylinder_FF_Prefactor;
+			q_Factor_2D_Func_Vec   [thread_Index][item_Index] = Global_Variables::cylinder_FF_q_Factor;
 			form_Factor_2D_Func_Vec[thread_Index][item_Index] = Global_Variables::cylinder_FF;
 		}
 	}
 }
 
-void Unwrapped_Reflection::calc_Item_Form_Factor(int thread_Index, size_t item_Index, double q, Data& item)
+void Unwrapped_Reflection::calc_Item_Pre_Form_Factor(int thread_Index, int item_Index, Data& item)
 {
 	for(int i=0; i<4; i++)
 	{
-		F_03[thread_Index][item_Index][i] = form_Factor_2D_Func_Vec[thread_Index][item_Index]
+		F_pre_03[thread_Index][item_Index][i] = prefactor_2D_Func_Vec[thread_Index][item_Index]
+													(k_03[thread_Index][item_Index][i],
+													 item.particles_Model.particle_Radius.value,
+													 item.particles_Model.particle_Height.value,
+													 item.particles_Model.particle_Z_Position.value);
+	}
+}
+
+void Unwrapped_Reflection::calc_Item_Form_Factor(int thread_Index, int item_Index, double q, Data& item)
+{
+	for(int i=0; i<4; i++)
+	{
+		/// slower
+//		F_03[thread_Index][item_Index][i] = form_Factor_2D_Func_Vec[thread_Index][item_Index]
+//													(q,
+//													 k_03[thread_Index][item_Index][i],
+//													 item.particles_Model.particle_Radius.value,
+//													 item.particles_Model.particle_Height.value,
+//													 item.particles_Model.particle_Z_Position.value);
+		/// faster
+		F_03[thread_Index][item_Index][i] = F_pre_03[thread_Index][item_Index][i] *
+											q_Factor_2D_Func_Vec[thread_Index][item_Index]
 													(q,
 													 k_03[thread_Index][item_Index][i],
 													 item.particles_Model.particle_Radius.value,
@@ -3806,7 +3873,73 @@ void Unwrapped_Reflection::calc_Item_Form_Factor(int thread_Index, size_t item_I
 	}
 }
 
-void Unwrapped_Reflection::calc_Item_Alfa_Factor_With_G2(int thread_Index, size_t item_Index, double q, double G1_Type_Value, Node* node)
+void Unwrapped_Reflection::calc_Item_Form_Factor_From_Spline(int thread_Index, int item_Index, double q)
+{
+	for(int i=0; i<4; i++)
+	{
+		double F_Real = gsl_spline_eval(spline_F_03_Real[thread_Index][item_Index][i], q,
+										   acc_F_03_Real[thread_Index][item_Index][i]);
+		double F_Imag = gsl_spline_eval(spline_F_03_Imag[thread_Index][item_Index][i], q,
+										   acc_F_03_Imag[thread_Index][item_Index][i]);
+		F_03[thread_Index][item_Index][i] = complex<double>(F_Real, F_Imag);
+	}
+}
+
+void Unwrapped_Reflection::calc_Item_Form_Factor_Splines(int thread_Index, int item_Index, Data& item, double cos_Theta_0, double cos_Theta)
+{
+	double cos_Phi_Min = 1; // start from zero phi
+	double q_Min = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi_Min);
+	q_Min = max(0., DBL_EPSILON); // not zero
+
+	double cos_Phi_Max = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
+	double q_Max = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi_Max);
+
+	// splining points
+	int q_Spline_Points_No_Edge = q_Spline_Points-3;
+	double step = (q_Max-q_Min) / (q_Spline_Points_No_Edge-1);
+	vector<double> arg(q_Spline_Points_No_Edge);
+	vector<double> val_Real(q_Spline_Points_No_Edge, 0); // reuse for each i = 0..3
+	vector<double> val_Imag(q_Spline_Points_No_Edge, 0); // reuse for each i = 0..3
+	for(int j=0; j<q_Spline_Points_No_Edge; j++) {
+		arg[j] = q_Min + j*step;
+	}
+	{
+		arg.insert(arg.begin(), 0);
+		val_Real.insert(val_Real.begin(), 0);
+		val_Imag.insert(val_Imag.begin(), 0);
+	}
+	{
+		arg.push_back(q_Max*(1+1E-5));
+		arg.push_back(DBL_MAX);
+		val_Real.push_back(0);
+		val_Real.push_back(0);
+		val_Imag.push_back(0);
+		val_Imag.push_back(0);
+	}
+
+	double R = item.particles_Model.particle_Radius.value;
+	double H = item.particles_Model.particle_Height.value;
+	double z = item.particles_Model.particle_Z_Position.value;
+
+	for(int i=0; i<4; i++)
+	{
+		// values
+		complex<double> prefactor = prefactor_2D_Func_Vec[thread_Index][item_Index](k_03[thread_Index][item_Index][i], R, H, z);
+
+		for(int j=0; j<q_Spline_Points_No_Edge+1; j++) // with zero point, but except last DBL_MAX points
+		{
+			complex<double> val_Complex = prefactor*q_Factor_2D_Func_Vec[thread_Index][item_Index](arg[j], k_03[thread_Index][item_Index][i], R, H, z);
+			val_Real[j] = real(val_Complex);
+			val_Imag[j] = imag(val_Complex);
+		}
+
+		// splines
+		gsl_spline_init(spline_F_03_Real[thread_Index][item_Index][i], arg.data(), val_Real.data(), arg.size());
+		gsl_spline_init(spline_F_03_Imag[thread_Index][item_Index][i], arg.data(), val_Imag.data(), arg.size());
+	}
+}
+
+void Unwrapped_Reflection::calc_Item_Alfa_Factor_With_G2(int thread_Index, int item_Index, double q, double G1_Type_Value, Node* node)
 {
 	double G2_Type_Value = node->G2_Type_Outer(q);
 
@@ -3833,7 +3966,7 @@ void Unwrapped_Reflection::calc_Item_Alfa_Factor_With_G2(int thread_Index, size_
 	}
 }
 
-void Unwrapped_Reflection::calc_Item_Alfa_Factor_No_G2(int thread_Index, size_t item_Index, double q, double G1_Type_Value)
+void Unwrapped_Reflection::calc_Item_Alfa_Factor_No_G2(int thread_Index, int item_Index, double q, double G1_Type_Value)
 {
 	if(q>DBL_EPSILON)
 	{

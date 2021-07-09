@@ -582,6 +582,17 @@ template void Calculation_Tree::calculate_1_Kind<Target_Curve>	   (Data_Element<
 
 void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree, const vector<Data>& media_Data_Map_Vector, const Calc_Functions& calc_Functions, Data& measurement, QString mode)
 {
+	// for common and correlated particles
+	bool have_Used_Particles = false;
+	for(const Node* node : short_Flat_Calc_Tree)
+	{
+		if(node->struct_Data.item_Type == item_Type_Layer && node->struct_Data.particles_Model.is_Used)
+		{
+			have_Used_Particles = true;
+			break;
+		}
+	}
+
 	for(size_t node_Index = 0; node_Index<flat_Calc_Tree.size(); node_Index++)
 	{
 		Node* above_Node = NULL;
@@ -657,7 +668,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 					} else
 					{
 						// for last layer only
-						if(node_Index == short_Flat_Calc_Tree.size()-2)
+						if((node_Index == short_Flat_Calc_Tree.size()-2) && have_Used_Particles)
 						{
 							short_Flat_Calc_Tree[node_Index]->create_Spline_G2_2D(multilayer->imperfections_Model, measurement, temp);
 						}
@@ -721,7 +732,18 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 	}
 }
 void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, const Data& measurement, QString mode)
-{
+{	
+	// for common and correlated particles
+	bool have_Used_Particles = false;
+	for(const Node* node : short_Flat_Calc_Tree)
+	{
+		if(node->struct_Data.item_Type == item_Type_Layer && node->struct_Data.particles_Model.is_Used)
+		{
+			have_Used_Particles = true;
+			break;
+		}
+	}
+
 	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
 	{
 		if( mode == SCATTERED_MODE )
@@ -784,7 +806,7 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 					} else
 					{
 						// for last layer only
-						if(node_Index == short_Flat_Calc_Tree.size()-2)
+						if((node_Index == short_Flat_Calc_Tree.size()-2) && have_Used_Particles)
 						{
 							short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D(multilayer->imperfections_Model);
 						}

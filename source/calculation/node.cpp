@@ -972,6 +972,8 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 //					sigma_2[i] = total_Sigma_2 - combined_Effective_Sigma_2_From_Spline(imperfections_Model, 0, p0[i], spline_PSD_Linear_Growth_1D, acc_PSD_Linear_Growth_1D, PSD_Type_1D, integrator);
 					sigma_2[i] = total_Sigma_2 - gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2);
 				}
+				gsl_spline_free(spline_Delta_Sigma_2);
+				gsl_interp_accel_free(acc_Delta_Sigma_2);
 			});
 		} else
 		{
@@ -1008,6 +1010,8 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 ///						delta_Peak_Sigma_2[i] = combined_Effective_Sigma_2_Peak(0, p0[i], PSD_Type_1D, integrator);
 						delta_Peak_Sigma_2[i] = gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2);
 					}
+					gsl_spline_free(spline_Delta_Sigma_2);
+					gsl_interp_accel_free(acc_Delta_Sigma_2);
 				});
 			}
 
@@ -1048,6 +1052,8 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 					sigma_2[i]  = total_Sigma_2 - gsl_spline_eval(spline_Delta_Sigma_2, p0[i], acc_Delta_Sigma_2);
 					sigma_2[i] -= delta_Peak_Sigma_2[i];
 				}
+				gsl_spline_free(spline_Delta_Sigma_2);
+				gsl_interp_accel_free(acc_Delta_Sigma_2);
 			});
 		}
 	}

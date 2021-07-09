@@ -444,9 +444,15 @@ public:
 	static double G2_Pure_Radial		(double q, double phi, double a, double sigma, double N, double M);
 	static double G2_Pure_Radial_q_Zero	(double q,			   double a, double sigma, double N, double M);
 
-	static complex<double> full_Sphere_FF  (double q, complex<double> qz, double R, double H, double z);
-	static complex<double> full_Spheroid_FF(double q, complex<double> qz, double R, double H, double z);
-	static complex<double> cylinder_FF	   (double q, complex<double> qz, double R, double H, double z);
+	static complex<double> full_Sphere_FF_Prefactor  (          const complex<double>& qz, double R, double H, double z);
+	static complex<double> full_Sphere_FF_q_Factor	 (double q, const complex<double>& qz, double R, double H, double z);
+	static complex<double> full_Sphere_FF			 (double q, const complex<double>& qz, double R, double H, double z);
+	static complex<double> full_Spheroid_FF_Prefactor(          const complex<double>& qz, double R, double H, double z);
+	static complex<double> full_Spheroid_FF_q_Factor (double q, const complex<double>& qz, double R, double H, double z);
+	static complex<double> full_Spheroid_FF			 (double q, const complex<double>& qz, double R, double H, double z);
+	static complex<double> cylinder_FF_Prefactor	 (          const complex<double>& qz, double R, double H, double z);
+	static complex<double> cylinder_FF_q_Factor		 (double q, const complex<double>& qz, double R, double H, double z);
+	static complex<double> cylinder_FF				 (double q, const complex<double>& qz, double R, double H, double z);
 
 	static complex<double> omega_Factor (complex<double> k,                      double sigma);
 	static complex<double> gamma_Factor (complex<double> kl, complex<double> kr, double sigma);

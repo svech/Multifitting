@@ -2089,27 +2089,58 @@ double Global_Variables::G2_Pure_Radial_q_Zero(double q, double a, double sigma,
 	return sigma*sigma*q*q/6 * (M+N-6*M*N+2*M*M*N+2*N*N*M) / (a*b);
 }
 
-complex<double> Global_Variables::full_Sphere_FF(double q, complex<double> qz, double R, double H, double z)
+complex<double> Global_Variables::full_Sphere_FF_Prefactor(const complex<double>& qz, double R, double H, double z)
 {
 	Q_UNUSED(H)
-	complex<double> s = R*sqrt(q*q+qz*qz)+DBL_EPSILON;
 	z+=R;
-	return 4*M_PI*R*R*R * exp(I*qz*z) * (sin(s)-s*cos(s))/pow(s,3);
+	return 4*M_PI*R*R*R * exp(I*qz*z);
 }
 
-complex<double> Global_Variables::full_Spheroid_FF(double q, complex<double> qz, double R, double H, double z)
+complex<double> Global_Variables::full_Sphere_FF_q_Factor(double q, const complex<double>& qz, double R, double H, double z)
+{
+	Q_UNUSED(H)
+	Q_UNUSED(z)
+	complex<double> s = R*sqrt(q*q+qz*qz)+DBL_EPSILON;
+	return (sin(s)-s*cos(s))/pow(s,3);
+}
+complex<double> Global_Variables::full_Sphere_FF(double q, const complex<double>& qz, double R, double H, double z)
+{
+	return full_Sphere_FF_Prefactor(qz, R, H, z) * full_Sphere_FF_q_Factor(q, qz, R, H, z);
+}
+
+complex<double> Global_Variables::full_Spheroid_FF_Prefactor(const complex<double>& qz, double R, double H, double z)
 {
 	double h = H/2;
 	z+=h;
+	return 4*M_PI*R*R*h * exp(I*qz*z);
+}
+complex<double> Global_Variables::full_Spheroid_FF_q_Factor(double q, const complex<double>& qz, double R, double H, double z)
+{
+	Q_UNUSED(z)
+	double h = H/2;
 	complex<double> s = sqrt(R*R*q*q + h*h*qz*qz)+DBL_EPSILON;
-	return 4*M_PI*R*R*h * exp(I*qz*z) * (sin(s)-s*cos(s))/pow(s,3);
+	return (sin(s)-s*cos(s))/pow(s,3);
+}
+complex<double> Global_Variables::full_Spheroid_FF(double q, const complex<double>& qz, double R, double H, double z)
+{
+	return full_Spheroid_FF_Prefactor(qz, R, H, z) * full_Spheroid_FF_q_Factor(q, qz, R, H, z);
 }
 
-complex<double> Global_Variables::cylinder_FF(double q, complex<double> qz, double R, double H, double z)
+complex<double> Global_Variables::cylinder_FF_Prefactor(const complex<double>& qz, double R, double H, double z)
 {
 	double h = H/2;
 	z+=h;
-	return 2*M_PI*R*R*H * exp(I*qz*z) * boost::math::sinc_pi(qz*h) * boost::math::cyl_bessel_j(1,q*R+DBL_EPSILON)/(q*R+DBL_EPSILON);
+	return 2*M_PI*R*R*H * exp(I*qz*z) * boost::math::sinc_pi(qz*h);
+}
+complex<double> Global_Variables::cylinder_FF_q_Factor(double q, const complex<double>& qz, double R, double H, double z)
+{
+	Q_UNUSED(H)
+	Q_UNUSED(z)
+	return boost::math::cyl_bessel_j(1,q*R+DBL_EPSILON)/(q*R+DBL_EPSILON);
+}
+complex<double> Global_Variables::cylinder_FF(double q, const complex<double>& qz, double R, double H, double z)
+{
+	return cylinder_FF_Prefactor(qz, R, H, z) * cylinder_FF_q_Factor(q, qz, R, H, z);
 }
 
 complex<double> Global_Variables::omega_Factor(complex<double> k, double sigma)
