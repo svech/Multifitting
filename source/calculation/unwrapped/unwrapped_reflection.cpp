@@ -3977,17 +3977,17 @@ void Unwrapped_Reflection::calc_Item_Alfa_Factor_No_G2(int thread_Index, int ite
 		{
 			// diagonal part
 			g_nn = real(g_03_03[thread_Index][item_Index][i][i]);
-			w_n2 = norm(   w_03[thread_Index][item_Index][i]);
+//			w_n2 = norm(   w_03[thread_Index][item_Index][i]);
 			F_n2 = norm(   F_03[thread_Index][item_Index][i]);
 			alfa_nn_03[thread_Index][item_Index][i] = F_n2 * (G1_Type_Value * g_nn);
 
 			// non-diagonal part
-			w_i = w_03[thread_Index][item_Index][i];
+//			w_i = w_03[thread_Index][item_Index][i];
 			F_i = F_03[thread_Index][item_Index][i];
 			for(int j=0; j<i; j++)
 			{
 				g_ij  =       g_03_03[thread_Index][item_Index][i][j];
-				w_ijc = w_i*conj(w_03[thread_Index][item_Index][j]);
+//				w_ijc = w_i*conj(w_03[thread_Index][item_Index][j]);
 				F_ijc = F_i*conj(F_03[thread_Index][item_Index][j]);
 				alfa_03_03	   [thread_Index][item_Index][i][j] = F_ijc * (G1_Type_Value * g_ij);
 			}
