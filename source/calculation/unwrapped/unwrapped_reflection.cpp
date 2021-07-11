@@ -968,6 +968,9 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 				alfa_03_03.resize(num_Threads);
 				alfa_nn_03.resize(num_Threads);
 
+				coherent_Field_Factor.resize(num_Threads);
+				complex_Coef.resize(num_Threads);
+
 				spline_F_03_Real.resize(num_Threads);
 				spline_F_03_Imag.resize(num_Threads);
 				acc_F_03_Real.resize(num_Threads);
@@ -994,6 +997,9 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 
 					alfa_03_03[thread_Index].resize(num_Layer_Items);
 					alfa_nn_03[thread_Index].resize(num_Layer_Items);
+
+					coherent_Field_Factor[thread_Index].resize(abs(int(measurement.end_Phi_Number)-int(measurement.start_Phi_Index)));
+					complex_Coef[thread_Index].resize(4);
 
 					spline_F_03_Real[thread_Index].resize(num_Layer_Items);
 					spline_F_03_Imag[thread_Index].resize(num_Layer_Items);
@@ -3151,7 +3157,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																							substrate_Node->spline_PSD_FG_2D,
 																							substrate_Node->acc_PSD_FG_2D);
 										}
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_s * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_s * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index];
 									}
 
 								} else
@@ -3215,7 +3221,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																							substrate_Node->acc_PSD_FG_2D);
 										}
 
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_p * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_p * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index];
 									}
 								} else
 								// mixed sp-polarization
@@ -3278,7 +3284,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																							substrate_Node->acc_PSD_FG_2D);
 										}
 
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = (s_Weight*field_Term_Sum_s + p_Weight*field_Term_Sum_p)*e_Factor_PT_2D*PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = (s_Weight*field_Term_Sum_s + p_Weight*field_Term_Sum_p)*e_Factor_PT_2D*PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index];
 									}
 								}
 							} else
@@ -3300,7 +3306,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 
 											field_With_PSD_2D_Factor += intensity_Term_Boundary_s[thread_Index][j] * PSD_2D_Factor;
 										}
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index];
 									}
 								} else
 								// pure p-polarization
@@ -3319,7 +3325,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 
 											field_With_PSD_2D_Factor += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
 										}
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index];
 									}
 								} else
 								// mixed sp-polarization
@@ -3340,7 +3346,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 											field_With_PSD_2D_Factor_s += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
 											field_With_PSD_2D_Factor_p += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
 										}
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = (s_Weight*field_With_PSD_2D_Factor_s + p_Weight*field_With_PSD_2D_Factor_p)*e_Factor_PT_2D * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = (s_Weight*field_With_PSD_2D_Factor_s + p_Weight*field_With_PSD_2D_Factor_p)*e_Factor_PT_2D * measurement.footprint_Factor_Vec[point_Index];
 									}
 								}
 							}
@@ -3356,7 +3362,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, 0, false };
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Replication_Factor_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Replication_Factor_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index];
 									}
 								} else
 								// pure p-polarization
@@ -3366,7 +3372,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, incoherent_Sum_p, false };
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Replication_Factor_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Replication_Factor_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index];
 									}
 								} else
 								// mixed sp-polarization
@@ -3376,7 +3382,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, incoherent_Sum_p, false };
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Replication_Factor_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Replication_Factor_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index];
 									}
 								}
 							} else
@@ -3391,7 +3397,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									calc_Field_Term_Sum("s", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_Growth_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_Growth_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index];
 									}
 								} else
 								// pure p-polarization
@@ -3400,7 +3406,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_Growth_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_Growth_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index];
 									}
 								} else
 								// mixed sp-polarization
@@ -3409,7 +3415,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 									{
-										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_Growth_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_Growth_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index];
 									}
 								}
 							}
@@ -3484,7 +3490,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					}
 				}
 			} else
-			// if no roughness set GISAS to zero
+			// if no roughness set GISAS to 0
 			{
 				if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 				{
@@ -3501,6 +3507,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			// particles
 			if(multilayer->imperfections_Model.use_Particles)
 			{
+				if(short_Flat_Calc_Tree.size()<2) return;
+
 				// TODO
 				calc_k_Wavenumber_Layer(thread_Index, point_Index);
 				calc_Half_Layer_Exponents(thread_Index);
@@ -3533,65 +3541,130 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					if(multilayer->imperfections_Model.particle_Vertical_Correlation == full_Correlation)
 					{
 						double G1_Type_Value = last_Node->G1_Type_Outer();
-						double G2_Type_Value = G1_Type_Value; // for disorder
+						double G2_Type_Value_Sqrt = sqrt(G1_Type_Value); // for disorder
+
+						for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+						{
+							size_t phi_Index_Local = phi_Index - measurement.start_Phi_Index;
+							coherent_Field_Factor[thread_Index][phi_Index_Local] = 0;
+						}
 
 						for(int item_Index = last_Item_Index; item_Index>=0; item_Index--)
 						{
 							Node* node = short_Flat_Calc_Tree[item_Index];
 							Data& item = appropriate_Item_Vec[item_Index];
+							Data& order_Item = common ? last_Item : item;
 
 							if(item.particles_Model.is_Used)
 							{
+								bool is_Z_Deviation = order_Item.particles_Model.particle_Z_Position_Deviation.value > DBL_EPSILON;
+
 								complex<double> d_Eps = node->delta_Epsilon_Contrast;
 								double d_Eps_Norm = norm(d_Eps);
 
-								calc_Item_Form_Factor_Splines(thread_Index, item_Index, item, cos_Theta_0, cos_Theta);
+								calc_Item_Form_Factor_Splines(thread_Index, item_Index, order_Item, cos_Theta_0, cos_Theta);
 
 								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 								{
+									size_t phi_Index_Local = phi_Index - measurement.start_Phi_Index;
 									double cos_Phi = measurement.detector_Phi_Cos_Vec[phi_Index];
 									double q = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
 
 									// radial PC/disorder here
 									if(last_Item.particles_Model.particle_Interference_Function == radial_Paracrystal)
 									{
-										G2_Type_Value = last_Node->G2_Type_Outer(q);
+										G2_Type_Value_Sqrt = sqrt(last_Node->G2_Type_Outer(q));
 									}
-
 									calc_Item_Form_Factor_From_Spline(thread_Index, item_Index, q);
-									calc_Item_Alfa_Factor_G1(thread_Index, item_Index, G1_Type_Value);
-//									calc_Item_Alfa_Factor_With_G2(thread_Index, item_Index, q, G1_Type_Value, node);
+									if(is_Z_Deviation)	{
+										calc_Item_Alfa_Factor_G1     (thread_Index, item_Index, G1_Type_Value);
+									}
+									calc_Coherent_Coef_G2            (thread_Index, item_Index, G2_Type_Value_Sqrt, d_Eps);
+
+									double incoherent_Field_Factor = 0;
 
 									// pure s-polarization
 									if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
 									{
-										double        incoherent_Field_Factor = 0;
-										complex<double> coherent_Field_Factor = 0.;
 										for(int& layer_Index : boundaries_Of_Item_Vec[item_Index])
 										{
-											for (int i = 0; i<4; i++)
+											for (int i=0; i<4; i++)
 											{
 												// incoherent part
-												incoherent_Field_Factor += C_03_s_norm[thread_Index][layer_Index][i] * alfa_nn_03[thread_Index][item_Index][i];
-												for (int j = 0; j<i; j++)
+												if(is_Z_Deviation)
 												{
-													incoherent_Field_Factor += 2*real( C_03_03_s[thread_Index][layer_Index][i][j] *
-																					   alfa_03_03[thread_Index][item_Index][i][j]
-																					  );
+													incoherent_Field_Factor += C_03_s_norm[thread_Index][layer_Index][i] * alfa_nn_03[thread_Index][item_Index][i];
+													for (int j = 0; j<i; j++)
+													{
+														incoherent_Field_Factor += 2*real( C_03_03_s[thread_Index][layer_Index][i][j] *
+																						   alfa_03_03[thread_Index][item_Index][i][j]
+																						  );
+													}
 												}
 												// coherent part
-												coherent_Field_Factor += C_03_s[thread_Index][layer_Index][i]*
-																		 F_03  [thread_Index][item_Index ][i]*
-																		 w_03  [thread_Index][item_Index ][i];
+												coherent_Field_Factor[thread_Index][phi_Index_Local] += C_03_s[thread_Index][layer_Index][i] *
+																										complex_Coef[thread_Index][i];
 											}
 										}
-										incoherent_Field_Factor *= d_Eps_Norm;
-										coherent_Field_Factor   *= d_Eps;
-										// for each item at each point, so GISAS_Map += ...
-										calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * (G1_Type_Value*incoherent_Field_Factor + G2_Type_Value*norm(coherent_Field_Factor)) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									} else
+									// pure p-polarization
+									if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
+									{
+										for(int& layer_Index : boundaries_Of_Item_Vec[item_Index])
+										{
+											for (int i=0; i<4; i++)
+											{
+												// incoherent part
+												if(is_Z_Deviation)
+												{
+													incoherent_Field_Factor += C_03_p_norm[thread_Index][layer_Index][i] * alfa_nn_03[thread_Index][item_Index][i];
+													for (int j = 0; j<i; j++)
+													{
+														incoherent_Field_Factor += 2*real( C_03_03_p[thread_Index][layer_Index][i][j] *
+																						   alfa_03_03[thread_Index][item_Index][i][j]
+																						  );
+													}
+												}
+												// coherent part
+												coherent_Field_Factor[thread_Index][phi_Index_Local] += C_03_p[thread_Index][layer_Index][i] *
+																										complex_Coef[thread_Index][i];
+											}
+										}
+									} else
+									// mixed sp-polarization
+									{
+										for(int& layer_Index : boundaries_Of_Item_Vec[item_Index])
+										{
+											for (int i=0; i<4; i++)
+											{
+												// incoherent part
+												if(is_Z_Deviation)
+												{
+													incoherent_Field_Factor += (s_Weight*C_03_s_norm[thread_Index][layer_Index][i] +
+																				p_Weight*C_03_p_norm[thread_Index][layer_Index][i]) * alfa_nn_03[thread_Index][item_Index][i];
+													for (int j = 0; j<i; j++)
+													{
+														incoherent_Field_Factor += 2*real( (s_Weight*C_03_03_s[thread_Index][layer_Index][i][j] +
+																							p_Weight*C_03_03_p[thread_Index][layer_Index][i][j])*
+																							alfa_03_03        [thread_Index][item_Index ][i][j]
+																						  );
+													}
+												}
+												// coherent part
+												coherent_Field_Factor[thread_Index][phi_Index_Local] += (s_Weight*C_03_s[thread_Index][layer_Index][i] +
+																										 p_Weight*C_03_p[thread_Index][layer_Index][i])*
+																										 complex_Coef   [thread_Index][i];
+											}
+										}
 									}
+									if(is_Z_Deviation) {calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * d_Eps_Norm * incoherent_Field_Factor * measurement.footprint_Factor_Vec[point_Index];}
 								}
 							}
+						}
+						for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+						{
+							size_t phi_Index_Local = phi_Index - measurement.start_Phi_Index;
+							calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * norm(coherent_Field_Factor[thread_Index][phi_Index_Local]) * measurement.footprint_Factor_Vec[point_Index];
 						}
 					}
 					if(multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation)
@@ -3601,16 +3674,18 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 							Data& item = appropriate_Item_Vec[item_Index];
 
 							if(item.particles_Model.is_Used)
-							{
+							{								
 								Node* node = short_Flat_Calc_Tree[item_Index];
 								Node* G2_node        = common ? last_Node       : node;
 								Data& order_Item     = common ? last_Item       : item;
 
+								bool is_Z_Deviation = order_Item.particles_Model.particle_Z_Position_Deviation.value > DBL_EPSILON;
+
 								double d_Eps_Norm = norm(node->delta_Epsilon_Contrast);
 								double G1_Type_Value = node->G1_Type_Outer();
 
-								//calc_Item_Pre_Form_Factor  (thread_Index, item_Index, item); // without splining
-								calc_Item_Form_Factor_Splines(thread_Index, item_Index, item, cos_Theta_0, cos_Theta);
+								//calc_Item_Pre_Form_Factor  (thread_Index, item_Index, order_Item); // without splining
+								calc_Item_Form_Factor_Splines(thread_Index, item_Index, order_Item, cos_Theta_0, cos_Theta);
 
 								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 								{
@@ -3621,17 +3696,18 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									calc_Item_Form_Factor_From_Spline(thread_Index, item_Index, q);
 									if(order_Item.particles_Model.particle_Interference_Function == radial_Paracrystal)
 									{
-										calc_Item_Alfa_Factor_With_G2(thread_Index, item_Index, q, G1_Type_Value, G2_node);
+										calc_Item_Alfa_Factor_With_G2(thread_Index, item_Index, q, G1_Type_Value, G2_node, is_Z_Deviation);
 									} else
 									if(order_Item.particles_Model.particle_Interference_Function == disorder)
 									{
 										calc_Item_Alfa_Factor_No_G2(thread_Index, item_Index, G1_Type_Value);
 									}
 
+									double field_With_G_2D_Factor = 0;
+
 									// pure s-polarization
 									if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
 									{
-										double field_With_G_2D_Factor = 0;
 										for(int& layer_Index : boundaries_Of_Item_Vec[item_Index])
 										{
 											for (int i = 0; i<4; i++)
@@ -3645,13 +3721,10 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 												}
 											}
 										}
-										// for each item at each point, so GISAS_Map += ...
-										calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * d_Eps_Norm * field_With_G_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									} else
 									// pure p-polarization
 									if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
 									{
-										double field_With_G_2D_Factor = 0;
 										for(int& layer_Index : boundaries_Of_Item_Vec[item_Index])
 										{
 											for (int i = 0; i<4; i++)
@@ -3665,12 +3738,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 												}
 											}
 										}
-										// for each item at each point, so GISAS_Map += ...
-										calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * d_Eps_Norm * field_With_G_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									} else
 									// mixed sp-polarization
 									{
-										double field_With_G_2D_Factor = 0;
 										for(int& layer_Index : boundaries_Of_Item_Vec[item_Index])
 										{
 											for (int i = 0; i<4; i++)
@@ -3686,13 +3756,12 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 												}
 											}
 										}
-										// for each item at each point, so GISAS_Map += ...
-										calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * d_Eps_Norm * field_With_G_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 									}
+									calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * d_Eps_Norm * field_With_G_2D_Factor * measurement.footprint_Factor_Vec[point_Index];
 								}
 							}
 						}
-					}
+					}				
 				}
 			}
 		}
@@ -4001,19 +4070,26 @@ void Unwrapped_Reflection::calc_Item_Form_Factor_Splines(int thread_Index, int i
 	}
 }
 
-void Unwrapped_Reflection::calc_Item_Alfa_Factor_With_G2(int thread_Index, int item_Index, double q, double G1_Type_Value, Node* node)
+void Unwrapped_Reflection::calc_Item_Alfa_Factor_With_G2(int thread_Index, int item_Index, double q, double G1_Type_Value, Node* node, bool is_Z_Deviation)
 {
 	double G2_Type_Value = node->G2_Type_Outer(q);
 
-	double g_nn, w_n2, F_n2;
-	complex<double> g_ij, w_i, w_ijc, F_i, F_ijc;
+	double g_nn, w_n2, F_n2, component_n;
+	complex<double> g_ij, w_i, w_ijc, F_i, F_ijc, component_ij;
 	for(int i=0; i<4; i++)
 	{
 		// diagonal part
 		g_nn = real(g_03_03[thread_Index][item_Index][i][i]);
 		w_n2 = norm(   w_03[thread_Index][item_Index][i]);
 		F_n2 = norm(   F_03[thread_Index][item_Index][i]);
-		alfa_nn_03[thread_Index][item_Index][i] = F_n2 * (G1_Type_Value * (g_nn - w_n2) + w_n2 * G2_Type_Value);
+		if(is_Z_Deviation)	{
+			g_nn = real(g_03_03[thread_Index][item_Index][i][i]);
+			component_n = G1_Type_Value * (g_nn - w_n2);
+		} else {
+			component_n = 0;
+		}
+		alfa_nn_03[thread_Index][item_Index][i] = F_n2 * (component_n + w_n2 * G2_Type_Value);
+//		alfa_nn_03[thread_Index][item_Index][i] = F_n2 * (G1_Type_Value * (g_nn - w_n2) + w_n2 * G2_Type_Value);
 
 		// non-diagonal part
 		w_i = w_03[thread_Index][item_Index][i];
@@ -4022,8 +4098,15 @@ void Unwrapped_Reflection::calc_Item_Alfa_Factor_With_G2(int thread_Index, int i
 		{
 			g_ij  =       g_03_03[thread_Index][item_Index][i][j];
 			w_ijc = w_i*conj(w_03[thread_Index][item_Index][j]);
-			F_ijc = F_i*conj(F_03[thread_Index][item_Index][j]);
-			alfa_03_03	   [thread_Index][item_Index][i][j] = F_ijc * (G1_Type_Value * (g_ij - w_ijc) + w_ijc * G2_Type_Value);
+			F_ijc = F_i*conj(F_03[thread_Index][item_Index][j]);			
+			if(is_Z_Deviation)	{
+				g_ij = g_03_03[thread_Index][item_Index][i][j];
+				component_ij = G1_Type_Value * (g_ij - w_ijc);
+			} else {
+				component_ij = 0;
+			}
+			alfa_03_03[thread_Index][item_Index][i][j] = F_ijc * (component_ij + w_ijc * G2_Type_Value);
+//			alfa_03_03[thread_Index][item_Index][i][j] = F_ijc * (G1_Type_Value * (g_ij - w_ijc) + w_ijc * G2_Type_Value);
 		}
 	}
 }
@@ -4076,6 +4159,16 @@ void Unwrapped_Reflection::calc_Item_Alfa_Factor_G1(int thread_Index, int item_I
 			F_ijc = F_i*conj(F_03[thread_Index][item_Index][j]);
 			alfa_03_03	   [thread_Index][item_Index][i][j] = F_ijc * (G1_Type_Value * (g_ij - w_ijc));
 		}
+	}
+}
+
+void Unwrapped_Reflection::calc_Coherent_Coef_G2(int thread_Index, int item_Index, double G2_Type_Value_Sqrt, complex<double> d_Eps)
+{
+	for(int i=0; i<4; i++)
+	{
+		complex_Coef[thread_Index][i] = F_03[thread_Index][item_Index][i] *
+										w_03[thread_Index][item_Index][i] *
+										d_Eps * G2_Type_Value_Sqrt;
 	}
 }
 
@@ -4424,8 +4517,8 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 			{
 				for(size_t phi_Index = 0; phi_Index<short_Phi_Points; phi_Index++)
 				{
-					GISAS_Slice[thread_Index][phi_Index] = calculated_Values.GISAS_Map[measurement.start_Phi_Index+phi_Index][point_Index];
-					phi_Slice  [thread_Index][phi_Index] = measurement.detector_Phi_Angle_Vec  [measurement.start_Phi_Index+phi_Index];
+					GISAS_Slice[thread_Index][phi_Index] = calculated_Values.GISAS_Map       [measurement.start_Phi_Index+phi_Index][point_Index];
+					phi_Slice  [thread_Index][phi_Index] = measurement.detector_Phi_Angle_Vec[measurement.start_Phi_Index+phi_Index];
 				}
 				gsl_spline_init(spline_Vec[thread_Index], phi_Slice[thread_Index].data(), GISAS_Slice[thread_Index].data(), GISAS_Slice[thread_Index].size());
 				if(measurement.start_Phi_Index!=0)

@@ -29,11 +29,14 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
 	if(!temporary) write_Window_Geometry();
 	runned_Tables_Of_Structures.remove(table_Of_Structures_Key);
+//	bool state = recalculate_spinbox_structure_table;
+//	recalculate_spinbox_structure_table = false;
 	for(QLineEdit* material_Line_Edit : material_Line_Edits)
 	{
 		material_Line_Edit->blockSignals(true);
-		check_Material(material_Line_Edit);
+		check_Material(material_Line_Edit, true);
 	}
+//	recalculate_spinbox_structure_table = state;
 	if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.isEmpty()) global_Multilayer_Approach->unlock_Mainwindow_Interface();
 	event->accept();
 }
@@ -5601,7 +5604,7 @@ void Table_Of_Structures::refresh_Material(My_Table_Widget* table, QString)
 	}
 }
 
-void Table_Of_Structures::check_Material(QLineEdit* line_Edit)
+void Table_Of_Structures::check_Material(QLineEdit* line_Edit, bool close)
 {
 	if(line_Edit == nullptr)
 	{
@@ -5635,8 +5638,11 @@ void Table_Of_Structures::check_Material(QLineEdit* line_Edit)
 	}
 	{
 		emit_Data_Edited();
-		global_Multilayer_Approach->recalculate_From_Table(true);
-		reload_Related_Widgets(QObject::sender());
+		if(!close)
+		{
+			global_Multilayer_Approach->recalculate_From_Table(true);
+			reload_Related_Widgets(QObject::sender());
+		}
 	}
 }
 

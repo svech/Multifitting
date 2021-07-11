@@ -369,7 +369,7 @@ void GISAS_Independent_Curve_Part::create_Beam_GroupBox()
 }
 
 
-void GISAS_Independent_Curve_Part::refresh_Angular_Units()
+void GISAS_Independent_Curve_Part::refresh_Angular_Units(bool replot)
 {
 	start_Argument_Theta_Spinbox->blockSignals(true);
 	start_Argument_Phi_Spinbox->blockSignals(true);
@@ -429,7 +429,7 @@ void GISAS_Independent_Curve_Part::refresh_Angular_Units()
 	independent_Curve->refresh_Description_Label();
 
 	// curve plots
-	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key) && replot)
 	{
 		if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
 		{
@@ -440,7 +440,7 @@ void GISAS_Independent_Curve_Part::refresh_Angular_Units()
 	}
 }
 
-void GISAS_Independent_Curve_Part::refresh_Spectral_Units()
+void GISAS_Independent_Curve_Part::refresh_Spectral_Units(bool replot)
 {
 	at_Fixed_Wavelength_SpinBox->blockSignals(true);
 
@@ -456,7 +456,7 @@ void GISAS_Independent_Curve_Part::refresh_Spectral_Units()
 	independent_Curve->refresh_Description_Label();
 
 	// curve plots
-	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key) && replot)
 	{
 		if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
 		{
@@ -582,8 +582,8 @@ void GISAS_Independent_Curve_Part::fill_Spectral_Width_Label()
 
 void GISAS_Independent_Curve_Part::connecting()
 {
-	refresh_Angular_Units();
-	refresh_Spectral_Units();
+	refresh_Angular_Units(false);
+	refresh_Spectral_Units(false);
 
 	/// units box
 	connect(angular_Units_ComboBox,	&QComboBox::currentTextChanged, this, [=]

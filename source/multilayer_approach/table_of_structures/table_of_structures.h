@@ -127,7 +127,7 @@ public:
 	void refresh_Fit_Element(bool);
 
 	void refresh_Material(My_Table_Widget *table, QString);
-	void check_Material(QLineEdit *line_Edit = nullptr);
+	void check_Material(QLineEdit *line_Edit = nullptr, bool close = false);
 	void browse_Material(QLineEdit* material_Line_Edit);
 
 	// for several parameters

@@ -24,8 +24,8 @@ public:
 	void fill_At_Fixed_Units();
 	void fill_At_Fixed_Value();
 
-	void refresh_Angular_Units();
-	void refresh_Spectral_Units();
+	void refresh_Angular_Units(bool replot = true);
+	void refresh_Spectral_Units(bool replot = true);
 	void refresh_Argument_Values(bool num_Points_Changed = false);
 	void refresh_At_Fixed_Value();
 

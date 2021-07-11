@@ -22,8 +22,8 @@ public:
 	void fill_At_Fixed_Wavelength_Label();
 	void fill_Spectral_Width_Label();
 
-	void refresh_Angular_Units();
-	void refresh_Spectral_Units();
+	void refresh_Angular_Units(bool replot = true);
+	void refresh_Spectral_Units(bool replot = true);
 	void refresh_Num_Points();
 	void refresh_Argument_Min();
 	void refresh_Argument_Max();

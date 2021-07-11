@@ -305,7 +305,7 @@ void Specular_Independent_Curve_Part::fill_Spectral_Width_Label()
 	}
 }
 
-void Specular_Independent_Curve_Part::refresh_Angular_Units()
+void Specular_Independent_Curve_Part::refresh_Angular_Units(bool replot)
 {
 	start_Argument_Spinbox->blockSignals(true);
 	final_Argument_Spinbox->blockSignals(true);
@@ -355,7 +355,7 @@ void Specular_Independent_Curve_Part::refresh_Angular_Units()
 	independent_Curve->calc_Independent_cos2_k();
 
 	// curve plots
-	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key) && replot)
 	{
 		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
 		{
@@ -364,7 +364,7 @@ void Specular_Independent_Curve_Part::refresh_Angular_Units()
 			curve_Plot_1D->set_Title_Text();
 		}
 	}
-	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key) && replot)
 	{
 		if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
 		{
@@ -375,7 +375,7 @@ void Specular_Independent_Curve_Part::refresh_Angular_Units()
 	}
 }
 
-void Specular_Independent_Curve_Part::refresh_Spectral_Units()
+void Specular_Independent_Curve_Part::refresh_Spectral_Units(bool replot)
 {
 	start_Argument_Spinbox->blockSignals(true);
 	final_Argument_Spinbox->blockSignals(true);
@@ -413,7 +413,7 @@ void Specular_Independent_Curve_Part::refresh_Spectral_Units()
 	independent_Curve->calc_Independent_cos2_k();
 
 	// curve plots
-	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key) && replot)
 	{
 		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
 		{
@@ -422,7 +422,7 @@ void Specular_Independent_Curve_Part::refresh_Spectral_Units()
 			curve_Plot_1D->set_Title_Text();
 		}
 	}
-	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key) && replot)
 	{
 		if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
 		{

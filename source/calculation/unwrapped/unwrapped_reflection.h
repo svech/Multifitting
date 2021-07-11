@@ -191,6 +191,8 @@ public:
 	vector<vector<vector<vector<complex<double>>>>> g_03_03;		//	[thread][item_Index][0-3][0-3]
 	vector<vector<vector<vector<complex<double>>>>> alfa_03_03;		//	[thread][item_Index][0-3][0-3]
 	vector<vector<vector<double>>>                  alfa_nn_03;		//	[thread][item_Index][0-3]
+	vector<vector<complex<double>>> coherent_Field_Factor;			//	[thread][phi_Index]
+	vector<vector<complex<double>>> complex_Coef;					//	[thread][0-3]
 
 	int q_Spline_Points;
 	vector<vector<vector<gsl_spline*>>> spline_F_03_Real;	//	[thread][item_Index][0-3]
@@ -282,10 +284,11 @@ public:
 	void calc_Item_Form_Factor_From_Spline	(int thread_Index, int item_Index, double q);
 	void calc_Item_Form_Factor_Splines		(int thread_Index, int item_Index, Data& item, double cos_Theta_0, double cos_Theta);
 	void choose_disorder_Paracrystal		(int thread_Index);
-	void calc_Item_Alfa_Factor_With_G2		(int thread_Index, int item_Index, double q, double G1_Type_Value, Node* node);
+	void calc_Item_Alfa_Factor_With_G2		(int thread_Index, int item_Index, double q, double G1_Type_Value, Node* node, bool is_Z_Deviation);
 	void calc_Item_Alfa_Factor_No_G2		(int thread_Index, int item_Index,			 double G1_Type_Value);
 
 	void calc_Item_Alfa_Factor_G1			(int thread_Index, int item_Index,           double G1_Type_Value);
+	void calc_Coherent_Coef_G2				(int thread_Index, int item_Index,           double G2_Type_Value_Sqrt, complex<double> d_Eps);
 	double calc_G1_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
 	double calc_G2_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
 

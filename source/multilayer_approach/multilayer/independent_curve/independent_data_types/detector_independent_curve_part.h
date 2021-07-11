@@ -20,8 +20,8 @@ public:
 	void fill_At_Fixed_Wavelength_Label();
 	void fill_Spectral_Width_Label();
 
-	void refresh_Angular_Units();
-	void refresh_Spectral_Units();
+	void refresh_Angular_Units(bool replot = true);
+	void refresh_Spectral_Units(bool replot = true);
 	void refresh_Argument_Values(bool num_Points_Changed = false);
 	void refresh_At_Fixed_Wavelength_Value();
 	void refresh_At_Fixed_Beam_Theta_0_Value();
