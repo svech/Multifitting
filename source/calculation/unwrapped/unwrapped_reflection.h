@@ -182,6 +182,11 @@ public:
 	vector<vector<vector<vector<complex<double>>>>> C_03_03_p;	//	[thread][layer][0-3][0-3]
 	vector<vector<vector<double>>>					C_03_p_norm;//	[thread][layer][0-3]
 
+	// for any polarization
+	vector<vector<vector<complex<double>>>>			C_03;		//	[thread][layer][0-3]
+	vector<vector<vector<vector<complex<double>>>>> C_03_03;	//	[thread][layer][0-3][0-3]
+	vector<vector<vector<double>>>					C_03_norm;  //	[thread][layer][0-3]
+
 	vector<vector<complex<double>(*)(        const complex<double>&, double, double, double)>> prefactor_2D_Func_Vec; // [thread][item_Index]
 	vector<vector<complex<double>(*)(double, const complex<double>&, double, double, double)>> q_Factor_2D_Func_Vec; // [thread][item_Index]
 	vector<vector<complex<double>(*)(double, const complex<double>&, double, double, double)>> form_Factor_2D_Func_Vec; // [thread][item_Index]
@@ -275,6 +280,8 @@ public:
 	void calc_k_Wavenumber_Layer	(						int thread_Index, int point_Index);
 	void calc_Half_Layer_Exponents	(						int thread_Index);
 	void calc_C_Factor				(QString polarization,	int thread_Index, int point_Index);
+	void fill_C_Factor_Mixed		(QString polarization,	int thread_Index);
+	void calc_C_Factor_Mixed		(						int thread_Index);
 	void calc_Omega_Factor			(						int thread_Index);
 	void calc_Gamma_Factor			(						int thread_Index);
 
@@ -284,13 +291,11 @@ public:
 	void calc_Item_Form_Factor_From_Spline	(int thread_Index, int item_Index, double q);
 	void calc_Item_Form_Factor_Splines		(int thread_Index, int item_Index, Data& item, double cos_Theta_0, double cos_Theta);
 	void choose_disorder_Paracrystal		(int thread_Index);
-	void calc_Item_Alfa_Factor_With_G2		(int thread_Index, int item_Index, double q, double G1_Type_Value, Node* node, bool is_Z_Deviation);
-	void calc_Item_Alfa_Factor_No_G2		(int thread_Index, int item_Index,			 double G1_Type_Value);
+	void calc_Item_Alfa_Factor_With_G2		(int thread_Index, int item_Index, double G2_Type_Value, double G1_Type_Value, bool is_Z_Deviation);
+	void calc_Item_Alfa_Factor_No_G2		(int thread_Index, int item_Index,						 double G1_Type_Value);
 
 	void calc_Item_Alfa_Factor_G1			(int thread_Index, int item_Index,           double G1_Type_Value);
 	void calc_Coherent_Coef_G2				(int thread_Index, int item_Index,           double G2_Type_Value_Sqrt, complex<double> d_Eps);
-	double calc_G1_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
-	double calc_G2_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(int thread_Index);
