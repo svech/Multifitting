@@ -15,6 +15,7 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 	num_Media_Sharp	(num_Media_Sharp),
 	num_Boundaries	(num_Media_Sharp - 1),
 	num_Layers		(num_Media_Sharp - 2),
+	num_Inherited_Layers(num_Media_Sharp - 3),
 	depth_Grading	(depth_Grading),
 	sigma_Grading	(sigma_Grading),	
 	multilayer			 (multilayer),
@@ -49,6 +50,13 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 	{
 		fill_Roughness_Parameters();
 		fill_PSD_Inheritance_Powers();
+	}
+	if( imperfections_Model.use_Particles &&
+		imperfections_Model.particle_Vertical_Correlation == partial_Correlation &&
+		(calc_Functions.check_Scattering || calc_Functions.check_GISAS) )
+	{
+		fill_Particles_Parameters();
+		fill_Particles_Inheritance_Factors();
 	}
 
 	// discretized structure (if discretization is on or just field-epsilon integration for scattering with interlayer)
@@ -206,6 +214,13 @@ void Unwrapped_Structure::fill_Thickness_And_Boundaries_Position()
 		boundaries_Position[layer_Index+1] = boundaries_Position[layer_Index] + thickness[layer_Index];
 	}
 
+	// for partially correlated particles
+	layer_Centers_Position.resize(num_Layers);
+	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
+	{
+		layer_Centers_Position[layer_Index] = boundaries_Position[layer_Index] + thickness[layer_Index]/2;
+	}
+
 	// threaded copy
 	boundaries_Position_Threaded.resize(reflectivity_calc_threads);
 	thickness_Threaded.resize(reflectivity_calc_threads);
@@ -330,6 +345,56 @@ void Unwrapped_Structure::fill_PSD_Inheritance_Powers()
 	for(int thread_Index=0; thread_Index<reflectivity_calc_threads; thread_Index++)
 	{
 		PSD_h_mu_Threaded[thread_Index] = PSD_h_mu;
+	}
+}
+
+void Unwrapped_Structure::fill_Particles_Parameters()
+{
+	mu_Particles.resize(num_Inherited_Layers);
+	if(imperfections_Model.use_Common_Particle_Function)
+	{
+		for(int layer_Index=0; layer_Index<num_Inherited_Layers; layer_Index++)
+		{
+			mu_Particles[layer_Index] = media_Data_Map_Vector[num_Inherited_Layers].particles_Model.particle_Correlation_Depth.value;
+		}
+	} else
+	{
+		for(int layer_Index=0; layer_Index<num_Inherited_Layers; layer_Index++)
+		{
+			mu_Particles[layer_Index] = media_Data_Map_Vector[layer_Index+1].particles_Model.particle_Correlation_Depth.value;
+		}
+	}
+}
+
+void Unwrapped_Structure::fill_Particles_Inheritance_Factors()
+{
+	particles_Inheritance_Factor.resize(num_Layers);
+	particles_Inheritance_Factor.back().resize(num_Layers);
+	particles_Inheritance_Factor.back().back() = 1;
+
+	for(int i=num_Layers-2; i>=0; i--)
+	{
+		particles_Inheritance_Factor[i].resize(num_Layers);
+		particles_Inheritance_Factor[i][i] = 1;
+
+		double dz_i_i1 = abs(layer_Centers_Position[i] - layer_Centers_Position[i+1]);
+		particles_Inheritance_Factor[i][i+1] = exp( -dz_i_i1/mu_Particles[i] );
+
+		for(int j=i+2; j<num_Layers; j++)
+		{
+			particles_Inheritance_Factor[i][j] = particles_Inheritance_Factor[i][j-1] * particles_Inheritance_Factor[j-1][j];
+		}
+	}
+
+	// mark layers with used particles
+	particles_Index_Vec.reserve(num_Layers);
+	for(int i=num_Layers-1; i>=0; i--)
+	{
+		const Data& item_i = media_Data_Map_Vector[i+1];
+		if(item_i.particles_Model.is_Used)
+		{
+			particles_Index_Vec.push_back(i);
+		}
 	}
 }
 

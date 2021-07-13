@@ -36,6 +36,7 @@ public:
 	int num_Media_Sharp;
 	int num_Boundaries;
 	int num_Layers;
+	int num_Inherited_Layers;
 
 	bool depth_Grading;
 	bool sigma_Grading;
@@ -67,6 +68,7 @@ public:
 	vector<vector<double>> thickness_Threaded;						//	[thread][layer]
 
 	vector<double> boundaries_Position;								//	[boundary]
+	vector<double> layer_Centers_Position;							//	[layer]
 	vector<vector<double>> boundaries_Position_Threaded;			//	[thread][boundary]
 
 	//--------------------------------------------------------------
@@ -97,12 +99,22 @@ public:
 	vector<vector<double>> PSD_h_mu_Threaded;						//	[thread][layer]
 
 	//--------------------------------------------------------------
+	/// particles
+	//--------------------------------------------------------------
+
+	vector<vector<double>> particles_Inheritance_Factor;			//	[layer][layer]
+	vector<int> particles_Index_Vec;								//	[layer]
+	vector<double> mu_Particles;									//	[inherited layer]
+
+	//--------------------------------------------------------------
 
 	void fill_Epsilon_Sharp();
 	void fill_Sigma_Diffuse_And_Interlayers();
 	void fill_Thickness_And_Boundaries_Position();
 	void fill_Roughness_Parameters();
 	void fill_PSD_Inheritance_Powers();
+	void fill_Particles_Parameters();
+	void fill_Particles_Inheritance_Factors();
 
 	///-------------------------------------------------------------
 	// DISCRETIZATION

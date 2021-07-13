@@ -46,6 +46,13 @@ public:
 	double s_Weight;
 	double p_Weight;
 
+	bool has_S_Pol;
+	bool has_P_Pol;
+
+	bool pure_S_Pol;
+	bool pure_P_Pol;
+	bool mixed_Pol;
+
 	vector<vector<complex<double>>> r_Fresnel_s;	//	[thread][boundary]
 	vector<vector<complex<double>>> r_Fresnel_p;	//	[thread][boundary]
 	vector<vector<complex<double>>> r_Local_s;		//	[thread][boundary]
@@ -198,6 +205,7 @@ public:
 	vector<vector<vector<double>>>                  alfa_nn_03;		//	[thread][item_Index][0-3]
 	vector<vector<complex<double>>> coherent_Field_Factor;			//	[thread][phi_Index]
 	vector<vector<complex<double>>> complex_Coef;					//	[thread][0-3]
+	vector<vector<vector<complex<double>>>> layer_Field_Factor;		//	[thread][layer][phi_Index]
 
 	int q_Spline_Points;
 	vector<vector<vector<gsl_spline*>>> spline_F_03_Real;	//	[thread][item_Index][0-3]
