@@ -662,17 +662,17 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				if(struct_Data.composed_Material)
 				{
-					create_Combo_Elements	    (new_Table, tab_Index, current_Row,   current_Column, structure_Item);
-					create_Stoich_Line_Edit	    (new_Table, tab_Index, current_Row+1, current_Column, structure_Item, VAL);
-					create_Stoich_Line_Edit	    (new_Table, tab_Index, current_Row+3, current_Column, structure_Item, MIN);
-					create_Stoich_Line_Edit	    (new_Table, tab_Index, current_Row+4, current_Column, structure_Item, MAX);
+					create_Combo_Elements	    (new_Table, tab_Index, current_Row,   current_Column, structure_Item, false);
+					create_Stoich_Line_Edit	    (new_Table, tab_Index, current_Row+1, current_Column, structure_Item, false, VAL);
+					create_Stoich_Line_Edit	    (new_Table, tab_Index, current_Row+3, current_Column, structure_Item, false, MIN);
+					create_Stoich_Line_Edit	    (new_Table, tab_Index, current_Row+4, current_Column, structure_Item, false, MAX);
 
 					// it should be created last
-					create_Stoich_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, 1, 2, 0, 0);
+					create_Stoich_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, false, 1, 2, 0, 0);
 				}
 				else
 				{
-					create_Material_Line_Edit	(new_Table, tab_Index, current_Row,   current_Column, structure_Item);
+					create_Material_Line_Edit	(new_Table, tab_Index, current_Row,   current_Column, structure_Item, false);
 					create_Browse_Button	    (new_Table,	current_Row+1, current_Column, current_Row, current_Column);
 				}
 			}
@@ -1764,12 +1764,39 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					new_Table->setSpan(current_Row+1,current_Column,4,1);
 				}
 				// last
-				create_Check_Box_Usage (new_Table, tab_Index, current_Row, current_Column, structure_Item, "on/off", 0, 4, 0, 2020); // more than table size, it is like inf
+				create_Check_Box_Usage(new_Table, tab_Index, current_Row, current_Column, structure_Item, "on/off", 0, 4, 0, 2020); // more than table size, it is like inf
 
 				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=2;
 			}
 
+			// particle material
+			bool show_Particle_Material = false;
+			if(	struct_Data.item_Type == item_Type_Layer && multilayer->imperfections_Model.use_Particles_Material )
+			{
+				show_Particle_Material = true;
+			}
+			if(show_Particle_Material)
+			{
+				if(struct_Data.composed_Material)
+				{
+					create_Combo_Elements	    (new_Table, tab_Index, current_Row,   current_Column, structure_Item, true);
+					create_Stoich_Line_Edit	    (new_Table, tab_Index, current_Row+1, current_Column, structure_Item, true, VAL);
+					create_Stoich_Line_Edit	    (new_Table, tab_Index, current_Row+3, current_Column, structure_Item, true, MIN);
+					create_Stoich_Line_Edit	    (new_Table, tab_Index, current_Row+4, current_Column, structure_Item, true, MAX);
+
+					// it should be created last
+					create_Stoich_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, true, 1, 2, 0, 0);
+				}
+				else
+				{
+					create_Material_Line_Edit	(new_Table, tab_Index, current_Row,   current_Column, structure_Item, true);
+					create_Browse_Button	    (new_Table,	current_Row+1, current_Column, current_Row, current_Column);
+				}
+				current_Column += (max_Number_Of_Elements+1);
+			}
+			///--------------------------------------------------------------------------------------------
+			///
 			// particle density
 			bool show_Particle_Density = false;
 			if(	struct_Data.particles_Model.is_Enabled)
@@ -2707,9 +2734,14 @@ void Table_Of_Structures::fit_Column(QTableWidget* table, int start_Width, int c
 //// creation
 
 //// for material only
-void Table_Of_Structures::create_Combo_Elements(My_Table_Widget* table, int, int current_Row, int start_Column, QTreeWidgetItem* structure_Item)
+void Table_Of_Structures::create_Combo_Elements(My_Table_Widget* table, int, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, bool is_Particle)
 {
-	QList<Stoichiometry> composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().composition;
+	QList<Stoichiometry> composition;
+	if(is_Particle)	{
+		composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().particles_Model.particle_Composition;
+	} else {
+		composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().composition;
+	}
 
 	int current_Column = start_Column;
 	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
@@ -2732,15 +2764,20 @@ void Table_Of_Structures::create_Combo_Elements(My_Table_Widget* table, int, int
 		// add widget to table
 		table->setCellWidget(current_Row, current_Column, elements);
 
-		connect(elements, &QComboBox::currentTextChanged, this, [=](QString str){refresh_Element(table, str);});
+		connect(elements, &QComboBox::currentTextChanged, this, [=]{refresh_Element(table, is_Particle);});
 
 		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
 	}
 }
 
-void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString val_Type)
+void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, bool is_Particle, QString val_Type)
 {
-	QList<Stoichiometry> composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().composition;
+	QList<Stoichiometry> composition;
+	if(is_Particle)	{
+		composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().particles_Model.particle_Composition;
+	} else {
+		composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().composition;
+	}
 
 	int current_Column = start_Column;
 	double value = -2017;
@@ -2787,7 +2824,7 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 		table->setCellWidget(current_Row, current_Column, spin_Box);
 
 		connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]{resize_Line_Edit(table,spin_Box); });
-		connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]{refresh_Stoich();});
+		connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]{refresh_Stoich(is_Particle);});
 		connect(spin_Box, &MyDoubleSpinBox::editingFinished, this, [=]
 		{
 			for(QCheckBox* item_Check_Box : check_Boxes_Map.keys(structure_Item))
@@ -2807,10 +2844,10 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 	}
 }
 
-void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, int r_S, int r_F, int c_S, int c_F)
+void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, bool is_Particle, int r_S, int r_F, int c_S, int c_F)
 {
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	QList<Stoichiometry>& composition = struct_Data.composition;
+	QList<Stoichiometry>& composition = is_Particle ? struct_Data.particles_Model.particle_Composition : struct_Data.composition;
 
 	int current_Column = start_Column;
 
@@ -2878,7 +2915,7 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 		// add widget to table
 		table->setCellWidget(current_Row, current_Column, back_Widget);
 
-		connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Fit_Element);
+		connect(check_Box, &QCheckBox::toggled, this, [=]{refresh_Fit_Element(is_Particle);});
 		connect(check_Box, &QCheckBox::toggled, this, [=]
 		{
 			cells_On_Off(table);
@@ -2919,9 +2956,14 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 	}
 }
 
-void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item)
+void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, bool is_Particle)
 {
-	QString material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().material;
+	QString material;
+	if(is_Particle)	{
+		material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().particles_Model.particle_Material;
+	} else {
+		material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().material;
+	}
 
 	add_Columns(table, current_Column+1);
 
@@ -2939,8 +2981,8 @@ void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int 
 	table->setCellWidget(current_Row, current_Column, material_Line_Edit);
 
 	connect(material_Line_Edit, &QLineEdit::textEdited,	     this, [=]{resize_Line_Edit(table,material_Line_Edit); });
-	connect(material_Line_Edit, &QLineEdit::textEdited,	     this, [=](QString str){ refresh_Material(table, str);} );
-	connect(material_Line_Edit, &QLineEdit::editingFinished, this, [=]{check_Material();} );
+	connect(material_Line_Edit, &QLineEdit::textEdited,	     this, [=]{refresh_Material(table, is_Particle);} );
+	connect(material_Line_Edit, &QLineEdit::editingFinished, this, [=]{check_Material(material_Line_Edit, false, is_Particle);} );
 }
 
 void Table_Of_Structures::create_Browse_Button(My_Table_Widget* table, int current_Row, int start_Column, int material_LineEdit_Row, int material_LineEdit_Column)
@@ -2949,7 +2991,7 @@ void Table_Of_Structures::create_Browse_Button(My_Table_Widget* table, int curre
 		browse_Button->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	table->setCellWidget(current_Row, start_Column, browse_Button);
 
-	QLineEdit* material_Line_Edit = qobject_cast<QLineEdit*>(table->cellWidget(material_LineEdit_Row,material_LineEdit_Column));
+	QLineEdit* material_Line_Edit = qobject_cast<QLineEdit*>(table->cellWidget(material_LineEdit_Row, material_LineEdit_Column));
 	connect(browse_Button, &QPushButton::clicked, this, [=]{browse_Material(material_Line_Edit);});
 }
 
@@ -5296,7 +5338,7 @@ QTreeWidgetItem* Table_Of_Structures::get_Struct_Item_From_Multilayer_by_Id(id_T
 //// refresh
 
 //// for material only
-void Table_Of_Structures::refresh_Element(My_Table_Widget* table, QString)
+void Table_Of_Structures::refresh_Element(My_Table_Widget* table, bool is_Particle)
 {
 	QComboBox* combo_Box = qobject_cast<QComboBox*>(QObject::sender());
 	QTreeWidgetItem* structure_Item = elements_Map.value(combo_Box);
@@ -5306,7 +5348,7 @@ void Table_Of_Structures::refresh_Element(My_Table_Widget* table, QString)
 	bool reload = combo_Box->property(reload_Property).toBool();
 
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	Stoichiometry& comp = struct_Data.composition[composition_Index];
+	Stoichiometry& comp = is_Particle ? struct_Data.particles_Model.particle_Composition[composition_Index] : struct_Data.composition[composition_Index];
 
 	// reload state from struct_Tree
 	if(reload)
@@ -5318,7 +5360,11 @@ void Table_Of_Structures::refresh_Element(My_Table_Widget* table, QString)
 	{
 		// state update
 		comp.type = combo_Box->currentText();
-		struct_Data.material = Global_Variables::material_From_Composition(struct_Data.composition);
+		if(is_Particle)	{
+			struct_Data.particles_Model.particle_Material = Global_Variables::material_From_Composition(struct_Data.particles_Model.particle_Composition);
+		} else {
+			struct_Data.material = Global_Variables::material_From_Composition(struct_Data.composition);
+		}
 		for(QCheckBox* item_Check_Box : check_Boxes_Map.keys(structure_Item))
 		{
 			if(item_Check_Box->property(item_Table_CheckBox_Property).toString() == item_Table_CheckBox_Property)
@@ -5346,8 +5392,12 @@ void Table_Of_Structures::refresh_Element(My_Table_Widget* table, QString)
 			for(int n=0; n<parent_Data.num_Repetition.value(); n++)
 			{
 				Data& regular_Data = parent_Data.regular_Components[my_I].components[n];
-				Parameter& regular_Comp = regular_Data.composition[composition_Index].composition;
-				regular_Data.composition[composition_Index].type = combo_Box->currentText();
+				Parameter& regular_Comp = is_Particle ? regular_Data.particles_Model.particle_Composition[composition_Index].composition : regular_Data.composition[composition_Index].composition;
+				if(is_Particle)	{
+					regular_Data.particles_Model.particle_Composition[composition_Index].type = combo_Box->currentText();
+				} else {
+					regular_Data.composition[composition_Index].type = combo_Box->currentText();
+				}
 				regular_Data.material = Global_Variables::material_From_Composition(regular_Data.composition);
 
 				// full name update
@@ -5370,7 +5420,7 @@ void Table_Of_Structures::refresh_Element(My_Table_Widget* table, QString)
 	}
 }
 
-void Table_Of_Structures::refresh_Stoich()
+void Table_Of_Structures::refresh_Stoich(bool is_Particle)
 {
 	MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(QObject::sender());
 	QTreeWidgetItem* structure_Item = spin_Boxes_Map.value(spin_Box);
@@ -5381,7 +5431,7 @@ void Table_Of_Structures::refresh_Stoich()
 	bool reload = spin_Box->property(reload_Property).toBool();
 
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	Parameter& comp = struct_Data.composition[composition_Index].composition;
+	Parameter& comp = is_Particle ? struct_Data.particles_Model.particle_Composition[composition_Index].composition : struct_Data.composition[composition_Index].composition;
 
 	// reload state from struct_Tree
 	if(reload)
@@ -5401,7 +5451,11 @@ void Table_Of_Structures::refresh_Stoich()
 		if(value_Type == MIN)	{comp.fit.min = spin_Box->value(); /*comp.confidence.min = comp.fit.min;*/}
 		if(value_Type == MAX)	{comp.fit.max = spin_Box->value(); /*comp.confidence.max = comp.fit.max;*/}
 
-		struct_Data.material = Global_Variables::material_From_Composition(struct_Data.composition);
+		if(is_Particle) {
+			struct_Data.particles_Model.particle_Material = Global_Variables::material_From_Composition(struct_Data.particles_Model.particle_Composition);
+		} else {
+			struct_Data.material = Global_Variables::material_From_Composition(struct_Data.composition);
+		}
 		for(QCheckBox* item_Check_Box : check_Boxes_Map.keys(structure_Item))
 		{
 			if(item_Check_Box->property(item_Table_CheckBox_Property).toString() == item_Table_CheckBox_Property)
@@ -5429,12 +5483,16 @@ void Table_Of_Structures::refresh_Stoich()
 			for(int n=0; n<parent_Data.num_Repetition.value(); n++)
 			{
 				Data& regular_Data = parent_Data.regular_Components[my_I].components[n];
-				Parameter& regular_Comp = regular_Data.composition[composition_Index].composition;
+				Parameter& regular_Comp = is_Particle ? regular_Data.particles_Model.particle_Composition[composition_Index].composition : regular_Data.composition[composition_Index].composition;
 				if(value_Type == VAL)	regular_Comp.value   = spin_Box->value();
 				if(value_Type == MIN)	regular_Comp.fit.min = spin_Box->value();
 				if(value_Type == MAX)	regular_Comp.fit.max = spin_Box->value();
 
-				regular_Data.material = Global_Variables::material_From_Composition(regular_Data.composition);
+				if(is_Particle) {
+					regular_Data.particles_Model.particle_Material = Global_Variables::material_From_Composition(regular_Data.particles_Model.particle_Composition);
+				} else {
+					regular_Data.material = Global_Variables::material_From_Composition(regular_Data.composition);
+				}
 
 				// full name update
 				regular_Comp.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Composition, composition_Index);
@@ -5474,7 +5532,7 @@ void Table_Of_Structures::refresh_Stoich()
 	}
 }
 
-void Table_Of_Structures::refresh_Fit_Element(bool)
+void Table_Of_Structures::refresh_Fit_Element(bool is_Particle)
 {
 	QCheckBox* check_Box = qobject_cast<QCheckBox*>(QObject::sender());
 	QTreeWidgetItem* structure_Item = check_Boxes_Map.value(check_Box);
@@ -5487,12 +5545,20 @@ void Table_Of_Structures::refresh_Fit_Element(bool)
 	// reload state from struct_Tree
 	if(reload)
 	{
-		check_Box->setChecked(struct_Data.composition[composition_Index].composition.fit.is_Fitable);
+		if(is_Particle) {
+			check_Box->setChecked(struct_Data.particles_Model.particle_Composition[composition_Index].composition.fit.is_Fitable);
+		} else {
+			check_Box->setChecked(struct_Data.composition[composition_Index].composition.fit.is_Fitable);
+		}
 		return;
 	}
 	// refresh struct_Tree
 	{
-		struct_Data.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
+		if(is_Particle) {
+			struct_Data.particles_Model.particle_Composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
+		} else {
+			struct_Data.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
+		}
 
 		// regular aperiodic
 		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
@@ -5508,7 +5574,7 @@ void Table_Of_Structures::refresh_Fit_Element(bool)
 			for(int n=0; n<parent_Data.num_Repetition.value(); n++)
 			{
 				Data& regular_Data = parent_Data.regular_Components[my_I].components[n];
-				Parameter& regular_Comp = regular_Data.composition[composition_Index].composition;
+				Parameter& regular_Comp = is_Particle ? regular_Data.particles_Model.particle_Composition[composition_Index].composition : regular_Data.composition[composition_Index].composition;
 
 				regular_Comp.fit.is_Fitable = check_Box->isChecked();
 			}
@@ -5530,7 +5596,7 @@ void Table_Of_Structures::refresh_Fit_Element(bool)
 	}
 }
 
-void Table_Of_Structures::refresh_Material(My_Table_Widget* table, QString)
+void Table_Of_Structures::refresh_Material(My_Table_Widget* table, bool is_Particle)
 {
 	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
 	QTreeWidgetItem* structure_Item = line_Edits_Map.value(line_Edit);
@@ -5542,11 +5608,20 @@ void Table_Of_Structures::refresh_Material(My_Table_Widget* table, QString)
 
 	if(reload)
 	{
-		line_Edit->setText(struct_Data.material);
+		if(is_Particle) {
+			line_Edit->setText(struct_Data.particles_Model.particle_Material);
+		} else {
+			line_Edit->setText(struct_Data.material);
+		}
 		return;
 	}
 	{
-		struct_Data.material = line_Edit->text();
+		if(is_Particle) {
+			struct_Data.particles_Model.particle_Material = line_Edit->text();
+		} else {
+			struct_Data.material = line_Edit->text();
+		}
+
 		for(QCheckBox* item_Check_Box : check_Boxes_Map.keys(structure_Item))
 		{
 			if(item_Check_Box->property(item_Table_CheckBox_Property).toString() == item_Table_CheckBox_Property)
@@ -5573,15 +5648,27 @@ void Table_Of_Structures::refresh_Material(My_Table_Widget* table, QString)
 			for(int n=0; n<parent_Data.num_Repetition.value(); n++)
 			{
 				Data& regular_Data = parent_Data.regular_Components[my_I].components[n];
-				regular_Data.material = line_Edit->text();
+				if(is_Particle) {
+					regular_Data.particles_Model.particle_Material = line_Edit->text();
+				} else {
+					regular_Data.material = line_Edit->text();
+				}
 
 				// checking here for regular aperiodic components
 				if(optical_Constants->material_Map.contains(regular_Data.material + nk_Ext))
 				{
-					regular_Data.approved_Material = regular_Data.material;
+					if(is_Particle) {
+						regular_Data.particles_Model.particle_Approved_Material = regular_Data.particles_Model.particle_Material;
+					} else {
+						regular_Data.approved_Material = regular_Data.material;
+					}
 				} else
 				{
-					regular_Data.material = regular_Data.approved_Material;
+					if(is_Particle) {
+						regular_Data.particles_Model.particle_Material = regular_Data.particles_Model.particle_Approved_Material;
+					} else {
+						regular_Data.material = regular_Data.approved_Material;
+					}
 				}
 			}
 
@@ -5601,7 +5688,7 @@ void Table_Of_Structures::refresh_Material(My_Table_Widget* table, QString)
 	}
 }
 
-void Table_Of_Structures::check_Material(QLineEdit* line_Edit, bool close)
+void Table_Of_Structures::check_Material(QLineEdit* line_Edit, bool close, bool is_Particle)
 {
 	if(line_Edit == nullptr)
 	{
@@ -5619,13 +5706,21 @@ void Table_Of_Structures::check_Material(QLineEdit* line_Edit, bool close)
 		Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 		if(optical_Constants->material_Map.contains(struct_Data.material + nk_Ext))
 		{
-			struct_Data.approved_Material = struct_Data.material;
+			if(is_Particle) {
+				struct_Data.particles_Model.particle_Approved_Material = struct_Data.particles_Model.particle_Material;
+			} else {
+				struct_Data.approved_Material = struct_Data.material;
+			}
 		} else
 		{
 			line_Edit->blockSignals(true);
 			QMessageBox::information(this, "Wrong material", "File \"" + struct_Data.material + nk_Ext + "\" not found");
 			line_Edit->blockSignals(false);
-			struct_Data.material = struct_Data.approved_Material;
+			if(is_Particle) {
+				struct_Data.particles_Model.particle_Material = struct_Data.particles_Model.particle_Approved_Material;
+			} else {
+				struct_Data.material = struct_Data.approved_Material;
+			}
 			line_Edit->setText(struct_Data.material);
 			line_Edit->textEdited(line_Edit->text());
 		}

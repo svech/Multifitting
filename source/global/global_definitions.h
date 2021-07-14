@@ -978,8 +978,6 @@ struct Particles_Model		{
 								bool is_Last_Layer = false;
 								bool is_Second_Last_Layer = is_Last_Layer;
 
-								bool set_Another_Material = false;
-
 								QString particle_Shape = full_Spheroid;
 
 								QString particle_Material;

@@ -41,11 +41,11 @@ public:
 		void refresh_Reload_Colorize(QString refresh_Reload, QWidget* back_Widget, Parameter* parameter);
 
 	// for material only
-	void create_Combo_Elements		(My_Table_Widget* table, int,			int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
-	void create_Stoich_Line_Edit	(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString val_Type);
-	void create_Stoich_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, int r_S, int r_F, int c_S, int c_F);
+	void create_Combo_Elements		(My_Table_Widget* table, int,			int current_Row, int start_Column, QTreeWidgetItem* structure_Item, bool is_Particle);
+	void create_Stoich_Line_Edit	(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, bool is_Particle, QString val_Type);
+	void create_Stoich_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, bool is_Particle, int r_S, int r_F, int c_S, int c_F);
 
-	void create_Material_Line_Edit	(My_Table_Widget* table, int tab_Index,	int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
+	void create_Material_Line_Edit	(My_Table_Widget* table, int tab_Index,	int current_Row, int current_Column, QTreeWidgetItem* structure_Item, bool is_Particle);
 	void create_Browse_Button		(My_Table_Widget* table,				int current_Row, int start_Column, int material_LineEdit_Row, int material_LineEdit_Column);
 
 	// for several parameters
@@ -122,12 +122,12 @@ public:
 	static Parameter& get_Parameter(Data& struct_Data, QString whats_This, int& precision, double& coeff);
 
 	// for material only
-	void refresh_Element(My_Table_Widget* table, QString);
-	void refresh_Stoich();
-	void refresh_Fit_Element(bool);
+	void refresh_Element(My_Table_Widget* table, bool is_Particle);
+	void refresh_Stoich(bool is_Particle);
+	void refresh_Fit_Element(bool is_Particle);
 
-	void refresh_Material(My_Table_Widget *table, QString);
-	void check_Material(QLineEdit *line_Edit = nullptr, bool close = false);
+	void refresh_Material(My_Table_Widget* table, bool is_Particle);
+	void check_Material(QLineEdit *line_Edit = nullptr, bool close = false, bool is_Particle = false);
 	void browse_Material(QLineEdit* material_Line_Edit);
 
 	// for several parameters

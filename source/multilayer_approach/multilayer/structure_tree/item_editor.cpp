@@ -69,6 +69,7 @@ void Item_Editor::closeEvent(QCloseEvent* event)
 			{
 				QMessageBox::information(this, "Wrong material", "File \"" + struct_Data.material + nk_Ext + "\" not found");
 				struct_Data.material = struct_Data.approved_Material;
+				struct_Data.particles_Model.particle_Material = struct_Data.particles_Model.particle_Approved_Material;
 				material_Line_Edit->setText(struct_Data.material);
 				Global_Variables::resize_Line_Edit(material_Line_Edit);
 			}
@@ -1204,6 +1205,7 @@ void Item_Editor::more_Elements_Clicked()
 
 	// adding stoich
 	struct_Data.composition.append(stoich);
+	struct_Data.particles_Model.particle_Composition.append(stoich);
 
 	// placing ui elements
 	QFrame* element_Frame = new QFrame;

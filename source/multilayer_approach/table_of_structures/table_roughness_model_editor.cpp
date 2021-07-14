@@ -832,6 +832,11 @@ void Table_Roughness_Model_Editor::create_Particles_Groupbox()
 			interference_Function_Group->addButton(disorder_Radiobutton);
 			interference_Function_Group->addButton(radial_Paracrystal_Radiobutton);
 
+		// particles material
+		QCheckBox* particles_Material_Checkbox = new QCheckBox("Specify material");
+			particles_Material_Checkbox->setChecked(multilayer->imperfections_Model.use_Particles_Material);
+		interference_Function_Layout->addWidget(particles_Material_Checkbox);
+
 		// common parameters
 		QCheckBox* common_Checkbox = new QCheckBox("Common parameters\nfor all layers");
 			common_Checkbox->setChecked (multilayer->imperfections_Model.use_Common_Particle_Function);
@@ -931,6 +936,10 @@ void Table_Roughness_Model_Editor::create_Particles_Groupbox()
 	connect(common_Checkbox, &QCheckBox::toggled, this, [=]
 	{
 		multilayer->imperfections_Model.use_Common_Particle_Function = common_Checkbox->isChecked();
+	});
+	connect(particles_Material_Checkbox, &QCheckBox::toggled, this, [=]
+	{
+		multilayer->imperfections_Model.use_Particles_Material = particles_Material_Checkbox->isChecked();
 	});
 
 	// model

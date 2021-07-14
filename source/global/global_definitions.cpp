@@ -632,7 +632,7 @@ QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Mode
 QDataStream& operator <<(QDataStream& stream, const Particles_Model& particles_Model )
 {
 	return stream << particles_Model.is_Enabled << particles_Model.is_Independent << particles_Model.is_Last_Layer << particles_Model.is_Second_Last_Layer
-				  << particles_Model.is_Used << particles_Model.set_Another_Material
+				  << particles_Model.is_Used
 
 				  << particles_Model.particle_Shape
 				  << particles_Model.particle_Material << particles_Model.particle_Approved_Material << particles_Model.particle_Composition
@@ -654,8 +654,11 @@ QDataStream& operator >>( QDataStream& stream,		 Particles_Model& particles_Mode
 
 	stream >> particles_Model.is_Used;
 
-	if(Global_Variables::check_Loaded_Version(1,11,21))
-	{stream>> particles_Model.set_Another_Material;}
+	if(Global_Variables::check_Loaded_Version(1,11,21) && !Global_Variables::check_Loaded_Version(1,11,24))
+	{
+		bool set_Another_Material;
+		stream>> set_Another_Material;
+	}
 
 	stream >> particles_Model.particle_Shape;
 

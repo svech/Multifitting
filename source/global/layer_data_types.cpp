@@ -661,6 +661,11 @@ Data::Data(QString item_Type_Passed)
 			if(item_Type == item_Type_Layer)	particles_Model.is_Used = default_particles_used;
 			else								particles_Model.is_Used = false;
 		}
+		// material
+		{
+			particles_Model.particle_Material = material;
+			particles_Model.particle_Approved_Material = particles_Model.particle_Material;
+		}
 		// particle absolute density
 		{
 			particles_Model.particle_Absolute_Density.value   = default_particles_absolute_density;
@@ -1430,7 +1435,7 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 		if(imperfections_Model.use_Particles && particles_Model.is_Enabled && particles_Model.is_Used)	 // automatically imperfections_Model.use_Particles == particles_Model.is_Enabled
 		{
 			// particles
-			if(particles_Model.set_Another_Material)
+			if(imperfections_Model.use_Particles_Material)
 			{
 				if(particles_Model.particle_Composition.size()>1 && composed_Material)
 				{
@@ -1674,7 +1679,7 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 		if(imperfections_Model.use_Particles)
 		{
 			// particles
-			if(particles_Model.set_Another_Material)
+			if(imperfections_Model.use_Particles_Material)
 			{
 				if(particles_Model.particle_Composition.size()>1 && composed_Material)
 				{
@@ -1992,6 +1997,14 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 			stream >> separate_Optical_Constants >> permittivity >> absorption;
 		}
 		stream  >> data.composition;
+
+		if(!Global_Variables::check_Loaded_Version(1,11,21))
+		{
+			data.particles_Model.particle_Material = data.material;
+			data.particles_Model.particle_Approved_Material = data.approved_Material;
+			data.particles_Model.particle_Composition = data.composition;
+		}
+
 		// Layer, Substrate
 		if(!Global_Variables::check_Loaded_Version(1,11,0))
 		{
