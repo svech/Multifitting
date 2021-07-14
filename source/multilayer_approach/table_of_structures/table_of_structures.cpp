@@ -5704,7 +5704,13 @@ void Table_Of_Structures::check_Material(QLineEdit* line_Edit, bool close, bool 
 	{
 		line_Edit->textEdited(line_Edit->text());
 		Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-		if(optical_Constants->material_Map.contains(struct_Data.material + nk_Ext))
+		QString material;
+		if(is_Particle) {
+			material = struct_Data.particles_Model.particle_Material;
+		} else {
+			material = struct_Data.material;
+		}
+		if(optical_Constants->material_Map.contains(material + nk_Ext))
 		{
 			if(is_Particle) {
 				struct_Data.particles_Model.particle_Approved_Material = struct_Data.particles_Model.particle_Material;
@@ -5714,14 +5720,19 @@ void Table_Of_Structures::check_Material(QLineEdit* line_Edit, bool close, bool 
 		} else
 		{
 			line_Edit->blockSignals(true);
-			QMessageBox::information(this, "Wrong material", "File \"" + struct_Data.material + nk_Ext + "\" not found");
+			if(is_Particle) {
+				QMessageBox::information(this, "Wrong material", "File \"" + struct_Data.particles_Model.particle_Material + nk_Ext + "\" not found");
+			} else {
+				QMessageBox::information(this, "Wrong material", "File \"" + struct_Data.material + nk_Ext + "\" not found");
+			}
 			line_Edit->blockSignals(false);
 			if(is_Particle) {
 				struct_Data.particles_Model.particle_Material = struct_Data.particles_Model.particle_Approved_Material;
+				line_Edit->setText(struct_Data.particles_Model.particle_Material);
 			} else {
 				struct_Data.material = struct_Data.approved_Material;
+				line_Edit->setText(struct_Data.material);
 			}
-			line_Edit->setText(struct_Data.material);
 			line_Edit->textEdited(line_Edit->text());
 		}
 		QVariant var;
