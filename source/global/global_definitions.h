@@ -17,7 +17,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 23
+#define VERSION_BUILD 24
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -453,6 +453,7 @@ class Node;
 #define relative_Rows_To_Disable_Finish_Property	"relative_Rows_To_Disable_Finish"
 #define relative_Columns_To_Disable_Start_Property	"relative_Columns_To_Disable_Start"
 #define relative_Columns_To_Disable_Finish_Property	"relative_Columns_To_Disable_Finish"
+#define relative_Columns_To_Exclude_Property		"relative_Columns_To_Exclude"
 
 // second group
 #define relative_Rows_To_Disable_Start_Property_2		"relative_Rows_To_Disable_Start_2"
@@ -972,7 +973,11 @@ struct Roughness_Model			{
 								};
 struct Particles_Model		{
 								bool is_Enabled = false;
+								bool is_Independent = true;
 								bool is_Used = true;
+								bool is_Last_Layer = false;
+								bool is_Second_Last_Layer = is_Last_Layer;
+
 								bool set_Another_Material = false;
 
 								QString particle_Shape = full_Spheroid;

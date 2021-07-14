@@ -1764,7 +1764,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					new_Table->setSpan(current_Row+1,current_Column,4,1);
 				}
 				// last
-				create_Check_Box_Usage (new_Table, tab_Index, current_Row,   current_Column, structure_Item, "on/off", 0, 4, 0, 2020); // more than table size, it is like inf
+				create_Check_Box_Usage (new_Table, tab_Index, current_Row, current_Column, structure_Item, "on/off", 0, 4, 0, 2020); // more than table size, it is like inf
 
 				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=2;
@@ -1772,12 +1772,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// particle density
 			bool show_Particle_Density = false;
-			if(	struct_Data.particles_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled)
 			{
-				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
-				{
-					show_Particle_Density = true;
-				}
+				show_Particle_Density = true;
 			}
 			if(show_Particle_Density)
 			{
@@ -1824,9 +1821,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// particle radius
 			bool show_Particle_Radius = false;
-			if(	struct_Data.particles_Model.is_Enabled )
+			if(struct_Data.particles_Model.is_Enabled && struct_Data.particles_Model.is_Independent)
 			{
-				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
+//				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
 				{
 					if( struct_Data.particles_Model.particle_Shape == full_Sphere ||
 						struct_Data.particles_Model.particle_Shape == full_Spheroid ||
@@ -1867,9 +1864,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// particle height
 			bool show_Particle_Height = false;
-			if(	struct_Data.particles_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled && struct_Data.particles_Model.is_Independent)
 			{
-				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
+//				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
 				{
 					if( struct_Data.particles_Model.particle_Shape == full_Spheroid ||
 						struct_Data.particles_Model.particle_Shape == cylinder )
@@ -1934,7 +1931,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// particle average distance
 			bool show_Particle_Average_Distance = false;
-			if(	struct_Data.particles_Model.is_Enabled)
+			if(	struct_Data.particles_Model.is_Enabled && struct_Data.particles_Model.is_Independent )
 			{
 				if(show_Whole_Layer)
 				{
@@ -1979,7 +1976,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// particle radial distance
 			bool show_Particle_Radial_Distance = false;
-			if(	struct_Data.particles_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled && struct_Data.particles_Model.is_Independent )
 			{
 				if(show_Whole_Layer)
 				{
@@ -2024,7 +2021,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// particle radial distance deviation
 			bool show_Particle_Radial_Distance_Deviation = false;
-			if(	struct_Data.particles_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled && struct_Data.particles_Model.is_Independent )
 			{
 				if(show_Whole_Layer)
 				{
@@ -2068,7 +2065,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// domain size
 			bool show_Domain_Size = false;
-			if(	struct_Data.particles_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled && struct_Data.particles_Model.is_Independent )
 			{
 				if(show_Whole_Layer)
 				{
@@ -2121,9 +2118,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// particle z position
 			bool show_Particle_Z_Position = false;
-			if(	struct_Data.particles_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled && struct_Data.particles_Model.is_Independent )
 			{
-				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
+//				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
 				{
 					show_Particle_Z_Position = true;
 				}
@@ -2159,9 +2156,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// particle z position deviation
 			bool show_Particle_Z_Position_Deviation = false;
-			if(	struct_Data.particles_Model.is_Enabled )
+			if(	struct_Data.particles_Model.is_Enabled && struct_Data.particles_Model.is_Independent )
 			{
-				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
+//				if(show_Whole_Layer || show_Partial_Individual_Layer || show_Full_Individual_Layer)
 				{
 					show_Particle_Z_Position_Deviation = true;
 				}
@@ -6771,6 +6768,7 @@ void Table_Of_Structures::cells_On_Off(My_Table_Widget* table, bool borders, boo
 		for(int col=column_Start; col<=column_Finish; ++col)
 		{
 			QWidget* widget = table->cellWidget(current_Row+row,current_Column+col);
+
 			if(widget && check_Box->parent()!=widget /* do not disable itself */)
 			{
 				// god mode always satisfies condition

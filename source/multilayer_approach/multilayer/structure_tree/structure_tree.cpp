@@ -556,15 +556,7 @@ void Structure_Tree::refresh_Tree_Particles(bool refresh_Shape, bool refresh_Int
 					}
 				}
 			}
-			if( multilayer->imperfections_Model.particle_Vertical_Correlation == full_Correlation ||
-				multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation )
-			{
-				Global_Variables::enable_Disable_Particles_Model(struct_Data, multilayer->imperfections_Model, is_Last_Layer);
-			}
-			if( multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation )
-			{
-				Global_Variables::enable_Disable_Particles_Model(struct_Data, multilayer->imperfections_Model, is_Last_Two_Layers);
-			}
+			Global_Variables::enable_Disable_Particles_Model(struct_Data, multilayer->imperfections_Model, is_Last_Layer, is_Last_Two_Layers && !is_Last_Layer);
 
 			if(refresh_Shape)
 			{

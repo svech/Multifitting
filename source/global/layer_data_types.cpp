@@ -1424,33 +1424,48 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 	// Layer
 	//---------------------------------------------
 	if( item_Type == item_Type_Layer )
-	{		
+	{			
 		potentially_Fitable_Parameters.push_back(&thickness);
 
 		if(imperfections_Model.use_Particles && particles_Model.is_Enabled && particles_Model.is_Used)	 // automatically imperfections_Model.use_Particles == particles_Model.is_Enabled
 		{
 			// particles
-			if(particles_Model.particle_Composition.size()>1 && composed_Material)
+			if(particles_Model.set_Another_Material)
 			{
-				for(Stoichiometry& stoichiometry : particles_Model.particle_Composition)
+				if(particles_Model.particle_Composition.size()>1 && composed_Material)
 				{
-					potentially_Fitable_Parameters.push_back(&stoichiometry.composition);
+					for(Stoichiometry& stoichiometry : particles_Model.particle_Composition)
+					{
+						potentially_Fitable_Parameters.push_back(&stoichiometry.composition);
+					}
+				}
+				if(composed_Material) {
+					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Absolute_Density);
+				} else {
+					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Relative_Density);
 				}
 			}
-			if(composed_Material) {
-				potentially_Fitable_Parameters.push_back(&particles_Model.particle_Absolute_Density);
-			} else {
-				potentially_Fitable_Parameters.push_back(&particles_Model.particle_Relative_Density);
+			if(particles_Model.is_Independent)
+			{
+				potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radius);
+				potentially_Fitable_Parameters.push_back(&particles_Model.particle_Height);
+				if(imperfections_Model.particle_Vertical_Correlation == zero_Correlation || particles_Model.is_Last_Layer)
+				{
+					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Average_Distance);
+					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radial_Distance);
+					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radial_Distance_Deviation);
+					potentially_Fitable_Parameters.push_back(&particles_Model.domain_Size);
+				}
+				potentially_Fitable_Parameters.push_back(&particles_Model.particle_Z_Position);
+				potentially_Fitable_Parameters.push_back(&particles_Model.particle_Z_Position_Deviation);
 			}
-			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radius);
-			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Height);
-			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Average_Distance);
-			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radial_Distance);
-			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radial_Distance_Deviation);
-			potentially_Fitable_Parameters.push_back(&particles_Model.domain_Size);
-			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Correlation_Depth);
-			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Z_Position);
-			potentially_Fitable_Parameters.push_back(&particles_Model.particle_Z_Position_Deviation);
+			if(imperfections_Model.particle_Vertical_Correlation == partial_Correlation)
+			{
+				if(particles_Model.is_Independent || particles_Model.is_Second_Last_Layer)
+				{
+					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Correlation_Depth);
+				}
+			}
 		}
 
 		if(imperfections_Model.show_Drift)
@@ -1659,27 +1674,43 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 		if(imperfections_Model.use_Particles)
 		{
 			// particles
-			if(particles_Model.particle_Composition.size()>1 && composed_Material)
+			if(particles_Model.set_Another_Material)
 			{
-				for(Stoichiometry& stoichiometry : particles_Model.particle_Composition)
+				if(particles_Model.particle_Composition.size()>1 && composed_Material)
 				{
-					table_Showed_Parameters.push_back(&stoichiometry.composition);
+					for(Stoichiometry& stoichiometry : particles_Model.particle_Composition)
+					{
+						table_Showed_Parameters.push_back(&stoichiometry.composition);
+					}
+				}
+				if(composed_Material) {
+					table_Showed_Parameters.push_back(&particles_Model.particle_Absolute_Density);
+				} else {
+					table_Showed_Parameters.push_back(&particles_Model.particle_Relative_Density);
 				}
 			}
-			if(composed_Material) {
-				table_Showed_Parameters.push_back(&particles_Model.particle_Absolute_Density);
-			} else {
-				table_Showed_Parameters.push_back(&particles_Model.particle_Relative_Density);
+
+			if(particles_Model.is_Independent)
+			{
+				table_Showed_Parameters.push_back(&particles_Model.particle_Radius);
+				table_Showed_Parameters.push_back(&particles_Model.particle_Height);
+				if(imperfections_Model.particle_Vertical_Correlation == zero_Correlation || particles_Model.is_Last_Layer)
+				{
+					table_Showed_Parameters.push_back(&particles_Model.particle_Average_Distance);
+					table_Showed_Parameters.push_back(&particles_Model.particle_Radial_Distance);
+					table_Showed_Parameters.push_back(&particles_Model.particle_Radial_Distance_Deviation);
+					table_Showed_Parameters.push_back(&particles_Model.domain_Size);
+				}
+				table_Showed_Parameters.push_back(&particles_Model.particle_Z_Position);
+				table_Showed_Parameters.push_back(&particles_Model.particle_Z_Position_Deviation);
 			}
-			table_Showed_Parameters.push_back(&particles_Model.particle_Radius);
-			table_Showed_Parameters.push_back(&particles_Model.particle_Height);
-			table_Showed_Parameters.push_back(&particles_Model.particle_Average_Distance);
-			table_Showed_Parameters.push_back(&particles_Model.particle_Radial_Distance);
-			table_Showed_Parameters.push_back(&particles_Model.particle_Radial_Distance_Deviation);
-			table_Showed_Parameters.push_back(&particles_Model.domain_Size);
-			table_Showed_Parameters.push_back(&particles_Model.particle_Correlation_Depth);
-			table_Showed_Parameters.push_back(&particles_Model.particle_Z_Position);
-			table_Showed_Parameters.push_back(&particles_Model.particle_Z_Position_Deviation);
+			if(imperfections_Model.particle_Vertical_Correlation == partial_Correlation)
+			{
+				if(particles_Model.is_Independent || particles_Model.is_Second_Last_Layer)
+				{
+					table_Showed_Parameters.push_back(&particles_Model.particle_Correlation_Depth);
+				}
+			}
 		}
 
 		if(imperfections_Model.show_Drift)
