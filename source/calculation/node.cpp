@@ -41,8 +41,43 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			}
 
 			epsilon.resize(num_Points);
+			delta_Epsilon.resize(num_Points);
 			vector<double> spectral_Points (1, measurement.lambda_Value);
-			fill_Epsilon_For_Angular_Measurements(spectral_Points, true);
+
+			/// ---------------------------------------------------------------------------------------------------------------
+			/// delta_Epsilon
+			/// ---------------------------------------------------------------------------------------------------------------
+
+			// efect of particles material on delta epsilon
+			if(struct_Data.particles_Model.is_Used && struct_Data.thickness.value>DBL_EPSILON)
+			{
+				if(imperfections_Model.use_Particles_Material)
+				{
+					// use usual density
+					fill_Delta_Epsilon(delta_Epsilon, spectral_Points, false, false);
+					// and then mix permittivity
+					delta_Epsilon_Particles.resize(num_Points);
+					fill_Delta_Epsilon(delta_Epsilon_Particles, spectral_Points, true, false);
+					struct_Data.average_Delta_Epsilon(delta_Epsilon, delta_Epsilon_Particles, imperfections_Model.use_Particles_Material);
+				} else
+				{
+					// use average density for same material
+					fill_Delta_Epsilon(delta_Epsilon, spectral_Points, false, true);
+				}
+			} else
+			{
+				// not use particles
+				fill_Delta_Epsilon(delta_Epsilon, spectral_Points, false, false);
+			}
+
+			/// ---------------------------------------------------------------------------------------------------------------
+			/// epsilon
+			/// ---------------------------------------------------------------------------------------------------------------
+
+			for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
+			{
+				epsilon[point_Index] = 1. - delta_Epsilon[point_Index];
+			}
 		}
 		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
 		{
@@ -62,48 +97,36 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			/// delta_Epsilon
 			/// ---------------------------------------------------------------------------------------------------------------
 
-			vector<double> spectral_Points = measurement.lambda_Vec;
-
-			// if known material
-			if(struct_Data.composed_Material == false)
+			// efect of particles material on delta epsilon
+			if(struct_Data.particles_Model.is_Used && struct_Data.thickness.value>DBL_EPSILON)
 			{
-				Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.approved_Material + nk_Ext);
-				vector<complex<double>> n;
-				optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.approved_Material);
-
-				for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
+				if(imperfections_Model.use_Particles_Material)
 				{
-					delta_Epsilon[point_Index] = 1. - n[point_Index]*n[point_Index];
-//					if(abs(imag(delta_Epsilon[point_Index]))<DBL_EPSILON) delta_Epsilon[point_Index] -= complex<double>(0,DBL_EPSILON);
+					// use usual density
+					fill_Delta_Epsilon(delta_Epsilon, measurement.lambda_Vec, false, false);
+					// and then mix permittivity
+					delta_Epsilon_Particles.resize(num_Points);
+					fill_Delta_Epsilon(delta_Epsilon_Particles, measurement.lambda_Vec, true, false);
+					struct_Data.average_Delta_Epsilon(delta_Epsilon, delta_Epsilon_Particles, imperfections_Model.use_Particles_Material);
+				} else
+				{
+					// use average density for same material
+					fill_Delta_Epsilon(delta_Epsilon, measurement.lambda_Vec, false, true);
 				}
 			} else
-			// compile from elements
 			{
-				vector<complex<double>> temp_Epsilon;
-				optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.average_Layer_density(), spectral_Points, temp_Epsilon);
-
-				for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
-				{
-					delta_Epsilon[point_Index] = 1. - temp_Epsilon[point_Index];
-//					if(abs(imag(delta_Epsilon[point_Index]))<DBL_EPSILON) delta_Epsilon[point_Index] -= complex<double>(0,DBL_EPSILON);
-				}
+				// not use particles
+				fill_Delta_Epsilon(delta_Epsilon, measurement.lambda_Vec, false, false);
 			}
 
 			/// ---------------------------------------------------------------------------------------------------------------
 			/// epsilon
 			/// ---------------------------------------------------------------------------------------------------------------
 
-			// if absolute density
-			if(struct_Data.composed_Material)
-													for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
-													{
-														epsilon[point_Index] = 1. - delta_Epsilon[point_Index];
-													}
-			// if relative density
-			else									for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
-													{
-														epsilon[point_Index] = 1. - struct_Data.average_Layer_density() * delta_Epsilon[point_Index];
-													}
+			for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
+			{
+				epsilon[point_Index] = 1. - delta_Epsilon[point_Index];
+			}
 		}
 	}
 	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
@@ -142,7 +165,13 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 
 		epsilon.resize(num_Points);
 		vector<double> spectral_Points(1, measurement.lambda_Value);
-		fill_Epsilon_For_Angular_Measurements(spectral_Points);
+
+		// not use particles here
+		fill_Delta_Epsilon(delta_Epsilon, spectral_Points, false, false);
+		for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
+		{
+			epsilon[point_Index] = 1. - delta_Epsilon[point_Index];
+		}
 
 		// for scattering on particles
 		if(mode == SCATTERED_MODE)
@@ -554,8 +583,10 @@ void Node::calculate_PSD_Factor(const Imperfections_Model& imperfections_Model)
 	}
 }
 
-void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points, bool specular_Case)
+void Node::fill_Delta_Epsilon_For_Angular_Measurements(vector<complex<double>>& delta_Epsilon, const vector<double>& spectral_Points, bool specular_Case)
 {
+	bool is_Particles = struct_Data.particles_Model.is_Used && struct_Data.thickness.value>DBL_EPSILON;
+
 	complex<double> delta_Epsilon_Ang, epsilon_Ang;
 
 	/// ---------------------------------------------------------------------------------------------------------------
@@ -565,20 +596,26 @@ void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points
 	// if known material
 	if(struct_Data.composed_Material == false)
 	{
-		Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.approved_Material + nk_Ext);
+		QString approved_Material = is_Particles ? struct_Data.particles_Model.particle_Approved_Material : struct_Data.approved_Material;
+
+		Material_Data temp_Material_Data = optical_Constants->material_Map.value(approved_Material + nk_Ext);
 		vector<complex<double>> n;
-		optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.approved_Material);
+		optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, approved_Material);
 		delta_Epsilon_Ang = 1. - n.front()*n.front();
 	} else
 	// compile from elements
 	{
-		double density = struct_Data.absolute_Density.value;
-		if(specular_Case) density = struct_Data.average_Layer_density();
+		QList<Stoichiometry>& composition = is_Particles ? struct_Data.particles_Model.particle_Composition : struct_Data.composition;
+		double density = is_Particles ? struct_Data.particles_Model.particle_Absolute_Density.value : struct_Data.absolute_Density.value;
+
+//		if(specular_Case) density = struct_Data.average_Layer_density();
 		vector<complex<double>> temp_Epsilon;
-		optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, density, spectral_Points, temp_Epsilon);
+		optical_Constants->make_Epsilon_From_Factors(composition, density, spectral_Points, temp_Epsilon);
 		delta_Epsilon_Ang = 1. - temp_Epsilon.front();
 	}
 //	if(abs(imag(delta_Epsilon_Ang))<DBL_EPSILON) delta_Epsilon_Ang -= complex<double>(0,DBL_EPSILON);
+
+	delta_Epsilon.assign(delta_Epsilon.size(), delta_Epsilon_Ang);
 
 	/// ---------------------------------------------------------------------------------------------------------------
 	/// epsilon
@@ -598,6 +635,38 @@ void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points
 	for(size_t point_Index = 0; point_Index<epsilon.size(); ++point_Index)
 	{
 		epsilon[point_Index] = epsilon_Ang;
+	}
+}
+
+void Node::fill_Delta_Epsilon(vector<complex<double>>& delta_Epsilon, const vector<double>& spectral_Points, bool particles, bool use_Average_Density)
+{
+	// if known material
+	if(struct_Data.composed_Material == false)
+	{
+		QString approved_Material = particles ? struct_Data.particles_Model.particle_Approved_Material : struct_Data.approved_Material;
+		double relative_Density = particles ? struct_Data.particles_Model.particle_Relative_Density.value : use_Average_Density ? struct_Data.average_Layer_density() : struct_Data.relative_Density.value;
+
+		Material_Data temp_Material_Data = optical_Constants->material_Map.value(approved_Material + nk_Ext);
+		vector<complex<double>> n;
+		optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, approved_Material);
+
+		for(size_t point_Index = 0; point_Index<spectral_Points.size(); ++point_Index)
+		{
+			delta_Epsilon[point_Index] = (1. - n[point_Index]*n[point_Index])*relative_Density;
+		}
+	} else
+	// compile from elements
+	{
+		QList<Stoichiometry>& composition = particles ? struct_Data.particles_Model.particle_Composition : struct_Data.composition;
+		double density = particles ? struct_Data.particles_Model.particle_Absolute_Density.value : use_Average_Density ? struct_Data.average_Layer_density() : struct_Data.absolute_Density.value;
+
+		vector<complex<double>> temp_Epsilon;
+		optical_Constants->make_Epsilon_From_Factors(composition, density, spectral_Points, temp_Epsilon);
+
+		for(size_t point_Index = 0; point_Index<spectral_Points.size(); ++point_Index)
+		{
+			delta_Epsilon[point_Index] = 1. - temp_Epsilon[point_Index];
+		}
 	}
 }
 

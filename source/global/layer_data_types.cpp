@@ -1226,51 +1226,57 @@ double Data::get_Max_Delta_Theta_Detector() const
 	return max_Delta_Theta_Detector;
 }
 
+void Data::calc_Layer_Particles_Share(double particle_Volume, double layer_Volume) const
+{
+	// particle shape
+	particle_Volume = 0;
+	if(particles_Model.particle_Shape == full_Sphere)
+	{
+		particle_Volume = 4*M_PI/3.*pow(particles_Model.particle_Radius.value,3);
+	}
+	if(particles_Model.particle_Shape == full_Spheroid)
+	{
+		particle_Volume = 2*M_PI/3.*pow(particles_Model.particle_Radius.value,2)*particles_Model.particle_Height.value;
+	}
+	if(particles_Model.particle_Shape == cylinder)
+	{
+		particle_Volume = M_PI*pow(particles_Model.particle_Radius.value,2)*particles_Model.particle_Height.value;
+	}
+
+	double average_Distance = 1;
+	if(particles_Model.particle_Interference_Function == radial_Paracrystal)
+	{
+		average_Distance = particles_Model.particle_Radial_Distance.value;
+	}
+	if(particles_Model.particle_Interference_Function == disorder)
+	{
+		average_Distance = particles_Model.particle_Average_Distance.value;
+	}
+
+	layer_Volume = 1;
+	if(particles_Model.geometric_Model == hexagonal_Model)
+	{
+		layer_Volume = thickness.value*M_SQRT3/2*average_Distance*average_Distance;
+	}
+	if(particles_Model.geometric_Model == square_Model)
+	{
+		layer_Volume = thickness.value*average_Distance*average_Distance;
+	}
+	if(particles_Model.geometric_Model == pure_Radial_Model)
+	{
+		layer_Volume = thickness.value*M_SQRT3/2*average_Distance*average_Distance;
+	}
+	if(layer_Volume<DBL_MIN) layer_Volume = DBL_MIN;
+}
+
 double Data::average_Layer_density() const
 {
 	if(/*particles_Model.is_Enabled && */particles_Model.is_Used && thickness.value>DBL_EPSILON)
 	{
-		// particle shape
-		double particle_Volume = 0;
-		if(particles_Model.particle_Shape == full_Sphere)
-		{
-			particle_Volume = 4*M_PI/3.*pow(particles_Model.particle_Radius.value,3);
-		}
-		if(particles_Model.particle_Shape == full_Spheroid)
-		{
-			particle_Volume = 2*M_PI/3.*pow(particles_Model.particle_Radius.value,2)*particles_Model.particle_Height.value;
-		}
-		if(particles_Model.particle_Shape == cylinder)
-		{
-			particle_Volume = M_PI*pow(particles_Model.particle_Radius.value,2)*particles_Model.particle_Height.value;
-		}
+		double particle_Volume, layer_Volume;
+		calc_Layer_Particles_Share(particle_Volume, layer_Volume);
 
-		double average_Distance = 1;
-		if(particles_Model.particle_Interference_Function == radial_Paracrystal)
-		{
-			average_Distance = particles_Model.particle_Radial_Distance.value;
-		}
-		if(particles_Model.particle_Interference_Function == disorder)
-		{
-			average_Distance = particles_Model.particle_Average_Distance.value;
-		}
-
-		double layer_Volume = 1;
-		if(particles_Model.geometric_Model == hexagonal_Model)
-		{
-			layer_Volume = thickness.value*M_SQRT3/2*average_Distance*average_Distance;
-		}
-		if(particles_Model.geometric_Model == square_Model)
-		{
-			layer_Volume = thickness.value*average_Distance*average_Distance;
-		}
-		if(particles_Model.geometric_Model == pure_Radial_Model)
-		{
-			layer_Volume = thickness.value*M_SQRT3/2*average_Distance*average_Distance;
-		}
-		if(layer_Volume<DBL_MIN) layer_Volume = DBL_MIN;
-
-		// resultin density
+		// resulting density
 		double average_Density;
 		if(composed_Material)	{average_Density = (absolute_Density.value*(layer_Volume-particle_Volume) + particles_Model.particle_Absolute_Density.value*particle_Volume)/layer_Volume;	}
 		else					{average_Density = (relative_Density.value*(layer_Volume-particle_Volume) + particles_Model.particle_Relative_Density.value*particle_Volume)/layer_Volume;	}
@@ -1279,8 +1285,33 @@ double Data::average_Layer_density() const
 		return average_Density;
 	} else
 	{
-		if(composed_Material)	{return absolute_Density.value;	}
-		else					{return relative_Density.value;	}
+		if(composed_Material)	{return absolute_Density.value;}
+		else					{return relative_Density.value;}
+	}
+}
+
+void Data::average_Delta_Epsilon(vector<complex<double>>& d_Eps, const vector<complex<double>>& d_Eps_Particles, bool use_Particles_Material) const
+{
+	// modifies d_Eps
+	double particle_Volume, layer_Volume;
+	calc_Layer_Particles_Share(particle_Volume, layer_Volume);
+
+	if(use_Particles_Material)
+	{
+		for(int i=0; i<d_Eps.size(); i++)
+		{
+			d_Eps[i] = (d_Eps[i]*(layer_Volume-particle_Volume) + d_Eps_Particles*particle_Volume)/layer_Volume;
+		}
+	} else
+	{
+		double density_factor;
+		if(composed_Material)	{average_Density = (absolute_Density.value*(layer_Volume-particle_Volume) + particles_Model.particle_Absolute_Density.value*particle_Volume)/layer_Volume;	}
+		else					{average_Density = (relative_Density.value*(layer_Volume-particle_Volume) + particles_Model.particle_Relative_Density.value*particle_Volume)/layer_Volume;	}
+
+		for(int i=0; i<d_Eps.size(); i++)
+		{
+			d_Eps[i] = (d_Eps[i]*(layer_Volume-particle_Volume) + d_Eps_Particles*particle_Volume)/layer_Volume;
+		}
 	}
 }
 

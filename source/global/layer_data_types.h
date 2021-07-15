@@ -129,7 +129,9 @@ public:
 		double main_PSD_1D_factor;			// without saving
 		double main_PSD_2D_factor;			// without saving
 
+		void calc_Layer_Particles_Share(double particle_Volume, double layer_Volume) const;
 		double average_Layer_density() const;
+		void average_Delta_Epsilon(vector<complex<double>>& d_Eps, const vector<complex<double>>& d_Eps_Particles, bool use_Particles_Material) const;
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer

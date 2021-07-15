@@ -15,8 +15,8 @@ public:
 	QMap<QString, Element_Data>  element_Map;
 
 	void reload();
-	void interpolation_Epsilon(QVector<Point>& input_Values, vector<double> &spectral_Points, vector<complex<double> > &output_Values, QString material);
-	void make_Epsilon_From_Factors(const QList<Stoichiometry>& composition, double density, vector<double>& spectral_Points, vector<complex<double>>& epsilon);
+	void interpolation_Epsilon(QVector<Point>& input_Values, const vector<double>& spectral_Points, vector<complex<double>>& output_Values, QString material);
+	void make_Epsilon_From_Factors(const QList<Stoichiometry>& composition, double density, const vector<double>& spectral_Points, vector<complex<double>>& epsilon);
 private:
 	void read_All();
 	void read_nMin_nMax_Materials(int n_Min, int n_Max, int thread_Index);

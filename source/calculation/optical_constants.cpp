@@ -158,7 +158,7 @@ void Optical_Constants::read_All_Elements()
 	}
 }
 
-void Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, vector<double>& spectral_Points, vector<complex<double>>& output_Values, QString material)
+void Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, const vector<double>& spectral_Points, vector<complex<double>>& output_Values, QString material)
 {
 	const gsl_interp_type *interp_type = gsl_interp_steffen;
 
@@ -208,7 +208,7 @@ void Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, vect
 	gsl_interp_accel_free(acc_Im);
 }
 
-void Optical_Constants::make_Epsilon_From_Factors(const QList<Stoichiometry>& composition, double density, vector<double>& spectral_Points, vector<complex<double>>& epsilon)
+void Optical_Constants::make_Epsilon_From_Factors(const QList<Stoichiometry>& composition, double density, const vector<double>& spectral_Points, vector<complex<double>>& epsilon)
 {
 	double denominator = 0;	// sum of stoich and masses
 

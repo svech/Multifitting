@@ -21,8 +21,11 @@ public:
 
 	vector<complex<double>> delta_Epsilon;
 	vector<complex<double>> epsilon;
-	void fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points, bool specular_Case = false);
+	void fill_Delta_Epsilon_For_Angular_Measurements(vector<complex<double>>& delta_Epsilon, const vector<double>& spectral_Points, bool specular_Case = false);
 
+	void fill_Delta_Epsilon(vector<complex<double>>& delta_Epsilon, const vector<double>& spectral_Points, bool particles, bool use_Average_Density);
+
+	vector<complex<double>> delta_Epsilon_Particles;
 	complex<double> delta_Epsilon_Contrast;
 	void fill_Epsilon_Contrast_For_Particles(vector<double>& spectral_Points);
 
