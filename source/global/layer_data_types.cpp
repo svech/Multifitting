@@ -1296,22 +1296,9 @@ void Data::average_Delta_Epsilon(vector<complex<double>>& d_Eps, const vector<co
 	double particle_Volume, layer_Volume;
 	calc_Layer_Particles_Share(particle_Volume, layer_Volume);
 
-	if(use_Particles_Material)
+	for(int i=0; i<d_Eps.size(); i++)
 	{
-		for(int i=0; i<d_Eps.size(); i++)
-		{
-			d_Eps[i] = (d_Eps[i]*(layer_Volume-particle_Volume) + d_Eps_Particles*particle_Volume)/layer_Volume;
-		}
-	} else
-	{
-		double density_factor;
-		if(composed_Material)	{average_Density = (absolute_Density.value*(layer_Volume-particle_Volume) + particles_Model.particle_Absolute_Density.value*particle_Volume)/layer_Volume;	}
-		else					{average_Density = (relative_Density.value*(layer_Volume-particle_Volume) + particles_Model.particle_Relative_Density.value*particle_Volume)/layer_Volume;	}
-
-		for(int i=0; i<d_Eps.size(); i++)
-		{
-			d_Eps[i] = (d_Eps[i]*(layer_Volume-particle_Volume) + d_Eps_Particles*particle_Volume)/layer_Volume;
-		}
+		d_Eps[i] = (d_Eps[i]*(layer_Volume-particle_Volume) + d_Eps_Particles[i]*particle_Volume)/layer_Volume;
 	}
 }
 
