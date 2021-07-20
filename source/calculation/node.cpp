@@ -55,9 +55,10 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				{
 					// use usual density
 					fill_Delta_Epsilon(delta_Epsilon, spectral_Points, false, false);
-					// and then mix permittivity
+					// calc permittivity for particles
 					delta_Epsilon_Particles.resize(num_Points);
 					fill_Delta_Epsilon(delta_Epsilon_Particles, spectral_Points, true, false);
+					// and then mix permittivity
 					struct_Data.average_Delta_Epsilon(delta_Epsilon, delta_Epsilon_Particles, imperfections_Model.use_Particles_Material);
 				} else
 				{
