@@ -1226,7 +1226,7 @@ double Data::get_Max_Delta_Theta_Detector() const
 	return max_Delta_Theta_Detector;
 }
 
-void Data::calc_Layer_Particles_Share(double particle_Volume, double layer_Volume) const
+void Data::calc_Layer_Particles_Share(double& particle_Volume, double& layer_Volume) const
 {
 	// particle shape
 	particle_Volume = 0;

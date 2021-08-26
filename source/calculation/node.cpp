@@ -645,15 +645,24 @@ void Node::fill_Delta_Epsilon(vector<complex<double>>& delta_Epsilon, const vect
 	if(struct_Data.composed_Material == false)
 	{
 		QString approved_Material = particles ? struct_Data.particles_Model.particle_Approved_Material : struct_Data.approved_Material;
-		double relative_Density = particles ? struct_Data.particles_Model.particle_Relative_Density.value : use_Average_Density ? struct_Data.average_Layer_density() : struct_Data.relative_Density.value;
+		double relative_Density   = particles ? struct_Data.particles_Model.particle_Relative_Density.value : use_Average_Density ? struct_Data.average_Layer_density() : struct_Data.relative_Density.value;
 
 		Material_Data temp_Material_Data = optical_Constants->material_Map.value(approved_Material + nk_Ext);
 		vector<complex<double>> n;
 		optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, approved_Material);
 
-		for(size_t point_Index = 0; point_Index<spectral_Points.size(); ++point_Index)
+		if(spectral_Points.size() == 1)
 		{
-			delta_Epsilon[point_Index] = (1. - n[point_Index]*n[point_Index])*relative_Density;
+			for(size_t point_Index = 0; point_Index<delta_Epsilon.size(); ++point_Index)
+			{
+				delta_Epsilon[point_Index] = (1. - n.front()*n.front())*relative_Density;
+			}
+		} else
+		{
+			for(size_t point_Index = 0; point_Index<delta_Epsilon.size(); ++point_Index)
+			{
+				delta_Epsilon[point_Index] = (1. - n[point_Index]*n[point_Index])*relative_Density;
+			}
 		}
 	} else
 	// compile from elements
@@ -664,9 +673,18 @@ void Node::fill_Delta_Epsilon(vector<complex<double>>& delta_Epsilon, const vect
 		vector<complex<double>> temp_Epsilon;
 		optical_Constants->make_Epsilon_From_Factors(composition, density, spectral_Points, temp_Epsilon);
 
-		for(size_t point_Index = 0; point_Index<spectral_Points.size(); ++point_Index)
+		if(spectral_Points.size() == 1)
 		{
-			delta_Epsilon[point_Index] = 1. - temp_Epsilon[point_Index];
+			for(size_t point_Index = 0; point_Index<delta_Epsilon.size(); ++point_Index)
+			{
+				delta_Epsilon[point_Index] = 1. - temp_Epsilon.front();
+			}
+		} else
+		{
+			for(size_t point_Index = 0; point_Index<delta_Epsilon.size(); ++point_Index)
+			{
+				delta_Epsilon[point_Index] = 1. - temp_Epsilon[point_Index];
+			}
 		}
 	}
 }

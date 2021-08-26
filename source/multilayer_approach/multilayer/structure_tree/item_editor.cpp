@@ -1420,7 +1420,7 @@ void Item_Editor::read_Interlayers_From_Item()
 
 void Item_Editor::fewer_Elements_Clicked()
 {
-	if (element_Frame_Vec.size()<=2)	fewer_Elements->hide();
+	if(element_Frame_Vec.size()<=2)	fewer_Elements->hide();
 
 	struct_Data.composition.removeLast();
 
@@ -1432,14 +1432,17 @@ void Item_Editor::fewer_Elements_Clicked()
 	delete element_Frame_Vec.last();
 	element_Frame_Vec.removeLast();
 
-	auto_Density_On = true; refresh_Data(); auto_Density_On = false;
-	show_Material();
+	auto_Density_On = true;
+	refresh_Data();
+	auto_Density_On = false;
 	if (element_Frame_Vec.size()==1)
 	{
 		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
+		{
 			composition_Line_Edit_Vec.first()->setDisabled(true);
+		}
 		composition_Line_Edit_Vec.first()->setText(Locale.toString(1.,line_edit_short_double_format,line_edit_composition_precision));
-			Global_Variables::resize_Line_Edit(composition_Line_Edit_Vec.first());
+		Global_Variables::resize_Line_Edit(composition_Line_Edit_Vec.first());
 		fewer_Elements->hide();
 	}
 }
@@ -1454,8 +1457,10 @@ void Item_Editor::show_Material()
 			for(int i=0; i<struct_Data.composition.size(); ++i)
 			{
 				material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
-				if( abs(Locale.toDouble(composition_Line_Edit_Vec[i]->text()) - 1.) > DBL_EPSILON )
-					material_Line_Edit->setText(material_Line_Edit->text() + Locale.toString(Locale.toDouble(composition_Line_Edit_Vec[i]->text()),line_edit_short_double_format,line_edit_composition_precision));
+				if( abs(struct_Data.composition[i].composition.value - 1.) > DBL_EPSILON )
+				{
+					material_Line_Edit->setText(material_Line_Edit->text() + Locale.toString(struct_Data.composition[i].composition.value,line_edit_short_double_format,line_edit_composition_precision));
+				}
 			}
 		} else
 		{
@@ -1696,7 +1701,13 @@ void Item_Editor::refresh_Data()
 			double stoich_Weight = DBL_MIN;
 			for(int i=0; i<struct_Data.composition.size(); ++i)
 			{
-				struct_Data.composition[i].composition.value = Locale.toDouble(composition_Line_Edit_Vec[i]->text());
+				if(struct_Data.composition.size() > 1)
+				{
+					struct_Data.composition[i].composition.value = Locale.toDouble(composition_Line_Edit_Vec[i]->text());
+				} else
+				{
+					struct_Data.composition[i].composition.value = 1;
+				}
 
 				// only if element changed or added
 				if(auto_Density_On && i == element_Index)

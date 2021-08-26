@@ -155,6 +155,7 @@ void Table_Of_Structures::create_Tabs()
 void Table_Of_Structures::add_Tabs()
 {
 	read_Trees();
+	qInfo() << 1 << endl;
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
 		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, this, this);
@@ -173,6 +174,7 @@ void Table_Of_Structures::add_Tabs()
 	{
 		if(i!=main_Tabs->currentIndex()) main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
 	}
+	qInfo() << 2 << endl;
 
 	table_Is_Created = true;
 
@@ -182,6 +184,7 @@ void Table_Of_Structures::add_Tabs()
 		main_Tabs->setCurrentIndex(tab_Index);
 		reload_All_Widgets();
 	}
+	qInfo() << 3 << endl;
 	table_Is_Fully_Created = true;
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
@@ -192,6 +195,7 @@ void Table_Of_Structures::add_Tabs()
 		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
 		disable_enable_Structure_Items(table);
 	}
+	qInfo() << 4 << endl;
 	main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());
 }
 
@@ -676,6 +680,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Browse_Button	    (new_Table,	current_Row+1, current_Column, current_Row, current_Column);
 				}
 			}
+
 			current_Column += (max_Number_Of_Elements+1);
 			///--------------------------------------------------------------------------------------------
 
@@ -1772,7 +1777,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// particle material
 			bool show_Particle_Material = false;
-			if(	struct_Data.item_Type == item_Type_Layer && multilayer->imperfections_Model.use_Particles_Material )
+			if(	struct_Data.item_Type == item_Type_Layer && multilayer->imperfections_Model.use_Particles_Material && multilayer->imperfections_Model.use_Particles)
 			{
 				show_Particle_Material = true;
 			}
@@ -2256,6 +2261,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			new_Table->setSpan(first_Row+2,first_Roughness_Column-broadening,1,last_Roughness_Column-first_Roughness_Column+1+right_Broadening_Factor*broadening);
 			new_Table->setCellWidget(first_Row+2, first_Roughness_Column, ver_Cor_Label);
 		}
+
 
 		// big label about particles model
 		if(multilayer->imperfections_Model.use_Particles && has_Layers)
@@ -2779,6 +2785,8 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 		composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().composition;
 	}
 
+	if(composition.size()<2) return;
+
 	int current_Column = start_Column;
 	double value = -2017;
 
@@ -2848,6 +2856,8 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 {
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	QList<Stoichiometry>& composition = is_Particle ? struct_Data.particles_Model.particle_Composition : struct_Data.composition;
+
+	if(composition.size()<2) return;
 
 	int current_Column = start_Column;
 
