@@ -1145,7 +1145,7 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	// particles
 	for(int i=0; i<struct_Data.particles_Model.particle_Composition.size(); ++i)
 	{
-		if(id == struct_Data.composition[i].composition.indicator.id)						return &struct_Data.composition[i].composition;
+		if(id == struct_Data.particles_Model.particle_Composition[i].composition.indicator.id)						return &struct_Data.particles_Model.particle_Composition[i].composition;
 	}
 	if(id == struct_Data.particles_Model.particle_Absolute_Density.indicator.id)			return &struct_Data.particles_Model.particle_Absolute_Density;
 	if(id == struct_Data.particles_Model.particle_Relative_Density.indicator.id)			return &struct_Data.particles_Model.particle_Relative_Density;

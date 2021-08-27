@@ -1423,6 +1423,7 @@ void Item_Editor::fewer_Elements_Clicked()
 	if(element_Frame_Vec.size()<=2)	fewer_Elements->hide();
 
 	struct_Data.composition.removeLast();
+	struct_Data.particles_Model.particle_Composition.removeLast();
 
 	composition_Line_Edit_Vec.removeLast();
 	composition_Label_Vec.removeLast();
@@ -1707,6 +1708,7 @@ void Item_Editor::refresh_Data()
 				} else
 				{
 					struct_Data.composition[i].composition.value = 1;
+					struct_Data.particles_Model.particle_Composition[i].composition.value = 1;
 				}
 
 				// only if element changed or added

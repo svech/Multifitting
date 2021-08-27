@@ -155,7 +155,6 @@ void Table_Of_Structures::create_Tabs()
 void Table_Of_Structures::add_Tabs()
 {
 	read_Trees();
-	qInfo() << 1 << endl;
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
 		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, this, this);
@@ -174,7 +173,6 @@ void Table_Of_Structures::add_Tabs()
 	{
 		if(i!=main_Tabs->currentIndex()) main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
 	}
-	qInfo() << 2 << endl;
 
 	table_Is_Created = true;
 
@@ -184,7 +182,6 @@ void Table_Of_Structures::add_Tabs()
 		main_Tabs->setCurrentIndex(tab_Index);
 		reload_All_Widgets();
 	}
-	qInfo() << 3 << endl;
 	table_Is_Fully_Created = true;
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
@@ -195,7 +192,6 @@ void Table_Of_Structures::add_Tabs()
 		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
 		disable_enable_Structure_Items(table);
 	}
-	qInfo() << 4 << endl;
 	main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());
 }
 
