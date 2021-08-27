@@ -2135,7 +2135,10 @@ void Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString t
 void Item_Editor::regular_Aperiodic_To_Multilayer()
 {
 	struct_Data.item_Type = item_Type_Multilayer;
-	if(struct_Data.regular_Components.size() == 0) { qInfo() << "Item_Editor::regular_Aperiodic_To_Multilayer  :  regular_Components.size() == 0" << endl; exit(EXIT_FAILURE);}
+	if(struct_Data.regular_Components.size() == 0)
+	{
+		qInfo() << "Item_Editor::regular_Aperiodic_To_Multilayer  :  regular_Components.size() == 0" << endl; exit(EXIT_FAILURE);
+	}
 	struct_Data.num_Repetition.parameter.value = struct_Data.regular_Components.first().components.size();
 	struct_Data.regular_Components.clear();
 
