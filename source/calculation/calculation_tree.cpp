@@ -556,24 +556,24 @@ template void Calculation_Tree::calculate_1_Curve<Target_Curve>	    (Data_Elemen
 template<typename Type>
 void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QString mode)
 {
-//	auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
 	calculate_Intermediate_Values_1_Tree(data_Element.flat_Calc_Tree, data_Element.short_Flat_Calc_Tree, data_Element.media_Data_Map_Vector, data_Element.calc_Functions, data_Element.the_Class->measurement, mode);
 	if(lambda_Out_Of_Range) return;
-//	auto end = std::chrono::system_clock::now();
-//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "\nIntermediate:   "<< elapsed.count()/1000000. << " seconds" << endl;
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "\nIntermediate:   "<< elapsed.count()/1000000. << " seconds" << endl;
 
-//	start = std::chrono::system_clock::now();
+	start = std::chrono::system_clock::now();
 	calculate_Unwrapped_Structure(data_Element.calc_Functions, data_Element.media_Node_Map_Vector, data_Element.media_Data_Map_Vector, data_Element.media_Period_Index_Map_Vector, data_Element.the_Class->measurement, data_Element.unwrapped_Structure);
-//	end = std::chrono::system_clock::now();
-//	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
+	end = std::chrono::system_clock::now();
+	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
 
-//	start = std::chrono::system_clock::now();
+	start = std::chrono::system_clock::now();
 	calculate_Unwrapped_Reflectivity(data_Element.short_Flat_Calc_Tree, data_Element.the_Class->calculated_Values, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection, mode);
-//	end = std::chrono::system_clock::now();
-//	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
+	end = std::chrono::system_clock::now();
+	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	clear_Spline_1_Tree(data_Element.short_Flat_Calc_Tree, data_Element.the_Class->measurement, mode);
 }

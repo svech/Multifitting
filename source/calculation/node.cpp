@@ -49,7 +49,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			/// ---------------------------------------------------------------------------------------------------------------
 
 			// efect of particles material on delta epsilon
-			if(struct_Data.particles_Model.is_Used && struct_Data.thickness.value>DBL_EPSILON)
+			if(imperfections_Model.use_Particles && struct_Data.particles_Model.is_Used && struct_Data.thickness.value>DBL_EPSILON)
 			{
 				if(imperfections_Model.use_Particles_Material)
 				{
@@ -99,7 +99,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			/// ---------------------------------------------------------------------------------------------------------------
 
 			// efect of particles material on delta epsilon
-			if(struct_Data.particles_Model.is_Used && struct_Data.thickness.value>DBL_EPSILON)
+			if(imperfections_Model.use_Particles && struct_Data.particles_Model.is_Used && struct_Data.thickness.value>DBL_EPSILON)
 			{
 				if(imperfections_Model.use_Particles_Material)
 				{
@@ -163,8 +163,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 		{
 			k[point_Index] = measurement.k_Value;
 		}
-
 		epsilon.resize(num_Points);
+		delta_Epsilon.resize(num_Points);
 		vector<double> spectral_Points(1, measurement.lambda_Value);
 
 		// not use particles here
