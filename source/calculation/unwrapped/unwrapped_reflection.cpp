@@ -522,6 +522,72 @@ double function_Scattering_Linear_Growth_n_1_4_2D_sp(double phi, void* p)
 			u->p_Weight*(partially_Coherent_Sum_p + incoherent_Sum_p);
 }
 
+struct Params_Particles
+{
+	Unwrapped_Reflection* unwrapped_Reflection;
+	int thread_Index;
+	int item_Index;
+	double cos_Theta;
+	double cos_Theta_0;
+	bool phi_As_Angle;
+	QString particle_Interference_Function;
+	Node* G2_node;
+	double G1_Type_Value;
+	bool is_Z_Deviation;
+};
+
+double function_Scattering_Particles_Zero_Correlation_Z_Deviation_s (double phi, void* p)
+{
+	Params_Particles* params = reinterpret_cast<Params_Particles*>(p);
+	int thread_Index = params->thread_Index;
+	int item_Index   = params->item_Index;
+	Unwrapped_Reflection* u = params->unwrapped_Reflection;
+	QString particle_Interference_Function = params->particle_Interference_Function;
+	Node* G2_node = params->G2_node;
+	double G1_Type_Value = params->G1_Type_Value;
+	bool is_Z_Deviation = params->is_Z_Deviation;
+
+
+	// passed argument: phi or cos(phi)
+	double cos_Phi;
+	if(params->phi_As_Angle)
+		cos_Phi = cos(qDegreesToRadians(phi));
+	else
+		cos_Phi = phi;
+
+	double q = u->measurement.k_Value*sqrt(params->cos_Theta*params->cos_Theta + params->cos_Theta_0*params->cos_Theta_0 - 2*params->cos_Theta_0*params->cos_Theta*cos_Phi);
+
+	//calc_Item_Form_Factor          (thread_Index, item_Index, q, item); // without splining
+	u->calc_Item_Form_Factor_From_Spline(thread_Index, item_Index, q);
+	if(particle_Interference_Function == radial_Paracrystal)
+	{
+		double G2_Type_Value = G2_node->G2_Type_Outer(q);
+		u->calc_Item_Alfa_Factor_With_G2(thread_Index, item_Index, G2_Type_Value, G1_Type_Value, is_Z_Deviation);
+	} else
+	if(particle_Interference_Function == disorder)
+	{
+		u->calc_Item_Alfa_Factor_No_G2(thread_Index, item_Index, G1_Type_Value);
+	}
+
+	double field_With_G_2D_Factor = 0;
+
+	// for all polarizations
+	for(int& layer_Index : u->boundaries_Of_Item_Vec[item_Index])
+	{
+		for (int i = 0; i<4; i++)
+		{
+			field_With_G_2D_Factor += u->C_03_norm[thread_Index][layer_Index][i] * u->alfa_nn_03[thread_Index][item_Index][i];
+			for (int j = 0; j<i; j++)
+			{
+				field_With_G_2D_Factor += 2*real(   u->C_03_03[thread_Index][layer_Index][i][j] *
+												 u->alfa_03_03[thread_Index][item_Index ][i][j] );
+			}
+		}
+	}
+	return field_With_G_2D_Factor;
+}
+
+
 Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_Tree, Calculated_Values& calculated_Values, Unwrapped_Structure* unwrapped_Structure, QString spec_Scat_mode):
 	unwrapped_Structure  (unwrapped_Structure),
 	multilayer			 (unwrapped_Structure->multilayer),
@@ -3838,7 +3904,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								if(is_Z_Deviation)
 								{
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-									{
+									{												
 										double cos_Phi = measurement.detector_Phi_Cos_Vec[phi_Index];
 										double q = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
 	
@@ -3869,6 +3935,12 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 												}
 											}
 										}
+
+//										Params_Particles params_Particles {this, thread_Index, item_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0,
+//													             false, order_Item.particles_Model.particle_Interference_Function, G2_node, G1_Type_Value, is_Z_Deviation};
+//										double field_With_G_2D_Factor = function_Scattering_Particles_Zero_Correlation_Z_Deviation_s (cos_Phi, &params_Particles);
+
+
 										calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * d_Eps_Norm * field_With_G_2D_Factor * measurement.footprint_Factor_Vec[point_Index];
 									}
 								} else

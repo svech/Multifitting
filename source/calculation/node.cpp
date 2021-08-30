@@ -3552,7 +3552,10 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 					}
 
 					// integration
-					auto func = [&](double phi)	{return G2_Type_long[thread_Index](q, phi, a, sigma, N, M)/phi_Max;};
+					auto func = [&](double phi)	{
+						double rr = G2_Type_long[thread_Index](q, phi, a, sigma, N, M)/phi_Max;
+						return rr;
+					};
 					double integral = 0;
 
 					// threshold
@@ -3561,7 +3564,7 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 						integral += gauss_kronrod<double,gk_points>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-5);
 //						integral += tanh_sinh_Integrator.integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], tanh_Sinh_Tolerance);
 					}
-					G2_Vec[q_Index] = integral;
+					G2_Vec[q_Index] = abs(integral);
 				} else
 				{
 					G2_Vec[q_Index] = G2_Type_q_Zero[thread_Index](q, a, sigma, N, M);

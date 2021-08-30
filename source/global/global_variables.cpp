@@ -1996,6 +1996,7 @@ double Global_Variables::G2_Hexagone(double q, double phi, double a, double sigm
 									  (M-1)*(beta+real(lambda))/(1.+beta)-
 									  (1.-beta_M_1)*beta*(1.+beta*lambda)*(1.+beta*conj(lambda))/((1.-beta)*pow(1.+beta,2.))
 									  ));
+	if(bracket_M<0) bracket_M = 0;
 
 
 	complex<double> specular_N = alpha_1_N*alpha_denom*
@@ -2045,6 +2046,7 @@ double Global_Variables::G2_Hexagone_long(long double q, long double phi, long d
 									  (M-1)*(beta+real(lambda))/(long_One+beta)-
 									  (long_One-beta_M_1)*beta*(long_One+beta*lambda)*(long_One+beta*conj(lambda))/((long_One-beta)*pow(long_One+beta,2.))
 									  ));
+	if(bracket_M<0) bracket_M = 0;
 
 
 	complex<long double> specular_N = alpha_1_N*alpha_denom*
