@@ -97,6 +97,7 @@ public:
 
 	QMap<id_Type, int> id_Item_Map;
 	vector<Data> appropriate_Item_Vec;					//	[item_Index]
+	vector<int> used_Appropriate_Item_Index_Vec;		//  (indices of layers with used particles)
 	vector<int> boundary_Item_Vec;						//	[boundary]
 	vector<vector<int>> boundaries_Of_Item_Vec;			//	[item_Index][boundary]
 
@@ -205,7 +206,7 @@ public:
 	vector<vector<vector<double>>>                  alfa_nn_03;		//	[thread][item_Index][0-3]
 	vector<vector<complex<double>>> coherent_Field_Factor;			//	[thread][phi_Index]
 	vector<vector<complex<double>>> complex_Coef;					//	[thread][0-3]
-	vector<vector<vector<complex<double>>>> layer_Field_Factor;		//	[thread][layer][phi_Index]
+	vector<vector<vector<complex<double>>>> layer_Field_Factor;		//	[thread][phi_Index][layer]
 
 	int q_Spline_Points;
 	vector<vector<vector<gsl_spline*>>> spline_F_03_Real;	//	[thread][item_Index][0-3]
@@ -297,13 +298,20 @@ public:
 	void calc_Item_Pre_Form_Factor			(int thread_Index, int item_Index, Data& item);
 	void calc_Item_Form_Factor				(int thread_Index, int item_Index, double q, Data& item);
 	void calc_Item_Form_Factor_From_Spline	(int thread_Index, int item_Index, double q);
-	void calc_Item_Form_Factor_Splines		(int thread_Index, int item_Index, Data& item, double cos_Theta_0, double cos_Theta);
+	void calc_Item_Form_Factor_Splines		(int thread_Index, int item_Index, int order_Item_Index, Data& order_Item, double cos_Theta_0, double cos_Theta);
 	void choose_disorder_Paracrystal		(int thread_Index);
 	void calc_Item_Alfa_Factor_With_G2		(int thread_Index, int item_Index, double G2_Type_Value, double G1_Type_Value);
 	void calc_Item_Alfa_Factor_No_G2		(int thread_Index, int item_Index,						 double G1_Type_Value);
 
 	void calc_Item_Alfa_Factor_G1			(int thread_Index, int item_Index,           double G1_Type_Value);
 	void calc_Coherent_Coef_G2				(int thread_Index, int item_Index,           double G2_Type_Value_Sqrt, complex<double> d_Eps);
+
+	double body_Scattering_Particles_Partial_Correlation_Z_Deviation(vector<complex<double>>& layer_Field_Factor,   int thread_Index, int item_Index, QString particle_Interference_Function, Node* last_Node, double G1_Type_Value, double G2_Type_Value,      double cos_Theta, double cos_Theta_0, double cos_Phi, complex<double>& d_Eps);
+	double body_Scattering_Particles_Partial_Correlation		    (vector<complex<double>>& layer_Field_Factor,   int thread_Index, int item_Index, QString particle_Interference_Function, Node* last_Node,						 double G2_Type_Value_Sqrt, double cos_Theta, double cos_Theta_0, double cos_Phi, complex<double>& d_Eps);
+	double body_Scattering_Particles_Full_Correlation_Z_Deviation   (		complex<double>& coherent_Field_Factor, int thread_Index, int item_Index, QString particle_Interference_Function, Node* last_Node, double G1_Type_Value, double G2_Type_Value_Sqrt, double cos_Theta, double cos_Theta_0, double cos_Phi, complex<double>& d_Eps);
+	void   body_Scattering_Particles_Full_Correlation			    (		complex<double>& coherent_Field_Factor, int thread_Index, int item_Index, QString particle_Interference_Function, Node* last_Node,                       double G2_Type_Value_Sqrt, double cos_Theta, double cos_Theta_0, double cos_Phi, complex<double>& d_Eps);
+	double body_Scattering_Particles_Zero_Correlation_Z_Deviation   (												int thread_Index, int item_Index, QString particle_Interference_Function, Node* G2_node,   double G1_Type_Value,							double cos_Theta, double cos_Theta_0, double cos_Phi						);
+	double body_Scattering_Particles_Zero_Correlation			    (												int thread_Index, int item_Index, QString particle_Interference_Function, Node* G2_node,						 double G2_Type_Value_Sqrt, double cos_Theta, double cos_Theta_0, double cos_Phi, complex<double>& d_Eps);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(int thread_Index);
