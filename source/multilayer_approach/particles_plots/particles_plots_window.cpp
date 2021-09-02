@@ -2,7 +2,7 @@
 
 Particles_Plots_Window::Particles_Plots_Window(QWidget *parent) : QWidget(parent)
 {
-	setWindowTitle("Particles plot");
+	setWindowTitle("Particles spectrum");
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);

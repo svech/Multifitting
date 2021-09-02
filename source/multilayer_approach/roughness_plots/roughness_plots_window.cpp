@@ -2,7 +2,7 @@
 
 Roughness_Plots_Window::Roughness_Plots_Window(QWidget *parent) : QWidget(parent)
 {
-	setWindowTitle("Roughness plot");
+	setWindowTitle("Roughness spectrum");
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);

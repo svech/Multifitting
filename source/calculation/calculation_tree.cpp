@@ -657,21 +657,29 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 			}
 			if(multilayer->imperfections_Model.use_Particles)
 			{
-				// TODO when 2D, when 1D
+				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+					measurement.measurement_Type == measurement_Types[Offset_Scan] )
+				{
+					short_Flat_Calc_Tree[node_Index]->calc_Integral_Intensity_Near_Specular	    (multilayer->imperfections_Model, measurement, calc_Functions);
+				}
 				if(measurement.measurement_Type == measurement_Types[GISAS_Map])
 				{
-					vector<double> temp;
-					if( multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation &&
-						!multilayer->imperfections_Model.use_Common_Particle_Function )
+
+				}
+
+				// for 1D and 2D
+				vector<double> temp;
+				if( multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation &&
+					!multilayer->imperfections_Model.use_Common_Particle_Function )
+				{
+					short_Flat_Calc_Tree[node_Index]->create_Spline_G2_2D(multilayer->imperfections_Model, measurement, temp);
+				} else
+				{
+					// for last layer only
+					if((node_Index == short_Flat_Calc_Tree.size()-2) && have_Used_Particles)
 					{
 						short_Flat_Calc_Tree[node_Index]->create_Spline_G2_2D(multilayer->imperfections_Model, measurement, temp);
-					} else
-					{
-						// for last layer only
-						if((node_Index == short_Flat_Calc_Tree.size()-2) && have_Used_Particles)
-						{
-							short_Flat_Calc_Tree[node_Index]->create_Spline_G2_2D(multilayer->imperfections_Model, measurement, temp);
-						}
 					}
 				}
 			}
@@ -796,20 +804,28 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 			}
 			if(multilayer->imperfections_Model.use_Particles)
 			{
-				// TODO when 2D, when 1D
+				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+					measurement.measurement_Type == measurement_Types[Offset_Scan] )
+				{
+					// do nothing
+				}
 				if(measurement.measurement_Type == measurement_Types[GISAS_Map])
 				{
-					if( multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation &&
-						!multilayer->imperfections_Model.use_Common_Particle_Function )
+					// do nothing
+				}
+
+				// for 1D and 2D
+				if( multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation &&
+					!multilayer->imperfections_Model.use_Common_Particle_Function )
+				{
+					short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D(multilayer->imperfections_Model);
+				} else
+				{
+					// for last layer only
+					if((node_Index == short_Flat_Calc_Tree.size()-2) && have_Used_Particles)
 					{
 						short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D(multilayer->imperfections_Model);
-					} else
-					{
-						// for last layer only
-						if((node_Index == short_Flat_Calc_Tree.size()-2) && have_Used_Particles)
-						{
-							short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D(multilayer->imperfections_Model);
-						}
 					}
 				}
 			}

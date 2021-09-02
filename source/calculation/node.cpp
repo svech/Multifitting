@@ -3197,6 +3197,30 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 		q_Min = measurement.k_Vec.front();
 		q_Max = measurement.k_Vec.back();
 	}
+	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+	    measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+	    measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		double phi_Max_Radians = qDegreesToRadians(max_Phi_Azimuthal_Integration);
+
+		// finite slit length: set phi_Max
+		if(measurement.detector_1D.finite_Slit)
+		{
+			double min_Cos_Theta = min(measurement.detector_Theta_Cos_Vec.front(), measurement.detector_Theta_Cos_Vec.back());
+			phi_Max_Radians = min(phi_Max_Radians, Global_Variables::get_Phi_Max_From_Finite_Slit(measurement, min_Cos_Theta));
+		}
+		double min_Cos_Phi = cos(phi_Max_Radians);
+
+		vector<double> temp_q2_Max(measurement.detector_Theta_Cos_Vec.size());
+		for(size_t i=0; i<measurement.detector_Theta_Cos_Vec.size(); i++)
+		{
+			temp_q2_Max[i] = measurement.k_Value*measurement.k_Value*(measurement.detector_Theta_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i] +
+			                                                            measurement.beam_Theta_0_Cos_Vec[i]*measurement.beam_Theta_0_Cos_Vec  [i] -
+			                                                          2*measurement.beam_Theta_0_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i]*min_Cos_Phi);
+		}
+		std::sort(temp_q2_Max.begin(), temp_q2_Max.end());
+		q_Max = sqrt(max(temp_q2_Max.back(),DBL_EPSILON))*(1+1E-5);
+	}
 	if(measurement.measurement_Type == measurement_Types[GISAS_Map])
 	{
 		bool negative = false;
@@ -3489,7 +3513,7 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	}
 	for(int i=q_Vec.size()-1; i>=0; i--)
 	{
-		if( q_Vec[i] < q_Min) q_Vec.erase(q_Vec.begin()+i);
+		if(q_Vec[i] < q_Min) q_Vec.erase(q_Vec.begin()+i);
 	}
 
 	// calculation

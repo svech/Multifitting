@@ -83,9 +83,9 @@ void Multilayer::create_Main_Tools()
 		layout->addWidget(optical_Graphs_2D_Button,1,1);
 
 
-	roughness_Plots_Button = new QPushButton("Roughness plot");
+	roughness_Plots_Button = new QPushButton("Roughness spectrum");
 		layout->addWidget(roughness_Plots_Button,2,0);
-	particles_Plots_Button = new QPushButton("Particles plot");
+	particles_Plots_Button = new QPushButton("Particles spectrum");
 		layout->addWidget(particles_Plots_Button,2,1);
 
 

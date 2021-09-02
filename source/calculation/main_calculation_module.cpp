@@ -2093,7 +2093,6 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 	if( data_Element.calc_Functions.check_Scattering)
 	{	calculated_Curve = &calculated_Values.S; calculated_Values.S_Instrumental = calculated_Values.S; working_Curve = &calculated_Values.S_Instrumental;}
 
-
 	/// Specular_Scan
 	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
@@ -2298,6 +2297,10 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 				}
 				recalculated = true;
 			}
+		} else
+		// set to zero
+		{
+			calculated_Values.GISAS_Instrumental = calculated_Values.GISAS_Map;
 		}
 		// specular peak
 		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{

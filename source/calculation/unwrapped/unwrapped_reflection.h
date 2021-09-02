@@ -273,7 +273,7 @@ public:
 	double calc_Field_Term_Sum				(QString polarization, int point_Index, int thread_Index);
 	void choose_PSD_1D_Function				(const Data& struct_Data, int thread_Index);
 	void choose_PSD_2D_Function				(const Data& struct_Data, int thread_Index);
-	double azimuthal_Integration			(gsl_function* function, double cos_Theta_0, int point_Index);
+	double roughness_Azimuthal_Integration			(gsl_function* function, double cos_Theta_0, int point_Index);
 
 	// DWBA SA CSA
 	void calc_k_Wavenumber_Up_Low		(int thread_Index, int point_Index);
@@ -312,6 +312,7 @@ public:
 	void   body_Scattering_Particles_Full_Correlation			    (		complex<double>& coherent_Field_Factor, int thread_Index, int item_Index, QString particle_Interference_Function, Node* last_Node,                       double G2_Type_Value_Sqrt, double cos_Theta, double cos_Theta_0, double cos_Phi, complex<double>& d_Eps);
 	double body_Scattering_Particles_Zero_Correlation_Z_Deviation   (												int thread_Index, int item_Index, QString particle_Interference_Function, Node* G2_node,   double G1_Type_Value,							double cos_Theta, double cos_Theta_0, double cos_Phi						);
 	double body_Scattering_Particles_Zero_Correlation			    (												int thread_Index, int item_Index, QString particle_Interference_Function, Node* G2_node,						 double G2_Type_Value_Sqrt, double cos_Theta, double cos_Theta_0, double cos_Phi, complex<double>& d_Eps);
+	double particles_Azimuthal_Integration	(gsl_function* function, double cos_Theta_0, int point_Index);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(int thread_Index);

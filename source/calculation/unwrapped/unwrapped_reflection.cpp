@@ -526,73 +526,23 @@ struct Params_Particles
 {
 	Unwrapped_Reflection* unwrapped_Reflection;
 	int thread_Index;
-	int item_Index;
+	bool phi_As_Angle;
+	bool common;
 	double cos_Theta;
 	double cos_Theta_0;
-	bool phi_As_Angle;
-	QString particle_Interference_Function;
-	Node* G2_node;
-	Node* node;
-	double G1_Type_Value;
+	Data* last_Item;
+	Node* last_Node;
 };
-double function_Scattering_Particles_Zero_Correlation_Z_Deviation(double phi, void* p)
-{
-	Params_Particles* params = reinterpret_cast<Params_Particles*>(p);
-	int thread_Index = params->thread_Index;
-	int item_Index   = params->item_Index;
-	Unwrapped_Reflection* u = params->unwrapped_Reflection;
-	QString particle_Interference_Function = params->particle_Interference_Function;
-	Node* G2_node = params->G2_node;
-	double G1_Type_Value = params->G1_Type_Value;
-
-	// passed argument: phi or cos(phi)
-	double cos_Phi;
-	if(params->phi_As_Angle)
-		cos_Phi = cos(qDegreesToRadians(phi));
-	else
-		cos_Phi = phi;
-
-	double q = u->measurement.k_Value*sqrt(params->cos_Theta*params->cos_Theta + params->cos_Theta_0*params->cos_Theta_0 - 2*params->cos_Theta_0*params->cos_Theta*cos_Phi);
-
-	u->calc_Item_Form_Factor_From_Spline(thread_Index, item_Index, q);
-	if(particle_Interference_Function == radial_Paracrystal)
-	{
-		double G2_Type_Value = G2_node->G2_Type_Outer(q);
-		u->calc_Item_Alfa_Factor_With_G2(thread_Index, item_Index, G2_Type_Value, G1_Type_Value);
-	} else
-	if(particle_Interference_Function == disorder)
-	{
-		u->calc_Item_Alfa_Factor_No_G2(thread_Index, item_Index, G1_Type_Value);
-	}
-
-	double field_With_G_2D_Factor = 0;
-
-	// for all polarizations
-	for(int& layer_Index : u->boundaries_Of_Item_Vec[item_Index])
-	{
-		for (int i = 0; i<4; i++)
-		{
-			field_With_G_2D_Factor += u->C_03_norm[thread_Index][layer_Index][i] * u->alfa_nn_03[thread_Index][item_Index][i];
-			for (int j = 0; j<i; j++)
-			{
-				field_With_G_2D_Factor += 2*real(   u->C_03_03[thread_Index][layer_Index][i][j] *
-												 u->alfa_03_03[thread_Index][item_Index ][i][j] );
-			}
-		}
-	}
-	return field_With_G_2D_Factor;
-}
 double function_Scattering_Particles_Zero_Correlation(double phi, void* p)
 {
 	Params_Particles* params = reinterpret_cast<Params_Particles*>(p);
-	int thread_Index = params->thread_Index;
-	int item_Index   = params->item_Index;
 	Unwrapped_Reflection* u = params->unwrapped_Reflection;
-	QString particle_Interference_Function = params->particle_Interference_Function;
-	Node* G2_node = params->G2_node;
-	Node* node = params->node;
-	double G1_Type_Value = params->G1_Type_Value;
-	complex<double> d_Eps = node->delta_Epsilon_Contrast;
+	int thread_Index = params->thread_Index;
+	bool common = params->common;
+	double cos_Theta = params->cos_Theta;
+	double cos_Theta_0 = params->cos_Theta_0;
+	Data* last_Item = params->last_Item;
+	Node* last_Node = params->last_Node;
 
 	// passed argument: phi or cos(phi)
 	double cos_Phi;
@@ -601,32 +551,36 @@ double function_Scattering_Particles_Zero_Correlation(double phi, void* p)
 	else
 		cos_Phi = phi;
 
-	double q = u->measurement.k_Value*sqrt(params->cos_Theta*params->cos_Theta + params->cos_Theta_0*params->cos_Theta_0 - 2*params->cos_Theta_0*params->cos_Theta*cos_Phi);
-
-	double G2_Type_Value_Sqrt = sqrt(G1_Type_Value);
-	if(particle_Interference_Function == radial_Paracrystal)
+	// main function for single phi
+	double single_Point_Value = 0;
+	for(int item_Index : u->used_Appropriate_Item_Index_Vec)
 	{
-		G2_Type_Value_Sqrt = sqrt(G2_node->G2_Type_Outer(q));
-	}
-	u->calc_Item_Form_Factor_From_Spline(thread_Index, item_Index, q);
-	u->calc_Coherent_Coef_G2            (thread_Index, item_Index, G2_Type_Value_Sqrt, d_Eps);
+		Data& item = u->appropriate_Item_Vec[item_Index];
+		Node* node = u->short_Flat_Calc_Tree[item_Index];
+		Node* G2_node    = common ?   last_Node  : node;
+		Data& order_Item = common ? (*last_Item) : item;
 
-	double field_With_G_2D_Factor = 0;
-	complex<double> sum;
+		bool is_Z_Deviation = order_Item.particles_Model.particle_Z_Position_Deviation.value > DBL_EPSILON;
 
-	// for all polarizations
-	for(int& layer_Index : u->boundaries_Of_Item_Vec[item_Index])
-	{
-		sum = 0.;
-		for (int i=0; i<4; i++)
+		complex<double> d_Eps = node->delta_Epsilon_Contrast;
+		double d_Eps_Norm = norm(d_Eps);
+		double G1_Type_Value = G2_node->G1_Type_Outer();
+		double G2_Type_Value_Sqrt = sqrt(G1_Type_Value);
+
+		if(is_Z_Deviation)
 		{
-			sum += u->C_03[thread_Index][layer_Index][i] * u->complex_Coef[thread_Index][i];
+			double field_With_G_2D_Factor = u->body_Scattering_Particles_Zero_Correlation_Z_Deviation(thread_Index, item_Index, order_Item.particles_Model.particle_Interference_Function,
+																									  G2_node, G1_Type_Value, cos_Theta, cos_Theta_0, cos_Phi);
+			single_Point_Value += d_Eps_Norm * field_With_G_2D_Factor;
+		} else
+		{
+			double field_With_G_2D_Factor = u->body_Scattering_Particles_Zero_Correlation(thread_Index, item_Index,  order_Item.particles_Model.particle_Interference_Function,
+																						  G2_node, G2_Type_Value_Sqrt, cos_Theta, cos_Theta_0, cos_Phi, d_Eps);
+			single_Point_Value += field_With_G_2D_Factor;
 		}
-		field_With_G_2D_Factor += norm(sum);
 	}
-	return field_With_G_2D_Factor;
+	return single_Point_Value;
 }
-
 
 Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_Tree, Calculated_Values& calculated_Values, Unwrapped_Structure* unwrapped_Structure, QString spec_Scat_mode):
 	unwrapped_Structure  (unwrapped_Structure),
@@ -699,7 +653,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
     acc_Vec(num_Threads),
     GISAS_Slice(num_Threads),
 	phi_Slice(num_Threads),
-	q_Spline_Points(63)
+	q_Spline_Points(203) // 63
 {
 	s_Weight = (1. + measurement.polarization) / 2.;
 	p_Weight = (1. - measurement.polarization) / 2.;
@@ -3177,7 +3131,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, incoherent_Sum_s, 0, true };
 									gsl_function F = { &function_Scattering_Replication_Factor_2D_s, &params };
 
-									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, cos_Theta_0, point_Index);
+									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * roughness_Azimuthal_Integration(&F, cos_Theta_0, point_Index);
 								} else
 								// pure p-polarization
 								if(pure_P_Pol)
@@ -3186,7 +3140,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, incoherent_Sum_p, true };
 									gsl_function F = { &function_Scattering_Replication_Factor_2D_p, &params };
 
-									calculated_Values.S_p[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, cos_Theta_0, point_Index);
+									calculated_Values.S_p[point_Index] = e_Factor_PT_2D * roughness_Azimuthal_Integration(&F, cos_Theta_0, point_Index);
 								} else
 								// mixed sp-polarization
 								{
@@ -3196,7 +3150,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									gsl_function F = { &function_Scattering_Replication_Factor_2D_sp, &params };
 
 									// crutch: s and p only on mixed state. no different s and p calculations
-									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, cos_Theta_0, point_Index);
+									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * roughness_Azimuthal_Integration(&F, cos_Theta_0, point_Index);
 									calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
 								}
 							} else
@@ -3210,14 +3164,14 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									calc_Field_Term_Sum("s", point_Index, thread_Index);
 									gsl_function F = { function_Scattering_Linear_Growth_s, &params };
-									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, cos_Theta_0, point_Index);
+									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * roughness_Azimuthal_Integration(&F, cos_Theta_0, point_Index);
 								} else
 								// pure p-polarization
 								if(pure_P_Pol)
 								{
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
 									gsl_function F = { function_Scattering_Linear_Growth_p, &params };
-									calculated_Values.S_p[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, cos_Theta_0, point_Index);
+									calculated_Values.S_p[point_Index] = e_Factor_PT_2D * roughness_Azimuthal_Integration(&F, cos_Theta_0, point_Index);
 								} else
 								// mixed sp-polarization
 								{
@@ -3226,7 +3180,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									gsl_function F = { function_Scattering_Linear_Growth_sp, &params };
 
 									// crutch: s and p only on mixed state. no different s and p calculations
-									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, cos_Theta_0, point_Index);
+									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * roughness_Azimuthal_Integration(&F, cos_Theta_0, point_Index);
 									calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
 								}
 							}
@@ -3707,12 +3661,27 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 					measurement.measurement_Type == measurement_Types[Offset_Scan] )
 				{
-//					if(point_Index==0) qInfo() << "Unwrapped_Reflection::calc_Specular_1_Point_1_Thread  :  is not done" << endl;
 					// TODO
+					if(multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation)
+					{
+
+					}
+					if(multilayer->imperfections_Model.particle_Vertical_Correlation == full_Correlation)
+					{
+
+					}
+					if(multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation)
+					{
+						Params_Particles params_Particles = {this, thread_Index, true, common, cos_Theta, cos_Theta_0, &last_Item, last_Node};
+						gsl_function F = { function_Scattering_Particles_Zero_Correlation, &params_Particles };
+//						if(point_Index == 100) qInfo() << "a" << function_Scattering_Particles_Zero_Correlation(0, &params_Particles) << endl;
+//						calculated_Values.S_s[point_Index] = e_Factor_PT_2D * particles_Azimuthal_Integration(&F, cos_Theta_0, point_Index);
+						calculated_Values.S_s[point_Index] = e_Factor_PT_2D * function_Scattering_Particles_Zero_Correlation(substrate.relative_Density.value, &params_Particles);
+					}
 				}
 				if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 				{
-					if(multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation )
+					if(multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation)
 					{
 						double G1_Type_Value = last_Node->G1_Type_Outer();
 						double G2_Type_Value = G1_Type_Value; // for disorder
@@ -3771,7 +3740,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 							calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * coherent_Sum * measurement.footprint_Factor_Vec[point_Index];
 						}
 					}
-					if(multilayer->imperfections_Model.particle_Vertical_Correlation == full_Correlation )
+					if(multilayer->imperfections_Model.particle_Vertical_Correlation == full_Correlation)
 					{
 						double G1_Type_Value = last_Node->G1_Type_Outer();
 						double G2_Type_Value_Sqrt = sqrt(G1_Type_Value); // for disorder
@@ -3825,8 +3794,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						{
 							Data& item = appropriate_Item_Vec[item_Index];
 							Node* node = short_Flat_Calc_Tree[item_Index];
-							Node* G2_node        = common ? last_Node       : node;
-							Data& order_Item     = common ? last_Item       : item;
+							Node* G2_node    = common ? last_Node : node;
+							Data& order_Item = common ? last_Item : item;
 
 							bool is_Z_Deviation = order_Item.particles_Model.particle_Z_Position_Deviation.value > DBL_EPSILON;
 
@@ -3855,6 +3824,13 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								}
 							}
 						}
+						// 10% slower
+//						for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+//						{
+//							double cos_Phi = measurement.detector_Phi_Cos_Vec[phi_Index];
+//							Params_Particles params_Particles = {this, thread_Index, false, common, cos_Theta, cos_Theta_0, &last_Item, last_Node};
+//							calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * function_Scattering_Particles_Zero_Correlation(cos_Phi, &params_Particles) * measurement.footprint_Factor_Vec[point_Index];
+//						}
 					}				
 				}
 			}
@@ -4048,13 +4024,13 @@ double Unwrapped_Reflection::body_Scattering_Particles_Zero_Correlation(int thre
 		sum = 0.;
 		for (int i=0; i<4; i++)
 		{
-			sum += C_03[thread_Index][layer_Index][i] *	complex_Coef[thread_Index][i];
+//			sum += C_03[thread_Index][layer_Index][i] *	complex_Coef[thread_Index][i];
+			sum += F_03[thread_Index][item_Index][i];
 		}
 		field_With_G_2D_Factor += norm(sum);
 	}
 	return field_With_G_2D_Factor;
 }
-
 double Unwrapped_Reflection::cor_Function_Integration(int point_Index, int thread_Index, double cos_Theta_0)
 {
 	function<double(double)> f;
@@ -4367,13 +4343,35 @@ void Unwrapped_Reflection::calc_Item_Form_Factor_Splines(int thread_Index, int i
 {
 	double cos_Phi_Min = 1; // start from zero phi
 	double q_Min = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi_Min);
-	q_Min = max(0., DBL_EPSILON); // not zero
+//	q_Min = max(q_Min, DBL_EPSILON); // not zero
+	q_Min = max(q_Min, 0.);
+//	double q_Min = 0;
 
-	double cos_Phi_Max = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
+	double cos_Phi_Max = 0;
+	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+		measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+		measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		double phi_Max_Radians = qDegreesToRadians(max_Phi_Azimuthal_Integration);
+
+		// finite slit length: set phi_Max
+		if(measurement.detector_1D.finite_Slit)
+		{
+			phi_Max_Radians = Global_Variables::get_Phi_Max_From_Finite_Slit(measurement, cos_Theta);
+		}
+		cos_Phi_Max = cos(phi_Max_Radians);
+
+		qInfo() << qRadiansToDegrees(phi_Max_Radians) << endl;
+	}
+	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
+	{
+		cos_Phi_Max = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
+	}
 	double q_Max = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi_Max);
 
+	qInfo() << "qR" << q_Max*order_Item.particles_Model.particle_Radius.value << endl;
 	// splining points
-	int q_Spline_Points_No_Edge = q_Spline_Points-3;
+	int q_Spline_Points_No_Edge = q_Spline_Points-2; // -3
 	double step = (q_Max-q_Min) / (q_Spline_Points_No_Edge-1);
 	vector<double> arg(q_Spline_Points_No_Edge);
 	vector<double> val_Real(q_Spline_Points_No_Edge, 0); // reuse for each i = 0..3
@@ -4381,11 +4379,11 @@ void Unwrapped_Reflection::calc_Item_Form_Factor_Splines(int thread_Index, int i
 	for(int j=0; j<q_Spline_Points_No_Edge; j++) {
 		arg[j] = q_Min + j*step;
 	}
-	{
-		arg.insert(arg.begin(), 0);
-		val_Real.insert(val_Real.begin(), 0);
-		val_Imag.insert(val_Imag.begin(), 0);
-	}
+//	{
+//		arg.insert(arg.begin(), 0);
+//		val_Real.insert(val_Real.begin(), 0);
+//		val_Imag.insert(val_Imag.begin(), 0);
+//	}
 	{
 		arg.push_back(q_Max*(1+1E-5));
 		arg.push_back(DBL_MAX);
@@ -4503,7 +4501,54 @@ void Unwrapped_Reflection::calc_Coherent_Coef_G2(int thread_Index, int item_Inde
 	}
 }
 
-double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, double cos_Theta_0, int point_Index)
+double Unwrapped_Reflection::particles_Azimuthal_Integration(gsl_function* function, double cos_Theta_0, int point_Index)
+{
+	double cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
+	double phi_Min = 0, phi_Max = max_Phi_Azimuthal_Integration;
+
+	// finite slit length: set phi_Max
+	if(measurement.detector_1D.finite_Slit)
+	{
+		phi_Max = qRadiansToDegrees(Global_Variables::get_Phi_Max_From_Finite_Slit(measurement, cos_Theta));
+	}
+	double result = 0;
+	/// ----------------------------------------------------------------------------------------------------------------------
+
+	// partition
+	vector<double> phi_Interpoints = {phi_Min};
+	std::sort(phi_Interpoints.begin(), phi_Interpoints.end());
+
+	// restrict phi by phi_Max
+	for(int i=phi_Interpoints.size()-1; i>=0; i--)
+	{
+		if(phi_Interpoints[i]>=phi_Max) phi_Interpoints.erase(phi_Interpoints.begin()+i);
+	}
+	phi_Interpoints.push_back(phi_Max);
+
+	// integration
+	auto f = [&](double phi){return function->function(phi, function->params);};
+//	if(point_Index == 100)
+//		qInfo() << "b" << point_Index << f(0) << endl;
+
+////	tanh_sinh<double> integrator;
+//	double integrator_Tolerance = 1E-2;
+//	for(size_t i=0; i<phi_Interpoints.size()-1; i++)
+//	{
+//		if(phi_Interpoints[i]<phi_Interpoints[i+1])
+//		{
+////			    result +=				 integrator.integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], integrator_Tolerance); // too slow
+//			if(i==0) {
+////				result +=				 integrator.integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], integrator_Tolerance);
+//				result += gauss_kronrod<double,15>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
+//			} else {
+//				result += gauss_kronrod<double, 5>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
+//			}
+//		}
+//	}
+	return 2*qDegreesToRadians(result);
+}
+
+double Unwrapped_Reflection::roughness_Azimuthal_Integration(gsl_function* function, double cos_Theta_0, int point_Index)
 {
 	double cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
 	double delta = abs(cos_Theta-cos_Theta_0);
