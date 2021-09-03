@@ -596,11 +596,13 @@ void Particles_Plot::calc_Interference_Function_For_Layer(int layer_Index, vecto
 		return;
 	}
 	Node* current_Node;
+	bool last_Common_Item = false;
 	if(!multilayer->imperfections_Model.use_Common_Particle_Function &&
 		multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation)
 	{
 		current_Node = short_Flat_Calc_Tree[layer_Index-1];
 	} else {
+		last_Common_Item = true;
 		current_Node = short_Flat_Calc_Tree[short_Flat_Calc_Tree.size()-2]; // bottom layer
 	}
 	Data& current_Data = current_Node->struct_Data;
@@ -646,7 +648,7 @@ void Particles_Plot::calc_Interference_Function_For_Layer(int layer_Index, vecto
 
 	/// calculation
 	value_Vector.resize(arg_Vector.size());
-	if(current_Data.particles_Model.is_Used)
+	if(current_Data.particles_Model.is_Used || last_Common_Item)
 	{
 		if(current_Data.particles_Model.particle_Interference_Function == radial_Paracrystal)
 		{

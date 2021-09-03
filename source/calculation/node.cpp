@@ -3180,7 +3180,7 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	if(!imperfections_Model.use_Particles) return;
 	if( imperfections_Model.particle_Vertical_Correlation == zero_Correlation &&
 		!imperfections_Model.use_Common_Particle_Function &&
-		!struct_Data.particles_Model.is_Used) return;
+	    !struct_Data.particles_Model.is_Used) return;
 	if(struct_Data.particles_Model.particle_Interference_Function != radial_Paracrystal) return;
 	if(struct_Data.item_Type != item_Type_Layer ) return;
 
