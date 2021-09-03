@@ -138,6 +138,13 @@ void General_Settings_Editor::create_Calculation_Tab()
 				}
 			}
 		});
+
+		//----------------------------------------------------------------------------
+
+		QCheckBox* ignore_1D_Particles_Checkbox = new QCheckBox("Ignore 1D scattering on particles");
+			ignore_1D_Particles_Checkbox->setChecked(ignore_1D_particles_scattering);
+		groupbox_Layout->addWidget(ignore_1D_Particles_Checkbox);
+		connect(ignore_1D_Particles_Checkbox, &QCheckBox::toggled,	[=]{ignore_1D_particles_scattering = ignore_1D_Particles_Checkbox->isChecked();});
 	}
 
 //	QGroupBox* other_Groupbox = new QGroupBox("Other");

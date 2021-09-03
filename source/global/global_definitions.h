@@ -594,7 +594,7 @@ struct Detector_1D				{ QString detector_Type;
 								  // slit
 								  double slit_Width = 0.1;
 
-								  bool finite_Slit = false;
+								  bool finite_Slit = true;
 								  double slit_Length = 10;
 								  double distance_To_Sample = 300;
 

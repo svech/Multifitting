@@ -653,7 +653,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
     acc_Vec(num_Threads),
     GISAS_Slice(num_Threads),
 	phi_Slice(num_Threads),
-	q_Spline_Points(203) // 63
+	q_Spline_Points(800) // 63
 {
 	s_Weight = (1. + measurement.polarization) / 2.;
 	p_Weight = (1. - measurement.polarization) / 2.;
@@ -3158,7 +3158,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								multilayer->imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model )
 							{
 								Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, 0, true };
-
 								// pure s-polarization
 								if(pure_S_Pol)
 								{
@@ -3588,8 +3587,18 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					}
 				}
 			} else
-			// if no roughness set GISAS to 0
+			// if no roughness set scattering to 0
 			{
+				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+					measurement.measurement_Type == measurement_Types[Offset_Scan] )
+				{
+					if(multilayer->imperfections_Model.use_Particles)
+					{
+						calculated_Values.S_s[point_Index] = 0;
+						calculated_Values.S_p[point_Index] = 0;
+					}
+				}
 				if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 				{
 					if(multilayer->imperfections_Model.use_Particles)
@@ -3606,6 +3615,13 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			if(multilayer->imperfections_Model.use_Particles)
 			{
 				if(short_Flat_Calc_Tree.size()<2) return;
+
+				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+					measurement.measurement_Type == measurement_Types[Offset_Scan] )
+				{
+					if(ignore_1D_particles_scattering) return;
+				}
 
 				/// all polarization cases are here
 				calc_k_Wavenumber_Layer(thread_Index, point_Index);
@@ -3661,7 +3677,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 					measurement.measurement_Type == measurement_Types[Offset_Scan] )
 				{
-					// TODO
+					double scattering = 0;
 					if(multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation)
 					{
 
@@ -3674,9 +3690,20 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					{
 						Params_Particles params_Particles = {this, thread_Index, true, common, cos_Theta, cos_Theta_0, &last_Item, last_Node};
 						gsl_function F = { function_Scattering_Particles_Zero_Correlation, &params_Particles };
-//						if(point_Index == 100) qInfo() << "a" << function_Scattering_Particles_Zero_Correlation(0, &params_Particles) << endl;
-//						calculated_Values.S_s[point_Index] = e_Factor_PT_2D * particles_Azimuthal_Integration(&F, cos_Theta_0, point_Index);
-						calculated_Values.S_s[point_Index] = e_Factor_PT_2D * function_Scattering_Particles_Zero_Correlation(substrate.relative_Density.value, &params_Particles);
+						scattering = e_Factor_PT_2D * particles_Azimuthal_Integration(&F, cos_Theta_0, point_Index);
+					}
+					// pure s-polarization
+					if(pure_S_Pol)		{
+						calculated_Values.S_s[point_Index] += scattering;
+					} else
+					// pure p-polarization
+					if(pure_P_Pol)		{
+						calculated_Values.S_p[point_Index] += scattering;
+					} else {
+					// mixed sp-polarization
+						// crutch: s and p only on mixed state. no different s and p calculations
+						calculated_Values.S_s[point_Index] += scattering;
+						calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
 					}
 				}
 				if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
@@ -4024,8 +4051,7 @@ double Unwrapped_Reflection::body_Scattering_Particles_Zero_Correlation(int thre
 		sum = 0.;
 		for (int i=0; i<4; i++)
 		{
-//			sum += C_03[thread_Index][layer_Index][i] *	complex_Coef[thread_Index][i];
-			sum += F_03[thread_Index][item_Index][i];
+			sum += C_03[thread_Index][layer_Index][i] *	complex_Coef[thread_Index][i];
 		}
 		field_With_G_2D_Factor += norm(sum);
 	}
@@ -4360,24 +4386,34 @@ void Unwrapped_Reflection::calc_Item_Form_Factor_Splines(int thread_Index, int i
 			phi_Max_Radians = Global_Variables::get_Phi_Max_From_Finite_Slit(measurement, cos_Theta);
 		}
 		cos_Phi_Max = cos(phi_Max_Radians);
-
-		qInfo() << qRadiansToDegrees(phi_Max_Radians) << endl;
 	}
 	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		cos_Phi_Max = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
 	}
 	double q_Max = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi_Max);
+	q_Max = max(q_Max, (q_Min+DBL_EPSILON)*1.01);
 
-	qInfo() << "qR" << q_Max*order_Item.particles_Model.particle_Radius.value << endl;
+	double R = order_Item.particles_Model.particle_Radius.value;
+	double H = order_Item.particles_Model.particle_Height.value;
+	double z = order_Item.particles_Model.particle_Z_Position.value;
+
 	// splining points
-	int q_Spline_Points_No_Edge = q_Spline_Points-2; // -3
+	int max_Arg_Length = q_Spline_Points-2;
+	int q_Spline_Points_No_Edge = min(max_Arg_Length, int((q_Max-q_Min)*R*1.2)); // -3
+	q_Spline_Points_No_Edge = max(q_Spline_Points_No_Edge, 21); // at least 10 effective points
+
 	double step = (q_Max-q_Min) / (q_Spline_Points_No_Edge-1);
-	vector<double> arg(q_Spline_Points_No_Edge);
-	vector<double> val_Real(q_Spline_Points_No_Edge, 0); // reuse for each i = 0..3
-	vector<double> val_Imag(q_Spline_Points_No_Edge, 0); // reuse for each i = 0..3
+	vector<double> arg(max_Arg_Length);
+	vector<double> val_Real(max_Arg_Length, 0); // reuse for each i = 0..3
+	vector<double> val_Imag(max_Arg_Length, 0); // reuse for each i = 0..3
+	// main part
 	for(int j=0; j<q_Spline_Points_No_Edge; j++) {
 		arg[j] = q_Min + j*step;
+	}
+	// empty rest
+	for(int j=q_Spline_Points_No_Edge; j<max_Arg_Length; j++) {
+		arg[j] = arg[j-1] + j*step;
 	}
 //	{
 //		arg.insert(arg.begin(), 0);
@@ -4385,7 +4421,7 @@ void Unwrapped_Reflection::calc_Item_Form_Factor_Splines(int thread_Index, int i
 //		val_Imag.insert(val_Imag.begin(), 0);
 //	}
 	{
-		arg.push_back(q_Max*(1+1E-5));
+		arg.push_back(arg.back()*(1+1E-5));
 		arg.push_back(DBL_MAX);
 		val_Real.push_back(0);
 		val_Real.push_back(0);
@@ -4393,21 +4429,19 @@ void Unwrapped_Reflection::calc_Item_Form_Factor_Splines(int thread_Index, int i
 		val_Imag.push_back(0);
 	}
 
-	double R = order_Item.particles_Model.particle_Radius.value;
-	double H = order_Item.particles_Model.particle_Height.value;
-	double z = order_Item.particles_Model.particle_Z_Position.value;
-
 	for(int i=0; i<4; i++)
 	{
 		// values
 		complex<double> prefactor = prefactor_2D_Func_Vec[thread_Index][order_Item_Index](k_03[thread_Index][item_Index][i], R, H, z);
 
+		// main part
 		for(int j=0; j<q_Spline_Points_No_Edge+1; j++) // with zero point, but except last DBL_MAX points
 		{
 			complex<double> val_Complex = prefactor*q_Factor_2D_Func_Vec[thread_Index][order_Item_Index](arg[j], k_03[thread_Index][item_Index][i], R, H, z);
 			val_Real[j] = real(val_Complex);
 			val_Imag[j] = imag(val_Complex);
 		}
+		// empty rest: for j=q_Spline_Points_No_Edge; j<max_Arg_Length do nothing
 
 		// splines
 		gsl_spline_init(spline_F_03_Real[thread_Index][item_Index][i], arg.data(), val_Real.data(), arg.size());
@@ -4504,47 +4538,123 @@ void Unwrapped_Reflection::calc_Coherent_Coef_G2(int thread_Index, int item_Inde
 double Unwrapped_Reflection::particles_Azimuthal_Integration(gsl_function* function, double cos_Theta_0, int point_Index)
 {
 	double cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
-	double phi_Min = 0, phi_Max = max_Phi_Azimuthal_Integration;
+	double phi_Min = 0;
+	double phi_Max = max_Phi_Azimuthal_Integration;
 
 	// finite slit length: set phi_Max
 	if(measurement.detector_1D.finite_Slit)
 	{
 		phi_Max = qRadiansToDegrees(Global_Variables::get_Phi_Max_From_Finite_Slit(measurement, cos_Theta));
 	}
-	double result = 0;
+	double cos_Phi_Max = cos(qDegreesToRadians(min(5., phi_Max)));
+	double q_Max = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi_Max);
+
 	/// ----------------------------------------------------------------------------------------------------------------------
 
 	// partition
+	vector<double> q_Peak, hw_Peak;
+	bool common = multilayer->imperfections_Model.use_Common_Particle_Function;
+	bool disorder_Model = true;
+	double max_R = 0;
+	if(common)
+	{
+		Node* G2_Last_Node = short_Flat_Calc_Tree[short_Flat_Calc_Tree.size()-2];
+		q_Peak = G2_Last_Node->q_Peak;
+		hw_Peak = G2_Last_Node->hw_Peak;
+
+		Data& order_Item = appropriate_Item_Vec[short_Flat_Calc_Tree.size()-2];
+		disorder_Model = disorder_Model && order_Item.particles_Model.particle_Interference_Function == disorder;
+		max_R = max(max_R, order_Item.particles_Model.particle_Radius.value);
+	} else
+	{
+		for(int item_Index : used_Appropriate_Item_Index_Vec)
+		{
+			Node* G2_node = short_Flat_Calc_Tree[item_Index];
+			vector<double>& q_Peak_Node  = G2_node->q_Peak;
+			vector<double>& hw_Peak_Node = G2_node->hw_Peak;
+
+			if(q_Peak_Node.size()>0)
+			{
+				 q_Peak.insert(  q_Peak.end(),  q_Peak_Node.begin(),  q_Peak_Node.end() );
+				hw_Peak.insert( hw_Peak.end(), hw_Peak_Node.begin(), hw_Peak_Node.end() );
+			}
+
+			Data& order_Item = appropriate_Item_Vec[item_Index];
+			disorder_Model = disorder_Model && order_Item.particles_Model.particle_Interference_Function == disorder;
+			max_R = max(max_R, order_Item.particles_Model.particle_Radius.value);
+		}
+	}
+
+	// min phi
+	if(!disorder_Model)
+	{
+		double q_Fail = 0.002; // empirical value. defends from non-physical values at phi=0 at low theta
+		double fraction_Fail = (pow(cos_Theta,2) + pow(cos_Theta_0,2) - pow(q_Fail/measurement.k_Value,2))/(2*cos_Theta*cos_Theta_0);
+		if(fraction_Fail<1) {
+			phi_Min = qRadiansToDegrees(acos(fraction_Fail));
+		}
+	}
+
+	// one point left and one point right from each peak
+	double hw_Factor = 3;
+	vector<double> q_Points;
+	for(int i=0; i<q_Peak.size(); i++)
+	{
+		q_Points.push_back(q_Peak[i] - hw_Factor*hw_Peak[i]);
+		q_Points.push_back(q_Peak[i] + hw_Factor*hw_Peak[i]);
+	}
+
+	// make phi from q
 	vector<double> phi_Interpoints = {phi_Min};
+	for(int i=0; i<q_Points.size(); i++)
+	{
+		if(q_Points[i]>0)
+		{
+			double fraction = (pow(cos_Theta,2) + pow(cos_Theta_0,2) - pow(q_Points[i]/measurement.k_Value,2))/(2*cos_Theta*cos_Theta_0);
+			double phi = qRadiansToDegrees(acos(fraction));
+			if(phi>phi_Min) phi_Interpoints.push_back(phi);
+		}
+	}
 	std::sort(phi_Interpoints.begin(), phi_Interpoints.end());
 
 	// restrict phi by phi_Max
 	for(int i=phi_Interpoints.size()-1; i>=0; i--)
 	{
 		if(phi_Interpoints[i]>=phi_Max) phi_Interpoints.erase(phi_Interpoints.begin()+i);
+		if(phi_Interpoints[i]< phi_Min) phi_Interpoints.erase(phi_Interpoints.begin()+i);
 	}
 	phi_Interpoints.push_back(phi_Max);
 
 	// integration
 	auto f = [&](double phi){return function->function(phi, function->params);};
-//	if(point_Index == 100)
-//		qInfo() << "b" << point_Index << f(0) << endl;
+	double result = 0;
+	tanh_sinh<double> integrator;
+	double integrator_Tolerance = 1E-2;
+	if(q_Max*max_R > 10  && q_Max*max_R <= 50) integrator_Tolerance = 1E-3;
+	if(q_Max*max_R > 50 && q_Max*max_R <= 200) integrator_Tolerance = 1E-4;
+	if(q_Max*max_R > 200					 ) integrator_Tolerance = 1E-5;
 
-////	tanh_sinh<double> integrator;
-//	double integrator_Tolerance = 1E-2;
-//	for(size_t i=0; i<phi_Interpoints.size()-1; i++)
-//	{
-//		if(phi_Interpoints[i]<phi_Interpoints[i+1])
-//		{
-////			    result +=				 integrator.integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], integrator_Tolerance); // too slow
-//			if(i==0) {
-////				result +=				 integrator.integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], integrator_Tolerance);
-//				result += gauss_kronrod<double,15>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
-//			} else {
-//				result += gauss_kronrod<double, 5>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
-//			}
-//		}
-//	}
+	for(size_t i=0; i<phi_Interpoints.size()-1; i++)
+	{
+		if(phi_Interpoints[i]<phi_Interpoints[i+1])
+		{
+//					result +=				 integrator.integrate(f, phi_Interpoints[i], phi_Interpoints[i+1],    integrator_Tolerance); // too slow
+			/// before first peak at low theta
+			if(i==0 && phi_Interpoints[i+1]<6) {
+					result +=				 integrator.integrate(f, phi_Interpoints[i], phi_Interpoints[i+1],    integrator_Tolerance);
+//					result += gauss_kronrod<double,15>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
+			} else {
+				/// first peak at low theta
+				if(i==1 && phi_Interpoints[i+1]<6) {
+					result +=				 integrator.integrate(f, phi_Interpoints[i], phi_Interpoints[i+1],    integrator_Tolerance);
+//					result += gauss_kronrod<double,15>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
+				/// other parts
+				} else {
+					result += gauss_kronrod<double, 5>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
+				}
+			}
+		}
+	}
 	return 2*qDegreesToRadians(result);
 }
 

@@ -3268,7 +3268,7 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	}
 	q_Max = q_Max*1.01;
 	double q_Range = q_Max-q_Min;
-	vector<double> q_Peak;
+	q_Peak.clear();
 
 	// choose pattern
 	double phi_Max;
@@ -3379,7 +3379,7 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	if(struct_Data.particles_Model.geometric_Model == pure_Radial_Model) M = N*2/M_SQRT3;
 
 	// peak half-widths
-	vector<double> hw_Peak(q_Peak.size());
+	hw_Peak.resize(q_Peak.size());
 	for(int i=0; i<q_Peak.size(); i++)
 	{
 		double damp = exp(-0.5*q_Peak[i]*q_Peak[i]*sigma*sigma);
@@ -3397,6 +3397,16 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 	int num_Bare_Dense_Points = 300;	// num points if no peaks in range
 	int num_Bare_Points = 300;
 	int num_Peak_Points = 121; // points inside FWHM * hw_Factor/2
+
+	// less points if we need G2 only for integration
+	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+	    measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+	    measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		num_Bare_Dense_Points = 250;	// num points if no peaks in range
+		num_Bare_Points = 250;
+		num_Peak_Points = 81; // points inside FWHM * hw_Factor/2
+	}
 	double hw_Factor = 8;
 //	double pw = a/sigma;
 //	if(      pw <= 10 ) {hw_Factor = 6;}
@@ -3673,3 +3683,4 @@ void Node::clear_Spline_G2_2D(const Imperfections_Model& imperfections_Model)
 	gsl_spline_free(spline_G2);
 	gsl_interp_accel_free(acc_G2);
 }
+
