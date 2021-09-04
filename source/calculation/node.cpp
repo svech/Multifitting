@@ -999,6 +999,13 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 	}
 	vector<double> p0_sorted = p0;
 	std::sort(p0_sorted.begin(), p0_sorted.end());
+	for(int i=p0_sorted.size()-1; i>1; i--)
+	{
+		if(p0_sorted[i]<=p0_sorted[i-1])
+		{
+			p0_sorted[i] = p0_sorted[i]*(1+i*DBL_EPSILON)+(i*DBL_EPSILON);
+		}
+	}
 
 	/// get total sigma
 	calc_Debye_Waller_Total_Sigma(imperfections_Model);
