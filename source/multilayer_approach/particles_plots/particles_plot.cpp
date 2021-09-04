@@ -595,6 +595,7 @@ void Particles_Plot::calc_Interference_Function_For_Layer(int layer_Index, vecto
 		use_Interface = false;
 		return;
 	}
+
 	Node* current_Node;
 	bool last_Common_Item = false;
 	if(!multilayer->imperfections_Model.use_Common_Particle_Function &&
@@ -613,7 +614,13 @@ void Particles_Plot::calc_Interference_Function_For_Layer(int layer_Index, vecto
 	fake_Measurement.k_Vec = {2*M_PI*nu_Min, 2*M_PI*nu_Max};
 
 	/// create spline
+	bool use_Particles_General = multilayer->imperfections_Model.use_Particles;
+	bool use_Particles_Current = current_Data.particles_Model.is_Used;
+	multilayer->imperfections_Model.use_Particles = true;
+	current_Data.particles_Model.is_Used = true;
 	current_Node->create_Spline_G2_2D(multilayer->imperfections_Model, fake_Measurement, arg_Vector);
+	multilayer->imperfections_Model.use_Particles = use_Particles_General;
+	current_Data.particles_Model.is_Used = use_Particles_Current;
 	value_Vector.clear();
 
 	// fill simple argument
@@ -648,7 +655,7 @@ void Particles_Plot::calc_Interference_Function_For_Layer(int layer_Index, vecto
 
 	/// calculation
 	value_Vector.resize(arg_Vector.size());
-	if(current_Data.particles_Model.is_Used || last_Common_Item)
+//	if(current_Data.particles_Model.is_Used || last_Common_Item)
 	{
 		if(current_Data.particles_Model.particle_Interference_Function == radial_Paracrystal)
 		{
@@ -673,7 +680,13 @@ void Particles_Plot::calc_Interference_Function_For_Layer(int layer_Index, vecto
 		}
 	}
 	/// clear spline
+	use_Particles_General = multilayer->imperfections_Model.use_Particles;
+	use_Particles_Current = current_Data.particles_Model.is_Used;
+	multilayer->imperfections_Model.use_Particles = true;
+	current_Data.particles_Model.is_Used = true;
 	current_Node->clear_Spline_G2_2D(multilayer->imperfections_Model);
+	multilayer->imperfections_Model.use_Particles = use_Particles_General;
+	current_Data.particles_Model.is_Used = use_Particles_Current;
 }
 
 void Particles_Plot::plot_Data(bool recalculate_Profile)

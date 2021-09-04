@@ -3797,7 +3797,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 				Data& last_Item = appropriate_Item_Vec[last_Item_Index];
 				Node* last_Node = short_Flat_Calc_Tree[last_Item_Index];
 				double cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
-				double cos_Theta_0 = measurement.beam_Theta_0_Cos_Value;
 
 				// splines for form factors (only for layers with used particles)
 				for(size_t item_Index : used_Appropriate_Item_Index_Vec)
@@ -4507,7 +4506,7 @@ void Unwrapped_Reflection::calc_Item_Form_Factor_From_Spline(int thread_Index, i
 void Unwrapped_Reflection::calc_Item_Form_Factor_Splines(int thread_Index, int item_Index, int order_Item_Index, Data& order_Item, double cos_Theta_0, double cos_Theta)
 {
 	double cos_Phi_Min = 1; // start from zero phi
-	double q_Min = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi_Min);
+	double q_Min = measurement.k_Value*sqrt(abs(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi_Min));
 //	q_Min = max(q_Min, DBL_EPSILON); // not zero
 	q_Min = max(q_Min, 0.);
 //	double q_Min = 0;
@@ -4530,7 +4529,7 @@ void Unwrapped_Reflection::calc_Item_Form_Factor_Splines(int thread_Index, int i
 	{
 		cos_Phi_Max = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
 	}
-	double q_Max = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi_Max);
+	double q_Max = measurement.k_Value*sqrt(abs(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi_Max));
 	q_Max = max(q_Max, (q_Min+DBL_EPSILON)*1.01);
 
 	double R = order_Item.particles_Model.particle_Radius.value;
@@ -4685,8 +4684,8 @@ double Unwrapped_Reflection::particles_Azimuthal_Integration(gsl_function* funct
 	{
 		phi_Max = qRadiansToDegrees(Global_Variables::get_Phi_Max_From_Finite_Slit(measurement, cos_Theta));
 	}
-	double cos_Phi_Max = cos(qDegreesToRadians(min(5., phi_Max)));
-	double q_Max = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi_Max);
+//	double cos_Phi_Max = cos(qDegreesToRadians(min(5., phi_Max)));
+//	double q_Max = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi_Max);
 
 	/// ----------------------------------------------------------------------------------------------------------------------
 
@@ -4737,7 +4736,7 @@ double Unwrapped_Reflection::particles_Azimuthal_Integration(gsl_function* funct
 	// one point left and one point right from each peak
 	double hw_Factor = 3;
 	vector<double> q_Points;
-	for(int i=0; i<q_Peak.size(); i++)
+	for(size_t i=0; i<q_Peak.size(); i++)
 	{
 		q_Points.push_back(q_Peak[i] - hw_Factor*hw_Peak[i]);
 		q_Points.push_back(q_Peak[i] + hw_Factor*hw_Peak[i]);
@@ -4745,7 +4744,7 @@ double Unwrapped_Reflection::particles_Azimuthal_Integration(gsl_function* funct
 
 	// make phi from q
 	vector<double> phi_Interpoints = {phi_Min};
-	for(int i=0; i<q_Points.size(); i++)
+	for(size_t i=0; i<q_Points.size(); i++)
 	{
 		if(q_Points[i]>0)
 		{
@@ -4754,8 +4753,6 @@ double Unwrapped_Reflection::particles_Azimuthal_Integration(gsl_function* funct
 			if(phi>phi_Min) phi_Interpoints.push_back(phi);
 		}
 	}
-	std::sort(phi_Interpoints.begin(), phi_Interpoints.end());
-
 	// restrict phi by phi_Max
 	for(int i=phi_Interpoints.size()-1; i>=0; i--)
 	{
@@ -4763,35 +4760,46 @@ double Unwrapped_Reflection::particles_Azimuthal_Integration(gsl_function* funct
 		if(phi_Interpoints[i]< phi_Min) phi_Interpoints.erase(phi_Interpoints.begin()+i);
 	}
 	phi_Interpoints.push_back(phi_Max);
+	std::sort(phi_Interpoints.begin(), phi_Interpoints.end());
 
 	// integration
 	auto f = [&](double phi){return function->function(phi, function->params);};
 	double result = 0;
 	tanh_sinh<double> integrator;
-	double integrator_Tolerance = 1E-2;
-	if(q_Max*max_R > 10  && q_Max*max_R <= 50) integrator_Tolerance = 1E-3;
-	if(q_Max*max_R > 50 && q_Max*max_R <= 200) integrator_Tolerance = 1E-4;
-	if(q_Max*max_R > 200					 ) integrator_Tolerance = 1E-5;
+	double integrator_Tolerance = 1E-1;
+	if(disorder_Model) integrator_Tolerance = 1E-3;
+//	if(q_Max*max_R > 10  && q_Max*max_R <= 50) integrator_Tolerance_1 = 1E-3;
+//	if(q_Max*max_R > 50 && q_Max*max_R <= 200) integrator_Tolerance_1 = 1E-4;
+//	if(q_Max*max_R > 200					 ) integrator_Tolerance_1 = 1E-5;
+//	double integrator_Tolerance_2 = 2E-2;
+//	double integrator_Tolerance_3 = 4E-2;
 
 	for(size_t i=0; i<phi_Interpoints.size()-1; i++)
 	{
 		if(phi_Interpoints[i]<phi_Interpoints[i+1])
 		{
-//					result +=				 integrator.integrate(f, phi_Interpoints[i], phi_Interpoints[i+1],    integrator_Tolerance); // too slow
-			/// before first peak at low theta
-			if(i==0 && phi_Interpoints[i+1]<6) {
+			if(measurement.measurement_Type != measurement_Types[Offset_Scan] || measurement.detector_Theta_Offset>0.01)
+			{
 					result +=				 integrator.integrate(f, phi_Interpoints[i], phi_Interpoints[i+1],    integrator_Tolerance);
-//					result += gauss_kronrod<double,15>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
-			} else {
-				/// first peak at low theta
-				if(i==1 && phi_Interpoints[i+1]<6) {
-					result +=				 integrator.integrate(f, phi_Interpoints[i], phi_Interpoints[i+1],    integrator_Tolerance);
-//					result += gauss_kronrod<double,15>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
-				/// other parts
-				} else {
-					result += gauss_kronrod<double, 5>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
-				}
+			} else
+			{
+					result += gauss_kronrod<double,121>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
 			}
+			/// before first peak at low theta
+//			if(i==0 && phi_Interpoints[i+1]<6) {
+//					result +=				 integrator.integrate(f, phi_Interpoints[i], phi_Interpoints[i+1],    integrator_Tolerance);
+//					result += gauss_kronrod<double,61>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
+//			} else {
+				/// first peak at low theta
+//				if(i==1 && phi_Interpoints[i+1]<6) {
+//					result +=				 integrator.integrate(f, phi_Interpoints[i], phi_Interpoints[i+1],    integrator_Tolerance);
+//					result += gauss_kronrod<double,31>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
+				/// other parts
+//				} else {
+//					result +=				 integrator.integrate(f, phi_Interpoints[i], phi_Interpoints[i+1],    integrator_Tolerance);
+//					result += gauss_kronrod<double,31>::integrate(f, phi_Interpoints[i], phi_Interpoints[i+1], 0, integrator_Tolerance);
+//				}
+//			}
 		}
 	}
 	return 2*qDegreesToRadians(result);
