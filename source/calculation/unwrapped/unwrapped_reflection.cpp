@@ -532,7 +532,126 @@ struct Params_Particles
 	double cos_Theta_0;
 	Data* last_Item;
 	Node* last_Node;
+	vector<complex<double>>& layer_Field_Factor_Vec; // used only in partial correlation
 };
+double function_Scattering_Particles_Partial_Correlation(double phi, void* p)
+{
+	Params_Particles* params = reinterpret_cast<Params_Particles*>(p);
+	Unwrapped_Reflection* u = params->unwrapped_Reflection;
+	int thread_Index = params->thread_Index;
+	bool common = params->common;
+	double cos_Theta = params->cos_Theta;
+	double cos_Theta_0 = params->cos_Theta_0;
+	Data* last_Item = params->last_Item;
+	Node* last_Node = params->last_Node;
+	vector<complex<double>>& layer_Field_Factor_Vec = params->layer_Field_Factor_Vec;
+
+	// passed argument: phi or cos(phi)
+	double cos_Phi;
+	if(params->phi_As_Angle)
+		cos_Phi = cos(qDegreesToRadians(phi));
+	else
+		cos_Phi = phi;
+
+	// main function for single phi
+	double single_Point_Value = 0;
+
+	double G1_Type_Value = last_Node->G1_Type_Outer();
+	double G2_Type_Value = G1_Type_Value; // for disorder
+	double G2_Type_Value_Sqrt = sqrt(G2_Type_Value); // for disorder
+
+	for(int item_Index : u->used_Appropriate_Item_Index_Vec)
+	{
+		Node* node = u->short_Flat_Calc_Tree[item_Index];
+		Data& item = u->appropriate_Item_Vec[item_Index];
+		Data& order_Item = common ? (*last_Item) : item;
+
+		bool is_Z_Deviation = order_Item.particles_Model.particle_Z_Position_Deviation.value > DBL_EPSILON;
+
+		complex<double> d_Eps = node->delta_Epsilon_Contrast;
+		double d_Eps_Norm = norm(d_Eps);
+
+		if(is_Z_Deviation)
+		{
+			double incoherent_Field_Factor = u->body_Scattering_Particles_Partial_Correlation_Z_Deviation(layer_Field_Factor_Vec, thread_Index, item_Index, order_Item.particles_Model.particle_Interference_Function,
+																										  last_Node, G1_Type_Value, G2_Type_Value, cos_Theta, cos_Theta_0, cos_Phi, d_Eps);
+			single_Point_Value += d_Eps_Norm * incoherent_Field_Factor;
+		} else
+		{
+			double incoherent_Field_Factor = u->body_Scattering_Particles_Partial_Correlation(layer_Field_Factor_Vec, thread_Index, item_Index, last_Item->particles_Model.particle_Interference_Function,
+																							  last_Node, G2_Type_Value_Sqrt, cos_Theta, cos_Theta_0, cos_Phi, d_Eps);
+			single_Point_Value += incoherent_Field_Factor;
+		}
+	}
+	// partially coherent part summation
+	double coherent_Sum = 0;
+	for(int& l : u->unwrapped_Structure->particles_Index_Vec)
+	{
+		for(int& j : u->unwrapped_Structure->particles_Index_Vec)
+		{
+			if(j>l)
+			{
+				coherent_Sum += 2*real(      layer_Field_Factor_Vec[l] *
+										conj(layer_Field_Factor_Vec[j])
+									   ) * u->unwrapped_Structure->particles_Inheritance_Factor[l][j];
+			}
+		}
+	}
+	single_Point_Value += coherent_Sum;
+
+	return single_Point_Value;
+}
+double function_Scattering_Particles_Full_Correlation(double phi, void* p)
+{
+	Params_Particles* params = reinterpret_cast<Params_Particles*>(p);
+	Unwrapped_Reflection* u = params->unwrapped_Reflection;
+	int thread_Index = params->thread_Index;
+	bool common = params->common;
+	double cos_Theta = params->cos_Theta;
+	double cos_Theta_0 = params->cos_Theta_0;
+	Data* last_Item = params->last_Item;
+	Node* last_Node = params->last_Node;
+
+	// passed argument: phi or cos(phi)
+	double cos_Phi;
+	if(params->phi_As_Angle)
+		cos_Phi = cos(qDegreesToRadians(phi));
+	else
+		cos_Phi = phi;
+
+	// main function for single phi
+	double single_Point_Value = 0;
+
+	double G1_Type_Value = last_Node->G1_Type_Outer();
+	double G2_Type_Value_Sqrt = sqrt(G1_Type_Value); // for disorder
+	complex<double> coherent_Field_Factor = 0;
+
+	for(int item_Index : u->used_Appropriate_Item_Index_Vec)
+	{
+		Node* node = u->short_Flat_Calc_Tree[item_Index];
+		Data& item = u->appropriate_Item_Vec[item_Index];
+		Data& order_Item = common ? (*last_Item) : item;
+
+		bool is_Z_Deviation = order_Item.particles_Model.particle_Z_Position_Deviation.value > DBL_EPSILON;
+
+		complex<double> d_Eps = node->delta_Epsilon_Contrast;
+		double d_Eps_Norm = norm(d_Eps);
+
+		if(is_Z_Deviation)
+		{
+			double incoherent_Field_Factor = u->body_Scattering_Particles_Full_Correlation_Z_Deviation(coherent_Field_Factor, thread_Index, item_Index, last_Item->particles_Model.particle_Interference_Function,
+																									   last_Node, G1_Type_Value, G2_Type_Value_Sqrt, cos_Theta, cos_Theta_0, cos_Phi, d_Eps);
+			single_Point_Value += d_Eps_Norm * incoherent_Field_Factor;
+		} else
+		{
+			u->body_Scattering_Particles_Full_Correlation(coherent_Field_Factor, thread_Index, item_Index, last_Item->particles_Model.particle_Interference_Function,
+														  last_Node, G2_Type_Value_Sqrt, cos_Theta, cos_Theta_0, cos_Phi, d_Eps);
+		}
+	}
+	single_Point_Value += norm(coherent_Field_Factor);
+
+	return single_Point_Value;
+}
 double function_Scattering_Particles_Zero_Correlation(double phi, void* p)
 {
 	Params_Particles* params = reinterpret_cast<Params_Particles*>(p);
@@ -913,111 +1032,112 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 
 			/// DWBA SA CSA
 			if( multilayer->imperfections_Model.approximation == DWBA_approximation ||
-			    multilayer->imperfections_Model.approximation == SA_approximation   ||
-			    multilayer->imperfections_Model.approximation == CSA_approximation  )
-			{
-				// Hermite polinomials tabulation
-				if(multilayer->imperfections_Model.approximation == DWBA_approximation)
+				multilayer->imperfections_Model.approximation == SA_approximation   ||
+				multilayer->imperfections_Model.approximation == CSA_approximation  )
 				{
-					hermites.resize(DWBA_n_Max_Series-1);
-					for(int n=0; n<DWBA_n_Max_Series-1; n++)
+					// Hermite polinomials tabulation
+					if(multilayer->imperfections_Model.approximation == DWBA_approximation)
 					{
-						hermites[n] = hermite(n, 0);
+						hermites.resize(DWBA_n_Max_Series-1);
+						for(int n=0; n<DWBA_n_Max_Series-1; n++)
+						{
+							hermites[n] = hermite(n, 0);
+						}
 					}
-				}
 
-				// factorial tabulation
-				factorial.resize(DWBA_n_Max_Series+1);
-				factorial[0] = 1;
-				for(int n=1; n<=DWBA_n_Max_Series; n++)
-				{
-					factorial[n] = factorial[n-1] * 2*n;
-				}
+					// factorial tabulation
+					factorial.resize(DWBA_n_Max_Series+1);
+					factorial[0] = 1;
+					for(int n=1; n<=DWBA_n_Max_Series; n++)
+					{
+						factorial[n] = factorial[n-1] * 2*n;
+					}
 
-				k1_Up_Boundary.resize(num_Threads);
-				k2_Up_Boundary.resize(num_Threads);
-				k3_Up_Boundary.resize(num_Threads);
-				k4_Up_Boundary.resize(num_Threads);
+					k1_Up_Boundary.resize(num_Threads);
+					k2_Up_Boundary.resize(num_Threads);
+					k3_Up_Boundary.resize(num_Threads);
+					k4_Up_Boundary.resize(num_Threads);
 
-				k1_Low_Boundary.resize(num_Threads);
-				k2_Low_Boundary.resize(num_Threads);
-				k3_Low_Boundary.resize(num_Threads);
-				k4_Low_Boundary.resize(num_Threads);
+					k1_Low_Boundary.resize(num_Threads);
+					k2_Low_Boundary.resize(num_Threads);
+					k3_Low_Boundary.resize(num_Threads);
+					k4_Low_Boundary.resize(num_Threads);
 
-				D1_Up.resize(num_Threads);
-				D2_Up.resize(num_Threads);
-				D3_Up.resize(num_Threads);
-				D4_Up.resize(num_Threads);
+					D1_Up.resize(num_Threads);
+					D2_Up.resize(num_Threads);
+					D3_Up.resize(num_Threads);
+					D4_Up.resize(num_Threads);
 
-				D1_Low.resize(num_Threads);
-				D2_Low.resize(num_Threads);
-				D3_Low.resize(num_Threads);
-				D4_Low.resize(num_Threads);
+					D1_Low.resize(num_Threads);
+					D2_Low.resize(num_Threads);
+					D3_Low.resize(num_Threads);
+					D4_Low.resize(num_Threads);
 
-				integrator_Vec.resize(num_Threads);
+					integrator_Vec.resize(num_Threads);
 
-				pre_Fourier_Factor.resize(num_Threads);
-				incoherent_Diagonal_Term.resize(num_Threads);
-
-				for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
-				{
-					k1_Up_Boundary[thread_Index].resize(num_Boundaries_Sharp);
-					k2_Up_Boundary[thread_Index].resize(num_Boundaries_Sharp);
-					k3_Up_Boundary[thread_Index].resize(num_Boundaries_Sharp);
-					k4_Up_Boundary[thread_Index].resize(num_Boundaries_Sharp);
-
-					k1_Low_Boundary[thread_Index].resize(num_Boundaries_Sharp);
-					k2_Low_Boundary[thread_Index].resize(num_Boundaries_Sharp);
-					k3_Low_Boundary[thread_Index].resize(num_Boundaries_Sharp);
-					k4_Low_Boundary[thread_Index].resize(num_Boundaries_Sharp);
-
-					D1_Up[thread_Index].resize(DWBA_n_Max_Series);
-					D2_Up[thread_Index].resize(DWBA_n_Max_Series);
-					D3_Up[thread_Index].resize(DWBA_n_Max_Series);
-					D4_Up[thread_Index].resize(DWBA_n_Max_Series);
-
-					D1_Low[thread_Index].resize(DWBA_n_Max_Series);
-					D2_Low[thread_Index].resize(DWBA_n_Max_Series);
-					D3_Low[thread_Index].resize(DWBA_n_Max_Series);
-					D4_Low[thread_Index].resize(DWBA_n_Max_Series);
-
-					pre_Fourier_Factor[thread_Index].resize(DWBA_n_Max_Series);
-				}
-
-				// s-polarization
-				if(has_S_Pol)
-				{
-					K_Factor_Boundary_s.resize(num_Threads);
+					pre_Fourier_Factor.resize(num_Threads);
+					incoherent_Diagonal_Term.resize(num_Threads);
 
 					for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 					{
-						K_Factor_Boundary_s[thread_Index].resize(num_Boundaries_Sharp);
+						k1_Up_Boundary[thread_Index].resize(num_Boundaries_Sharp);
+						k2_Up_Boundary[thread_Index].resize(num_Boundaries_Sharp);
+						k3_Up_Boundary[thread_Index].resize(num_Boundaries_Sharp);
+						k4_Up_Boundary[thread_Index].resize(num_Boundaries_Sharp);
 
-						for(int bound=0; bound<num_Boundaries_Sharp; bound++)
-						{
-							K_Factor_Boundary_s[thread_Index][bound].resize(DWBA_n_Max_Series);
-						}
+						k1_Low_Boundary[thread_Index].resize(num_Boundaries_Sharp);
+						k2_Low_Boundary[thread_Index].resize(num_Boundaries_Sharp);
+						k3_Low_Boundary[thread_Index].resize(num_Boundaries_Sharp);
+						k4_Low_Boundary[thread_Index].resize(num_Boundaries_Sharp);
+
+						D1_Up[thread_Index].resize(DWBA_n_Max_Series);
+						D2_Up[thread_Index].resize(DWBA_n_Max_Series);
+						D3_Up[thread_Index].resize(DWBA_n_Max_Series);
+						D4_Up[thread_Index].resize(DWBA_n_Max_Series);
+
+						D1_Low[thread_Index].resize(DWBA_n_Max_Series);
+						D2_Low[thread_Index].resize(DWBA_n_Max_Series);
+						D3_Low[thread_Index].resize(DWBA_n_Max_Series);
+						D4_Low[thread_Index].resize(DWBA_n_Max_Series);
+
+						pre_Fourier_Factor[thread_Index].resize(DWBA_n_Max_Series);
 					}
-				}
 
-				// p-polarization
-				if(has_P_Pol)
-				{
-					K_Factor_Boundary_p.resize(num_Threads);
-
-					for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
+					// s-polarization
+					if(has_S_Pol)
 					{
-						K_Factor_Boundary_p[thread_Index].resize(num_Boundaries_Sharp);
+						K_Factor_Boundary_s.resize(num_Threads);
 
-						for(int bound=0; bound<num_Boundaries_Sharp; bound++)
+						for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 						{
-							K_Factor_Boundary_p[thread_Index][bound].resize(DWBA_n_Max_Series);
+							K_Factor_Boundary_s[thread_Index].resize(num_Boundaries_Sharp);
+
+							for(int bound=0; bound<num_Boundaries_Sharp; bound++)
+							{
+								K_Factor_Boundary_s[thread_Index][bound].resize(DWBA_n_Max_Series);
+							}
+						}
+					}
+
+					// p-polarization
+					if(has_P_Pol)
+					{
+						K_Factor_Boundary_p.resize(num_Threads);
+
+						for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
+						{
+							K_Factor_Boundary_p[thread_Index].resize(num_Boundaries_Sharp);
+
+							for(int bound=0; bound<num_Boundaries_Sharp; bound++)
+							{
+								K_Factor_Boundary_p[thread_Index][bound].resize(DWBA_n_Max_Series);
+							}
 						}
 					}
 				}
-			}
 
 			// particles
+			if(multilayer->imperfections_Model.use_Particles)
 			{
 				C_03.resize(num_Threads);
 				C_03_03.resize(num_Threads);
@@ -1041,6 +1161,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 				coherent_Field_Factor.resize(num_Threads);
 				complex_Coef.resize(num_Threads);
 				layer_Field_Factor.resize(num_Threads);
+				layer_Field_Factor_Short.resize(num_Threads);
 
 				spline_F_03_Real.resize(num_Threads);
 				spline_F_03_Imag.resize(num_Threads);
@@ -1082,15 +1203,29 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 					alfa_03_03[thread_Index].resize(num_Layer_Items);
 					alfa_nn_03[thread_Index].resize(num_Layer_Items);
 
-					coherent_Field_Factor[thread_Index].resize(abs(int(measurement.end_Phi_Number)-int(measurement.start_Phi_Index)));
 					complex_Coef[thread_Index].resize(4);
-
-					if(multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation )
+					if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 					{
-						layer_Field_Factor[thread_Index].resize(abs(int(measurement.end_Phi_Number)-int(measurement.start_Phi_Index)));
-						for(int phi_Local_Index=0; phi_Local_Index<layer_Field_Factor[thread_Index].size(); phi_Local_Index++)
+						if(multilayer->imperfections_Model.particle_Vertical_Correlation == full_Correlation)
 						{
-							layer_Field_Factor[thread_Index][phi_Local_Index].resize(num_Layers);
+							coherent_Field_Factor[thread_Index].resize(abs(int(measurement.end_Phi_Number)-int(measurement.start_Phi_Index)));
+						}
+						if(multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation )
+						{
+							layer_Field_Factor[thread_Index].resize(abs(int(measurement.end_Phi_Number)-int(measurement.start_Phi_Index)));
+							for(int phi_Local_Index=0; phi_Local_Index<layer_Field_Factor[thread_Index].size(); phi_Local_Index++)
+							{
+								layer_Field_Factor[thread_Index][phi_Local_Index].resize(num_Layers);
+							}
+						}
+					}
+					if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+						measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+						measurement.measurement_Type == measurement_Types[Offset_Scan] )
+					{
+						if(multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation )
+						{
+							layer_Field_Factor_Short[thread_Index].resize(num_Layers);
 						}
 					}
 
@@ -3680,15 +3815,19 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					double scattering = 0;
 					if(multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation)
 					{
-
+						Params_Particles params_Particles = {this, thread_Index, true, common, cos_Theta, cos_Theta_0, &last_Item, last_Node, layer_Field_Factor_Short[thread_Index]};
+						gsl_function F = { function_Scattering_Particles_Partial_Correlation, &params_Particles };
+						scattering = e_Factor_PT_2D * particles_Azimuthal_Integration(&F, cos_Theta_0, point_Index);
 					}
 					if(multilayer->imperfections_Model.particle_Vertical_Correlation == full_Correlation)
 					{
-
+						Params_Particles params_Particles = {this, thread_Index, true, common, cos_Theta, cos_Theta_0, &last_Item, last_Node, layer_Field_Factor_Short[thread_Index]};
+						gsl_function F = { function_Scattering_Particles_Full_Correlation, &params_Particles };
+						scattering = e_Factor_PT_2D * particles_Azimuthal_Integration(&F, cos_Theta_0, point_Index);
 					}
 					if(multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation)
 					{
-						Params_Particles params_Particles = {this, thread_Index, true, common, cos_Theta, cos_Theta_0, &last_Item, last_Node};
+						Params_Particles params_Particles = {this, thread_Index, true, common, cos_Theta, cos_Theta_0, &last_Item, last_Node, layer_Field_Factor_Short[thread_Index]};
 						gsl_function F = { function_Scattering_Particles_Zero_Correlation, &params_Particles };
 						scattering = e_Factor_PT_2D * particles_Azimuthal_Integration(&F, cos_Theta_0, point_Index);
 					}

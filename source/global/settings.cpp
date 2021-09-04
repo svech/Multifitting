@@ -941,9 +941,9 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		default_particles_distance_min			= structure_Default_Values.value( "default_particles_distance_min",			10	  ).toDouble();
 		default_particles_distance_max			= structure_Default_Values.value( "default_particles_distance_max",			200	  ).toDouble();
 
-		default_particles_distance_deviation		= structure_Default_Values.value( "default_particles_distance_deviation",	1	  ).toDouble();
-		default_particles_distance_deviation_min	= structure_Default_Values.value( "default_particles_distance_deviation_min",0.5	  ).toDouble();
-		default_particles_distance_deviation_max	= structure_Default_Values.value( "default_particles_distance_deviation_max",90    ).toDouble();
+		default_particles_distance_deviation		= structure_Default_Values.value( "default_particles_distance_deviation",	 5	  ).toDouble();
+		default_particles_distance_deviation_min	= structure_Default_Values.value( "default_particles_distance_deviation_min",0.5  ).toDouble();
+		default_particles_distance_deviation_max	= structure_Default_Values.value( "default_particles_distance_deviation_max",90   ).toDouble();
 
 		default_particles_domain_size					= structure_Default_Values.value( "default_particles_domain_size",				1e5		).toDouble();
 		default_particles_domain_size_min				= structure_Default_Values.value( "default_particles_domain_size_min",			1E2		).toDouble();
@@ -959,7 +959,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 
 		default_particles_z_position_deviation			= structure_Default_Values.value( "default_particles_z_position_deviation",		  0		).toDouble();
 		default_particles_z_position_deviation_min		= structure_Default_Values.value( "default_particles_z_position_deviation_min",	  0		).toDouble();
-		default_particles_z_position_deviation_max		= structure_Default_Values.value( "default_particles_z_position_deviation_max",     5		).toDouble();
+		default_particles_z_position_deviation_max		= structure_Default_Values.value( "default_particles_z_position_deviation_max",   5		).toDouble();
 	structure_Default_Values.endGroup();
 
 	structure_Default_Values.beginGroup( Stack_Values );

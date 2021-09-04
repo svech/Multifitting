@@ -136,30 +136,30 @@ void Structure_Toolbar::add_Layer()
 
 void Structure_Toolbar::add_Multilayer()
 {
-	int num_Children = 0;
+	int num_Children = 2;
 
-	bool ok, ok_Number;
-	QString text = QInputDialog::getText(this, "Multilayer", "Number of different layers in multilayers stack", QLineEdit::Normal, Locale.toString(2), &ok);
-	text.toInt(&ok_Number);
-	if (ok && ok_Number && (text.toInt()>=2))
-	{
-		num_Children = text.toInt();
-	} else
-	if(!ok)
-	{
-		return;
-	}
-	if(!ok_Number)
-	{
-		QMessageBox::warning(this, "Warning", text + " is not a integer number");
-		add_Multilayer();
-	} else
-	if (text.toInt()<2)
-	{
-		QMessageBox::warning(this, "Warning", "There should be at least 2 layers");
-		add_Multilayer();
-	}
-	if(num_Children<2) return;
+//	bool ok, ok_Number;
+//	QString text = QInputDialog::getText(this, "Multilayer", "Number of different layers in multilayers stack", QLineEdit::Normal, Locale.toString(2), &ok);
+//	text.toInt(&ok_Number);
+//	if (ok && ok_Number && (text.toInt()>=2))
+//	{
+//		num_Children = text.toInt();
+//	} else
+//	if(!ok)
+//	{
+//		return;
+//	}
+//	if(!ok_Number)
+//	{
+//		QMessageBox::warning(this, "Warning", text + " is not a integer number");
+//		add_Multilayer();
+//	} else
+//	if (text.toInt()<2)
+//	{
+//		QMessageBox::warning(this, "Warning", "There should be at least 2 layers");
+//		add_Multilayer();
+//	}
+//	if(num_Children<2) return;
 
 	// item
 	QTreeWidgetItem* new_Multilayer = new QTreeWidgetItem;

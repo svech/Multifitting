@@ -207,6 +207,7 @@ public:
 	vector<vector<complex<double>>> coherent_Field_Factor;			//	[thread][phi_Index]
 	vector<vector<complex<double>>> complex_Coef;					//	[thread][0-3]
 	vector<vector<vector<complex<double>>>> layer_Field_Factor;		//	[thread][phi_Index][layer]
+	vector<vector<complex<double>>> layer_Field_Factor_Short;		//	[thread][layer]
 
 	int q_Spline_Points;
 	vector<vector<vector<gsl_spline*>>> spline_F_03_Real;	//	[thread][item_Index][0-3]
