@@ -14,6 +14,7 @@ public:
 	QString	parent_Item_Type;
 	QString	item_Type;
 	id_Type id = 0;
+	id_Type aperiodic_Avatar_Id; // without saving
 	bool item_Enabled = true;
 
 	///---------------------------------------------

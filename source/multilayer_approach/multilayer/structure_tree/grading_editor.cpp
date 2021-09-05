@@ -82,7 +82,7 @@ void Grading_Editor::create_Interface()
 	}
 	// linear
 	{
-		line_Group_Box = new QGroupBox("Linear Drift", this);
+		line_Group_Box = new QGroupBox("Linear drift", this);
 			line_Group_Box->setObjectName("line_Group_Box");
 			line_Group_Box->setStyleSheet("QGroupBox#line_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;} "
 										  "QGroupBox::title { subcontrol-origin: margin;	 left: 4px; padding: 0 0px 0 1px;}");
@@ -94,7 +94,7 @@ void Grading_Editor::create_Interface()
 	}
 	// sine
 	{
-		sine_Group_Box = new QGroupBox("Sine Drift", this);
+		sine_Group_Box = new QGroupBox("Sine drift", this);
 			sine_Group_Box->setObjectName("sine_Group_Box");
 			sine_Group_Box->setStyleSheet("QGroupBox#sine_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;} "
 										  "QGroupBox::title { subcontrol-origin: margin;	 left: 4px; padding: 0 0px 0 1px;}");
@@ -106,7 +106,7 @@ void Grading_Editor::create_Interface()
 	}
 	// random
 	{
-		rand_Group_Box = new QGroupBox("Random Drift", this);
+		rand_Group_Box = new QGroupBox("Random drift", this);
 			rand_Group_Box->setObjectName("rand_Group_Box");
 			rand_Group_Box->setStyleSheet("QGroupBox#rand_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;} "
 										  "QGroupBox::title { subcontrol-origin: margin;	 left: 4px; padding: 0 0px 0 1px;}");

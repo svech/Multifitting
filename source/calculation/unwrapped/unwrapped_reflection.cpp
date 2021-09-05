@@ -1137,7 +1137,6 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 				}
 
 			// particles
-			if(multilayer->imperfections_Model.use_Particles)
 			{
 				C_03.resize(num_Threads);
 				C_03_03.resize(num_Threads);
@@ -1459,7 +1458,6 @@ void Unwrapped_Reflection::fill_Item_Id_Map()
 	for(int item_Index = 0; item_Index<short_Flat_Calc_Tree.size(); item_Index++)
 	{
 		const Data& item = short_Flat_Calc_Tree[item_Index]->struct_Data;
-
 		id_Item_Map.insert(item.id, item_Index);
 		appropriate_Item_Vec.push_back(item);
 		if(item.particles_Model.is_Used)
@@ -1630,7 +1628,14 @@ void Unwrapped_Reflection::fill_Boundary_Item()
 	{
 		const Data& struct_Data = media_Data_Map_Vector[boundary_Index+1];
 
-		int index_Of_Item = id_Item_Map.value(struct_Data.id);
+		int index_Of_Item = -2021;
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			index_Of_Item = id_Item_Map.value(struct_Data.aperiodic_Avatar_Id);
+		} else
+		{
+			index_Of_Item = id_Item_Map.value(struct_Data.id);
+		}
 		boundary_Item_Vec[boundary_Index] = index_Of_Item;
 		boundaries_Of_Item_Vec[index_Of_Item].push_back(boundary_Index);
 	}
@@ -4223,7 +4228,6 @@ void Unwrapped_Reflection::calc_k_Wavenumber_Layer(int thread_Index, int point_I
 	for(size_t item_Index = 0; item_Index<appropriate_Item_Vec.size()-1; item_Index++)
 	{
 		const Data& item = appropriate_Item_Vec[item_Index];
-
 		if(item.particles_Model.is_Used)
 		{
 			int first_Layer_Of_Item = boundaries_Of_Item_Vec[item_Index].front();

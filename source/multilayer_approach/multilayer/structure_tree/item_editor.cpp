@@ -372,7 +372,7 @@ void Item_Editor::make_Multilayer_Group_Box()
 	}
 	{
 		QHBoxLayout* layout = new QHBoxLayout;
-		gamma_Label = new QLabel("Thickness Ratio, " + Gamma_Sym + ":");
+		gamma_Label = new QLabel("Thickness ratio, " + Gamma_Sym + ":");
 
 		gamma_Line_Edit = new QLineEdit;
 			gamma_Line_Edit->setFixedWidth(50);
@@ -1014,7 +1014,7 @@ void Item_Editor::make_Sigma_Group_Box()
 			interlayer_Composition_Layout->setContentsMargins(0,0,0,0);
 			interlayer_Composition_Layout->setAlignment(Qt::AlignLeft);
 			QHBoxLayout* sigma_PSD_Layout = new QHBoxLayout;
-		interlayer_Composition_Group_Box = new QGroupBox("Interlayer Composition");
+		interlayer_Composition_Group_Box = new QGroupBox("Interlayer composition");
 		interlayer_Composition_Group_Box->setObjectName("interlayer_Composition_Group_Box");
 		interlayer_Composition_Group_Box->setStyleSheet("QGroupBox#interlayer_Composition_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;} "
 														"QGroupBox::title { subcontrol-origin: margin;	 left: 4px; padding: 0 0px 0 1px;}");

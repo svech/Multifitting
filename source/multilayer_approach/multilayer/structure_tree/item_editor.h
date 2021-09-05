@@ -113,7 +113,7 @@ public:
 	QString absolute_Density_Label = "Density [g/cm" + Cube_Sym + "]:";
 	QString relative_Density_Label = "Relative Density:";
 	QString atoms = "atoms of";
-	QString AtWt = "At. Wt.=";
+	QString AtWt = "At. weight=";
 	QString thickness_Label_1 = "Thickness, z [";
 	QString thickness_Label_2 = "]:";
 	QString period_Label_1 = "Period, d [";
