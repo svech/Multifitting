@@ -468,7 +468,7 @@ void General_Settings_Editor::create_Output_Tab()
 			data_ButtonGroup->addButton(working_Radiobitton);
 			data_ButtonGroup->addButton(last_Radiobitton);
 
-		connect(multifitting_Radiobitton, &QCheckBox::clicked, this, [=]
+		connect(multifitting_Radiobitton, &QRadioButton::toggled, this, [=]
 		{
 			use_multifitting_directory = multifitting_Radiobitton->isChecked();
 			use_working_directory = working_Radiobitton->isChecked();
@@ -479,7 +479,7 @@ void General_Settings_Editor::create_Output_Tab()
 			working_Button->setEnabled(use_working_directory);
 			last_LineEdit->setEnabled(use_last_directory);
 		});
-		connect(last_Radiobitton, &QCheckBox::clicked, this, [=]
+		connect(last_Radiobitton, &QRadioButton::toggled, this, [=]
 		{
 			use_multifitting_directory = multifitting_Radiobitton->isChecked();
 			use_working_directory = working_Radiobitton->isChecked();
@@ -490,7 +490,7 @@ void General_Settings_Editor::create_Output_Tab()
 			working_Button->setEnabled(use_working_directory);
 			last_LineEdit->setEnabled(use_last_directory);
 		});
-		connect(working_Radiobitton, &QCheckBox::clicked, this, [=]
+		connect(working_Radiobitton, &QRadioButton::toggled, this, [=]
 		{
 			use_multifitting_directory = multifitting_Radiobitton->isChecked();
 			use_working_directory = working_Radiobitton->isChecked();
@@ -500,6 +500,16 @@ void General_Settings_Editor::create_Output_Tab()
 			working_LineEdit->setEnabled(use_working_directory);
 			working_Button->setEnabled(use_working_directory);
 			last_LineEdit->setEnabled(use_last_directory);
+		});
+
+		//-----------------------------------------------------------
+
+		QCheckBox* open_Last_File_At_The_Beginning = new QCheckBox("Always open last file");
+			open_Last_File_At_The_Beginning->setChecked(open_last_file);
+		groupbox_Layout->addWidget(open_Last_File_At_The_Beginning);
+		connect(open_Last_File_At_The_Beginning, &QCheckBox::clicked, this, [=]
+		{
+			open_last_file = open_Last_File_At_The_Beginning->isChecked();
 		});
 	}
 }

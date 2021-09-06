@@ -1477,23 +1477,46 @@ void Curve_Plot_2D::subinterval_Changed_Replot()
 	{
 		double coeff = angle_Coefficients_Map.value(angular_Units);
 
+		double sub_Left  = target_Curve->curve.subinterval_Left/coeff;
+		double sub_Right = target_Curve->curve.subinterval_Right/coeff;
+		double sub_Top   = target_Curve->curve.subinterval_Top/coeff;
+		double sub_Bottom= target_Curve->curve.subinterval_Bottom/coeff;
+
+		double sub_Left_Left    = main_2D_Custom_Plot->xAxis->range().lower;
+		double sub_Right_Right  = main_2D_Custom_Plot->xAxis->range().upper;
+		double sub_Top_Top      = main_2D_Custom_Plot->yAxis->range().upper;
+		double sub_Bottom_Bottom= main_2D_Custom_Plot->yAxis->range().lower;
+
+		if(plot_Options.orientation == vertical)
+		{
+			sub_Left  = target_Curve->curve.subinterval_Bottom/coeff;
+			sub_Right = target_Curve->curve.subinterval_Top/coeff;
+			sub_Top   = target_Curve->curve.subinterval_Right/coeff;
+			sub_Bottom= target_Curve->curve.subinterval_Left/coeff;
+
+			sub_Left_Left    = main_2D_Custom_Plot->xAxis->range().lower;
+			sub_Right_Right  = main_2D_Custom_Plot->xAxis->range().upper;
+			sub_Top_Top      = main_2D_Custom_Plot->yAxis->range().upper;
+			sub_Bottom_Bottom= main_2D_Custom_Plot->yAxis->range().lower;
+		}
+
 		if(target_Curve->curve.outer_Area)
 		{
-			start_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left/coeff, target_Curve->curve.subinterval_Top/coeff);
-			start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right/coeff,target_Curve->curve.subinterval_Bottom/coeff);
+			start_Rect->topLeft    ->setCoords(sub_Left,  sub_Top   );
+			start_Rect->bottomRight->setCoords(sub_Right, sub_Bottom);
 		} else
 		{
-			start_Rect->topLeft->setCoords(main_2D_Custom_Plot->xAxis->range().lower, main_2D_Custom_Plot->yAxis->range().upper);
-			start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Left/coeff,main_2D_Custom_Plot->yAxis->range().lower);
+			start_Rect->topLeft->setCoords(sub_Left_Left, sub_Top_Top);
+			start_Rect->bottomRight->setCoords(sub_Left,sub_Bottom_Bottom);
 
-			end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Right/coeff,main_2D_Custom_Plot->yAxis->range().upper);
-			end_Rect->bottomRight->setCoords(main_2D_Custom_Plot->xAxis->range().upper, main_2D_Custom_Plot->yAxis->range().lower);
+			end_Rect->topLeft->setCoords(sub_Right,sub_Top_Top);
+			end_Rect->bottomRight->setCoords(sub_Right_Right, sub_Bottom_Bottom);
 
-			top_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left/coeff, main_2D_Custom_Plot->yAxis->range().upper);
-			top_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right/coeff,target_Curve->curve.subinterval_Top/coeff);
+			top_Rect->topLeft->setCoords(sub_Left, sub_Top_Top);
+			top_Rect->bottomRight->setCoords(sub_Right,sub_Top);
 
-			bottom_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left/coeff, target_Curve->curve.subinterval_Bottom/coeff);
-			bottom_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right/coeff, main_2D_Custom_Plot->yAxis->range().lower);
+			bottom_Rect->topLeft->setCoords(sub_Left, sub_Bottom);
+			bottom_Rect->bottomRight->setCoords(sub_Right, sub_Bottom_Bottom);
 		}
 
 		// show/hide

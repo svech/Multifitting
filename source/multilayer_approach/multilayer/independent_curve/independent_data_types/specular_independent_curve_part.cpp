@@ -317,8 +317,8 @@ void Specular_Independent_Curve_Part::refresh_Angular_Units(bool replot)
 	if(independent_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 	{
 		// argument
-		start_Argument_Spinbox->setRange(0,90./coeff);
-		final_Argument_Spinbox->setRange(0,90./coeff);
+		start_Argument_Spinbox->setRange(-90./coeff,90./coeff);
+		final_Argument_Spinbox->setRange(-90./coeff,90./coeff);
 
 		start_Argument_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.min/coeff);
 		final_Argument_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.max/coeff);

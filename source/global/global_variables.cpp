@@ -1802,8 +1802,9 @@ double Global_Variables::get_Nu_Max_From_Finite_Slit(double p, const Data& measu
 	// phi_Max
 	double phi_Max = get_Phi_Max_From_Finite_Slit(measurement);
 
+
 	// max frequency
-	double lambda_2 = pow(measurement.lambda_Value,2);
+	double lambda_2 = max(pow(measurement.lambda_Value, 2), DBL_EPSILON);
 	double nu_Max = sqrt(abs(p*p + 2./lambda_2 * cos_Theta*cos_Theta_0*(1.-cos(phi_Max))));
 	return nu_Max;
 }
@@ -2209,7 +2210,7 @@ void Global_Variables::create_Shortcuts(QWidget* this_Widget)
 		connect(save_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->save_As();					 });
 		connect(open_Shortcut,				&QShortcut::activated, this_Widget, [=]
 		{
-			if(global_Multilayer_Approach->file_Was_Opened_or_Saved)
+			if(global_Multilayer_Approach->file_Was_Opened_or_Saved || open_last_file)
 			{
 				global_Multilayer_Approach->open(last_file);
 			}

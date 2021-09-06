@@ -528,12 +528,13 @@ bool print_1D_PSD_From_Scattering_On_Recalculation;
 bool use_multifitting_directory;
 bool use_working_directory;
 QString  working_directory;
+bool open_last_file;
 
 bool use_last_directory;
 QString  last_directory;
 QString preliminary_last_directory;
 QString preliminary_last_data_directory;
-QString				last_data_directory;
+QString				last_aperiodic_data_directory;
 QString preliminary_last_file;
 QString				last_file;
 
@@ -945,7 +946,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		default_particles_distance_deviation_min	= structure_Default_Values.value( "default_particles_distance_deviation_min",0.5  ).toDouble();
 		default_particles_distance_deviation_max	= structure_Default_Values.value( "default_particles_distance_deviation_max",90   ).toDouble();
 
-		default_particles_domain_size					= structure_Default_Values.value( "default_particles_domain_size",				1e5		).toDouble();
+		default_particles_domain_size					= structure_Default_Values.value( "default_particles_domain_size",				5E6		).toDouble();
 		default_particles_domain_size_min				= structure_Default_Values.value( "default_particles_domain_size_min",			1E2		).toDouble();
 		default_particles_domain_size_max				= structure_Default_Values.value( "default_particles_domain_size_max",			9E6		).toDouble();
 
@@ -1626,16 +1627,17 @@ void Settings::read_General_Settings(bool reset_to_default)
 		print_2D_Data_On_Recalculation					= general_Settings.value( "print_2D_Data_On_Recalculation",					false	).toBool();
 		print_1D_PSD_From_Scattering_On_Recalculation	= general_Settings.value( "print_1D_PSD_From_Scattering_On_Recalculation",	false	).toBool();
 
-		use_multifitting_directory		= general_Settings.value( "use_multifitting_directory",			true	).toBool();
-		use_working_directory			= general_Settings.value( "use_working_directory",				false	).toBool();
-		working_directory				= general_Settings.value( "working_directory",		QDir::currentPath() ).toString();
-		use_last_directory				= general_Settings.value( "use_last_directory",					false	).toBool();
-		last_directory					= general_Settings.value( "last_directory",			QDir::currentPath() ).toString();
-		last_data_directory				= general_Settings.value( "last_data_directory",	QDir::currentPath() ).toString();
-		last_file						= general_Settings.value( "last_file",				default_File		).toString();
-		if(last_directory      == "") last_directory      = QDir::currentPath();
-		if(last_data_directory == "") last_data_directory = QDir::currentPath();
-		if(working_directory   == "") working_directory   = QDir::currentPath();
+		use_multifitting_directory		= general_Settings.value( "use_multifitting_directory",					false	).toBool();
+		use_working_directory			= general_Settings.value( "use_working_directory",						false	).toBool();
+		working_directory				= general_Settings.value( "working_directory",				QDir::currentPath() ).toString();
+		use_last_directory				= general_Settings.value( "use_last_directory",							true	).toBool();
+		open_last_file					= general_Settings.value( "open_last_file",								true	).toBool();
+		last_directory					= general_Settings.value( "last_directory",					QDir::currentPath() ).toString();
+		last_aperiodic_data_directory	= general_Settings.value( "last_aperiodic_data_directory",	QDir::currentPath() ).toString();
+		last_file						= general_Settings.value( "last_file",						default_File		).toString();
+		if(last_directory				 == "")	last_directory				  = QDir::currentPath();
+		if(last_aperiodic_data_directory == "") last_aperiodic_data_directory = QDir::currentPath();
+		if(working_directory			 == "") working_directory			  = QDir::currentPath();
 	general_Settings.endGroup();
 
 	general_Settings.beginGroup( Calculation_Tab );
@@ -1693,9 +1695,10 @@ void Settings::save_General_Settings()
 		general_Settings.setValue("working_directory",					working_directory					);
 
 		general_Settings.setValue("use_last_directory",					use_last_directory					);
+		general_Settings.setValue("open_last_file",						open_last_file						);
 
 		general_Settings.setValue("last_directory",						last_directory						);
-		general_Settings.setValue("last_data_directory",				last_data_directory					);
+		general_Settings.setValue("last_aperiodic_data_directory",		last_aperiodic_data_directory		);
 		general_Settings.setValue("last_file",							last_file							);
 	general_Settings.endGroup();
 

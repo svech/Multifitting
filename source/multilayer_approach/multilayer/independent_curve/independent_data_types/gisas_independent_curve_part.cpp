@@ -108,7 +108,7 @@ void GISAS_Independent_Curve_Part::create_Argument_GroupBox()
 
 		start_Argument_Theta_Spinbox = new MyDoubleSpinBox;
 			start_Argument_Theta_Spinbox->setAccelerated(true);
-			start_Argument_Theta_Spinbox->setRange(0, 180./coeff);
+			start_Argument_Theta_Spinbox->setRange(-180./coeff, 180./coeff);
 			start_Argument_Theta_Spinbox->setDecimals(4);
 			start_Argument_Theta_Spinbox->setValue(independent_Curve->measurement.detector_Theta_Angle.independent.min/coeff);
 			start_Argument_Theta_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
@@ -126,7 +126,7 @@ void GISAS_Independent_Curve_Part::create_Argument_GroupBox()
 
 		final_Argument_Theta_Spinbox = new MyDoubleSpinBox;
 			final_Argument_Theta_Spinbox->setAccelerated(true);
-			final_Argument_Theta_Spinbox->setRange(0, 180./coeff);
+			final_Argument_Theta_Spinbox->setRange(-180./coeff, 180./coeff);
 			final_Argument_Theta_Spinbox->setDecimals(4);
 			final_Argument_Theta_Spinbox->setValue(independent_Curve->measurement.detector_Theta_Angle.independent.max/coeff);
 			final_Argument_Theta_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
@@ -385,8 +385,8 @@ void GISAS_Independent_Curve_Part::refresh_Angular_Units(bool replot)
 	double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
 
 	// argument theta
-	start_Argument_Theta_Spinbox->setRange(0,180./coeff);
-	final_Argument_Theta_Spinbox->setRange(0,180./coeff);
+	start_Argument_Theta_Spinbox->setRange(-180./coeff,180./coeff);
+	final_Argument_Theta_Spinbox->setRange(-180./coeff,180./coeff);
 	start_Argument_Theta_Spinbox->setValue(independent_Curve->measurement.detector_Theta_Angle.independent.min/coeff);
 	final_Argument_Theta_Spinbox->setValue(independent_Curve->measurement.detector_Theta_Angle.independent.max/coeff);
 	argument_Units_Theta_Label->setText(independent_Curve->angular_Units);

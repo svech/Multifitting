@@ -875,10 +875,12 @@ void Multilayer_Approach::open(QString filename)
 							 + Locale.toString(VERSION_BUILD));
 		return;
 	}
-
 	// only here approve last file
-	last_file = preliminary_last_file;
-	last_directory = preliminary_last_directory;
+//	last_file = preliminary_last_file;
+//	last_directory = preliminary_last_directory;
+	QFileInfo info(file);
+	last_file = info.absoluteFilePath();
+	last_directory = info.absolutePath();
 
 	// close table of structures
 	bool reopen_Table = runned_Tables_Of_Structures.contains(table_Of_Structures_Key);

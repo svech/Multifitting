@@ -300,8 +300,8 @@ void Rocking_Independent_Curve_Part::fill_Argument()
 
 	if(independent_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 	{
-		start_Argument_Spinbox->setRange(0, 90/coeff);
-		final_Argument_Spinbox->setRange(0, 90/coeff);
+		start_Argument_Spinbox->setRange(-90/coeff, 90/coeff);
+		final_Argument_Spinbox->setRange(-90/coeff, 90/coeff);
 
 		start_Argument_Spinbox->setValue(temporary_Min/coeff);
 		final_Argument_Spinbox->setValue(temporary_Max/coeff);

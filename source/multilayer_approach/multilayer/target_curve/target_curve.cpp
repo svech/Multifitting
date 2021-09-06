@@ -500,8 +500,8 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_2D_Data()
 							}
 						}
 					}
-					curve.value_2D_No_Scaling_And_Offset[row][col] = curve.value_2D_Shifted[row][col]/col_Binning_Factor/intensity_Factor;
-					curve.value_2D_Shifted			    [row][col] = curve.value_2D_Shifted[row][col]/row_Binning_Factor/intensity_Factor * curve.val_Factor.value + curve.val_Shift;
+					curve.value_2D_No_Scaling_And_Offset[row][col] = curve.value_2D_Shifted[row][col]/row_Binning_Factor/col_Binning_Factor/intensity_Factor;
+					curve.value_2D_Shifted			    [row][col] = curve.value_2D_Shifted[row][col]/row_Binning_Factor/col_Binning_Factor/intensity_Factor * curve.val_Factor.value + curve.val_Shift;
 				}
 			}
 		} else

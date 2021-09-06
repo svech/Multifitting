@@ -743,6 +743,7 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 	Data fake_Measurement;
 	fake_Measurement.measurement_Type = measurement_Types[Specular_Scan];
 	fake_Measurement.detector_1D.finite_Slit = false;
+//	fake_Measurement.lambda_Value = 1.540562;
 //	fake_Measurement.detector_1D.finite_Slit = refill_dependent_structure_table;
 //	fake_Measurement.detector_1D.slit_Length = current_Data.relative_Density.value;
 

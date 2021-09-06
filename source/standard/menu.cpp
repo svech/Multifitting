@@ -76,7 +76,7 @@ void Menu::create_File_Menu()
 				act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
 			connect(act_Open, &QAction::triggered, global_Multilayer_Approach, [=]
 			{
-				if(global_Multilayer_Approach->file_Was_Opened_or_Saved)
+				if(global_Multilayer_Approach->file_Was_Opened_or_Saved || open_last_file)
 				{
 					global_Multilayer_Approach->open(last_file);
 				}

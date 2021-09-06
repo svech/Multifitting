@@ -82,7 +82,7 @@ void GISAS_Target_Curve_Part::create_Argument_GroupBox()
 
 		theta_Min_SpinBox = new MyDoubleSpinBox;
 			theta_Min_SpinBox->setAccelerated(true);
-			theta_Min_SpinBox->setRange(0, 180./coeff);
+			theta_Min_SpinBox->setRange(-180./coeff, 180./coeff);
 			theta_Min_SpinBox->setDecimals(4);
 			theta_Min_SpinBox->setValue(target_Curve->measurement.detector_Theta_Angle.independent.min/coeff);
 			theta_Min_SpinBox->setSingleStep(0.001);
@@ -100,7 +100,7 @@ void GISAS_Target_Curve_Part::create_Argument_GroupBox()
 
 		theta_Max_SpinBox = new MyDoubleSpinBox;
 			theta_Max_SpinBox->setAccelerated(true);
-			theta_Max_SpinBox->setRange(0, 180./coeff);
+			theta_Max_SpinBox->setRange(-180./coeff, 180./coeff);
 			theta_Max_SpinBox->setDecimals(4);
 			theta_Max_SpinBox->setValue(target_Curve->measurement.detector_Theta_Angle.independent.max/coeff);
 			theta_Max_SpinBox->setSingleStep(0.001);
@@ -640,9 +640,9 @@ void GISAS_Target_Curve_Part::refresh_Argument_Units()
 	double coeff = angle_Coefficients_Map.value(target_Curve->angular_Units);
 
 	// theta
-	theta_Min_SpinBox->setRange(0,180./coeff);
+	theta_Min_SpinBox->setRange(-180./coeff,180./coeff);
 	theta_Min_SpinBox->setValue(target_Curve->measurement.detector_Theta_Angle.independent.min/coeff);
-	theta_Max_SpinBox->setRange(0,180./coeff);
+	theta_Max_SpinBox->setRange(-180./coeff,180./coeff);
 	theta_Max_SpinBox->setValue(target_Curve->measurement.detector_Theta_Angle.independent.max/coeff);
 	arg_Theta_Units_Label->setText(target_Curve->angular_Units);
 	subinterval_Theta_Units_Label->setText(target_Curve->angular_Units);

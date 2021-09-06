@@ -538,12 +538,13 @@ extern bool print_1D_PSD_From_Scattering_On_Recalculation;
 extern bool use_multifitting_directory;
 extern bool use_working_directory;
 extern QString  working_directory;
+extern bool open_last_file;
 
 extern bool use_last_directory;
 extern QString  last_directory;
 extern QString preliminary_last_directory;
 extern QString preliminary_last_data_directory;
-extern QString			   last_data_directory;
+extern QString			   last_aperiodic_data_directory;
 extern QString preliminary_last_file;
 extern QString			   last_file;
 
