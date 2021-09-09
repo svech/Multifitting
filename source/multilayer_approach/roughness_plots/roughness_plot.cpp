@@ -743,7 +743,7 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 	Data fake_Measurement;
 	fake_Measurement.measurement_Type = measurement_Types[Specular_Scan];
 	fake_Measurement.detector_1D.finite_Slit = false;
-//	fake_Measurement.lambda_Value = 1.540562;
+	fake_Measurement.lambda_Value = 1.540562;
 //	fake_Measurement.detector_1D.finite_Slit = refill_dependent_structure_table;
 //	fake_Measurement.detector_1D.slit_Length = current_Data.relative_Density.value;
 
@@ -754,7 +754,8 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 
 	/// independent PSD without measured
 	if( interface_Index == media_Counter-1 ||								// if substrate or
-		!multilayer->imperfections_Model.use_Common_Roughness_Function)		// if any independent interface
+		!multilayer->imperfections_Model.use_Common_Roughness_Function &&
+		 multilayer->imperfections_Model.vertical_Correlation == zero_Correlation)		// if any independent interface
 	{
 		current_Node->calculate_PSD_Factor(multilayer->imperfections_Model);
 
@@ -945,7 +946,8 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 	/// gaussian peak
 	if( multilayer->imperfections_Model.add_Gauss_Peak &&					// if have peak
 	   (interface_Index == media_Counter-1 ||								// if substrate or
-		!multilayer->imperfections_Model.use_Common_Roughness_Function))	// if any independent interface
+		!multilayer->imperfections_Model.use_Common_Roughness_Function &&
+		 multilayer->imperfections_Model.vertical_Correlation == zero_Correlation))	// if any independent interface
 	{
 		current_Node->calculate_PSD_Factor(multilayer->imperfections_Model);
 
@@ -1158,10 +1160,10 @@ void Roughness_Plot::plot_Data(bool recalculate_Profile)
 // if common PSD for all interfaces: calculate for substrate only
 void Roughness_Plot::lock_Interfaces()
 {
-	if( multilayer->imperfections_Model.use_Common_Roughness_Function &&(
-		(multilayer->imperfections_Model.vertical_Correlation == full_Correlation    || multilayer->imperfections_Model.vertical_Correlation == zero_Correlation                 ) ||
-		(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation && multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model)
-		))
+	if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
+		multilayer->imperfections_Model.vertical_Correlation == zero_Correlation && multilayer->imperfections_Model.use_Common_Roughness_Function ||
+		multilayer->imperfections_Model.vertical_Correlation == partial_Correlation && multilayer->imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model
+		)
 	{
 		use_Top_Surface = false;
 		use_Current_Interface = false;

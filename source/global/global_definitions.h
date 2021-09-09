@@ -32,7 +32,7 @@ class Node;
 #endif
 
 #ifdef EXPRTK
-    #include "exprtk.hpp"
+	#include "exprtk.hpp"
 #endif
 
 #ifdef __linux__
@@ -50,7 +50,7 @@ class Node;
 
 // settings
 
-#ifdef _WIN32	
+#ifdef _WIN32
 	#ifdef RELEASE
 	   #define Pre_Path QString("../")
 	#else
@@ -1111,7 +1111,7 @@ struct Fitables					{	vector<QString> struct_Names;		// names of structures
 
 									// changeable
 									vector<Parameter*> param_Pointers;
-                                    vector<double>	values;
+									vector<double>	values;
 									vector<double>	values_Parametrized;	// unbounded parametrized variables
 									vector<tree<Node>::iterator> parent_Iterators;
 

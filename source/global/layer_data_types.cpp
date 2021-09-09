@@ -1302,7 +1302,7 @@ void Data::average_Delta_Epsilon(vector<complex<double>>& d_Eps, const vector<co
 	}
 }
 
-void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model& imperfections_Model)
+void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model& imperfections_Model/*, bool last_Layer*/)
 {
 	// PARAMETER
 
@@ -1374,22 +1374,25 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 				/// partial correlation
 				if( imperfections_Model.vertical_Correlation == partial_Correlation )
 				{
-					// inheritance models for any basic PSD models
-					if( imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model )	{
-						potentially_Fitable_Parameters.push_back(&roughness_Model.mu);
-						potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_beta);
-					}
-					if( imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model )	{
-						potentially_Fitable_Parameters.push_back(&roughness_Model.omega);
-						potentially_Fitable_Parameters.push_back(&roughness_Model.mu);
-						potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
-					}
-					if( imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model )	{
-						potentially_Fitable_Parameters.push_back(&roughness_Model.omega);
-						potentially_Fitable_Parameters.push_back(&roughness_Model.a1);
-						potentially_Fitable_Parameters.push_back(&roughness_Model.a2);
-						potentially_Fitable_Parameters.push_back(&roughness_Model.a3);
-						potentially_Fitable_Parameters.push_back(&roughness_Model.a4);
+//					if(last_Layer || imperfections_Model.use_Common_Roughness_Function == false)
+					{
+						// inheritance models for any basic PSD models
+						if( imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model )	{
+							potentially_Fitable_Parameters.push_back(&roughness_Model.mu);
+							potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_beta);
+						}
+						if( imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model )	{
+							potentially_Fitable_Parameters.push_back(&roughness_Model.omega);
+							potentially_Fitable_Parameters.push_back(&roughness_Model.mu);
+							potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
+						}
+						if( imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model )	{
+							potentially_Fitable_Parameters.push_back(&roughness_Model.omega);
+							potentially_Fitable_Parameters.push_back(&roughness_Model.a1);
+							potentially_Fitable_Parameters.push_back(&roughness_Model.a2);
+							potentially_Fitable_Parameters.push_back(&roughness_Model.a3);
+							potentially_Fitable_Parameters.push_back(&roughness_Model.a4);
+						}
 					}
 				}
 				/// common function for zero and full correlation
@@ -1552,7 +1555,7 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 	}
 }
 
-void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperfections_Model)
+void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperfections_Model/*, bool last_Layer*/)
 {
 	// PARAMETER
 
@@ -1610,7 +1613,7 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 			table_Showed_Parameters.push_back(&sigma_Diffuse);
 		}
 
-		if(imperfections_Model.use_Roughness)
+		if(imperfections_Model.use_Roughness && roughness_Model.is_Enabled)
 		{
 			// for layers
 			if( item_Type == item_Type_Layer )
@@ -1618,22 +1621,25 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 				/// partial correlation
 				if( imperfections_Model.vertical_Correlation == partial_Correlation )
 				{
-					// inheritance models for any basic PSD models
-					if( imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model )	{
-						table_Showed_Parameters.push_back(&roughness_Model.mu);
-						table_Showed_Parameters.push_back(&roughness_Model.fractal_beta);
-					}
-					if( imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model )	{
-						table_Showed_Parameters.push_back(&roughness_Model.omega);
-						table_Showed_Parameters.push_back(&roughness_Model.mu);
-						table_Showed_Parameters.push_back(&roughness_Model.fractal_alpha);
-					}
-					if( imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model )	{
-						table_Showed_Parameters.push_back(&roughness_Model.omega);
-						table_Showed_Parameters.push_back(&roughness_Model.a1);
-						table_Showed_Parameters.push_back(&roughness_Model.a2);
-						table_Showed_Parameters.push_back(&roughness_Model.a3);
-						table_Showed_Parameters.push_back(&roughness_Model.a4);
+//					if(last_Layer || imperfections_Model.use_Common_Roughness_Function == false)
+					{
+						// inheritance models for any basic PSD models
+						if( imperfections_Model.inheritance_Model == replication_Factor_Inheritance_Model )	{
+							table_Showed_Parameters.push_back(&roughness_Model.mu);
+							table_Showed_Parameters.push_back(&roughness_Model.fractal_beta);
+						}
+						if( imperfections_Model.inheritance_Model == linear_Growth_Alpha_Inheritance_Model )	{
+							table_Showed_Parameters.push_back(&roughness_Model.omega);
+							table_Showed_Parameters.push_back(&roughness_Model.mu);
+							table_Showed_Parameters.push_back(&roughness_Model.fractal_alpha);
+						}
+						if( imperfections_Model.inheritance_Model == linear_Growth_n_1_4_Inheritance_Model )	{
+							table_Showed_Parameters.push_back(&roughness_Model.omega);
+							table_Showed_Parameters.push_back(&roughness_Model.a1);
+							table_Showed_Parameters.push_back(&roughness_Model.a2);
+							table_Showed_Parameters.push_back(&roughness_Model.a3);
+							table_Showed_Parameters.push_back(&roughness_Model.a4);
+						}
 					}
 				}
 				/// common function for zero and full correlation

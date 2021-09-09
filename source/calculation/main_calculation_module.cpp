@@ -2709,7 +2709,16 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
 		Data& struct_Data = child.node->data.struct_Data;
 
-		find_Fittable_Confidence_Parameters(struct_Data, parent_Data, child, i, tab_Index, fitables_Period_Gamma, confidentials_Period_Gamma);
+		// check if last layer
+//		bool last_Layer = false;
+//		tree<Node>::pre_order_iterator next_child = child;
+//		next_child++;
+//		Data& next_Struct_Data = next_child.node->data.struct_Data;
+//		if(next_Struct_Data.item_Type == item_Type_Substrate)
+//		{
+//			last_Layer = true;
+//		}
+		find_Fittable_Confidence_Parameters(struct_Data, parent_Data, child, i, tab_Index, fitables_Period_Gamma, confidentials_Period_Gamma/*, last_Layer*/);
 
 		// get number_Of_Restricted_Regular_Components to enlarge number of effective residual points
 		if( struct_Data.item_Type == item_Type_Regular_Aperiodic )
@@ -2743,9 +2752,9 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 	}
 }
 
-void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_Data, const Data& parent_Data, const tree<Node>::iterator& current, int child_Index, int tab_Index, bool fitables_Period_Gamma, bool confidentials_Period_Gamma)
+void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_Data, const Data& parent_Data, const tree<Node>::iterator& current, int child_Index, int tab_Index, bool fitables_Period_Gamma, bool confidentials_Period_Gamma/*, bool last_Layer*/)
 {
-	struct_Data.fill_Potentially_Fitable_Parameters_Vector(multilayers[tab_Index]->imperfections_Model);
+	struct_Data.fill_Potentially_Fitable_Parameters_Vector(multilayers[tab_Index]->imperfections_Model/*, last_Layer*/);
 
 	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
 	{

@@ -1580,7 +1580,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 				if(struct_Data.item_Type == item_Type_Layer)
 				{
-					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false || multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
+					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false && multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
 					{
 						show_Peak_Sigma = true;
 					}
@@ -1619,7 +1619,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 				if(struct_Data.item_Type == item_Type_Layer)
 				{
-					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false || multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
+					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false && multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
 					{
 						show_Peak_Frequency = true;
 					}
@@ -1659,7 +1659,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 				if(struct_Data.item_Type == item_Type_Layer)
 				{
-					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false || multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
+					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false && multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
 					{
 						show_Peak_Frequency_Width = true;
 					}
@@ -5115,11 +5115,23 @@ void Table_Of_Structures::real_Tree_Iteration(Multilayer* multilayer, QTreeWidge
 		structure_Item = *it;
 		Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
+		// check if this is last layer
+//		bool last_Layer = false;
+//		QTreeWidgetItemIterator it1 = it;
+//		if(*++it1)
+//		{
+//			Data next_Struct_Data = (*it1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+//			if(next_Struct_Data.item_Type == item_Type_Substrate)
+//			{
+//				last_Layer = true;
+//			}
+//		}
+
 		if(struct_Data.parent_Item_Type!=item_Type_Regular_Aperiodic)
 		{
 			// look for pure masters
 //			struct_Data.fill_Potentially_Fitable_Parameters_Vector();
-			struct_Data.fill_Table_Showed_Parameters_Vector(multilayer->imperfections_Model);
+			struct_Data.fill_Table_Showed_Parameters_Vector(multilayer->imperfections_Model/*, last_Layer*/);
 //			for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
 			for(Parameter* parameter : struct_Data.table_Showed_Parameters)
 			{
@@ -5259,7 +5271,7 @@ void Table_Of_Structures::lock_Unlock_Dependents(const QVector<id_Type>& ids)
 				if(ids.contains(id))
 				{
 					if(refill_dependent_structure_table)	{spin_Box->setReadOnly(true); }
-					else						{spin_Box->setReadOnly(false);}
+					else									{spin_Box->setReadOnly(false);}
 				} else
 				{
 					// make editable ex-slaves

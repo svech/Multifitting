@@ -165,8 +165,8 @@ public:
 
 	vector<Parameter*> potentially_Fitable_Parameters;
 	vector<Parameter*> table_Showed_Parameters;
-	void fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model& imperfections_Model);
-	void fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperfections_Model);
+	void fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model& imperfections_Model/*, bool last_Layer*/);
+	void fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperfections_Model/*, bool last_Layer*/);
 	void prepare_Layer_For_Regular_Component();
 	void make_Free(Parameter& parameter);
 };
