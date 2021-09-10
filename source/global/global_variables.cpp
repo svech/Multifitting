@@ -3138,6 +3138,22 @@ double Global_Variables::distribution_Lorentz(double FWHM, double x)
 //		return 0;
 }
 
+double Global_Variables::distribution_Short_Lorentz(double FWHM, double x)
+{
+//	if(-100*FWHM <= x && x <= 100*FWHM)
+//	{
+		if(FWHM>DBL_EPSILON)
+		{
+			return 1./(1.+pow(2*x/FWHM,4));
+		} else
+		{
+			return 1;
+		}
+//	}
+//	else
+//		return 0;
+}
+
 void Global_Variables::color_Scheme_Change(QCPColorMap* color_Map, QCustomPlot* main_Plot, QCPColorGradient::GradientPreset* color_Scheme)
 {
 	main_Plot->blockSignals(true);

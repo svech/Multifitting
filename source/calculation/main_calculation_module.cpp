@@ -1894,7 +1894,9 @@ void Main_Calculation_Module::wrap_2D_Curve(const Data& measurement,
 	double range_Limit = 3;
 	double(*distribution)(double, double);
 	if(distribution_Function == distributions[Gate])	{distribution = Global_Variables::distribution_Gate;	range_Limit = 0.5; } else
-	if(distribution_Function == distributions[Gaussian]){distribution = Global_Variables::distribution_Gaussian;range_Limit = 2;   } else return;
+	if(distribution_Function == distributions[Gaussian]){distribution = Global_Variables::distribution_Gaussian;range_Limit = 3;   } else// return;
+	// TODO special case for test phi
+	if(distribution_Function == "Short Lorentz")		{distribution = Global_Variables::distribution_Short_Lorentz; range_Limit = 25;  } else return;
 
 	vector<vector<double>>& calculated = calculated_Values.GISAS_Map;
 	vector<vector<double>>& wrapped = calculated_Values.GISAS_Instrumental;
@@ -2257,7 +2259,13 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 			// beam spot phi
 			if(measurement.beam_Geometry.lateral_Width>DBL_EPSILON)	{
 				if(data_Element.calc_Functions.instrumental_Smoothing)	{
-					wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, distributions[Gate], "phi");
+//					wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, distributions[Gate], "phi");
+					if(measurement.beam_Geometry.log_Profile_Plot) {
+						wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, "Short Lorentz", "phi");
+					} else {
+						wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, distributions[Gaussian], "phi");
+
+					}
 					calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
 					recalculated = true;
 				}

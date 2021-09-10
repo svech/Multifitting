@@ -127,7 +127,7 @@ void Distribution_Box::create_Box()
 		distribution_ComboBox->addItems(distributions);
 		distribution_ComboBox->setCurrentText(distribution.distribution_Function);
 		distribution_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
-		if(phi == "phi") distribution_ComboBox->setDisabled(true);
+//		if(phi == "phi") distribution_ComboBox->setDisabled(true);
 	groupbox_Layout->addWidget(distribution_ComboBox,1,1,Qt::AlignLeft);
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -366,6 +366,7 @@ public:
 	static double distribution_Cosine	(double FWHM, double x);
 	static double distribution_Gaussian	(double FWHM, double x);
 	static double distribution_Lorentz	(double FWHM, double x);
+	static double distribution_Short_Lorentz	(double FWHM, double x);
 
 	// 2D plots
 	static void color_Scheme_Change(QCPColorMap* color_Map, QCustomPlot* main_Plot, QCPColorGradient::GradientPreset* color_Scheme);
