@@ -2293,12 +2293,14 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 	//					for(int theta_Index=n_Min; theta_Index<n_Max; ++theta_Index)
 						for(size_t theta_Index=0; theta_Index<calculated_Values.GISAS_Map.front().size(); ++theta_Index)
 						{
+							double additional_Background = 1.0*double(calculated_Values.GISAS_Map.front().size()-theta_Index-1)/(calculated_Values.GISAS_Map.front().size()-1)*measurement.background;
 							for(size_t phi_Index=0; phi_Index<calculated_Values.GISAS_Map.size(); ++phi_Index)
 							{
 								calculated_Values.GISAS_Instrumental[phi_Index][theta_Index] = calculated_Values.GISAS_Map[phi_Index][theta_Index]*
 																									qDegreesToRadians(measurement.theta_Resolution_FWHM)*
 																									qDegreesToRadians(measurement.phi_Resolution_FWHM)*
-																									measurement.detector_Theta_Cos_Vec[theta_Index] + measurement.background;
+																									measurement.detector_Theta_Cos_Vec[theta_Index] +
+																									measurement.background + additional_Background;
 							}
 						}
 	//				});
