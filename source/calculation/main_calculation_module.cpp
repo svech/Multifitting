@@ -2259,13 +2259,13 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 			// beam spot phi
 			if(measurement.beam_Geometry.lateral_Width>DBL_EPSILON)	{
 				if(data_Element.calc_Functions.instrumental_Smoothing)	{
-//					wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, distributions[Gate], "phi");
-					if(measurement.beam_Geometry.log_Profile_Plot) {
-						wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, "Short Lorentz", "phi");
-					} else {
-						wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, distributions[Gaussian], "phi");
+					wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, distributions[Gate], "phi");
+//					if(measurement.beam_Geometry.log_Profile_Plot) {
+//						wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, "Short Lorentz", "phi");
+//					} else {
+//						wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, distributions[Gaussian], "phi");
 
-					}
+//					}
 					calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
 					recalculated = true;
 				}
@@ -2293,14 +2293,14 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 	//					for(int theta_Index=n_Min; theta_Index<n_Max; ++theta_Index)
 						for(size_t theta_Index=0; theta_Index<calculated_Values.GISAS_Map.front().size(); ++theta_Index)
 						{
-							double additional_Background = 1.0*double(calculated_Values.GISAS_Map.front().size()-theta_Index-1)/(calculated_Values.GISAS_Map.front().size()-1)*measurement.background;
+//							double additional_Background = 1.5*double(calculated_Values.GISAS_Map.front().size()-theta_Index-1)/(calculated_Values.GISAS_Map.front().size()-1)*measurement.background;
 							for(size_t phi_Index=0; phi_Index<calculated_Values.GISAS_Map.size(); ++phi_Index)
 							{
 								calculated_Values.GISAS_Instrumental[phi_Index][theta_Index] = calculated_Values.GISAS_Map[phi_Index][theta_Index]*
 																									qDegreesToRadians(measurement.theta_Resolution_FWHM)*
 																									qDegreesToRadians(measurement.phi_Resolution_FWHM)*
 																									measurement.detector_Theta_Cos_Vec[theta_Index] +
-																									measurement.background + additional_Background;
+																									measurement.background;// + additional_Background;
 							}
 						}
 	//				});
