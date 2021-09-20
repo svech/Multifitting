@@ -2264,7 +2264,6 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 //						wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, "Short Lorentz", "phi");
 //					} else {
 //						wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Beam_Spot_Size_Vec, distributions[Gaussian], "phi");
-
 //					}
 					calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
 					recalculated = true;

@@ -2630,7 +2630,7 @@ void Global_Variables::get_Peak_Parameters(const vector<double>& argument, const
 	b = abs(prev_Value-max_Value/2);
 	right_Wall_Position = argument[i_0]+a/(a+b)*(argument[i_0-1]-argument[i_0]);
 
-	width = abs(right_Wall_Position-left_Wall_Position);
+	width = abs(right_Wall_Position - left_Wall_Position);
 }
 
 double Global_Variables::theta_Function(double z)
