@@ -914,7 +914,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 				GISAS_Slice[thread_Index].resize(short_Phi_Points);
 				phi_Slice[thread_Index].resize(short_Phi_Points);
 			}
-			delete_Spline = true;
+			delete_GISAXS_Spline = true;
 		}
 	}
 
@@ -1137,6 +1137,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 				}
 
 			// particles
+			if(multilayer->imperfections_Model.use_Particles)
 			{
 				C_03.resize(num_Threads);
 				C_03_03.resize(num_Threads);
@@ -1262,6 +1263,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 						}
 					}
 				}
+				delete_Particles_F_Spline = true;
 
 				// s-polarization
 				if(has_S_Pol)
@@ -1327,14 +1329,19 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 
 Unwrapped_Reflection::~Unwrapped_Reflection()
 {
-	if(	delete_Spline )
+	if(	delete_GISAXS_Spline )
 	{
 		for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
 		{
 			// GISAXS
 			gsl_spline_free(spline_Vec[thread_Index]);
 			gsl_interp_accel_free(acc_Vec[thread_Index]);
-
+		}
+	}
+	if(	delete_Particles_F_Spline )
+	{
+		for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
+		{
 			// particles
 			for(int item_Index=0; item_Index<short_Flat_Calc_Tree.size()-1; item_Index++)
 			{

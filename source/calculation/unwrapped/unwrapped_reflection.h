@@ -116,7 +116,8 @@ public:
 	vector<gsl_interp_accel*> acc_Vec;
 	vector<vector<double>> GISAS_Slice;
 	vector<vector<double>> phi_Slice;
-	bool delete_Spline = false;
+	bool delete_GISAXS_Spline = false;
+	bool delete_Particles_F_Spline = false;
 
 	///---------------------------------------------------------------------
 	// DWBA SA CSA
