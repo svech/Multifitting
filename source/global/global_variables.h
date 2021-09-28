@@ -240,12 +240,14 @@ extern QString PSD_2D_value_units;
 
 extern QString fit_Color;
 extern QString white_Color;
+extern QString not_Parameter_Color;
 extern QString free_Parameter_Color;
 extern QString slave_Parameter_Color;
 extern QString master_Parameter_Color;
 extern QString master_Slave_Parameter_Color;
 extern QString confidence_Parameter_Color;
 extern QString master_Confidence_Parameter_Color;
+extern QString particles_On_Off_Color;
 
 extern QString common_Thickness_Color;
 extern QString common_Sigma_Color;

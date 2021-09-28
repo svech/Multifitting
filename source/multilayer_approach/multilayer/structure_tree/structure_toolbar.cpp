@@ -33,22 +33,22 @@ void Structure_Toolbar::create_Toolbar()
 	QPixmap export_Structure(Paths_Icon_Path + "save.bmp");
 
 	toolbar = new QToolBar(this);
-	toolbar->addAction(QIcon(add_Layer),		"Add Layer");						// 0
-	toolbar->addAction(QIcon(add_Multilayer),	"Add Multilayer");					// 1
-	toolbar->addAction(QIcon(add_Aperiodic),	"Add Aperiodic Multilayer");		// 2
-//	toolbar->addAction(QIcon(add_Substrate),	"Add Substrate");					// 3
+	toolbar->addAction(QIcon(add_Layer),		"Add layer");						// 0
+	toolbar->addAction(QIcon(add_Multilayer),	"Add multilayer");					// 1
+	toolbar->addAction(QIcon(add_Aperiodic),	"Add aperiodic multilayer");		// 2
+//	toolbar->addAction(QIcon(add_Substrate),	"Add substrate");					// 3
 	toolbar->addAction(QIcon(edit),				"Edit");							// 4
-	toolbar->addAction(QIcon(remove),			"Remove");							// 5
-	toolbar->addAction(QIcon(cut),				"Cut");								// 6
-	toolbar->addAction(QIcon(copy),				"Copy");							// 7
-	toolbar->addAction(QIcon(paste),			"Paste");							// 8
+	toolbar->addAction(QIcon(remove),			"Remove\nDel");						// 5
+	toolbar->addAction(QIcon(cut),				"Cut\nCtrl+X");						// 6
+	toolbar->addAction(QIcon(copy),				"Copy\nCtrl+C");					// 7
+	toolbar->addAction(QIcon(paste),			"Paste\nCtrl+V");					// 8
 	toolbar->addAction(QIcon(move_Up),			"Move up");							// 9
 	toolbar->addAction(QIcon(move_Down),		"Move down");						// 0
 //	toolbar->addAction(QIcon(group),			"Group");							// 11
 	toolbar->addAction(QIcon(ungroup),			"Ungroup");							// 12
-//	toolbar->addAction(QIcon(thickness_Plot),	"Plot Layer Thickness Profile");	// 13
-//	toolbar->addAction(QIcon(sigma_Plot),		"Plot Interface Width Profile");	// 14
-	toolbar->addAction(QIcon(destroy),			"Remove substrate and all layers");	// 15
+//	toolbar->addAction(QIcon(thickness_Plot),	"Plot layer thickness profile");	// 13
+//	toolbar->addAction(QIcon(sigma_Plot),		"Plot interface width profile");	// 14
+	toolbar->addAction(QIcon(destroy),			"Remove all layers");				// 15
 	toolbar->addAction(QIcon(export_Structure),	"Save structure as text");			// 16
 
 	toolbar->setIconSize(add_Layer.size());
@@ -674,7 +674,7 @@ void Structure_Toolbar::ungroup()
 
 void Structure_Toolbar::destroy()
 {
-	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Remove substrate and all layers?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Remove all layers?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	if (reply == QMessageBox::Yes)
 	{
 		QMessageBox::information(this,"Removal", "Caution: the file is the same!");

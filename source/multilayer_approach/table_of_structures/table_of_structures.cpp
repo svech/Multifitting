@@ -9,7 +9,7 @@ Table_Of_Structures::Table_Of_Structures(bool temporary, QWidget *parent) :
 	temporary(temporary),
 	QWidget(parent) // nullptr!
 {
-	setWindowTitle("Table Of Structures");
+	setWindowTitle("Structure table");
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -215,9 +215,15 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		int depth, current_Column;
 
 		int interlayer_Types_To_Show = 0;
-		for(int i=0; i<multilayer->imperfections_Model.use_Func.size(); i++)
+		if(multilayer->imperfections_Model.use_Interlayer)
 		{
-			if(multilayer->imperfections_Model.use_Func[i]) interlayer_Types_To_Show++;
+			for(int i=0; i<multilayer->imperfections_Model.use_Func.size(); i++)
+			{
+				if(multilayer->imperfections_Model.use_Func[i])
+				{
+					interlayer_Types_To_Show++;
+				}
+			}
 		}
 
 		bool has_Layers = false;
@@ -397,20 +403,20 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				new_Table->setCellWidget(current_Row,2, fit_Label);
 				new_Table->setSpan(current_Row,2,1,2);
 
-				// common z
-				QLabel* common_Z_Label = new QLabel("common z");
-					common_Z_Label->setAlignment(Qt::AlignCenter);
-					common_Z_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
-				common_Z_Label->setStyleSheet(common_Thickness_Color);
-				new_Table->setCellWidget(current_Row+1,2, common_Z_Label);
+				// particles on/off
+				QLabel* particles_On_Off_Label = new QLabel("use particles");
+					particles_On_Off_Label->setAlignment(Qt::AlignCenter);
+					particles_On_Off_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+				particles_On_Off_Label->setStyleSheet(particles_On_Off_Color);
+				new_Table->setCellWidget(current_Row+1,2, particles_On_Off_Label);
 				new_Table->setSpan(current_Row+1,2,1,2);
 
-				// common sigma
-				QLabel* common_Sigma_Label = new QLabel("common s");
-					common_Sigma_Label->setAlignment(Qt::AlignCenter);
-					common_Sigma_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
-				common_Sigma_Label->setStyleSheet(common_Sigma_Color);
-				new_Table->setCellWidget(current_Row+2,2, common_Sigma_Label);
+				// nothing
+				QLabel* not_Parameter_Label = new QLabel("not parameter");
+					not_Parameter_Label->setAlignment(Qt::AlignCenter);
+					not_Parameter_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+				not_Parameter_Label->setStyleSheet(not_Parameter_Color);
+				new_Table->setCellWidget(current_Row+2,2, not_Parameter_Label);
 				new_Table->setSpan(current_Row+2,2,1,2);
 			}
 
@@ -435,6 +441,37 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, "nothing", "s, "+Plus_Minus_Sym+"%");
 				create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Sigma_Diffuse);
 				create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Sigma_Diffuse);
+			}
+
+			// aperiodic color legend
+			if(has_Regular_Aperiodic)
+			{
+				current_Column += 2;
+				add_Columns(new_Table,current_Column+1);
+
+				// common z
+				QLabel* common_Z_Label = new QLabel("common z");
+					common_Z_Label->setAlignment(Qt::AlignCenter);
+					common_Z_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+				common_Z_Label->setStyleSheet(common_Thickness_Color);
+				new_Table->setCellWidget(current_Row,current_Column, common_Z_Label);
+				new_Table->setSpan(current_Row,current_Column,1,2);
+
+				// common sigma
+				QLabel* common_Sigma_Label = new QLabel("common s");
+					common_Sigma_Label->setAlignment(Qt::AlignCenter);
+					common_Sigma_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+				common_Sigma_Label->setStyleSheet(common_Sigma_Color);
+				new_Table->setCellWidget(current_Row+1,current_Column, common_Sigma_Label);
+				new_Table->setSpan(current_Row+1,current_Column,1,2);
+
+				// z soft restriction
+				QLabel* z_Restriction_Label = new QLabel("z restriction");
+					z_Restriction_Label->setAlignment(Qt::AlignCenter);
+					z_Restriction_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+				z_Restriction_Label->setStyleSheet(soft_Restriction_Color);
+				new_Table->setCellWidget(current_Row+2,current_Column, z_Restriction_Label);
+				new_Table->setSpan(current_Row+2,current_Column,1,2);
 			}
 		}
 
@@ -3274,9 +3311,9 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 		layer_Data.particles_Model.is_Used = check_Box->isChecked();
 
 		if(layer_Data.particles_Model.is_Used)
-			back_Widget->setStyleSheet("QWidget { background: rgb(100, 255, 220); }");
+			back_Widget->setStyleSheet(particles_On_Off_Color);
 		else
-			back_Widget->setStyleSheet("background-color: white");
+			back_Widget->setStyleSheet(white_Color);
 
 		QVariant var;
 		var.setValue(layer_Data);
@@ -4612,7 +4649,7 @@ void Table_Of_Structures::create_Simple_Label(My_Table_Widget* table, int tab_In
 
 	QLabel* label = new QLabel(text);
 		label->setAlignment(Qt::AlignCenter);
-		label->setStyleSheet("background-color: lightgray");
+		label->setStyleSheet(not_Parameter_Color);
 	all_Widgets_To_Reload[tab_Index].append(label);
 
 	// add widget to table

@@ -143,7 +143,7 @@ void Multilayer::create_Independent_Variables_Tabs()
 
 void Multilayer::create_Data_Frame()
 {
-	data_Target_Profile_Group_Box = new QGroupBox("Target Curve");
+	data_Target_Profile_Group_Box = new QGroupBox("Target curves");
 	bottom_Part_Layout->addWidget(data_Target_Profile_Group_Box);
 
 	layout_Target_Profile_With_Frame_Vector = new QVBoxLayout(data_Target_Profile_Group_Box);

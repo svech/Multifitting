@@ -439,17 +439,20 @@ QString PSD_2D_value_units;
 
 QString fit_Color							= "QWidget { background: rgb(255, 210, 210); }";
 QString white_Color							= "background-color: white";
+QString not_Parameter_Color					= "background-color: lightgray";
 QString free_Parameter_Color				= "background-color: lightblue";
 QString slave_Parameter_Color				= "QWidget { background: rgb(255, 50,  50);  }";
 QString master_Parameter_Color				= "QWidget { background: rgb(50,  255, 50);  }";
 QString master_Slave_Parameter_Color		= "QWidget { background: rgb(255, 255, 50);  }";
 QString confidence_Parameter_Color			= "background-color: violet";
 QString master_Confidence_Parameter_Color	= "QWidget { background: rgb(170, 0,   255); }";
+QString particles_On_Off_Color				= "QWidget { background: rgb(100, 255, 210); }";
 
 QString common_Thickness_Color				= "QWidget { background: rgb(231, 255, 165); }";
 QString common_Sigma_Color					= "QWidget { background: rgb(254, 214, 255); }";
 QString common_Thickness_and_Sigma_Color	= "QWidget { background: rgb(143, 255, 225); }";
-QString soft_Restriction_Color				= "QWidget { background: rgb(94,  244, 227); }";
+//QString soft_Restriction_Color				= "QWidget { background: rgb(94,  244, 227); }";
+QString soft_Restriction_Color				= "QWidget { background: rgb(135,  240, 230); }";
 
 // -----------------------------------------------------------------------------------------
 
