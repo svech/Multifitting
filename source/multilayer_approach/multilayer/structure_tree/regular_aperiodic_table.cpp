@@ -343,7 +343,7 @@ void Regular_Aperiodic_Table::create_Table()
 
 	// controls
 	/// mouse wheel
-	QCheckBox* checkbox_Mouse_Wheel = new QCheckBox("Mouse Wheel");
+	QCheckBox* checkbox_Mouse_Wheel = new QCheckBox("Mouse wheel");
 		checkbox_Mouse_Wheel->setChecked(mouse_wheel_spinbox_aperiodic_table);
 		checkbox_Mouse_Wheel->setProperty(fit_Column_Property, true);
 	regular_Table->setCellWidget(current_Row, 0, checkbox_Mouse_Wheel);

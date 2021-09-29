@@ -5048,7 +5048,7 @@ void Table_Of_Structures::spin_Box_Mouse_Wheel(My_Table_Widget *table, int curre
 {
 	add_Columns(table,current_Column);
 
-	QCheckBox* checkbox_Mouse_Wheel = new QCheckBox("Mouse Wheel");
+	QCheckBox* checkbox_Mouse_Wheel = new QCheckBox("Mouse wheel");
 		checkbox_Mouse_Wheel->setChecked(mouse_wheel_spinbox_structure_table);
 	table->setCellWidget(current_Row, current_Column, checkbox_Mouse_Wheel);
 
