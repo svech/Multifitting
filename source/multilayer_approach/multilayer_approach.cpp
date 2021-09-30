@@ -601,8 +601,8 @@ void Multilayer_Approach::open_Regular_Aperiodic_Layers_Table(int tab_Index, QTr
 void Multilayer_Approach::temporarily_Close_Regular_Aperiodics()
 {
 	rerun_Of_Regular_Aperiodic_Tables_List.clear();
-	for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables_List) {
-
+	for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables_List)
+	{
 		int tab_Index = -2019;
 		for(int i=0; i<multilayer_Tabs->count(); i++)
 		{

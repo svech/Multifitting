@@ -295,7 +295,14 @@ void Regular_Aperiodic_Table::create_Menu()
 		global_Multilayer_Approach->refresh_All_Multilayers_View();
 		if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Of_Structures_Key))
 		{
-			global_Multilayer_Approach->table_Of_Structures->reload_All_Widgets();
+			global_Multilayer_Approach->table_Of_Structures->reload_All_Widgets(true);
+		}
+		for(Regular_Aperiodic_Table* regular_Aperiodic_Table: global_Multilayer_Approach->runned_Regular_Aperiodic_Tables_List)
+		{
+			if(regular_Aperiodic_Table != this)
+			{
+				regular_Aperiodic_Table->reload_All_Widgets();
+			}
 		}
 	});
 }
@@ -387,12 +394,12 @@ void Regular_Aperiodic_Table::create_Table()
 	// labels
 	create_Simple_Label(current_Row,0," Cell # ");
 	create_Simple_Label(current_Row,1," Material ");
-	QLabel* thickness_Label = nullptr;
-	create_Simple_Label(current_Row,2," z ["+length_units+"] ", thickness_Label);
+	QLabel* thickness_Label = create_Simple_Label(current_Row,2," z ["+length_units+"] ");
+	thickness_Label->setProperty("thickness_label",true);
 	auxiliary_Labels_List.append(thickness_Label);
 	create_Simple_Label(current_Row,3," Fit z ");
-	QLabel* sigma_Label = nullptr;
-	create_Simple_Label(current_Row,4," s ["+length_units+"] ", sigma_Label);
+	QLabel* sigma_Label = create_Simple_Label(current_Row,4," s ["+length_units+"] ");
+	sigma_Label->setProperty("sigma_label",true);
 	auxiliary_Labels_List.append(sigma_Label);
 	create_Simple_Label(current_Row,5," "+Rho_Sym+" ");
 	current_Row++;
@@ -528,15 +535,16 @@ void Regular_Aperiodic_Table::create_Table()
 	colorize_Material();
 }
 
-void Regular_Aperiodic_Table::create_Simple_Label(int current_Row, int current_Column, QString text, QLabel* label)
+QLabel* Regular_Aperiodic_Table::create_Simple_Label(int current_Row, int current_Column, QString text)
 {
-	label = new QLabel(text);
+	QLabel* label = new QLabel(text);
 		label->setAlignment(Qt::AlignCenter);
 		label->setStyleSheet("background-color: lightblue");
 		label->setProperty(fit_Column_Property, true);
 
 	// add widget to table
-		regular_Table->setCellWidget(current_Row, current_Column, label);
+	regular_Table->setCellWidget(current_Row, current_Column, label);
+	return label;
 }
 
 void Regular_Aperiodic_Table::create_Step_Spin_Box(int current_Row, int current_Column, QString whats_This)
@@ -850,6 +858,8 @@ void Regular_Aperiodic_Table::reload_One_Widget(QWidget* widget_To_Reload)
 
 	if(label)
 	{
+		if(label->property("thickness_label").toBool()) label->setText(" z ["+length_units+"] ");
+		if(label->property("sigma_label").toBool())     label->setText(" s ["+length_units+"] ");
 		label->windowTitleChanged(label->text());
 	}
 	if(check_Box)
@@ -867,7 +877,7 @@ void Regular_Aperiodic_Table::reload_All_Widgets(QString identifier)
 {
 	regular_Aperiodic_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-	if( identifier == colorize_Property) colorize_Material();
+	if( identifier == colorize_Property)							colorize_Material();
 
 	if( identifier == "")											reload_Auxiliary_Labels();
 	if( identifier == "" ||

@@ -121,6 +121,11 @@ void Table_Of_Structures::create_Menu()
 				}
 			}
 		}
+
+		for(Regular_Aperiodic_Table* regular_Aperiodic_Table: global_Multilayer_Approach->runned_Regular_Aperiodic_Tables_List)
+		{
+			regular_Aperiodic_Table->reload_All_Widgets();
+		}
 		Global_Variables::plot_All_Data_in_Roughness();
 		Global_Variables::plot_All_Data_in_Particles();
 	});
@@ -421,7 +426,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 
 			// density min/max
-			create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, "nothing", Rho_Sym+", "+/*Plus_Minus_Sym*/Minus_Sym+"%");
+			create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, "nothing", Rho_Sym/*+", "+Minus_Sym+"%"*/);
 			create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Density);
 			create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Density);
 			current_Column += 2;
@@ -429,7 +434,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			// thickness min/max
 			if(has_Layers)
 			{
-				create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, "nothing", "z/d, "+Plus_Minus_Sym+"%");
+				create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, "nothing", "z/d"/*"z/d, "+Plus_Minus_Sym+"%"*/);
 				create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Thickness);
 				create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Thickness);
 			}
@@ -438,7 +443,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			// sigma min/max
 			if(has_Boundaries && has_Interlayer_Show)
 			{
-				create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, "nothing", "s, "+Plus_Minus_Sym+"%");
+				create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, "nothing", "s"/*"s, "+Plus_Minus_Sym+"%"*/);
 				create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Sigma_Diffuse);
 				create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Sigma_Diffuse);
 			}
@@ -3769,8 +3774,8 @@ void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, i
 
 	// Q value
 	MyDoubleSpinBox* soft_Restriction_Q_SpinBox = new MyDoubleSpinBox;
-		soft_Restriction_Q_SpinBox->setPrefix("Q = ");
 		soft_Restriction_Q_SpinBox->setRange(0, MAX_DOUBLE);
+		soft_Restriction_Q_SpinBox->setPrefix("Q = ");
 		soft_Restriction_Q_SpinBox->setDecimals(8);
 		soft_Restriction_Q_SpinBox->setSingleStep(Global_Variables::get_Order_Of_Magnitude(regular_Aperiodic_Data.regular_Components[my_I].Q_factor));
 //		soft_Restriction_Q_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
@@ -3804,6 +3809,13 @@ void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, i
 		structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 		emit regular_Layer_Edited("especially_wrong"); // to reaload regular aperiodic item without reloading widgets
 	});
+	connect(soft_Restriction_Q_SpinBox->myLineEdit(), &QLineEdit::textChanged, this, [=]
+	{
+		QString text = soft_Restriction_Q_SpinBox->text();
+		text.replace(soft_Restriction_Q_SpinBox->prefix(), "");
+		double value = text.toDouble(); // dots and commas are considered as dots
+		soft_Restriction_Q_SpinBox->valueChanged(value);
+	});
 	connect(soft_Restriction_Q_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		Data regular_Aperiodic_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
@@ -3824,7 +3836,7 @@ void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, i
 		QVariant var;
 		var.setValue( regular_Aperiodic_Data );
 		structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		emit regular_Layer_Edited("especially_wrong"); // to reaload regular aperiodic item without reloading widgets
+		emit regular_Layer_Edited("especially_wrong"); // to reload regular aperiodic item without reloading widgets
 	});
 }
 
@@ -4791,7 +4803,15 @@ void Table_Of_Structures::create_Min_Max_Spin_Box(My_Table_Widget* table, int ta
 
 	QDoubleSpinBox* spin_Box = new QDoubleSpinBox;
 		spin_Box->setRange(0, 100);
-		spin_Box->setDecimals(3);
+		spin_Box->setSuffix("%");
+		if(whats_This == whats_This_Density)
+		{
+			spin_Box->setPrefix(Minus_Sym);
+		} else
+		{
+			spin_Box->setPrefix(Plus_Minus_Sym);
+		}
+		spin_Box->setDecimals(1);
 		spin_Box->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 
 		spin_Box->setAccelerated(true);

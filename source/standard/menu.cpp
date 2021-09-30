@@ -51,7 +51,7 @@ void Menu::add_Menu_Points()
 	if(window_Type == window_Type_Regular_Aperiodic_Table )
 	{
 		create_File_Menu();
-			menu_Bar->addMenu(file_Menu);
+//			menu_Bar->addMenu(file_Menu);
 		create_Length_Units_Menu();
 			menu_Bar->addMenu(menu_Length_Units);
 		create_Precision_Menu();

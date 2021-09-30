@@ -542,7 +542,13 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 
 	vector<vector<double>> individual_Residuals_Vec_Vec(multilayers.size());
 
-	// common residual
+	/// common residual
+	// look for restricted components
+	number_Of_Restricted_Regular_Components = 0;
+	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
+	{
+		calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin(), tab_Index);
+	}
 	int residual_Shift = 0;
 	double common_Residual = 0;
 	Fitting_Params common_Params = {this,
@@ -553,7 +559,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 									0,
 									gsl_vector_calloc(Fitting::num_Residual_Points(calculation_Trees) + number_Of_Restricted_Regular_Components),
 									  Fitting::num_Residual_Points_Full_With_GISAS(calculation_Trees) + number_Of_Restricted_Regular_Components,
-												   Fitting::num_Residual_Points(calculation_Trees) + number_Of_Restricted_Regular_Components,
+													  Fitting::num_Residual_Points(calculation_Trees) + number_Of_Restricted_Regular_Components,
 									gsl_vector_calloc(0),
 									-2018,
 									-2018,
@@ -706,9 +712,9 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 											 confidentials,
 											 calc_Mode,
 											 0,
-											 gsl_vector_calloc(n+number_Of_Restricted_Regular_Components),
-											 n_Full_With_GISAS + number_Of_Restricted_Regular_Components,
-											 n+number_Of_Restricted_Regular_Components,
+											 gsl_vector_calloc(n + number_Of_Restricted_Regular_Components),
+											   n_Full_With_GISAS + number_Of_Restricted_Regular_Components,
+															   n + number_Of_Restricted_Regular_Components,
 											 gsl_vector_calloc(0),
 											 -2018,
 											 -2018,
@@ -716,12 +722,24 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 											 };
 					int temp = 0;
 					Fitting::fill_Residual(&params, temp, target_Data_Element, params.f);
+//					/// addition to residual from restrictions of regular aperiodics
+//					size_t counter = 0;
+//					for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
+//					{
+//						Fitting::regular_Restriction_Tree_Iteration(params.calculation_Trees[tab_Index]->real_Calc_Tree.begin(), &params, params.f, counter);
+//					}
 					gsl_blas_ddot(params.f, params.f, &individual_Residual);
 					gsl_vector_free(params.f);
 				}
 				// common residual
 				{
 					Fitting::fill_Residual(&common_Params, residual_Shift, target_Data_Element, common_Params.f);
+					/// addition to residual from restrictions of regular aperiodics
+					size_t counter = 0;
+					for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
+					{
+						Fitting::regular_Restriction_Tree_Iteration(common_Params.calculation_Trees[tab_Index]->real_Calc_Tree.begin(), &common_Params, common_Params.f, counter);
+					}
 					gsl_blas_ddot(common_Params.f, common_Params.f, &common_Residual);
 				}
 			}

@@ -447,6 +447,7 @@ class Node;
 #define forced_Reload_Property	"forced reload"
 #define colorize_Property		"colorize"
 #define enabled_Property		"enabled"
+#define text_Property			"text"
 
 // first group
 #define relative_Rows_To_Disable_Start_Property		"relative_Rows_To_Disable_Start"

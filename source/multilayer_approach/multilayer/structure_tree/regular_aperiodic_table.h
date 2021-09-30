@@ -30,7 +30,7 @@ public:
 	void create_Main_Layout();
 		void create_Menu();
 		void create_Table();
-			void create_Simple_Label (int current_Row, int current_Column, QString text, QLabel* label = nullptr);
+			QLabel* create_Simple_Label (int current_Row, int current_Column, QString text);
 			void create_Step_Spin_Box(int current_Row, int current_Column, QString whats_This);
 			void colorize_Material();
 			void colorize_Thickness_Fit(QCheckBox* thickness_Fit_CheckBox);
