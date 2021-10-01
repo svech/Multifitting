@@ -1946,6 +1946,25 @@ void Item_Editor::multilayer_Or_Regular_Aperiodic_To_General_Aperiodic()
 {
 	QTreeWidgetItem* new_Layer;
 	int old_Child_Count = item->childCount();
+
+	// old layers with n == 0
+	{
+		for(int i=0; i<old_Child_Count; i++)
+		{
+			Data old_Layer_Data = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			old_Layer_Data.parent_Item_Type = item_Type_General_Aperiodic;
+			old_Layer_Data.uncouple_All_Parameters();
+
+			if(	struct_Data.item_Type == item_Type_Regular_Aperiodic)
+			{
+				old_Layer_Data.thickness.value    = struct_Data.regular_Components[i].components[0].thickness.value;
+				old_Layer_Data.sigma_Diffuse.value= struct_Data.regular_Components[i].components[0].sigma_Diffuse.value;
+			}
+			QVariant var;
+			var.setValue( old_Layer_Data );
+			item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
+	}
 	for(int n=1; n<struct_Data.num_Repetition.value(); n++) // if N==0, still 1 period exists
 	{
 		for(int i=0; i<old_Child_Count; i++)
@@ -2004,7 +2023,7 @@ void Item_Editor::to_Regular_Aperiodic_Subfunction()
 {
 	struct_Data.regular_Components.clear();
 
-	// clean structure
+	// clear structure
 	for(int i=0; i<item->childCount(); ++i)
 	{
 		Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
@@ -2146,7 +2165,8 @@ void Item_Editor::regular_Aperiodic_To_Multilayer()
 	for(int i=0; i<item->childCount(); ++i)
 	{
 		Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-		child.parent_Item_Type = item_Type_Regular_Aperiodic;
+		child.parent_Item_Type = item_Type_Multilayer;
+		child.uncouple_All_Parameters();
 
 		// save changes in children
 		QVariant var;

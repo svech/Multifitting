@@ -1006,7 +1006,7 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		struct_Data.item_Type == item_Type_Substrate  )
 	{
 		// interlayer
-		if(whats_This == whats_This_Sigma_Diffuse)							text = struct_Data.material + " " + brackets + " Diffuseness, s";
+		if(whats_This == whats_This_Sigma_Diffuse || "Sigma")				text = struct_Data.material + " " + brackets + " Diffuseness, s";
 		if(whats_This == whats_This_Sigma_Drift_Line_Value)					text = struct_Data.material + " " + brackets + " Diffuseness linear drift, ds";
 		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)					text = struct_Data.material + " " + brackets + " Diffuseness random drift, ds";
 		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)				text = struct_Data.material + " " + brackets + " Diffuseness sine drift : amplitude, ds";
@@ -1040,6 +1040,7 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	/// particles parameters
 	if(	struct_Data.item_Type == item_Type_Layer )
 	{
+		if(whats_This == whats_This_Particle_Composition && index>=0)	text = struct_Data.material + " " + brackets + " " + struct_Data.particles_Model.particle_Composition[index].type + " composition, " + Zeta_Sym + "_" + struct_Data.particles_Model.particle_Composition[index].type;
 		if(whats_This == whats_This_Particle_Absolute_Density)			text = struct_Data.material + " " + brackets + " Particle material density, " + Rho_Sym + Subscript_p_Sym;
 		if(whats_This == whats_This_Particle_Relative_Density)			text = struct_Data.material + " " + brackets + " Particle material relative density, " + Rho_Sym + Subscript_p_Sym;
 		if(whats_This == whats_This_Particle_Radius)					text = struct_Data.material + " " + brackets + " Particle radius, R";

@@ -7046,6 +7046,7 @@ void Table_Of_Structures::reload_All_Widgets(bool reload_Disabled, QObject* send
 void Table_Of_Structures::reload_One_Widget(QWidget* widget_To_Reload, bool reload_Disabled)
 {
 //	qInfo() << "reload_One_Widget"<<++temp_Counter << endl;
+
 	// reload dependences and color
 	if(widget_To_Reload->property(coupling_Editor_Property).toBool())
 	{

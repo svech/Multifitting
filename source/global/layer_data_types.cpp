@@ -1886,10 +1886,144 @@ void Data::make_Free(Parameter& parameter)
 	parameter.fit.is_Fitable = false;
 	parameter.confidence.calc_Conf_Interval = false;
 
-	// TODO do we need it?
-//	parameter.coupled.master.exist = false;
-//	parameter.coupled.master.id = 0;
-//	parameter.coupled.slaves.clear();
+	make_Uncouped(parameter);
+}
+
+void Data::make_Uncouped(Parameter& parameter)
+{
+	parameter.coupled.master.exist = false;
+	parameter.coupled.master.id = 0;
+	parameter.coupled.slaves.clear();
+}
+
+void Data::uncouple_All_Parameters()
+{
+	// PARAMETER
+
+	///---------------------------------------------
+	// Measurement
+	//---------------------------------------------
+	if(item_Type == item_Type_Measurement)
+	{
+		make_Uncouped(wavelength);
+		make_Uncouped(beam_Theta_0_Angle);
+		make_Uncouped(detector_Theta_Angle);
+		make_Uncouped(detector_Phi_Angle);
+	}
+	///---------------------------------------------
+	///---------------------------------------------
+	// Ambient, Layer, Substrate
+	//---------------------------------------------
+	if( item_Type == item_Type_Ambient ||
+		item_Type == item_Type_Layer   ||
+		item_Type == item_Type_Substrate )
+	{
+		make_Uncouped(relative_Density);
+		make_Uncouped(absolute_Density);
+
+		for(Stoichiometry& stoichiometry : composition)
+		{
+			make_Uncouped(stoichiometry.composition);
+		}
+	}
+	///---------------------------------------------
+	///---------------------------------------------
+	// Layer, Substrate
+	//---------------------------------------------
+	if( item_Type == item_Type_Layer   ||
+		item_Type == item_Type_Substrate )
+	{
+		for(int i=0; i<interlayer_Composition.size(); i++)
+		{
+			make_Uncouped(interlayer_Composition[i].interlayer);
+			make_Uncouped(interlayer_Composition[i].my_Sigma_Diffuse);
+		}
+		make_Uncouped(sigma_Diffuse);
+
+		// roughness
+		make_Uncouped(roughness_Model.fractal_beta);
+		make_Uncouped(roughness_Model.mu);
+		make_Uncouped(roughness_Model.omega);
+		make_Uncouped(roughness_Model.a1);
+		make_Uncouped(roughness_Model.a2);
+		make_Uncouped(roughness_Model.a3);
+		make_Uncouped(roughness_Model.a4);
+
+		make_Uncouped(roughness_Model.cor_radius);
+		make_Uncouped(roughness_Model.sigma);
+		make_Uncouped(roughness_Model.fractal_alpha);
+
+		make_Uncouped(roughness_Model.peak_Sigma);
+		make_Uncouped(roughness_Model.peak_Frequency);
+		make_Uncouped(roughness_Model.peak_Frequency_Width);
+
+		make_Uncouped(roughness_Model.sigma_Factor_PSD_1D);
+		make_Uncouped(roughness_Model.sigma_Factor_PSD_2D);
+	}
+	///---------------------------------------------
+	///---------------------------------------------
+	// Layer
+	//---------------------------------------------
+	if( item_Type == item_Type_Layer )
+	{
+		make_Uncouped(thickness);
+
+		for(Stoichiometry& stoichiometry : particles_Model.particle_Composition)
+		{
+			make_Uncouped(stoichiometry.composition);
+		}
+		make_Uncouped(particles_Model.particle_Absolute_Density);
+		make_Uncouped(particles_Model.particle_Relative_Density);
+		make_Uncouped(particles_Model.particle_Radius);
+		make_Uncouped(particles_Model.particle_Height);
+		make_Uncouped(particles_Model.particle_Average_Distance);
+		make_Uncouped(particles_Model.particle_Radial_Distance);
+		make_Uncouped(particles_Model.particle_Radial_Distance_Deviation);
+		make_Uncouped(particles_Model.domain_Size);
+		make_Uncouped(particles_Model.particle_Z_Position);
+		make_Uncouped(particles_Model.particle_Z_Position_Deviation);
+		make_Uncouped(particles_Model.particle_Correlation_Depth);
+
+		make_Uncouped(thickness_Drift.drift_Line_Value);
+		make_Uncouped(thickness_Drift.drift_Sine_Amplitude);
+		make_Uncouped(thickness_Drift.drift_Sine_Frequency);
+		make_Uncouped(thickness_Drift.drift_Sine_Phase);
+		make_Uncouped(thickness_Drift.drift_Rand_Rms);
+
+		make_Uncouped(sigma_Diffuse_Drift.drift_Line_Value);
+		make_Uncouped(sigma_Diffuse_Drift.drift_Sine_Amplitude);
+		make_Uncouped(sigma_Diffuse_Drift.drift_Sine_Frequency);
+		make_Uncouped(sigma_Diffuse_Drift.drift_Sine_Phase);
+		make_Uncouped(sigma_Diffuse_Drift.drift_Rand_Rms);
+	}
+
+	///---------------------------------------------
+	///---------------------------------------------
+	// Multilayer
+	//---------------------------------------------
+	if( item_Type == item_Type_Multilayer )
+	{
+		make_Uncouped(num_Repetition.parameter);
+		make_Uncouped(period);
+		make_Uncouped(gamma);
+	}
+
+	///---------------------------------------------
+	///---------------------------------------------
+	// Regular Aperiodic
+	//---------------------------------------------
+	if( item_Type == item_Type_Regular_Aperiodic )
+	{
+		for(int i=0; i<regular_Components.size(); i++)
+		{
+			for(int n=0; n<num_Repetition.value(); n++)
+			{
+				Data& regular_Data = regular_Components[i].components[n];
+				make_Uncouped(regular_Data.thickness);
+				make_Uncouped(regular_Data.sigma_Diffuse);
+			}
+		}
+	}
 }
 
 // serialization

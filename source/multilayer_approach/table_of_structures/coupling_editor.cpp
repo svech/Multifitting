@@ -12,9 +12,14 @@ Coupling_Editor::Coupling_Editor(QWidget* coupled_Widget,
 	struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	coupled_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, coupled_Id);
 
-	QString full_Name = Global_Variables::parameter_Name(struct_Data, coupled_Parameter->indicator.whats_This);
-
-//	setWindowTitle("<"+table_Of_Structures->main_Tabs->tabText(coupled_Parameter->indicator.tab_Index)+"> "+coupled_Parameter->indicator.full_Name/*+" "+Locale.toString(coupling_Parameter.indicator.id)*/);
+	QString full_Name = coupled_Parameter->indicator.full_Name;
+	if( coupled_Parameter->indicator.whats_This != whats_This_Interlayer_Composition &&
+		coupled_Parameter->indicator.whats_This != whats_This_Interlayer_My_Sigma_Diffuse &&
+		coupled_Parameter->indicator.whats_This != whats_This_Particle_Composition &&
+		coupled_Parameter->indicator.whats_This != whats_This_Composition )
+	{
+		full_Name = Global_Variables::parameter_Name(struct_Data, coupled_Parameter->indicator.whats_This);
+	}
 	setWindowTitle("<"+table_Of_Structures->main_Tabs->tabText(coupled_Parameter->indicator.tab_Index)+"> "+full_Name/*+" "+Locale.toString(coupling_Parameter.indicator.id)*/);
 	create_Main_Layout();
 	set_Window_Geometry();

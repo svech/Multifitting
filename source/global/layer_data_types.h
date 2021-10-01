@@ -169,6 +169,8 @@ public:
 	void fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperfections_Model/*, bool last_Layer*/);
 	void prepare_Layer_For_Regular_Component();
 	void make_Free(Parameter& parameter);
+	void make_Uncouped(Parameter& parameter);
+	void uncouple_All_Parameters();
 };
 
 struct Regular_Component		{id_Type top_Id;
