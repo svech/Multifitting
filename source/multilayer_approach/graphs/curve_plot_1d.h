@@ -17,6 +17,7 @@ public:
 	void subinterval_Changed_Replot();
 	void discretized_Threshold_Line();
 
+	void create_Context_Menu();
 	void create_Plot_Frame_And_Scale();
 		void apply_Log_Scale(QString xy);
 		void apply_Lin_Scale(QString xy);

@@ -12,7 +12,7 @@ Curve_Plot_1D::Curve_Plot_1D(Multilayer* multilayer, Target_Curve* target_Curve,
 	plot_Options_Second (curve_Class == INDEPENDENT ? independent_Curve->plot_Options	   : target_Curve->plot_Options_Calculated	),
 	spectral_Units		(curve_Class == INDEPENDENT ? independent_Curve->spectral_Units	   : target_Curve->spectral_Units			),
 	angular_Units		(curve_Class == INDEPENDENT ? independent_Curve->angular_Units	   : target_Curve->angular_Units			),
-	plot_Indicator		(curve_Class == INDEPENDENT ? independent_Curve->name		   : target_Curve->index_Name				),
+	plot_Indicator		(curve_Class == INDEPENDENT ? independent_Curve->name			   : target_Curve->index_Name				),
 	additional_Curves	(curve_Class == INDEPENDENT ? independent_Curve->additional_Curves : target_Curve->additional_Curves		),
 
 	QWidget(parent)
@@ -68,6 +68,7 @@ void Curve_Plot_1D::create_Main_Layout()
 	}
 
 	create_Plot_Frame_And_Scale();
+	create_Context_Menu();
 
 	if(curve_Class == TARGET) create_Subinterval_Rectangle();
 
@@ -97,7 +98,6 @@ void Curve_Plot_1D::create_Main_Layout()
 	plot_All_Data();
 
 	plot_Options_First.rescale = rescale;
-
 }
 
 void Curve_Plot_1D::create_Subinterval_Rectangle()
@@ -183,6 +183,24 @@ void Curve_Plot_1D::discretized_Threshold_Line()
 		}
 		custom_Plot->replot();
 	}
+}
+
+void Curve_Plot_1D::create_Context_Menu()
+{
+	custom_Plot->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(custom_Plot, &QCustomPlot::customContextMenuRequested, this, [=](QPoint pos)
+	{
+		QMenu* menu = new QMenu(custom_Plot);
+		menu->setAttribute(Qt::WA_DeleteOnClose);
+
+		// general context menu on graphs requested
+		menu->addAction("Remove additional curves", this, [=]
+		{
+			additional_Curves.clear();
+			global_Multilayer_Approach->reopen_Optical_Graphs_1D();
+		});
+		menu->popup(custom_Plot->mapToGlobal(pos));
+	});
 }
 
 void Curve_Plot_1D::create_Plot_Frame_And_Scale()

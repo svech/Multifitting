@@ -294,11 +294,13 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				{
 					// reflectance
 					weak_Factor_R[i] = 0;
-					s_r[i] = sqrt(above_Node->hi[i]*hi[i]);
+//					s_r[i] = sqrt(above_Node->hi[i]*hi[i]);
+					s_r[i] = sqrt(real(above_Node->hi[i])*real(hi[i]));
 
 					// transmittance
 					weak_Factor_T[i] = 0;
-					s_t[i] = (above_Node->hi[i]-hi[i])/2.;
+//					s_t[i] = (above_Node->hi[i]-hi[i])/2.;
+					s_t[i] = real(above_Node->hi[i]-hi[i])/2.;
 				}
 
 				//-------------------------------------------------------------------------------

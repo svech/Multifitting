@@ -479,6 +479,9 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		// gauss peak
 		QCheckBox* gauss_Peak_Checkbox = new QCheckBox("Add Gauss peak");
 			gauss_Peak_Checkbox->setChecked (multilayer->imperfections_Model.add_Gauss_Peak);
+			gauss_Peak_Checkbox->setDisabled(multilayer->imperfections_Model.approximation == DWBA_approximation ||
+											 multilayer->imperfections_Model.approximation == SA_approximation ||
+											 multilayer->imperfections_Model.approximation == CSA_approximation);
 		PSD_Model_Layout->addWidget(gauss_Peak_Checkbox);
 
 		// common PSD

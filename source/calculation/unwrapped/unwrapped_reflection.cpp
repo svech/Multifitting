@@ -2015,18 +2015,46 @@ void Unwrapped_Reflection::calc_Amplitudes_Field(int thread_Index, int point_Ind
 	vector<complex<double>>& t_Local = polarization == "s" ? t_Local_s[thread_Index] : t_Local_p[thread_Index];
 	vector<complex<double>>& r_Exp   = polarization == "s" ? r_Exp_s  [thread_Index] : r_Exp_p  [thread_Index];
 
-	// main part
+	/// from surface to substrate
+//	complex<double> factor = 1;
+//	U_i[0] = 1;
+//	U_r[0] = r_Local[0];
+//	for (int j = 1; j<num_Boundaries; j++)
+//	{
+//		factor = exponenta[point_Index][j-1]/(1. + r_Exp[j-1]);
+//		U_i[j] = (U_i[j-1] + U_r[j-1])*factor;
+//		U_r[j] = U_i[j] * r_Local[j];
+//	}
+//	U_i[num_Boundaries] = U_i[num_Boundaries-1] * t_Local.back();
+//	U_r[num_Boundaries] = 0;
+
+	/// from substrate to surface
+//	U_i[num_Boundaries] = t_Local.front();
+//	U_r[num_Boundaries] = 0;
+//	for (int j = 0; j<num_Boundaries; j++)
+//	{
+//		U_i[j] = U_i[num_Boundaries]/t_Local[j];
+//		U_r[j] = U_i[j] * r_Local[j];
+//	}
+
+	/// mixed: normally from substrate to surface, but if t==0, from surface to substrate
 	complex<double> factor = 1;
+	U_i[num_Boundaries] = t_Local.front();
+	U_r[num_Boundaries] = 0;
 	U_i[0] = 1;
 	U_r[0] = r_Local[0];
 	for (int j = 1; j<num_Boundaries; j++)
 	{
-		factor = exponenta[point_Index][j-1]/(1. + r_Exp[j-1]);
-		U_i[j] = (U_i[j-1] + U_r[j-1])*factor;
+		if(norm(t_Local[j])>0)
+		{
+			U_i[j] = U_i[num_Boundaries]/t_Local[j];
+		} else
+		{
+			factor = exponenta[point_Index][j-1]/(1. + r_Exp[j-1]);
+			U_i[j] = (U_i[j-1] + U_r[j-1])*factor;
+		}
 		U_r[j] = U_i[j] * r_Local[j];
 	}
-	U_i[num_Boundaries] = U_i[num_Boundaries-1] * t_Local.back();
-	U_r[num_Boundaries] = 0;
 }
 
 void Unwrapped_Reflection::calc_k_Wavenumber_Up_Low(int thread_Index, int point_Index)
@@ -2392,13 +2420,13 @@ void Unwrapped_Reflection::calc_Sliced_Field(int thread_Index, int point_Index, 
 			if(has_S_Pol)
 			{
 				U_s = U_i_s[point_Index][media_Index] * e_i + U_r_s[point_Index][media_Index] * e_r;
-				field_Value+=s_Weight*norm(U_s);
+				field_Value += s_Weight*norm(U_s);
 			}
 			// p-polarization
 			if(has_P_Pol)
 			{
 				U_p = U_i_p[point_Index][media_Index] * e_i + U_r_p[point_Index][media_Index] * e_r;
-				field_Value+=p_Weight*norm(U_p);
+				field_Value += p_Weight*norm(U_p);
 			}
 
 			calculated_Values.field_Intensity[point_Index][z_Index] = field_Value;

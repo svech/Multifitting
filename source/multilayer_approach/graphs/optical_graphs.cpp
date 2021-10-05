@@ -37,7 +37,7 @@ void Optical_Graphs::settings_1D()
 	Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(index));
 
 	QWidget* settings_Window = new QWidget(this);
-		settings_Window->setWindowTitle("Graphs Settings");
+		settings_Window->setWindowTitle("Settings");
 		settings_Window->setWindowModality(Qt::ApplicationModal);
 		settings_Window->setAttribute(Qt::WA_DeleteOnClose);
 		settings_Window->setWindowFlags(Qt::Window);
@@ -158,7 +158,7 @@ void Optical_Graphs::settings_2D()
 	Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(index));
 
 	QWidget* settings_Window = new QWidget(this);
-		settings_Window->setWindowTitle("Graphs Settings");
+		settings_Window->setWindowTitle("Settings");
 		settings_Window->setWindowModality(Qt::ApplicationModal);
 		settings_Window->setAttribute(Qt::WA_DeleteOnClose);
 		settings_Window->setWindowFlags(Qt::Window);
