@@ -741,12 +741,12 @@ struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 								 bool show_Discretization = false;
 								 bool show_Cursor_Position = false;
 
-								 bool rescale_X = true;
+								 bool rescale_X = false;
 								 bool rescale_Y = true;
 								 QString y_Scale = lin_Scale;
 
 								 double old_X_Begin = -10;
-								 double old_X_End   = +200;
+								 double old_X_End   = +500;
 								 double old_Y_Begin = 0;
 								 double old_Y_End   = 1;
 
