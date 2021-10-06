@@ -1092,40 +1092,73 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 
 				// in-depth step
 				QList<QWidget*> step_Widgets_List;
+				double depth_Coeff = length_Coefficients_Map.value(independent_Curve->calc_Functions.depth_Units);
 
 				// ---------------------------------------------------------------------------------
-				QHBoxLayout* field_Step_Layout = new QHBoxLayout;
-//					field_Step_Layout->setAlignment(Qt::AlignLeft);
-				field_Functions_Layout->addLayout(field_Step_Layout);
+				QWidget* field_Depth_Widget = new QWidget;
+					field_Depth_Widget->setContentsMargins(0,0,0,0);
+					field_Functions_Layout->addWidget(field_Depth_Widget);
+				QGridLayout* field_Depth_Layout = new QGridLayout(field_Depth_Widget);
+					field_Depth_Layout->setContentsMargins(0,0,0,0);
+					field_Depth_Layout->setSpacing(3);
+					field_Depth_Layout->setAlignment(Qt::AlignLeft);
+
+//				QGridLayout* field_Depth_Layout = new QGridLayout;
+//					field_Depth_Layout->setAlignment(Qt::AlignLeft);
+//				field_Functions_Layout->addLayout(field_Depth_Layout);
 
 				QLabel* field_Step_Label = new QLabel("Z-spacing");
-					field_Step_Layout->addWidget(field_Step_Label);
+					field_Depth_Layout->addWidget(field_Step_Label,0,0);
 					step_Widgets_List.append(field_Step_Label);
 				MyDoubleSpinBox* field_Step_SpinBox = new MyDoubleSpinBox;
 					field_Step_SpinBox->setAccelerated(true);
 					field_Step_SpinBox->setRange(0.1, MAX_DOUBLE);
 					field_Step_SpinBox->setDecimals(2);
 					field_Step_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-					field_Step_SpinBox->setValue(independent_Curve->calc_Functions.field_Step);
+					field_Step_SpinBox->setValue(independent_Curve->calc_Functions.field_Step/depth_Coeff);
 					field_Step_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-				field_Step_Layout->addWidget(field_Step_SpinBox,Qt::AlignLeft);
+				field_Depth_Layout->addWidget(field_Step_SpinBox,0,1);
 				step_Widgets_List.append(field_Step_SpinBox);
 				Global_Variables::resize_Line_Edit(field_Step_SpinBox, false);
 				connect(field_Step_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 				{
-					independent_Curve->calc_Functions.field_Step = field_Step_SpinBox->value();
+					double depth_Coeff = length_Coefficients_Map.value(independent_Curve->calc_Functions.depth_Units);
+					independent_Curve->calc_Functions.field_Step = field_Step_SpinBox->value()*depth_Coeff;
 					global_Multilayer_Approach->global_Recalculate();
 				});
-				QLabel* field_Step_Units_Label = new QLabel(Angstrom_Sym);
-					field_Step_Layout->addWidget(field_Step_Units_Label,Qt::AlignLeft);
-					step_Widgets_List.append(field_Step_Units_Label);
+				QComboBox* field_Step_Units_Combobox = new QComboBox;
+					field_Step_Units_Combobox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+					field_Step_Units_Combobox->addItems(length_Units_List);
+					field_Step_Units_Combobox->setCurrentText(independent_Curve->calc_Functions.depth_Units);
+				field_Depth_Layout->addWidget(field_Step_Units_Combobox,0,2);
+				step_Widgets_List.append(field_Step_Units_Combobox);
+
 
 				QCheckBox* show_Surface_Checkbox = new QCheckBox("Show surface");
 					show_Surface_Checkbox->setChecked(independent_Curve->calc_Functions.show_Surface);
-				field_Step_Layout->addWidget(show_Surface_Checkbox,Qt::AlignRight);
+					step_Widgets_List.append(show_Surface_Checkbox);
+				field_Depth_Layout->addWidget(show_Surface_Checkbox,1,0,1,3);
 				connect(show_Surface_Checkbox,  &QCheckBox::toggled, this, [=]
 				{
 					independent_Curve->calc_Functions.show_Surface = show_Surface_Checkbox->isChecked();
+					// refresh graph
+					if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+					{
+						if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
+						{
+							Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(independent_Curve->measurement.id);
+							curve_Plot_2D->create_Position_Lines();
+							curve_Plot_2D->replot_All();
+						}
+					}
+				});
+				QCheckBox* show_Substrate_Checkbox = new QCheckBox("Show substrate");
+					show_Substrate_Checkbox->setChecked(independent_Curve->calc_Functions.show_Substrate);
+					step_Widgets_List.append(show_Substrate_Checkbox);
+				field_Depth_Layout->addWidget(show_Substrate_Checkbox,2,0,1,3);
+				connect(show_Substrate_Checkbox,  &QCheckBox::toggled, this, [=]
+				{
+					independent_Curve->calc_Functions.show_Substrate = show_Substrate_Checkbox->isChecked();
 					// refresh graph
 					if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
 					{
@@ -1142,73 +1175,206 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 				QGridLayout* field_Ambient_Substrate_Layout = new QGridLayout;
 				field_Functions_Layout->addLayout(field_Ambient_Substrate_Layout);
 
-				QLabel* field_Ambient_Label = new QLabel("Calculation depth into ambient   ");
-					field_Ambient_Substrate_Layout->addWidget(field_Ambient_Label,0,0);
+				// ambient
+				QLabel* field_Ambient_Label = new QLabel("      Calculation depth into ambient");
+					field_Depth_Layout->addWidget(field_Ambient_Label,0,4);
 					step_Widgets_List.append(field_Ambient_Label);
 				MyDoubleSpinBox* field_Ambient_SpinBox = new MyDoubleSpinBox;
 					field_Ambient_SpinBox->setAccelerated(true);
 					field_Ambient_SpinBox->setRange(0, MAX_DOUBLE);
 					field_Ambient_SpinBox->setDecimals(2);
 					field_Ambient_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-					field_Ambient_SpinBox->setValue(independent_Curve->calc_Functions.field_Ambient_Distance);
+					field_Ambient_SpinBox->setValue(independent_Curve->calc_Functions.field_Ambient_Distance/depth_Coeff);
 					field_Ambient_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-				field_Ambient_Substrate_Layout->addWidget(field_Ambient_SpinBox,0,1);
+				field_Depth_Layout->addWidget(field_Ambient_SpinBox,0,5);
 				step_Widgets_List.append(field_Ambient_SpinBox);
 				Global_Variables::resize_Line_Edit(field_Ambient_SpinBox, false);
 				connect(field_Ambient_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 				{
-					independent_Curve->calc_Functions.field_Ambient_Distance = field_Ambient_SpinBox->value();
+					double depth_Coeff = length_Coefficients_Map.value(independent_Curve->calc_Functions.depth_Units);
+					independent_Curve->calc_Functions.field_Ambient_Distance = field_Ambient_SpinBox->value()*depth_Coeff;
 					global_Multilayer_Approach->global_Recalculate();
 				});
-				QLabel* field_Ambient_Units_Label = new QLabel(Angstrom_Sym);
-					field_Ambient_Substrate_Layout->addWidget(field_Ambient_Units_Label,0,2);
+				QLabel* field_Ambient_Units_Label = new QLabel(independent_Curve->calc_Functions.depth_Units);
+					field_Depth_Layout->addWidget(field_Ambient_Units_Label,0,6);
 					step_Widgets_List.append(field_Ambient_Units_Label);
 
+				// surface
+				QRadioButton* field_Surface_RadioButton = new QRadioButton("Calculation depth from surface");
+					field_Depth_Layout->addWidget(field_Surface_RadioButton,1,4);
+					field_Surface_RadioButton->setChecked(independent_Curve->calc_Functions.use_Surface_Distance);
+				step_Widgets_List.append(field_Surface_RadioButton);
+				MyDoubleSpinBox* field_Surface_SpinBox = new MyDoubleSpinBox;
+					field_Surface_SpinBox->setAccelerated(true);
+					field_Surface_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
+					field_Surface_SpinBox->setDecimals(2);
+					field_Surface_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+					field_Surface_SpinBox->setValue(independent_Curve->calc_Functions.field_Surface_Distance/depth_Coeff);
+					field_Surface_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+					field_Surface_SpinBox->setEnabled(independent_Curve->calc_Functions.use_Surface_Distance);
+				field_Depth_Layout->addWidget(field_Surface_SpinBox,1,5);
+//				step_Widgets_List.append(field_Surface_SpinBox);
+				Global_Variables::resize_Line_Edit(field_Surface_SpinBox, false);
+				connect(field_Surface_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+				{
+					double depth_Coeff = length_Coefficients_Map.value(independent_Curve->calc_Functions.depth_Units);
+					independent_Curve->calc_Functions.field_Surface_Distance = field_Surface_SpinBox->value()*depth_Coeff;
+					global_Multilayer_Approach->global_Recalculate();
+				});
+				QLabel* field_Surface_Units_Label = new QLabel(independent_Curve->calc_Functions.depth_Units);
+					field_Surface_Units_Label->setEnabled(independent_Curve->calc_Functions.use_Surface_Distance);
+					field_Depth_Layout->addWidget(field_Surface_Units_Label,1,6);
+//					step_Widgets_List.append(field_Surface_Units_Label);
 
-				QLabel* field_Substrate_Label = new QLabel("Calculation depth into substrate");
-					field_Ambient_Substrate_Layout->addWidget(field_Substrate_Label,1,0);
-					step_Widgets_List.append(field_Substrate_Label);
+				// substrate
+				QRadioButton* field_Substrate_RadioButton = new QRadioButton("Calculation depth into substrate");
+					field_Depth_Layout->addWidget(field_Substrate_RadioButton,2,4);
+					field_Substrate_RadioButton->setChecked(!independent_Curve->calc_Functions.use_Surface_Distance);
+				step_Widgets_List.append(field_Substrate_RadioButton);
 				MyDoubleSpinBox* field_Substrate_SpinBox = new MyDoubleSpinBox;
 					field_Substrate_SpinBox->setAccelerated(true);
 					field_Substrate_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
 					field_Substrate_SpinBox->setDecimals(2);
 					field_Substrate_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-					field_Substrate_SpinBox->setValue(independent_Curve->calc_Functions.field_Substrate_Distance);
+					field_Substrate_SpinBox->setValue(independent_Curve->calc_Functions.field_Substrate_Distance/depth_Coeff);
 					field_Substrate_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-				field_Ambient_Substrate_Layout->addWidget(field_Substrate_SpinBox,1,1);
-				step_Widgets_List.append(field_Substrate_SpinBox);
+					field_Substrate_SpinBox->setEnabled(!independent_Curve->calc_Functions.use_Surface_Distance);
+				field_Depth_Layout->addWidget(field_Substrate_SpinBox,2,5);
+//				step_Widgets_List.append(field_Substrate_SpinBox);
 				Global_Variables::resize_Line_Edit(field_Substrate_SpinBox, false);
 				connect(field_Substrate_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 				{
-					independent_Curve->calc_Functions.field_Substrate_Distance = field_Substrate_SpinBox->value();
+					double depth_Coeff = length_Coefficients_Map.value(independent_Curve->calc_Functions.depth_Units);
+					independent_Curve->calc_Functions.field_Substrate_Distance = field_Substrate_SpinBox->value()*depth_Coeff;
 					global_Multilayer_Approach->global_Recalculate();
 				});
-				QLabel* field_Substrate_Units_Label = new QLabel(Angstrom_Sym);
-					field_Ambient_Substrate_Layout->addWidget(field_Substrate_Units_Label,1,2);
-					step_Widgets_List.append(field_Substrate_Units_Label);
+				QLabel* field_Substrate_Units_Label = new QLabel(independent_Curve->calc_Functions.depth_Units);
+					field_Substrate_Units_Label->setEnabled(!independent_Curve->calc_Functions.use_Surface_Distance);
+					field_Depth_Layout->addWidget(field_Substrate_Units_Label,2,6);
+//					step_Widgets_List.append(field_Substrate_Units_Label);
 
+				QButtonGroup* field_Group = new QButtonGroup;
+					field_Group->addButton(field_Surface_RadioButton);
+					field_Group->addButton(field_Substrate_RadioButton);
+
+				connect(field_Step_Units_Combobox, &QComboBox::currentTextChanged, this, [=]
+				{
+					independent_Curve->calc_Functions.depth_Units = field_Step_Units_Combobox->currentText();
+
+					double depth_Coeff = length_Coefficients_Map.value(independent_Curve->calc_Functions.depth_Units);
+
+					field_Step_SpinBox->blockSignals(true);
+					field_Step_SpinBox->setValue(independent_Curve->calc_Functions.field_Step/depth_Coeff);
+					Global_Variables::resize_Line_Edit(field_Step_SpinBox, false);
+					field_Step_SpinBox->blockSignals(false);
+
+
+					field_Ambient_Units_Label->setText(independent_Curve->calc_Functions.depth_Units);
+					field_Ambient_SpinBox->blockSignals(true);
+					field_Ambient_SpinBox->setValue(independent_Curve->calc_Functions.field_Ambient_Distance/depth_Coeff);
+					Global_Variables::resize_Line_Edit(field_Ambient_SpinBox, false);
+					field_Ambient_SpinBox->blockSignals(false);
+
+					field_Surface_Units_Label->setText(independent_Curve->calc_Functions.depth_Units);
+					field_Surface_SpinBox->blockSignals(true);
+					field_Surface_SpinBox->setValue(independent_Curve->calc_Functions.field_Surface_Distance/depth_Coeff);
+					Global_Variables::resize_Line_Edit(field_Surface_SpinBox, false);
+					field_Surface_SpinBox->blockSignals(false);
+
+					field_Substrate_Units_Label->setText(independent_Curve->calc_Functions.depth_Units);
+					field_Substrate_SpinBox->blockSignals(true);
+					field_Substrate_SpinBox->setValue(independent_Curve->calc_Functions.field_Substrate_Distance/depth_Coeff);
+					Global_Variables::resize_Line_Edit(field_Substrate_SpinBox, false);
+					field_Substrate_SpinBox->blockSignals(false);
+
+					// curve plots
+					if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+					{
+						if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
+						{
+							Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(independent_Curve->measurement.id);
+							curve_Plot_2D->refresh_Axes_Labels();
+							curve_Plot_2D->create_Position_Lines();
+							curve_Plot_2D->plot_Data();
+						}
+					}
+				});
+
+				connect(field_Surface_RadioButton, &QRadioButton::toggled, this, [=]
+				{
+					independent_Curve->calc_Functions.use_Surface_Distance = field_Surface_RadioButton->isChecked();
+					field_Surface_SpinBox->setEnabled(independent_Curve->calc_Functions.use_Surface_Distance);
+					field_Surface_Units_Label->setEnabled(independent_Curve->calc_Functions.use_Surface_Distance);
+					field_Substrate_SpinBox->setDisabled(independent_Curve->calc_Functions.use_Surface_Distance);
+					field_Substrate_Units_Label->setDisabled(independent_Curve->calc_Functions.use_Surface_Distance);
+
+					global_Multilayer_Approach->global_Recalculate();
+				});
+				connect(field_Substrate_RadioButton, &QRadioButton::toggled, this, [=]
+				{
+					independent_Curve->calc_Functions.use_Surface_Distance = !field_Substrate_RadioButton->isChecked();
+					field_Surface_SpinBox->setEnabled(independent_Curve->calc_Functions.use_Surface_Distance);
+					field_Surface_Units_Label->setEnabled(independent_Curve->calc_Functions.use_Surface_Distance);
+					field_Substrate_SpinBox->setDisabled(independent_Curve->calc_Functions.use_Surface_Distance);
+					field_Substrate_Units_Label->setDisabled(independent_Curve->calc_Functions.use_Surface_Distance);
+
+					global_Multilayer_Approach->global_Recalculate();
+				});
 				// ---------------------------------------------------------------------------------
 
 				connect(field_Intensity,  &QCheckBox::toggled, this, [=]
 				{
-					for(QWidget* step_Widget : step_Widgets_List)
-					{
-						step_Widget->setEnabled(field_Intensity->isChecked() || joule_Absorption->isChecked());
-					}
+					if(field_Intensity->isChecked() || joule_Absorption->isChecked())
+						field_Depth_Widget->show();
+					else
+						field_Depth_Widget->hide();
+
+//					for(QWidget* step_Widget : step_Widgets_List)
+//					{
+//						step_Widget->setEnabled(field_Intensity->isChecked() || joule_Absorption->isChecked());
+//					}
+//					bool yes1 =  independent_Curve->calc_Functions.use_Surface_Distance && (field_Intensity->isChecked() || joule_Absorption->isChecked());
+//					bool yes2 = !independent_Curve->calc_Functions.use_Surface_Distance && (field_Intensity->isChecked() || joule_Absorption->isChecked());
+//					field_Surface_SpinBox->setEnabled(yes1);
+//					field_Surface_Units_Label->setEnabled(yes1);
+//					field_Substrate_SpinBox->setEnabled(yes2);
+//					field_Substrate_Units_Label->setEnabled(yes2);
 				});
 				connect(joule_Absorption,  &QCheckBox::toggled, this, [=]
 				{
-					for(QWidget* step_Widget : step_Widgets_List)
-					{
-						step_Widget->setEnabled(field_Intensity->isChecked() || joule_Absorption->isChecked());
-					}
+					if(field_Intensity->isChecked() || joule_Absorption->isChecked())
+						field_Depth_Widget->show();
+					else
+						field_Depth_Widget->hide();
+
+//					for(QWidget* step_Widget : step_Widgets_List)
+//					{
+//						step_Widget->setEnabled(field_Intensity->isChecked() || joule_Absorption->isChecked());
+//					}
+//					bool yes1 =  independent_Curve->calc_Functions.use_Surface_Distance && (field_Intensity->isChecked() || joule_Absorption->isChecked());
+//					bool yes2 = !independent_Curve->calc_Functions.use_Surface_Distance && (field_Intensity->isChecked() || joule_Absorption->isChecked());
+//					field_Surface_SpinBox->setEnabled(yes1);
+//					field_Surface_Units_Label->setEnabled(yes1);
+//					field_Substrate_SpinBox->setEnabled(yes2);
+//					field_Substrate_Units_Label->setEnabled(yes2);
 				});
 
 				// initialization
-				for(QWidget* step_Widget : step_Widgets_List)
-				{
-					step_Widget->setEnabled(field_Intensity->isChecked() || joule_Absorption->isChecked());
-				}
+				if(field_Intensity->isChecked() || joule_Absorption->isChecked())
+					field_Depth_Widget->show();
+				else
+					field_Depth_Widget->hide();
+
+//				for(QWidget* step_Widget : step_Widgets_List)
+//				{
+//					step_Widget->setEnabled(field_Intensity->isChecked() || joule_Absorption->isChecked());
+//				}
+//				bool yes1 =  independent_Curve->calc_Functions.use_Surface_Distance && (field_Intensity->isChecked() || joule_Absorption->isChecked());
+//				bool yes2 = !independent_Curve->calc_Functions.use_Surface_Distance && (field_Intensity->isChecked() || joule_Absorption->isChecked());
+//				field_Surface_SpinBox->setEnabled(yes1);
+//				field_Surface_Units_Label->setEnabled(yes1);
+//				field_Substrate_SpinBox->setEnabled(yes2);
+//				field_Substrate_Units_Label->setEnabled(yes2);
 			}
 
 			// instrumental smoothing for scattering

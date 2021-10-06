@@ -17,7 +17,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 24
+#define VERSION_BUILD 26
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -1094,9 +1094,13 @@ struct Calc_Functions			{bool check_Enabled = true;
 								 bool check_GISAS = false;
 
 								 double field_Step = 2;
+								 QString depth_Units = Angstrom_Sym;
 								 double field_Ambient_Distance = 0;
+								 double field_Surface_Distance = 500;
 								 double field_Substrate_Distance = 0;
+								 bool use_Surface_Distance = false;
 								 bool show_Surface = false;
+								 bool show_Substrate = false;
 								 bool add_Specular_Peak = false;
 								 bool instrumental_Smoothing = false;
 								 bool integrate_PSD_in_Detector = false;

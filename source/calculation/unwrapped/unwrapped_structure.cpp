@@ -612,11 +612,17 @@ void Unwrapped_Structure::find_Field_Spacing()
 {
 	// structure and substrate
 	double structure_Thickness = 0;
-	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
+	if(calc_Functions.use_Surface_Distance)
 	{
-		structure_Thickness += thickness[layer_Index];
+		structure_Thickness = calc_Functions.field_Surface_Distance;
+	} else
+	{
+		for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
+		{
+			structure_Thickness += thickness[layer_Index];
+		}
+		structure_Thickness += calc_Functions.field_Substrate_Distance;
 	}
-	structure_Thickness += calc_Functions.field_Substrate_Distance;
 	structure_Thickness = max(structure_Thickness, 0.);
 	num_Field_Slices = ceil(structure_Thickness/calc_Functions.field_Step)+1;
 

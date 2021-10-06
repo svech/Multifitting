@@ -768,7 +768,10 @@ QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functi
 {
 	return stream << calc_Functions.check_Enabled << calc_Functions.check_Reflectance << calc_Functions.check_Transmittance << calc_Functions.check_Absorptance
 				  << calc_Functions.check_Field	  << calc_Functions.check_Joule << calc_Functions.check_Scattering << calc_Functions.check_GISAS
-				  << calc_Functions.field_Step << calc_Functions.field_Ambient_Distance	<< calc_Functions.field_Substrate_Distance << calc_Functions.show_Surface
+				  << calc_Functions.field_Step << calc_Functions.depth_Units
+				  << calc_Functions.field_Ambient_Distance << calc_Functions.field_Surface_Distance << calc_Functions.field_Substrate_Distance
+				  << calc_Functions.show_Surface << calc_Functions.show_Substrate
+				  << calc_Functions.use_Surface_Distance
 				  << calc_Functions.add_Specular_Peak << calc_Functions.instrumental_Smoothing << calc_Functions.integrate_PSD_in_Detector;
 }
 QDataStream& operator >>( QDataStream& stream,		 Calc_Functions& calc_Functions )
@@ -789,9 +792,23 @@ QDataStream& operator >>( QDataStream& stream,		 Calc_Functions& calc_Functions 
 
 	if(Global_Variables::check_Loaded_Version(1,10,3))
 	{
-		stream >> calc_Functions.field_Step >> calc_Functions.field_Ambient_Distance >> calc_Functions.field_Substrate_Distance;
+		stream >> calc_Functions.field_Step;
+		if(Global_Variables::check_Loaded_Version(1,11,26))
+		{stream >> calc_Functions.depth_Units;}
+		stream >> calc_Functions.field_Ambient_Distance;
+
+		if(Global_Variables::check_Loaded_Version(1,11,25))
+		{stream >> calc_Functions.field_Surface_Distance;}
+
+		stream >> calc_Functions.field_Substrate_Distance;
+
 		if(Global_Variables::check_Loaded_Version(1,11,8))
 		{stream >> calc_Functions.show_Surface;}
+		if(Global_Variables::check_Loaded_Version(1,11,25))
+		{stream >> calc_Functions.show_Substrate;}
+
+		if(Global_Variables::check_Loaded_Version(1,11,25))
+		{stream >> calc_Functions.use_Surface_Distance;}
 	}
 
 	if(Global_Variables::check_Loaded_Version(1,11,0))

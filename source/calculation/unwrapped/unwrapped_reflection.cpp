@@ -744,8 +744,10 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 	exponenta  (spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_Exponenta : calculated_Values.q_Exponenta ),
 	exponenta_2(num_Threads,vector<complex<double>>(num_Boundaries)),
 
-	weak_Factor_R(num_Threads,vector<complex<double>>(num_Boundaries_Sharp)),
-	weak_Factor_T(num_Threads,vector<complex<double>>(num_Boundaries_Sharp)),
+//	weak_Factor_R(num_Threads,vector<complex<double>>(num_Boundaries_Sharp)),
+//	weak_Factor_T(num_Threads,vector<complex<double>>(num_Boundaries_Sharp)),
+	weak_Factor_R(num_Threads,vector<double>(num_Boundaries_Sharp)),
+	weak_Factor_T(num_Threads,vector<double>(num_Boundaries_Sharp)),
 	specular_Debye_Waller_Weak_Factor_R_Final(num_Threads),
 
 	/// fields
@@ -1659,8 +1661,10 @@ void Unwrapped_Reflection::calc_Hi(int point_Index, double k, double cos2, const
 void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index, int point_Index)
 {
 	double norm, a = M_PI/sqrt(M_PI*M_PI - 8.);
-	complex<double> s_r, factor_r, x_r, y_r, six_r, siy_r;
-	complex<double> s_t, factor_t, x_t, y_t, six_t, siy_t;
+//	complex<double> s_r, factor_r, x_r, y_r, six_r, siy_r;
+//	complex<double> s_t, factor_t, x_t, y_t, six_t, siy_t;
+	double s_r, factor_r, x_r, y_r, six_r, siy_r;
+	double s_t, factor_t, x_t, y_t, six_t, siy_t;
 	double my_Sigma_Diffuse = 0;
 	for (int i = 0; i < num_Boundaries_Sharp; ++i)
 	{
@@ -1671,8 +1675,11 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index, int point_Index)
 		{
 			my_Sigma_Diffuse = unwrapped_Structure->sigma_Diffuse[i];	// by default, otherwise we change it
 			norm = 0;
-			s_r = sqrt(hi[point_Index][i]*hi[point_Index][i+1]);
-			s_t =     (hi[point_Index][i]-hi[point_Index][i+1])/2.;
+//			s_r = sqrt(hi[point_Index][i]*hi[point_Index][i+1]);
+//			s_t =     (hi[point_Index][i]-hi[point_Index][i+1])/2.;
+			s_r = sqrt(real(hi[point_Index][i])*real(hi[point_Index][i+1]));
+			s_t =      real(hi[point_Index][i] -     hi[point_Index][i+1])/2.;
+
 			//-------------------------------------------------------------------------------
 			// erf interlayer
 			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Erf].enabled &&

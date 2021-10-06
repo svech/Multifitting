@@ -75,8 +75,10 @@ public:
 	vector<complex<double>> epsilon_Ambient;	//	[thread]
 	vector<complex<double>> epsilon_Substrate;	//	[thread]
 
-	vector<vector<complex<double>>> weak_Factor_R;		//	[thread][boundary]
-	vector<vector<complex<double>>> weak_Factor_T;		//	[thread][boundary]
+//	vector<vector<complex<double>>> weak_Factor_R;		//	[thread][boundary]
+//	vector<vector<complex<double>>> weak_Factor_T;		//	[thread][boundary]
+	vector<vector<double>> weak_Factor_R;		//	[thread][boundary]
+	vector<vector<double>> weak_Factor_T;		//	[thread][boundary]
 	vector<double> specular_Debye_Waller_Weak_Factor_R_Final; //	[thread]
 
 	// fields

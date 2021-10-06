@@ -6,13 +6,14 @@ Curve_Plot_2D::Curve_Plot_2D(Multilayer* multilayer, Target_Curve* target_Curve,
 	target_Curve(target_Curve),
 	independent_Curve(independent_Curve),
 
-	measurement			(curve_Class == INDEPENDENT ? independent_Curve->measurement	   : target_Curve->measurement				),
-	calculated_Values   (curve_Class == INDEPENDENT ? independent_Curve->calculated_Values : target_Curve->calculated_Values		),
-	plot_Options		(curve_Class == INDEPENDENT ? independent_Curve->plot_Options	   : target_Curve->plot_Options_Experimental),
-	spectral_Units		(curve_Class == INDEPENDENT ? independent_Curve->spectral_Units	   : target_Curve->spectral_Units			),
-	angular_Units		(curve_Class == INDEPENDENT ? independent_Curve->angular_Units	   : target_Curve->angular_Units			),
-	plot_Indicator		(curve_Class == INDEPENDENT ? independent_Curve->name		   : target_Curve->index_Name				),
-	graph_2D_Positions	(curve_Class == INDEPENDENT ? independent_Curve->graph_2D_Positions: target_Curve->graph_2D_Positions		),
+	measurement			(curve_Class == INDEPENDENT ? independent_Curve->measurement				: target_Curve->measurement				),
+	calculated_Values   (curve_Class == INDEPENDENT ? independent_Curve->calculated_Values			: target_Curve->calculated_Values		),
+	plot_Options		(curve_Class == INDEPENDENT ? independent_Curve->plot_Options				: target_Curve->plot_Options_Experimental),
+	spectral_Units		(curve_Class == INDEPENDENT ? independent_Curve->spectral_Units				: target_Curve->spectral_Units			),
+	angular_Units		(curve_Class == INDEPENDENT ? independent_Curve->angular_Units				: target_Curve->angular_Units			),
+	depth_Units			(curve_Class == INDEPENDENT ? independent_Curve->calc_Functions.depth_Units	: target_Curve->spectral_Units/*crutch*/),
+	plot_Indicator		(curve_Class == INDEPENDENT ? independent_Curve->name						: target_Curve->index_Name				),
+	graph_2D_Positions	(curve_Class == INDEPENDENT ? independent_Curve->graph_2D_Positions			: target_Curve->graph_2D_Positions		),
 
 	QWidget(parent)
 {
@@ -196,8 +197,13 @@ void Curve_Plot_2D::create_Main_Layout()
 		ver_Line_Fixed = new QCPItemStraightLine(main_2D_Custom_Plot);
 
 		if(curve_Class == INDEPENDENT)
-		if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
-		{surface_Line = new QCPItemStraightLine(main_2D_Custom_Plot);}
+		{
+			if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
+			{
+				surface_Line = new QCPItemStraightLine(main_2D_Custom_Plot);
+				substrate_Line = new QCPItemStraightLine(main_2D_Custom_Plot);
+			}
+		}
 
 		main_2D_Custom_Plot->setCurrentLayer("main");
 		create_Position_Lines();
@@ -296,29 +302,57 @@ void Curve_Plot_2D::create_Position_Lines()
 
 	// surface level for field distribution
 	if(curve_Class == INDEPENDENT)
-	if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
 	{
-		if(independent_Curve->calc_Functions.show_Surface)
+		if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
 		{
-			if(plot_Options.orientation == vertical)
+			if(independent_Curve->calc_Functions.show_Surface)
 			{
-				surface_Line->point1->setCoords(-1, 0);
-				surface_Line->point2->setCoords(1, 0);
+				if(plot_Options.orientation == vertical)
+				{
+					surface_Line->point1->setCoords(-1, 0);
+					surface_Line->point2->setCoords(1, 0);
+				} else
+				{
+					surface_Line->point1->setCoords(0, -1);
+					surface_Line->point2->setCoords(0, 1);
+				}
+
+				QPen pen(Qt::black, 1, Qt::SolidLine);
+				surface_Line->setPen(pen);
 			} else
 			{
-				surface_Line->point1->setCoords(0, -1);
-				surface_Line->point2->setCoords(0, 1);
+				surface_Line->point1->setCoords(-MAX_DOUBLE, 0);
+				surface_Line->point2->setCoords(-MAX_DOUBLE, 1);
+
+				QPen pen(Qt::transparent, 0, Qt::SolidLine);
+				surface_Line->setPen(pen);
 			}
+			if(independent_Curve->calc_Functions.show_Substrate)
+			{
+				double thickness = 0;
+				multilayer->structure_Tree->get_Total_Thickness(thickness, multilayer->structure_Tree->tree->invisibleRootItem());
 
-			QPen pen(Qt::black, 1, Qt::SolidLine);
-			surface_Line->setPen(pen);
-		} else
-		{
-			surface_Line->point1->setCoords(-MAX_DOUBLE, 0);
-			surface_Line->point2->setCoords(-MAX_DOUBLE, 1);
+				double depth_Coeff = length_Coefficients_Map.value(depth_Units);
 
-			QPen pen(Qt::transparent, 0, Qt::SolidLine);
-			surface_Line->setPen(pen);
+				if(plot_Options.orientation == vertical)
+				{
+					substrate_Line->point1->setCoords(-1, thickness/depth_Coeff);
+					substrate_Line->point2->setCoords(1, thickness/depth_Coeff);
+				} else
+				{
+					substrate_Line->point1->setCoords(thickness/depth_Coeff, -1);
+					substrate_Line->point2->setCoords(thickness/depth_Coeff, 1);
+				}
+				QPen pen(Qt::black, 1, Qt::SolidLine);
+				substrate_Line->setPen(pen);
+			} else
+			{
+				substrate_Line->point1->setCoords(-MAX_DOUBLE, 0);
+				substrate_Line->point2->setCoords(-MAX_DOUBLE, 1);
+
+				QPen pen(Qt::transparent, 0, Qt::SolidLine);
+				substrate_Line->setPen(pen);
+			}
 		}
 	}
 }
@@ -488,6 +522,7 @@ void Curve_Plot_2D::refresh_Axes_Range(bool rescale_Axes)
 	{
 		double spectral_Coeff = wavelength_Coefficients_Map.value(spectral_Units);
 		double angular_Coeff = angle_Coefficients_Map.value(angular_Units);
+		double depth_Coeff = length_Coefficients_Map.value(depth_Units);
 
 		QCPRange x_Range, y_Range;
 		QCPRange& x_Range_Real = plot_Options.orientation == horizontal ? x_Range : y_Range;
@@ -509,8 +544,8 @@ void Curve_Plot_2D::refresh_Axes_Range(bool rescale_Axes)
 		{
 			if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
 			{
-				x_Range_Real = QCPRange(-independent_Curve->calc_Functions.field_Ambient_Distance,
-										-independent_Curve->calc_Functions.field_Ambient_Distance + (values_2D->front().size()-1)*independent_Curve->calc_Functions.field_Step);
+				x_Range_Real = QCPRange(-independent_Curve->calc_Functions.field_Ambient_Distance/depth_Coeff,
+										-independent_Curve->calc_Functions.field_Ambient_Distance/depth_Coeff + (values_2D->front().size()-1)*independent_Curve->calc_Functions.field_Step/depth_Coeff);
 
 				if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
 				{
@@ -790,7 +825,7 @@ void Curve_Plot_2D::refresh_Axes_Labels()
 	{
 		if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
 		{
-			value_Type_Text = "Depth, " + Angstrom_Sym;
+			value_Type_Text = "Depth, " + depth_Units;
 			if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
 			{
 				if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
@@ -858,10 +893,27 @@ void Curve_Plot_2D::refresh_Corner_Labels(double x, double y, int x_Cell, int y_
 		{
 			if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
 			{
+				QString d_Units, other_Units;
+				if(plot_Options.orientation == horizontal)
+				{
+					d_Units = depth_Units;
+					if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+						other_Units = angular_Units;
+					if(measurement.argument_Type == argument_Types[Wavelength_Energy])
+						other_Units = spectral_Units;
+				} else
+				{
+					other_Units = depth_Units;
+					if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+						d_Units = angular_Units;
+					if(measurement.argument_Type == argument_Types[Wavelength_Energy])
+						d_Units = spectral_Units;
+				}
+
 				base_Arg_X = "Depth:  ";
 				if(x_Cell>=0 && y_Cell>=0)
 				{
-					add_Arg_X = QString::number(x, 'g', 3) + " " + Angstrom_Sym;
+					add_Arg_X = QString::number(x, 'g', 3) + " " + d_Units;//depth_Units;
 				}
 
 				if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
@@ -869,7 +921,7 @@ void Curve_Plot_2D::refresh_Corner_Labels(double x, double y, int x_Cell, int y_
 					base_Arg_Y = Theta_Sym + Zero_Subscript_Sym + ":        ";
 					if(x_Cell>=0 && y_Cell>=0)
 					{
-						add_Arg_Y = QString::number(y, 'g', 3) + " " + angular_Units;
+						add_Arg_Y = QString::number(y, 'g', 3) + " " + other_Units;//angular_Units;
 					}
 				}
 				if(measurement.argument_Type == argument_Types[Wavelength_Energy])
@@ -877,7 +929,7 @@ void Curve_Plot_2D::refresh_Corner_Labels(double x, double y, int x_Cell, int y_
 					base_Arg_Y = Global_Variables::wavelength_Energy_Symbol(spectral_Units) + ":          ";
 					if(x_Cell>=0 && y_Cell>=0)
 					{
-						add_Arg_Y = QString::number(y, 'g', 3) + " " + spectral_Units;
+						add_Arg_Y = QString::number(y, 'g', 3) + " " + other_Units;//spectral_Units;
 					}
 				}
 			}

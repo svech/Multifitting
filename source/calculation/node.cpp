@@ -287,8 +287,10 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 
 				double norm = 0;
 				double my_Sigma = struct_Data.sigma_Diffuse.value;	// by default, otherwise we change it
-				vector<complex<double>> s_r (num_Points);
-				vector<complex<double>> s_t (num_Points);
+//				vector<complex<double>> s_r (num_Points);
+//				vector<complex<double>> s_t (num_Points);
+				vector<double> s_r (num_Points);
+				vector<double> s_t (num_Points);
 
 				for(size_t i=0; i<num_Points; ++i)
 				{
@@ -312,7 +314,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					if(!struct_Data.common_Sigma_Diffuse) {
 						my_Sigma = struct_Data.interlayer_Composition[Erf].my_Sigma_Diffuse.value;}
 
-					complex<double> factor_r, factor_t;
+//					complex<double> factor_r, factor_t;
+					double factor_r, factor_t;
 					for(size_t i=0; i<num_Points; ++i)
 					{
 						// reflectance
@@ -333,7 +336,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					if(!struct_Data.common_Sigma_Diffuse) {
 						my_Sigma = struct_Data.interlayer_Composition[Lin].my_Sigma_Diffuse.value;}
 
-					complex<double> factor_r, x_r, factor_t, x_t;
+//					complex<double> factor_r, x_r, factor_t, x_t;
+					double factor_r, x_r, factor_t, x_t;
 					for(size_t i=0; i<num_Points; ++i)
 					{
 						// reflectance
@@ -364,7 +368,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					if(!struct_Data.common_Sigma_Diffuse) {
 						my_Sigma = struct_Data.interlayer_Composition[Exp].my_Sigma_Diffuse.value;}
 
-					complex<double> factor_r, x_r, factor_t, x_t;
+//					complex<double> factor_r, x_r, factor_t, x_t;
+					double factor_r, x_r, factor_t, x_t;
 					for(size_t i=0; i<num_Points; ++i)
 					{
 						// reflectance
@@ -387,7 +392,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					if(!struct_Data.common_Sigma_Diffuse) {
 						my_Sigma = struct_Data.interlayer_Composition[Tanh].my_Sigma_Diffuse.value;}
 
-					complex<double> factor_r, x_r, factor_t, x_t;
+//					complex<double> factor_r, x_r, factor_t, x_t;
+					double factor_r, x_r, factor_t, x_t;
 					for(size_t i=0; i<num_Points; ++i)
 					{
 						// reflectance
@@ -424,7 +430,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					if(!struct_Data.common_Sigma_Diffuse) {
 						my_Sigma = struct_Data.interlayer_Composition[Sin].my_Sigma_Diffuse.value;}
 
-					complex<double> factor_r, x_r, y_r, six_r, siy_r, factor_t, x_t, y_t, six_t, siy_t;
+//					complex<double> factor_r, x_r, y_r, six_r, siy_r, factor_t, x_t, y_t, six_t, siy_t;
+					double factor_r, x_r, y_r, six_r, siy_r, factor_t, x_t, y_t, six_t, siy_t;
 					for(size_t i=0; i<num_Points; ++i)
 					{
 						// reflectance
@@ -461,8 +468,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					if(!struct_Data.common_Sigma_Diffuse) {
 						my_Sigma = struct_Data.interlayer_Composition[Step].my_Sigma_Diffuse.value;}
 
-					complex<double> factor_r;
-					complex<double> factor_t;
+//					complex<double> factor_r, factor_t;
+					double factor_r, factor_t;
 					for(size_t i=0; i<num_Points; ++i)
 					{
 						// reflectance

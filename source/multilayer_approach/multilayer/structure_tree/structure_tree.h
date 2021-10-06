@@ -21,6 +21,7 @@ public:
 
 	void create_Tree();
 	void create_Toolbar();
+	void get_Total_Thickness(double& thickness, QTreeWidgetItem* item);
 
 	void if_DoubleClicked(QTreeWidgetItem* item = nullptr);
 	void editor_Close();

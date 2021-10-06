@@ -61,6 +61,47 @@ void Structure_Tree::create_Toolbar()
 	}
 }
 
+void Structure_Tree::get_Total_Thickness(double& thickness, QTreeWidgetItem* item)
+{
+	for(int i=0; i<item->childCount(); ++i)
+	{
+		Data struct_Data = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if(struct_Data.item_Enabled)
+		{
+			// no children
+			if(struct_Data.item_Type == item_Type_Layer)
+			{
+				thickness += struct_Data.thickness.value;
+			}
+			// have children
+			if(item->child(i)->childCount()>0)
+			{
+				if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+				{
+					for(int layer_Index=0; layer_Index<struct_Data.regular_Components.first().components.size(); layer_Index++)
+					{
+						for(int component_Index=0; component_Index<struct_Data.regular_Components.size(); component_Index++)
+						{
+							Data& component_Data = struct_Data.regular_Components[component_Index].components[layer_Index];
+							thickness += component_Data.thickness.value;
+						}
+					}
+				}
+				if(struct_Data.item_Type == item_Type_Multilayer)
+				{
+					double multilayer_Thickness = 0;
+					get_Total_Thickness(multilayer_Thickness, item->child(i));
+					thickness += multilayer_Thickness*struct_Data.num_Repetition.value();
+				}
+				if(struct_Data.item_Type == item_Type_General_Aperiodic)
+				{
+					get_Total_Thickness(thickness, item->child(i));
+				}
+			}
+		}
+	}
+}
+
 ////-----------------------------------------------------------------------------------
 //// refresh text and data of tree
 ////-----------------------------------------------------------------------------------

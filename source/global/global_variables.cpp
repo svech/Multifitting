@@ -2502,6 +2502,7 @@ void Global_Variables::plot_All_Data_in_2D_Graphs()
 		{
 			for(Curve_Plot_2D* curve_Plot : tab_Plots)
 			{
+				curve_Plot->create_Position_Lines();
 				curve_Plot->plot_All_Data();
 			}
 		}

@@ -59,6 +59,7 @@ public:
 	Plot_Options& plot_Options;
 	QString& spectral_Units;
 	QString& angular_Units;
+	QString& depth_Units;
 	QString& plot_Indicator;
 	Graph_2D_Positions& graph_2D_Positions;
 
@@ -79,6 +80,7 @@ public:
 	QCPItemStraightLine* hor_Line_Fixed;
 	QCPItemStraightLine* ver_Line_Fixed;
 	QCPItemStraightLine* surface_Line;
+	QCPItemStraightLine* substrate_Line;
 	QCPTextElement* plot_Title;
 
 	// sections
