@@ -1082,12 +1082,10 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 				QCheckBox* field_Intensity = new QCheckBox(intensity_Function);
 					field_Intensity->setChecked(independent_Curve->calc_Functions.check_Field);
 				field_Checkbox_Layout->addWidget(field_Intensity);
-				connect(field_Intensity,  &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
 
 				QCheckBox* joule_Absorption = new QCheckBox(joule_Function);
 					joule_Absorption->setChecked(independent_Curve->calc_Functions.check_Joule);
 				field_Checkbox_Layout->addWidget(joule_Absorption);
-				connect(joule_Absorption, &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
 
 
 				// in-depth step
@@ -1339,6 +1337,8 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 //					field_Surface_Units_Label->setEnabled(yes1);
 //					field_Substrate_SpinBox->setEnabled(yes2);
 //					field_Substrate_Units_Label->setEnabled(yes2);
+
+					refresh_Independent_Calc_Properties(tab_Index, independent_Index, box);
 				});
 				connect(joule_Absorption,  &QCheckBox::toggled, this, [=]
 				{
@@ -1357,6 +1357,8 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 //					field_Surface_Units_Label->setEnabled(yes1);
 //					field_Substrate_SpinBox->setEnabled(yes2);
 //					field_Substrate_Units_Label->setEnabled(yes2);
+
+					refresh_Independent_Calc_Properties(tab_Index, independent_Index, box);
 				});
 
 				// initialization

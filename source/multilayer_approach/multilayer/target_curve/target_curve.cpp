@@ -1124,7 +1124,7 @@ QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params )
 	return stream << fit_Params.calculate << fit_Params.fit << fit_Params.norm
 				  << fit_Params.adjust_Scale_Factor // since 1.10.2
 				  << fit_Params.maximize_Integral // since 1.9.3
-				  << fit_Params.weight << fit_Params.fit_Function
+				  << fit_Params.weight << fit_Params.weight_Sqrt << fit_Params.fit_Function
 				  << fit_Params.use_Chi2 // since 1.8.1
 				  << fit_Params.power; // since 1.8.8
 }
@@ -1138,7 +1138,10 @@ QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params )
 	if(Global_Variables::check_Loaded_Version(1,9,3))
 	{stream >> fit_Params.maximize_Integral; }			// since 1.9.3
 
-	stream >> fit_Params.weight >> fit_Params.fit_Function;
+	stream >> fit_Params.weight;
+	if(Global_Variables::check_Loaded_Version(1,11,27))
+	{stream >> fit_Params.weight_Sqrt; }
+	stream >> fit_Params.fit_Function;
 
 	if(Global_Variables::check_Loaded_Version(1,8,1))
 	{stream >> fit_Params.use_Chi2; }		// since 1.8.1
