@@ -359,37 +359,37 @@ void Calculation_Settings_Editor::load_Roughness_Parameters(int tab_Index)
 	roughness_Layout->setContentsMargins(7,12,7,7);
 
 	{
-		QVBoxLayout* radiobutton_Layout = new QVBoxLayout;
-			radiobutton_Layout->setSpacing(1);
-			radiobutton_Layout->setAlignment(Qt::AlignLeft);
-			radiobutton_Layout->setContentsMargins(0,0,0,0);
-		roughness_Layout->addLayout(radiobutton_Layout);
+//		QVBoxLayout* radiobutton_Layout = new QVBoxLayout;
+//			radiobutton_Layout->setSpacing(1);
+//			radiobutton_Layout->setAlignment(Qt::AlignLeft);
+//			radiobutton_Layout->setContentsMargins(0,0,0,0);
+//		roughness_Layout->addLayout(radiobutton_Layout);
 
-		QRadioButton* DW_Radiobutton = new QRadioButton("Debye-Waller R");
-			DW_Radiobutton->setChecked(multilayer->imperfections_Model.reflectivity_With_Roughness == Debye_Waller_R);
-			DW_Radiobutton->setDisabled(true);
-		radiobutton_Layout->addWidget(DW_Radiobutton);
-		connect(DW_Radiobutton, &QRadioButton::toggled, this, [=]
-		{
-			if(DW_Radiobutton->isChecked())		{
-				multilayer->imperfections_Model.reflectivity_With_Roughness = Debye_Waller_R;
-				global_Multilayer_Approach->global_Recalculate();
-			}
-		});
-		QRadioButton* perturbative_Radiobutton = new QRadioButton("Perturbative R");
-			perturbative_Radiobutton->setChecked(multilayer->imperfections_Model.reflectivity_With_Roughness == perturbative_R);
-			perturbative_Radiobutton->setDisabled(true);
-		radiobutton_Layout->addWidget(perturbative_Radiobutton);
-		connect(perturbative_Radiobutton, &QRadioButton::toggled, this, [=]
-		{
-			if(perturbative_Radiobutton->isChecked())		{
-				multilayer->imperfections_Model.reflectivity_With_Roughness = perturbative_R;
-				global_Multilayer_Approach->global_Recalculate();
-			}
-		});
-		QButtonGroup* reflectivity_Roughness_Group = new QButtonGroup;
-			reflectivity_Roughness_Group->addButton(perturbative_Radiobutton);
-			reflectivity_Roughness_Group->addButton(DW_Radiobutton);
+//		QRadioButton* DW_Radiobutton = new QRadioButton("Debye-Waller R");
+//			DW_Radiobutton->setChecked(multilayer->imperfections_Model.reflectivity_With_Roughness == Debye_Waller_R);
+//			DW_Radiobutton->setDisabled(true);
+//		radiobutton_Layout->addWidget(DW_Radiobutton);
+//		connect(DW_Radiobutton, &QRadioButton::toggled, this, [=]
+//		{
+//			if(DW_Radiobutton->isChecked())		{
+//				multilayer->imperfections_Model.reflectivity_With_Roughness = Debye_Waller_R;
+//				global_Multilayer_Approach->global_Recalculate();
+//			}
+//		});
+//		QRadioButton* perturbative_Radiobutton = new QRadioButton("Perturbative R");
+//			perturbative_Radiobutton->setChecked(multilayer->imperfections_Model.reflectivity_With_Roughness == perturbative_R);
+//			perturbative_Radiobutton->setDisabled(true);
+//		radiobutton_Layout->addWidget(perturbative_Radiobutton);
+//		connect(perturbative_Radiobutton, &QRadioButton::toggled, this, [=]
+//		{
+//			if(perturbative_Radiobutton->isChecked())		{
+//				multilayer->imperfections_Model.reflectivity_With_Roughness = perturbative_R;
+//				global_Multilayer_Approach->global_Recalculate();
+//			}
+//		});
+//		QButtonGroup* reflectivity_Roughness_Group = new QButtonGroup;
+//			reflectivity_Roughness_Group->addButton(perturbative_Radiobutton);
+//			reflectivity_Roughness_Group->addButton(DW_Radiobutton);
 	}
 	{
 		QVBoxLayout* second_Layout = new QVBoxLayout;

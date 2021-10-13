@@ -5,7 +5,7 @@ Fits_Selector::Fits_Selector(QWidget* parent) :
 	fitted_Structures(global_Multilayer_Approach->fitted_Structures),
 	QWidget(parent) // nullptr!
 {
-	setWindowTitle("Fits Selector");
+	setWindowTitle("Fits selector");
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -160,8 +160,12 @@ void Fits_Selector::add_Item(Fitted_Structure& fitted_Structure)
 
 void Fits_Selector::clear_Fits()
 {
-	fits_List->clear();
-	fitted_Structures.clear();
+	QMessageBox::StandardButton reply = QMessageBox::question(this,"Clear", "Clear all fits?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+	if (reply == QMessageBox::Yes)
+	{
+		fits_List->clear();
+		fitted_Structures.clear();
+	}
 }
 
 void Fits_Selector::save_Trees()

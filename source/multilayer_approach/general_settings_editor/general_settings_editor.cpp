@@ -124,7 +124,7 @@ void General_Settings_Editor::create_Calculation_Tab()
 
 		//----------------------------------------------------------------------------
 
-		structure_Table_Recalculation_Checkbox = new QCheckBox("Recalculate on change in Structure Table");
+		structure_Table_Recalculation_Checkbox = new QCheckBox("Recalculate on change in Structure table");
 			structure_Table_Recalculation_Checkbox->setChecked(recalculate_spinbox_structure_table);
 		groupbox_Layout->addWidget(structure_Table_Recalculation_Checkbox);
 		connect(structure_Table_Recalculation_Checkbox, &QCheckBox::toggled,	[=]
@@ -139,20 +139,30 @@ void General_Settings_Editor::create_Calculation_Tab()
 			}
 		});
 
+//		//----------------------------------------------------------------------------
+
+//		QCheckBox* ignore_1D_Particles_Checkbox = new QCheckBox("Ignore 1D scattering on particles");
+//			ignore_1D_Particles_Checkbox->setChecked(ignore_1D_particles_scattering);
+//		groupbox_Layout->addWidget(ignore_1D_Particles_Checkbox);
+//		connect(ignore_1D_Particles_Checkbox, &QCheckBox::toggled,	[=]{ignore_1D_particles_scattering = ignore_1D_Particles_Checkbox->isChecked();});
+	}
+
+	QGroupBox* other_Groupbox = new QGroupBox("Other");
+	layout->addWidget(other_Groupbox);
+	{
+		QVBoxLayout* groupbox_Layout = new QVBoxLayout(other_Groupbox);
+
 		//----------------------------------------------------------------------------
 
 		QCheckBox* ignore_1D_Particles_Checkbox = new QCheckBox("Ignore 1D scattering on particles");
 			ignore_1D_Particles_Checkbox->setChecked(ignore_1D_particles_scattering);
 		groupbox_Layout->addWidget(ignore_1D_Particles_Checkbox);
 		connect(ignore_1D_Particles_Checkbox, &QCheckBox::toggled,	[=]{ignore_1D_particles_scattering = ignore_1D_Particles_Checkbox->isChecked();});
-	}
 
-//	QGroupBox* other_Groupbox = new QGroupBox("Other");
-//	layout->addWidget(other_Groupbox);
-//	{
-//		QGridLayout* groupbox_Layout = new QGridLayout(other_Groupbox);
-//		int row = 0;
 		//----------------------------------------------------------------------------
+
+//		int row = 0;
+//		----------------------------------------------------------------------------
 //		QCheckBox* use_Beam_Spot_In_Specular_Scattering_Checkbox = new QCheckBox("Use beam shape for specular peak");
 //			use_Beam_Spot_In_Specular_Scattering_Checkbox->setChecked(use_beam_spot_in_specular_peak);
 //		groupbox_Layout->addWidget(use_Beam_Spot_In_Specular_Scattering_Checkbox,row,0,1,2);
@@ -162,7 +172,7 @@ void General_Settings_Editor::create_Calculation_Tab()
 //			global_Multilayer_Approach->global_Recalculate();
 //		});
 //		row++;
-		//----------------------------------------------------------------------------
+//		----------------------------------------------------------------------------
 //		QLabel* n_Max_Series_Label = new QLabel("Number of terms for DWBA, SA, CSA");
 //		groupbox_Layout->addWidget(n_Max_Series_Label,row,0);
 
@@ -178,7 +188,7 @@ void General_Settings_Editor::create_Calculation_Tab()
 //			global_Multilayer_Approach->global_Recalculate();
 //		});
 //		row++;
-//	}
+	}
 }
 
 void General_Settings_Editor::create_Interface_Tab()
@@ -263,7 +273,7 @@ void General_Settings_Editor::create_Interface_Tab()
 	{
 		//----------------------------------------------------------------------------
 
-		QCheckBox* resizeable_Windows_CheckBox = new QCheckBox("Make all windows resizeable");
+		QCheckBox* resizeable_Windows_CheckBox = new QCheckBox("Make all windows resizable");
 			resizeable_Windows_CheckBox->setChecked(make_all_windows_resizeable);
 		other_Layout->addWidget(resizeable_Windows_CheckBox);
 		connect(resizeable_Windows_CheckBox, &QCheckBox::toggled, [=]
@@ -303,7 +313,7 @@ void General_Settings_Editor::create_Interface_Tab()
 void General_Settings_Editor::create_Output_Tab()
 {
 	QWidget* widget = new QWidget;
-	main_Tabs->addTab(widget, "Output");
+	main_Tabs->addTab(widget, "Input/Output");
 	QVBoxLayout* layout = new QVBoxLayout(widget);
 		layout->setAlignment(Qt::AlignTop);
 

@@ -175,7 +175,7 @@ void Menu::create_Calculate_Menu()
 {
 	calculate_Menu = new QMenu("Calculate", this);
 
-	QAction* act_Specular = new QAction("Specular optical functions/fields", this);
+	QAction* act_Specular = new QAction("Calculate curves", this);
 		act_Specular->setShortcut(Qt::Key_C | Qt::CTRL | Qt::SHIFT);
 
 	QAction* act_Fitting = new QAction("Start fitting", this);
@@ -204,7 +204,7 @@ void Menu::create_Calculate_Menu()
 
 void Menu::create_Optical_Constants_Menu()
 {
-	optical_Constants_Menu = new QMenu("Optical Constants", this);
+	optical_Constants_Menu = new QMenu("Optical constants", this);
 
 	QAction* act_optical_Constants = new QAction("Reload optical constants", this);
 	connect(act_optical_Constants, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->reload_Optical_Constants();});
