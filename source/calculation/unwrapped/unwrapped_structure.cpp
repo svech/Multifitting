@@ -355,13 +355,13 @@ void Unwrapped_Structure::fill_Particles_Parameters()
 	{
 		for(int layer_Index=0; layer_Index<num_Inherited_Layers; layer_Index++)
 		{
-			mu_Particles[layer_Index] = media_Data_Map_Vector[num_Inherited_Layers].particles_Model.particle_Correlation_Depth.value;
+			mu_Particles[layer_Index] = media_Data_Map_Vector[num_Inherited_Layers].particles_Model.particle_Cross_Layer_Deviation.value;
 		}
 	} else
 	{
 		for(int layer_Index=0; layer_Index<num_Inherited_Layers; layer_Index++)
 		{
-			mu_Particles[layer_Index] = media_Data_Map_Vector[layer_Index+1].particles_Model.particle_Correlation_Depth.value;
+			mu_Particles[layer_Index] = media_Data_Map_Vector[layer_Index+1].particles_Model.particle_Cross_Layer_Deviation.value;
 		}
 	}
 }

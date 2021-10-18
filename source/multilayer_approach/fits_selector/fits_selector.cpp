@@ -161,7 +161,7 @@ void Fits_Selector::add_Item(Fitted_Structure& fitted_Structure)
 void Fits_Selector::clear_Fits()
 {
 	QMessageBox::StandardButton reply = QMessageBox::question(this,"Clear", "Clear all fits?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
-	if (reply == QMessageBox::Yes)
+	if(reply == QMessageBox::Yes)
 	{
 		fits_List->clear();
 		fitted_Structures.clear();

@@ -1985,9 +1985,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 			if(show_Particle_Correlation_Depth)
 			{
-				QString whats_This = whats_This_Particle_Correlation_Depth;
+				QString whats_This = whats_This_Particle_Cross_Layer_Deviation;
 				add_Columns			(new_Table, current_Column+1);
-				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "L"+Subscript_p_Sym+" ["+mu_units+"]");
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Delta_Big_Sym+" ["+length_units+"]");
 				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
@@ -2514,7 +2514,7 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Particle_Radial_Distance)		{precision = line_edit_particle_lateral_distance_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Radial_Distance;			}
 if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{precision = line_edit_particle_lateral_distance_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Radial_Distance_Deviation;	}
 	if(whats_This == whats_This_Domain_Size)					{precision = line_edit_cor_radius_precision;					coeff = correlation_Length_Coefficients_Map.value(correlation_length_units);	return struct_Data.particles_Model.domain_Size;							}
-	if(whats_This == whats_This_Particle_Correlation_Depth)		{precision = line_edit_mu_precision;							coeff = mu_Coefficients_Map.value(mu_units);									return struct_Data.particles_Model.particle_Correlation_Depth;			}
+	if(whats_This == whats_This_Particle_Cross_Layer_Deviation)	{precision = line_edit_particle_lateral_distance_precision;		coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Cross_Layer_Deviation;		}
 	if(whats_This == whats_This_Particle_Z_Position)			{precision = line_edit_particle_z_position_precision;			coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Z_Position;					}
 	if(whats_This == whats_This_Particle_Z_Position_Deviation)	{precision = line_edit_particle_z_position_precision;			coeff = length_Coefficients_Map.value(length_units);							return struct_Data.particles_Model.particle_Z_Position_Deviation;		}
 
@@ -3911,8 +3911,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 			spin_Box->setMinimum(10/coeff);
 			spin_Box->setMaximum(1e10/coeff);
 		}
-		if( whats_This == whats_This_PSD_Exponenta_Mu ||
-			whats_This == whats_This_Particle_Correlation_Depth)
+		if( whats_This == whats_This_PSD_Exponenta_Mu)
 		{
 			spin_Box->setMinimum(1e-1/coeff);
 			spin_Box->setMaximum(1e10/coeff);
@@ -3932,8 +3931,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 
 			whats_This == whats_This_Roughness_Peak_Frequency ||
 			whats_This == whats_This_Roughness_Peak_Frequency_Width ||
-			whats_This == whats_This_Domain_Size ||
-			whats_This == whats_This_Particle_Correlation_Depth )
+			whats_This == whats_This_Domain_Size )
 		{
 			spin_Box->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 		}
@@ -4002,6 +4000,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	if(whats_This == whats_This_Domain_Size)						spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DENSITY);
 	if(whats_This == whats_This_Particle_Z_Position)				spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	if(whats_This == whats_This_Particle_Z_Position_Deviation)		spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+	if(whats_This == whats_This_Particle_Cross_Layer_Deviation)		spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 
 	if( whats_This == whats_This_Absolute_Density  ||
 		whats_This == whats_This_Relative_Density  ||
@@ -4014,7 +4013,6 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 
 	if( whats_This == whats_This_Linear_PSD_Omega ||
 		whats_This == whats_This_PSD_Exponenta_Mu ||
-		whats_This == whats_This_Particle_Correlation_Depth ||
 		whats_This == whats_This_Linear_A1 ||
 		whats_This == whats_This_Linear_A2 ||
 		whats_This == whats_This_Linear_A3 ||
@@ -4694,7 +4692,7 @@ void Table_Of_Structures::create_Simple_Label(My_Table_Widget* table, int tab_In
 		if(whats_This == whats_This_Particle_Distance)					label->setText("r ["+length_units+"]");
 		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	label->setText(Delta_Small_Sym + "r ["+length_units+"]");
 		if(whats_This == whats_This_Domain_Size)						label->setText("D ["+correlation_length_units+"]");
-		if(whats_This == whats_This_Particle_Correlation_Depth)			label->setText("L"+ Subscript_p_Sym+" ["+mu_units+"]");
+		if(whats_This == whats_This_Particle_Cross_Layer_Deviation)		label->setText(Delta_Big_Sym+" ["+length_units+"]");
 		if(whats_This == whats_This_Particle_Z_Position)				label->setText("z" + Subscript_p_Sym + " ["+length_units+"]");
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		label->setText(Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		label->setText(Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
@@ -5867,7 +5865,7 @@ void Table_Of_Structures::refresh_Header(QString)
 			if(whats_This == whats_This_Particle_Radial_Distance)			label->setText("r ["+length_units+"]");
 			if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	label->setText(Delta_Small_Sym + "r ["+length_units+"]");
 			if(whats_This == whats_This_Domain_Size)						label->setText("D ["+correlation_length_units+"]");
-			if(whats_This == whats_This_Particle_Correlation_Depth)			label->setText("L"+ Subscript_p_Sym+" ["+mu_units+"]");
+			if(whats_This == whats_This_Particle_Cross_Layer_Deviation)		label->setText(Delta_Big_Sym+" ["+length_units+"]");
 			if(whats_This == whats_This_Particle_Z_Position)				label->setText("z" + Subscript_p_Sym + " ["+length_units+"]");
 			if(whats_This == whats_This_Particle_Z_Position_Deviation)		label->setText(Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
 
@@ -6299,8 +6297,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 				spin_Box->setMinimum(10/coeff);
 				spin_Box->setMaximum(1e10/coeff);
 			}			
-			if(whats_This == whats_This_PSD_Exponenta_Mu ||
-			   whats_This == whats_This_Particle_Correlation_Depth )
+			if(whats_This == whats_This_PSD_Exponenta_Mu)
 			{
 				spin_Box->setMinimum(1e-1/coeff);
 				spin_Box->setMaximum(1e10/coeff);

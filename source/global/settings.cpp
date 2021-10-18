@@ -281,9 +281,9 @@ double	default_particles_domain_size;
 double	default_particles_domain_size_min;
 double	default_particles_domain_size_max;
 
-double	default_particles_correlation_depth;
-double	default_particles_correlation_depth_min;
-double	default_particles_correlation_depth_max;
+double	default_particles_cross_layer_deviation;
+double	default_particles_cross_layer_deviation_min;
+double	default_particles_cross_layer_deviation_max;
 
 double	default_particles_z_position;
 double	default_particles_z_position_min;
@@ -950,9 +950,9 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		default_particles_domain_size_min				= structure_Default_Values.value( "default_particles_domain_size_min",			1E2		).toDouble();
 		default_particles_domain_size_max				= structure_Default_Values.value( "default_particles_domain_size_max",			9E6		).toDouble();
 
-		default_particles_correlation_depth				= structure_Default_Values.value( "default_particles_correlation_depth",				200		).toDouble();
-		default_particles_correlation_depth_min			= structure_Default_Values.value( "default_particles_correlation_depth_min",			100		).toDouble();
-		default_particles_correlation_depth_max			= structure_Default_Values.value( "default_particles_correlation_depth_max",			1000	).toDouble();
+		default_particles_cross_layer_deviation			= structure_Default_Values.value( "default_particles_cross_layer_deviation",		5	).toDouble();
+		default_particles_cross_layer_deviation_min		= structure_Default_Values.value( "default_particles_cross_layer_deviation_min",	0	).toDouble();
+		default_particles_cross_layer_deviation_max		= structure_Default_Values.value( "default_particles_cross_layer_deviation_max",	50	).toDouble();
 
 		default_particles_z_position					= structure_Default_Values.value( "default_particles_z_position",					  0		).toDouble();
 		default_particles_z_position_min				= structure_Default_Values.value( "default_particles_z_position_min",				-10		).toDouble();
@@ -1219,9 +1219,9 @@ void Settings::save_Structure_Default_Values()
 		structure_Default_Values.setValue( "default_particles_domain_size_min",			default_particles_domain_size_min			);
 		structure_Default_Values.setValue( "default_particles_domain_size_max",			default_particles_domain_size_max			);
 
-		structure_Default_Values.setValue( "default_particles_correlation_depth",		default_particles_correlation_depth			);
-		structure_Default_Values.setValue( "default_particles_correlation_depth_min",	default_particles_correlation_depth_min		);
-		structure_Default_Values.setValue( "default_particles_correlation_depth_max",	default_particles_correlation_depth_max		);
+		structure_Default_Values.setValue( "default_particles_cross_layer_deviation",		default_particles_cross_layer_deviation			);
+		structure_Default_Values.setValue( "default_particles_cross_layer_deviation_min",	default_particles_cross_layer_deviation_min		);
+		structure_Default_Values.setValue( "default_particles_cross_layer_deviation_min",	default_particles_cross_layer_deviation_min		);
 
 		structure_Default_Values.setValue( "default_particles_z_position",						default_particles_z_position					);
 		structure_Default_Values.setValue( "default_particles_z_position_min",					default_particles_z_position_min				);

@@ -249,7 +249,7 @@ void Menu::create_Other_Units_Menu()
 	units_Menu_Map.		insert(menu_Correlation_Length_Units, &correlation_length_units);
 	units_List_Menu_Map.insert(menu_Correlation_Length_Units, &correlation_Length_Units_List);
 	menu_Other_Units-> addMenu(menu_Correlation_Length_Units);
-	QMenu* menu_Mu_Units				 = new QMenu("Vertical correlation: L"+Subscript_v_Sym+", L"+Subscript_p_Sym, this);
+	QMenu* menu_Mu_Units				 = new QMenu("Vertical correlation: L"+Subscript_v_Sym, this);
 	units_Menu_Map.		insert(menu_Mu_Units, &mu_units);
 	units_List_Menu_Map.insert(menu_Mu_Units, &mu_Units_List);
 	menu_Other_Units-> addMenu(menu_Mu_Units);
@@ -321,7 +321,7 @@ void Menu::create_Precision_Menu()
 	precision_Menu_Map.insert(menu_Correlation_Length_Precision, &line_edit_cor_radius_precision);
 	QMenu* menu_Alpha_Beta_Precision				= new QMenu("Fractality: "+Alpha_Sym+", "+Beta_Sym, this);
 	precision_Menu_Map.insert(menu_Alpha_Beta_Precision, &line_edit_fractal_alpha_beta_precision);
-	QMenu* menu_Mu_Precision						= new QMenu("Vertical correlation: L"+Subscript_v_Sym+", L"+Subscript_p_Sym, this);
+	QMenu* menu_Mu_Precision						= new QMenu("Vertical correlation: L"+Subscript_v_Sym, this);
 	precision_Menu_Map.insert(menu_Mu_Precision, &line_edit_mu_precision);
 	QMenu* menu_Omega_Precision						= new QMenu("Particle volume: "+Omega_Big_Sym, this);
 	precision_Menu_Map.insert(menu_Omega_Precision, &line_edit_omega_precision);
@@ -333,7 +333,7 @@ void Menu::create_Precision_Menu()
 	precision_Menu_Map.insert(menu_PSD_Factor_Precision, &line_edit_psd_factor_precision);
 	QMenu* menu_Particle_Size_Precision				= new QMenu("Particle dimensions: R, H", this);
 	precision_Menu_Map.insert(menu_Particle_Size_Precision, &line_edit_particle_size_precision);
-	QMenu* menu_Particle_Lateral_Distance_Precision	= new QMenu("Particle lateral distance: r, r"+Subscript_a_Sym+", "+Delta_Small_Sym+"r", this);
+	QMenu* menu_Particle_Lateral_Distance_Precision	= new QMenu("Particle lateral distance: r, r"+Subscript_a_Sym+", "+Delta_Small_Sym+"r, "+Delta_Big_Sym, this);
 	precision_Menu_Map.insert(menu_Particle_Lateral_Distance_Precision, &line_edit_particle_lateral_distance_precision);
 	QMenu* menu_Particle_Z_Position_Precision		= new QMenu("Particle z position: z"+Subscript_p_Sym+", "+Delta_Small_Sym+"z"+Subscript_p_Sym, this);
 	precision_Menu_Map.insert(menu_Particle_Z_Position_Precision, &line_edit_particle_z_position_precision);

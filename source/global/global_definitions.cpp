@@ -162,7 +162,14 @@ QDataStream& operator <<( QDataStream& stream, const Parameter_Indicator& parame
 }
 QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& parameter_Indicator )
 {
-	return stream >> parameter_Indicator.id >> parameter_Indicator.item_Id >> parameter_Indicator.tab_Index >> parameter_Indicator.full_Name >> parameter_Indicator.whats_This >> parameter_Indicator.expression >> parameter_Indicator.exist;
+	stream >> parameter_Indicator.id >> parameter_Indicator.item_Id >> parameter_Indicator.tab_Index >> parameter_Indicator.full_Name >> parameter_Indicator.whats_This >> parameter_Indicator.expression >> parameter_Indicator.exist;
+
+	QString old_Whats_This = "Particle Correlation Depth";
+	if(parameter_Indicator.whats_This == old_Whats_This)
+	{
+		parameter_Indicator.whats_This = whats_This_Particle_Cross_Layer_Deviation;
+	}
+	return stream;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Int_Independent& int_Independent )
@@ -642,7 +649,7 @@ QDataStream& operator <<(QDataStream& stream, const Particles_Model& particles_M
 				  << particles_Model.particle_Interference_Function << particles_Model.geometric_Model
 				  << particles_Model.particle_Average_Distance
 				  << particles_Model.particle_Radial_Distance << particles_Model.particle_Radial_Distance_Deviation << particles_Model.domain_Size
-				  << particles_Model.particle_Correlation_Depth
+				  << particles_Model.particle_Cross_Layer_Deviation
 				  << particles_Model.particle_Z_Position << particles_Model.particle_Z_Position_Deviation;
 }
 QDataStream& operator >>( QDataStream& stream,		 Particles_Model& particles_Model )
@@ -672,7 +679,7 @@ QDataStream& operator >>( QDataStream& stream,		 Particles_Model& particles_Mode
 		   >> particles_Model.particle_Average_Distance
 		   >> particles_Model.particle_Radial_Distance >> particles_Model.particle_Radial_Distance_Deviation >> particles_Model.domain_Size;
 	if(Global_Variables::check_Loaded_Version(1,11,21))
-	{stream>> particles_Model.particle_Correlation_Depth;}
+	{stream>> particles_Model.particle_Cross_Layer_Deviation;}
 	stream >> particles_Model.particle_Z_Position >> particles_Model.particle_Z_Position_Deviation;
 	return stream;
 }

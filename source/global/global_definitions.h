@@ -348,7 +348,7 @@ class Node;
 #define whats_This_Particle_Radial_Distance				"Particle Radial Distance"
 #define whats_This_Particle_Radial_Distance_Deviation	"Particle Radial Distance Deviation"
 #define whats_This_Domain_Size							"Domain_Size"
-#define whats_This_Particle_Correlation_Depth			"Particle Correlation Depth"
+#define whats_This_Particle_Cross_Layer_Deviation		"Particle Cross Layer Deviation"
 #define whats_This_Particle_Z_Position					"Particle Z Position"
 #define whats_This_Particle_Z_Position_Deviation		"Particle Z Position Deviation"
 
@@ -1003,7 +1003,7 @@ struct Particles_Model		{
 								Parameter particle_Radial_Distance;
 								Parameter particle_Radial_Distance_Deviation;
 								Parameter domain_Size;
-								Parameter particle_Correlation_Depth;
+								Parameter particle_Cross_Layer_Deviation;
 
 								// common
 								Parameter particle_Z_Position;

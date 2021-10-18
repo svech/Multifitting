@@ -780,17 +780,17 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle correlation depth
 		{
-			particles_Model.particle_Correlation_Depth.value = default_particles_correlation_depth;
-			particles_Model.particle_Correlation_Depth.fit.is_Fitable = false;
-			particles_Model.particle_Correlation_Depth.fit.min = default_particles_correlation_depth_min;
-			particles_Model.particle_Correlation_Depth.fit.max = default_particles_correlation_depth_max;
-			particles_Model.particle_Correlation_Depth.indicator.whats_This = whats_This_Particle_Correlation_Depth;
-			particles_Model.particle_Correlation_Depth.indicator.item_Id = id;
+			particles_Model.particle_Cross_Layer_Deviation.value = default_particles_cross_layer_deviation;
+			particles_Model.particle_Cross_Layer_Deviation.fit.is_Fitable = false;
+			particles_Model.particle_Cross_Layer_Deviation.fit.min = default_particles_cross_layer_deviation_min;
+			particles_Model.particle_Cross_Layer_Deviation.fit.max = default_particles_cross_layer_deviation_max;
+			particles_Model.particle_Cross_Layer_Deviation.indicator.whats_This = whats_This_Particle_Cross_Layer_Deviation;
+			particles_Model.particle_Cross_Layer_Deviation.indicator.item_Id = id;
 
-			particles_Model.particle_Correlation_Depth.confidence.calc_Conf_Interval = false;
-			particles_Model.particle_Correlation_Depth.confidence.min = particles_Model.particle_Correlation_Depth.fit.min;
-			particles_Model.particle_Correlation_Depth.confidence.max = particles_Model.particle_Correlation_Depth.fit.max;
-			particles_Model.particle_Correlation_Depth.confidence.num_Points = default_num_confidence_points;
+			particles_Model.particle_Cross_Layer_Deviation.confidence.calc_Conf_Interval = false;
+			particles_Model.particle_Cross_Layer_Deviation.confidence.min = particles_Model.particle_Cross_Layer_Deviation.fit.min;
+			particles_Model.particle_Cross_Layer_Deviation.confidence.max = particles_Model.particle_Cross_Layer_Deviation.fit.max;
+			particles_Model.particle_Cross_Layer_Deviation.confidence.num_Points = default_num_confidence_points;
 		}
 		// particle z position
 		{
@@ -945,7 +945,7 @@ void Data::reset_All_IDs()
 		particles_Model.particle_Radial_Distance		 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Radial_Distance.			indicator.item_Id = id;		particles_Model.particle_Radial_Distance.			coupled.clear_Coupled();
 		particles_Model.particle_Radial_Distance_Deviation.indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Radial_Distance_Deviation.indicator.item_Id = id;		particles_Model.particle_Radial_Distance_Deviation.	coupled.clear_Coupled();
 		particles_Model.domain_Size						 .indicator.id = Global_Definitions::generate_Id(); particles_Model.domain_Size.						indicator.item_Id = id;		particles_Model.domain_Size.						coupled.clear_Coupled();
-		particles_Model.particle_Correlation_Depth		 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Correlation_Depth.			indicator.item_Id = id;		particles_Model.particle_Correlation_Depth.			coupled.clear_Coupled();
+		particles_Model.particle_Cross_Layer_Deviation		 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Cross_Layer_Deviation.			indicator.item_Id = id;		particles_Model.particle_Cross_Layer_Deviation.			coupled.clear_Coupled();
 		particles_Model.particle_Z_Position				 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Z_Position.				indicator.item_Id = id;		particles_Model.particle_Z_Position.				coupled.clear_Coupled();
 		particles_Model.particle_Z_Position_Deviation	 .indicator.id = Global_Definitions::generate_Id(); particles_Model.particle_Z_Position_Deviation.		indicator.item_Id = id;		particles_Model.particle_Z_Position_Deviation.		coupled.clear_Coupled();
 
@@ -1489,7 +1489,7 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 			{
 				if(particles_Model.is_Independent || particles_Model.is_Second_Last_Layer)
 				{
-					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Correlation_Depth);
+					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Cross_Layer_Deviation);
 				}
 			}
 		}
@@ -1737,7 +1737,7 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 			{
 				if(particles_Model.is_Independent || particles_Model.is_Second_Last_Layer)
 				{
-					table_Showed_Parameters.push_back(&particles_Model.particle_Correlation_Depth);
+					table_Showed_Parameters.push_back(&particles_Model.particle_Cross_Layer_Deviation);
 				}
 			}
 		}
@@ -1857,7 +1857,7 @@ void Data::prepare_Layer_For_Regular_Component()
 	make_Free(particles_Model.particle_Radial_Distance);
 	make_Free(particles_Model.particle_Radial_Distance_Deviation);
 	make_Free(particles_Model.domain_Size);
-	make_Free(particles_Model.particle_Correlation_Depth);
+	make_Free(particles_Model.particle_Cross_Layer_Deviation);
 	make_Free(particles_Model.particle_Z_Position);
 	make_Free(particles_Model.particle_Z_Position_Deviation);
 
@@ -1982,7 +1982,7 @@ void Data::uncouple_All_Parameters()
 		make_Uncouped(particles_Model.domain_Size);
 		make_Uncouped(particles_Model.particle_Z_Position);
 		make_Uncouped(particles_Model.particle_Z_Position_Deviation);
-		make_Uncouped(particles_Model.particle_Correlation_Depth);
+		make_Uncouped(particles_Model.particle_Cross_Layer_Deviation);
 
 		make_Uncouped(thickness_Drift.drift_Line_Value);
 		make_Uncouped(thickness_Drift.drift_Sine_Amplitude);

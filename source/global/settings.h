@@ -289,9 +289,9 @@ extern double	default_particles_domain_size;
 extern double	default_particles_domain_size_min;
 extern double	default_particles_domain_size_max;
 
-extern double	default_particles_correlation_depth;
-extern double	default_particles_correlation_depth_min;
-extern double	default_particles_correlation_depth_max;
+extern double	default_particles_cross_layer_deviation;
+extern double	default_particles_cross_layer_deviation_min;
+extern double	default_particles_cross_layer_deviation_max;
 
 extern double	default_particles_z_position;
 extern double	default_particles_z_position_min;
