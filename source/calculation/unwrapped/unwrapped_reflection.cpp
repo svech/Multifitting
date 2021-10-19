@@ -545,6 +545,7 @@ double function_Scattering_Particles_Partial_Correlation(double phi, void* p)
 	Data* last_Item = params->last_Item;
 	Node* last_Node = params->last_Node;
 	vector<complex<double>>& layer_Field_Factor_Vec = params->layer_Field_Factor_Vec;
+	double k = u->measurement.k_Value;
 
 	// passed argument: phi or cos(phi)
 	double cos_Phi;
@@ -559,6 +560,8 @@ double function_Scattering_Particles_Partial_Correlation(double phi, void* p)
 	double G1_Type_Value = last_Node->G1_Type_Outer();
 	double G2_Type_Value = G1_Type_Value; // for disorder
 	double G2_Type_Value_Sqrt = sqrt(G2_Type_Value); // for disorder
+
+	double q2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
 
 	for(int item_Index : u->used_Appropriate_Item_Index_Vec)
 	{
@@ -587,13 +590,20 @@ double function_Scattering_Particles_Partial_Correlation(double phi, void* p)
 	double coherent_Sum = 0;
 	for(int& l : u->unwrapped_Structure->particles_Index_Vec)
 	{
+		double inheritance_Factor = 1;
 		for(int& j : u->unwrapped_Structure->particles_Index_Vec)
 		{
 			if(j>l)
 			{
-				coherent_Sum += 2*real(      layer_Field_Factor_Vec[l] *
-										conj(layer_Field_Factor_Vec[j])
-									   );// * u->unwrapped_Structure->particles_Inheritance_Factor[l][j];
+				double s_j = u->unwrapped_Structure->lateral_Sigma_Particles[j];
+				double ex = q2*s_j*s_j/2.;
+				if(ex<20)
+				{
+					inheritance_Factor *= exp(-ex);
+					coherent_Sum += 2*real(      layer_Field_Factor_Vec[l] *
+											conj(layer_Field_Factor_Vec[j])
+										   ) *  inheritance_Factor;// * u->unwrapped_Structure->particles_Inheritance_Factor[l][j];
+				}
 			}
 		}
 	}
@@ -3945,13 +3955,13 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								double inheritance_Factor = 1;
 								for(int& j : unwrapped_Structure->particles_Index_Vec)
 								{
-									if(j>l/* && (j-l)<10*/)
+									if(j>l)
 									{
 										double s_j = unwrapped_Structure->lateral_Sigma_Particles[j];
 										double ex = q2*s_j*s_j/2.;
-//										if(ex < 1E-1)
+										if(ex<20)
 										{
-											inheritance_Factor *= exp(-pow(ex,1));
+											inheritance_Factor *= exp(-ex);
 											coherent_Sum += 2*real(      layer_Field_Factor[thread_Index][phi_Index_Local][l] *
 																	conj(layer_Field_Factor[thread_Index][phi_Index_Local][j])
 																   ) *  inheritance_Factor; //unwrapped_Structure->particles_Inheritance_Factor[l][j];
@@ -3960,7 +3970,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								}
 							}
 							calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * coherent_Sum * measurement.footprint_Factor_Vec[point_Index];
-							calculated_Values.GISAS_Map[phi_Index][point_Index] = abs(calculated_Values.GISAS_Map[phi_Index][point_Index]);
 						}
 					}
 					if(multilayer->imperfections_Model.particle_Vertical_Correlation == full_Correlation)
