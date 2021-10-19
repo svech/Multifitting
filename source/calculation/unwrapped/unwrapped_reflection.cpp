@@ -561,8 +561,6 @@ double function_Scattering_Particles_Partial_Correlation(double phi, void* p)
 	double G2_Type_Value = G1_Type_Value; // for disorder
 	double G2_Type_Value_Sqrt = sqrt(G2_Type_Value); // for disorder
 
-	double q2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
-
 	for(int item_Index : u->used_Appropriate_Item_Index_Vec)
 	{
 		Node* node = u->short_Flat_Calc_Tree[item_Index];
@@ -587,13 +585,14 @@ double function_Scattering_Particles_Partial_Correlation(double phi, void* p)
 		}
 	}
 	// partially coherent part summation
+	double q2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
 	double coherent_Sum = 0;
 	for(int& l : u->unwrapped_Structure->particles_Index_Vec)
 	{
 		double inheritance_Factor = 1;
 		for(int& j : u->unwrapped_Structure->particles_Index_Vec)
 		{
-			if(j>l)
+			if(j<l)
 			{
 				double s_j = u->unwrapped_Structure->lateral_Sigma_Particles[j];
 				double ex = q2*s_j*s_j/2.;
@@ -3955,8 +3954,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								double inheritance_Factor = 1;
 								for(int& j : unwrapped_Structure->particles_Index_Vec)
 								{
-									if(j>l)
+									if(j<l)
 									{
+
 										double s_j = unwrapped_Structure->lateral_Sigma_Particles[j];
 										double ex = q2*s_j*s_j/2.;
 										if(ex<20)

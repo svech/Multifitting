@@ -388,8 +388,8 @@ void Unwrapped_Structure::fill_Particles_Inheritance_Factors()
 
 	// mark layers with used particles, from substrate to surface
 	particles_Index_Vec.reserve(num_Layers);
-//	for(int i=num_Layers-1; i>=0; i--)
-	for(int i=0; i<num_Layers; i++)
+	for(int i=num_Layers-1; i>=0; i--)
+//	for(int i=0; i<num_Layers; i++)
 	{
 		const Data& item_i = media_Data_Map_Vector[i+1];
 		if(item_i.particles_Model.is_Used)
