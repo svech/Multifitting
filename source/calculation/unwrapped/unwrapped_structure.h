@@ -104,7 +104,7 @@ public:
 
 	vector<vector<double>> particles_Inheritance_Factor;			//	[layer][layer]
 	vector<int> particles_Index_Vec;								//	[layer]
-	vector<double> mu_Particles;									//	[inherited layer]
+	vector<double> lateral_Sigma_Particles;							//	[inherited layer]
 
 	//--------------------------------------------------------------
 

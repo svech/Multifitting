@@ -593,7 +593,7 @@ double function_Scattering_Particles_Partial_Correlation(double phi, void* p)
 			{
 				coherent_Sum += 2*real(      layer_Field_Factor_Vec[l] *
 										conj(layer_Field_Factor_Vec[j])
-									   ) * u->unwrapped_Structure->particles_Inheritance_Factor[l][j];
+									   );// * u->unwrapped_Structure->particles_Inheritance_Factor[l][j];
 			}
 		}
 	}
@@ -3935,21 +3935,31 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						// partially coherent part summation
 						for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 						{
+							double cos_Phi = measurement.detector_Phi_Cos_Vec[phi_Index];
+							double q2 = measurement.k_Value*measurement.k_Value*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
+
 							size_t phi_Index_Local = phi_Index - measurement.start_Phi_Index;
 							double coherent_Sum = 0;
 							for(int& l : unwrapped_Structure->particles_Index_Vec)
 							{
+								double inheritance_Factor = 1;
 								for(int& j : unwrapped_Structure->particles_Index_Vec)
 								{
-									if(j>l)
+									if(j>l/* && abs(j-l)<100*/)
 									{
-										coherent_Sum += 2*real(      layer_Field_Factor[thread_Index][phi_Index_Local][l] *
-																conj(layer_Field_Factor[thread_Index][phi_Index_Local][j])
-															   ) * unwrapped_Structure->particles_Inheritance_Factor[l][j];
+										double ex = q2*unwrapped_Structure->lateral_Sigma_Particles[j]*unwrapped_Structure->lateral_Sigma_Particles[j]/2;
+//										if(ex < 10)
+										{
+											inheritance_Factor *= exp(-ex);
+											coherent_Sum += 2*real(      layer_Field_Factor[thread_Index][phi_Index_Local][l] *
+																	conj(layer_Field_Factor[thread_Index][phi_Index_Local][j])
+																   ) *  inheritance_Factor; //unwrapped_Structure->particles_Inheritance_Factor[l][j];
+										}
 									}
 								}
 							}
 							calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * coherent_Sum * measurement.footprint_Factor_Vec[point_Index];
+							calculated_Values.GISAS_Map[phi_Index][point_Index] = abs(calculated_Values.GISAS_Map[phi_Index][point_Index]);
 						}
 					}
 					if(multilayer->imperfections_Model.particle_Vertical_Correlation == full_Correlation)

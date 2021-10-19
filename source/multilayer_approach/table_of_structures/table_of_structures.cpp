@@ -4133,6 +4133,8 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	if(whats_This == whats_This_Particle_Average_Distance ||
 	   whats_This == whats_This_Particle_Radial_Distance)			{ spin_Box->setSingleStep(step_particle_distance);			  particle_Distance_Spin_Boxes_List.append(spin_Box); }
 	if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ spin_Box->setSingleStep(step_particle_distance_deviation);  particle_Distance_Deviation_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Particle_Cross_Layer_Deviation)		{ spin_Box->setSingleStep(step_particle_distance);			  particle_Distance_Spin_Boxes_List.append(spin_Box); }
+
 	if(whats_This == whats_This_Domain_Size)						{ spin_Box->setSingleStep(step_domain_size);				  domain_Size_Spin_Boxes_List.append(spin_Box); }
 	if(whats_This == whats_This_Particle_Z_Position)				{ spin_Box->setSingleStep(step_particle_z_position);		  particle_Z_Position_Spin_Boxes_List.append(spin_Box); }
 	if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ spin_Box->setSingleStep(step_particle_z_position_deviation);particle_Z_Position_Deviation_Spin_Boxes_List.append(spin_Box); }

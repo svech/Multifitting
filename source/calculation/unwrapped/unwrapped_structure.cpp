@@ -350,43 +350,43 @@ void Unwrapped_Structure::fill_PSD_Inheritance_Powers()
 
 void Unwrapped_Structure::fill_Particles_Parameters()
 {
-	mu_Particles.resize(num_Inherited_Layers);
+	lateral_Sigma_Particles.resize(num_Inherited_Layers);
 	if(imperfections_Model.use_Common_Particle_Function)
 	{
 		for(int layer_Index=0; layer_Index<num_Inherited_Layers; layer_Index++)
 		{
-			mu_Particles[layer_Index] = media_Data_Map_Vector[num_Inherited_Layers].particles_Model.particle_Cross_Layer_Deviation.value;
+			lateral_Sigma_Particles[layer_Index] = media_Data_Map_Vector[num_Inherited_Layers].particles_Model.particle_Cross_Layer_Deviation.value;
 		}
 	} else
 	{
 		for(int layer_Index=0; layer_Index<num_Inherited_Layers; layer_Index++)
 		{
-			mu_Particles[layer_Index] = media_Data_Map_Vector[layer_Index+1].particles_Model.particle_Cross_Layer_Deviation.value;
+			lateral_Sigma_Particles[layer_Index] = media_Data_Map_Vector[layer_Index+1].particles_Model.particle_Cross_Layer_Deviation.value;
 		}
 	}
 }
 
 void Unwrapped_Structure::fill_Particles_Inheritance_Factors()
 {
-	particles_Inheritance_Factor.resize(num_Layers);
-	particles_Inheritance_Factor.back().resize(num_Layers);
-	particles_Inheritance_Factor.back().back() = 1;
+//	particles_Inheritance_Factor.resize(num_Layers);
+//	particles_Inheritance_Factor.back().resize(num_Layers);
+//	particles_Inheritance_Factor.back().back() = 1;
 
-	for(int i=num_Layers-2; i>=0; i--)
-	{
-		particles_Inheritance_Factor[i].resize(num_Layers);
-		particles_Inheritance_Factor[i][i] = 1;
+//	for(int i=num_Layers-2; i>=0; i--)
+//	{
+//		particles_Inheritance_Factor[i].resize(num_Layers);
+//		particles_Inheritance_Factor[i][i] = 1;
 
-		double dz_i_i1 = abs(layer_Centers_Position[i] - layer_Centers_Position[i+1]);
-		particles_Inheritance_Factor[i][i+1] = exp( -dz_i_i1/mu_Particles[i] );
+//		double dz_i_i1 = abs(layer_Centers_Position[i] - layer_Centers_Position[i+1]);
+//		particles_Inheritance_Factor[i][i+1] = exp( -dz_i_i1/lateral_Sigma_Particles[i] );
 
-		for(int j=i+2; j<num_Layers; j++)
-		{
-			particles_Inheritance_Factor[i][j] = particles_Inheritance_Factor[i][j-1] * particles_Inheritance_Factor[j-1][j];
-		}
-	}
+//		for(int j=i+2; j<num_Layers; j++)
+//		{
+//			particles_Inheritance_Factor[i][j] = particles_Inheritance_Factor[i][j-1] * particles_Inheritance_Factor[j-1][j];
+//		}
+//	}
 
-	// mark layers with used particles
+	// mark layers with used particles, from substrate to surface
 	particles_Index_Vec.reserve(num_Layers);
 	for(int i=num_Layers-1; i>=0; i--)
 	{
