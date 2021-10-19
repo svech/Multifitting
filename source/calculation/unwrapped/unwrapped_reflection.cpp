@@ -3945,12 +3945,13 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								double inheritance_Factor = 1;
 								for(int& j : unwrapped_Structure->particles_Index_Vec)
 								{
-									if(j>l/* && abs(j-l)<100*/)
+									if(j>l/* && (j-l)<10*/)
 									{
-										double ex = q2*unwrapped_Structure->lateral_Sigma_Particles[j]*unwrapped_Structure->lateral_Sigma_Particles[j]/2;
-//										if(ex < 10)
+										double s_j = unwrapped_Structure->lateral_Sigma_Particles[j];
+										double ex = q2*s_j*s_j/2.;
+//										if(ex < 1E-1)
 										{
-											inheritance_Factor *= exp(-ex);
+											inheritance_Factor *= exp(-pow(ex,1));
 											coherent_Sum += 2*real(      layer_Field_Factor[thread_Index][phi_Index_Local][l] *
 																	conj(layer_Field_Factor[thread_Index][phi_Index_Local][j])
 																   ) *  inheritance_Factor; //unwrapped_Structure->particles_Inheritance_Factor[l][j];
