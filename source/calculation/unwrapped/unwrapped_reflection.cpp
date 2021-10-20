@@ -4573,8 +4573,8 @@ void Unwrapped_Reflection::calc_Item_Form_Factor_Splines(int thread_Index, int i
 {
 	double cos_Phi_Min = 1; // start from zero phi
 	double q_Min = measurement.k_Value*sqrt(abs(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi_Min));
-//	q_Min = max(q_Min, DBL_EPSILON); // not zero
-	q_Min = max(q_Min, 0.);
+	q_Min = max(q_Min, DBL_EPSILON); // not zero, zero added additionally
+//	q_Min = max(q_Min, 0.);
 //	double q_Min = 0;
 
 	double cos_Phi_Max = 0;
@@ -4603,7 +4603,7 @@ void Unwrapped_Reflection::calc_Item_Form_Factor_Splines(int thread_Index, int i
 	double z = order_Item.particles_Model.particle_Z_Position.value;
 
 	// splining points
-	int max_Arg_Length = q_Spline_Points-2;
+	int max_Arg_Length = q_Spline_Points-3;//-2;
 	int q_Spline_Points_No_Edge = min(max_Arg_Length, int((q_Max-q_Min)*R*1.2)); // -3
 	q_Spline_Points_No_Edge = max(q_Spline_Points_No_Edge, 21); // at least 10 effective points
 
@@ -4619,11 +4619,11 @@ void Unwrapped_Reflection::calc_Item_Form_Factor_Splines(int thread_Index, int i
 	for(int j=q_Spline_Points_No_Edge; j<max_Arg_Length; j++) {
 		arg[j] = arg[j-1] + j*step;
 	}
-//	{
-//		arg.insert(arg.begin(), 0);
-//		val_Real.insert(val_Real.begin(), 0);
-//		val_Imag.insert(val_Imag.begin(), 0);
-//	}
+	{
+		arg.insert(arg.begin(), 0);
+		val_Real.insert(val_Real.begin(), 0); // will be recalculated
+		val_Imag.insert(val_Imag.begin(), 0); // will be recalculated
+	}
 	{
 		arg.push_back(arg.back()*(1+1E-5));
 		arg.push_back(DBL_MAX);
@@ -4639,7 +4639,7 @@ void Unwrapped_Reflection::calc_Item_Form_Factor_Splines(int thread_Index, int i
 		complex<double> prefactor = prefactor_2D_Func_Vec[thread_Index][order_Item_Index](k_03[thread_Index][item_Index][i], R, H, z);
 
 		// main part
-		for(int j=0; j<q_Spline_Points_No_Edge+1; j++) // with zero point, but except last DBL_MAX points
+		for(int j=0; j<q_Spline_Points_No_Edge+2; j++) // with zero point, but except last DBL_MAX points
 		{
 			complex<double> val_Complex = prefactor*q_Factor_2D_Func_Vec[thread_Index][order_Item_Index](arg[j], k_03[thread_Index][item_Index][i], R, H, z);
 			val_Real[j] = real(val_Complex);
