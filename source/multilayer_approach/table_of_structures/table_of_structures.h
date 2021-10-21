@@ -254,6 +254,7 @@ public:
 	QList<MyDoubleSpinBox*> particle_Radius_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> particle_Height_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> particle_Distance_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> particle_Cross_Layer_Deviation_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> particle_Distance_Deviation_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> domain_Size_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> particle_Z_Position_Spin_Boxes_List;

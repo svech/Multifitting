@@ -17,7 +17,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 27
+#define VERSION_BUILD 29
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -661,20 +661,20 @@ Q_DECLARE_METATYPE( Parameter )
 Q_DECLARE_METATYPE( Independent_Indicator )
 
 struct Stoichiometry			{Parameter composition; QString type;
-								 Stoichiometry()
-								 {
-									composition.indicator.whats_This = whats_This_Composition;
-									composition.independent.min = 0;
-									composition.independent.max = 1;
-									composition.independent.num_Points = 1;
-								 }
+//								 Stoichiometry()
+//								 {
+//									composition.indicator.whats_This = whats_This_Composition;
+//									composition.independent.min = 0;
+//									composition.independent.max = 1;
+//									composition.independent.num_Points = 1;
+//								 }
 								};
 struct Interlayer				{Parameter interlayer; Parameter my_Sigma_Diffuse; bool enabled;
-								 Interlayer()
-								 {
-									interlayer.indicator.whats_This = whats_This_Interlayer_Composition;
-									my_Sigma_Diffuse.indicator.whats_This = whats_This_Interlayer_My_Sigma_Diffuse;
-								 }
+//								 Interlayer()
+//								 {
+//									interlayer.indicator.whats_This = whats_This_Interlayer_Composition;
+//									my_Sigma_Diffuse.indicator.whats_This = whats_This_Interlayer_My_Sigma_Diffuse;
+//								 }
 								};
 struct Drift					{bool is_Drift_Line;  bool show_Drift_Line; Parameter drift_Line_Value;
 								 bool is_Drift_Sine;  bool show_Drift_Sine; Parameter drift_Sine_Amplitude; Parameter drift_Sine_Frequency; Parameter drift_Sine_Phase;
@@ -977,7 +977,6 @@ struct Particles_Model		{
 								bool is_Independent = true;
 								bool is_Used = true;
 								bool is_Last_Layer = false;
-								bool is_Second_Last_Layer = is_Last_Layer;
 
 								QString particle_Shape = full_Spheroid;
 

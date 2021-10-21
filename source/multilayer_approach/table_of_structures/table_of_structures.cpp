@@ -609,6 +609,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		bool steps_Are_Done_Particle_Height = false;
 		bool steps_Are_Done_Particle_Distance = false;
 		bool steps_Are_Done_Particle_Distance_Deviation = false;
+		bool steps_Are_Done_Particle_Cross_Layer_Deviation = false;
 		bool steps_Are_Done_Particle_Z_Position = false;
 		bool steps_Are_Done_Particle_Z_Position_Deviation = false;
 
@@ -629,7 +630,6 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
 			bool is_Last_Layer        = Global_Variables::if_Last_Layer       (list_Of_Trees[tab_Index]->tree, structure_Item);
-			bool is_Second_Last_Layer = Global_Variables::if_Second_Last_Layer(list_Of_Trees[tab_Index]->tree, structure_Item);
 			if(is_Last_Layer) last_Layer_Data = struct_Data;
 
 			if( struct_Data.item_Type == item_Type_Multilayer	||
@@ -1774,9 +1774,6 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			bool show_Whole_Layer = is_Last_Layer || multilayer->imperfections_Model.particle_Vertical_Correlation == zero_Correlation &&
 													 multilayer->imperfections_Model.use_Common_Particle_Function == false;
 
-			bool show_Partial_Common_Layer = is_Second_Last_Layer && multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation &&
-																	 multilayer->imperfections_Model.use_Common_Particle_Function == true;
-
 			bool show_Partial_Individual_Layer = !is_Last_Layer && multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation &&
 																   multilayer->imperfections_Model.use_Common_Particle_Function == false;
 
@@ -1974,31 +1971,6 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 			///--------------------------------------------------------------------------------------------
 
-			// particles correlation depth
-			bool show_Particle_Correlation_Depth = false;
-			if(	struct_Data.particles_Model.is_Enabled )
-			{
-				if(!is_Last_Layer && (show_Partial_Common_Layer || show_Partial_Individual_Layer))
-				{
-					show_Particle_Correlation_Depth = true;
-				}
-			}
-			if(show_Particle_Correlation_Depth)
-			{
-				QString whats_This = whats_This_Particle_Cross_Layer_Deviation;
-				add_Columns			(new_Table, current_Column+1);
-				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Delta_Big_Sym+" ["+length_units+"]");
-				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
-				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
-				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
-				// last
-				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
-
-				last_Particles_Column = max(current_Column,last_Particles_Column);
-				current_Column+=1;
-			}
-			///--------------------------------------------------------------------------------------------
-
 			// particle average distance
 			bool show_Particle_Average_Distance = false;
 			if(	struct_Data.particles_Model.is_Enabled && struct_Data.particles_Model.is_Independent )
@@ -2039,8 +2011,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				add_Columns	(new_Table, current_Column+1);
 				last_Particles_Column = max(current_Column,last_Particles_Column);
-				if(!show_Particle_Correlation_Depth)	current_Column+=2;
-				else									current_Column+=1;
+				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
 
@@ -2077,8 +2048,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				last_Particles_Column = max(current_Column,last_Particles_Column);
 				current_Column+=1;
 			}
-			if( !show_Particle_Correlation_Depth &&
-				!show_Particle_Average_Distance &&
+			if( !show_Particle_Average_Distance &&
 				has_Particle_Distance_Deviation &&
 				!show_Particle_Radial_Distance &&
 				struct_Data.particles_Model.is_Enabled) // keep empty place
@@ -2185,6 +2155,39 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				current_Column-=2;
 			}
+
+			///--------------------------------------------------------------------------------------------
+			// particles correlation depth
+			bool show_Particle_Correlation_Depth = false;
+			if(	struct_Data.particles_Model.is_Enabled )
+			{
+				if(multilayer->imperfections_Model.particle_Vertical_Correlation == partial_Correlation && (is_Last_Layer || !multilayer->imperfections_Model.use_Common_Particle_Function))
+				{
+					show_Particle_Correlation_Depth = true;
+				}
+			}
+			if(show_Particle_Correlation_Depth)
+			{
+				QString whats_This = whats_This_Particle_Cross_Layer_Deviation;
+				add_Columns			(new_Table, current_Column+1);
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Delta_Big_Sym+" ["+length_units+"]");
+				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+				// particle cross-layer deviation step
+				if(!steps_Are_Done_Particle_Cross_Layer_Deviation)
+				{
+					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Delta_Big_Sym+" ["+length_units+"]");
+					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+					steps_Are_Done_Particle_Cross_Layer_Deviation = true;
+				}
+				last_Particles_Column = max(current_Column,last_Particles_Column);
+				current_Column+=2;
+			}
+			///--------------------------------------------------------------------------------------------
 
 			// particle z position
 			bool show_Particle_Z_Position = false;
@@ -4127,17 +4130,16 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	   whats_This == whats_This_Sigma_Factor_PSD_2D )			{ spin_Box->setSingleStep(step_psd_sigma_factor);			PSD_Sigma_Factor_Spin_Boxes_List.append(spin_Box); }
 
 	if(whats_This == whats_This_Particle_Absolute_Density ||
-	   whats_This == whats_This_Particle_Relative_Density)			{ spin_Box->setSingleStep(step_particle_density);			  particle_Density_Spin_Boxes_List.append(spin_Box); }
-	if(whats_This == whats_This_Particle_Radius)					{ spin_Box->setSingleStep(step_particle_radius);			  particle_Radius_Spin_Boxes_List.append(spin_Box); }
-	if(whats_This == whats_This_Particle_Height)					{ spin_Box->setSingleStep(step_particle_height);			  particle_Height_Spin_Boxes_List.append(spin_Box); }
+	   whats_This == whats_This_Particle_Relative_Density)			{ spin_Box->setSingleStep(step_particle_density);				particle_Density_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Particle_Radius)					{ spin_Box->setSingleStep(step_particle_radius);				particle_Radius_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Particle_Height)					{ spin_Box->setSingleStep(step_particle_height);				particle_Height_Spin_Boxes_List.append(spin_Box); }
 	if(whats_This == whats_This_Particle_Average_Distance ||
-	   whats_This == whats_This_Particle_Radial_Distance)			{ spin_Box->setSingleStep(step_particle_distance);			  particle_Distance_Spin_Boxes_List.append(spin_Box); }
-	if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ spin_Box->setSingleStep(step_particle_distance_deviation);  particle_Distance_Deviation_Spin_Boxes_List.append(spin_Box); }
-	if(whats_This == whats_This_Particle_Cross_Layer_Deviation)		{ spin_Box->setSingleStep(step_particle_distance);			  particle_Distance_Spin_Boxes_List.append(spin_Box); }
-
-	if(whats_This == whats_This_Domain_Size)						{ spin_Box->setSingleStep(step_domain_size);				  domain_Size_Spin_Boxes_List.append(spin_Box); }
-	if(whats_This == whats_This_Particle_Z_Position)				{ spin_Box->setSingleStep(step_particle_z_position);		  particle_Z_Position_Spin_Boxes_List.append(spin_Box); }
-	if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ spin_Box->setSingleStep(step_particle_z_position_deviation);particle_Z_Position_Deviation_Spin_Boxes_List.append(spin_Box); }
+	   whats_This == whats_This_Particle_Radial_Distance)			{ spin_Box->setSingleStep(step_particle_distance);				particle_Distance_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ spin_Box->setSingleStep(step_particle_distance_deviation);	particle_Distance_Deviation_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Domain_Size)						{ spin_Box->setSingleStep(step_domain_size);					domain_Size_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Particle_Cross_Layer_Deviation)		{ spin_Box->setSingleStep(step_particle_cross_layer_deviation);	particle_Cross_Layer_Deviation_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Particle_Z_Position)				{ spin_Box->setSingleStep(step_particle_z_position);			particle_Z_Position_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ spin_Box->setSingleStep(step_particle_z_position_deviation);	particle_Z_Position_Deviation_Spin_Boxes_List.append(spin_Box); }
 
 	if( whats_This == whats_This_Gamma)								{ spin_Box->setSingleStep(step_gamma);					gamma_Spin_Boxes_List.append(spin_Box); }
 
@@ -4883,6 +4885,7 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Particle_Distance)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
 		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
 		if(whats_This == whats_This_Domain_Size)						{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_DENSITY;}
+		if(whats_This == whats_This_Particle_Cross_Layer_Deviation)		{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
 		if(whats_This == whats_This_Particle_Z_Position)				{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
 
@@ -4936,14 +4939,15 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Sigma_Factor_PSD_1D ||
 		   whats_This == whats_This_Sigma_Factor_PSD_2D )			{ step_psd_sigma_factor = step_SpinBox->value();							for(MyDoubleSpinBox* spb : PSD_Sigma_Factor_Spin_Boxes_List)			spb->setSingleStep(step_psd_sigma_factor);}
 
-		if(whats_This == whats_This_Particle_Density)					{ step_particle_density  = step_SpinBox->value();						  for(MyDoubleSpinBox* spb : particle_Density_Spin_Boxes_List)				spb->setSingleStep(step_particle_density);	}
-		if(whats_This == whats_This_Particle_Radius)					{ step_particle_radius   = step_SpinBox->value()*length_Coeff;			  for(MyDoubleSpinBox* spb : particle_Radius_Spin_Boxes_List)				spb->setSingleStep(step_particle_radius/length_Coeff);	}
-		if(whats_This == whats_This_Particle_Height)					{ step_particle_height   = step_SpinBox->value()*length_Coeff;			  for(MyDoubleSpinBox* spb : particle_Height_Spin_Boxes_List)				spb->setSingleStep(step_particle_height/length_Coeff);	}
-		if(whats_This == whats_This_Particle_Distance)					{ step_particle_distance = step_SpinBox->value()*length_Coeff;			  for(MyDoubleSpinBox* spb : particle_Distance_Spin_Boxes_List)				spb->setSingleStep(step_particle_distance/length_Coeff);	}
-		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ step_particle_distance_deviation = step_SpinBox->value()*length_Coeff;  for(MyDoubleSpinBox* spb : particle_Distance_Deviation_Spin_Boxes_List)	spb->setSingleStep(step_particle_distance_deviation/length_Coeff);	}
-		if(whats_This == whats_This_Domain_Size)						{ step_domain_size		 = step_SpinBox->value()*correlation_Length_Coeff;for(MyDoubleSpinBox* spb : domain_Size_Spin_Boxes_List)					spb->setSingleStep(step_domain_size/correlation_Length_Coeff);	}
-		if(whats_This == whats_This_Particle_Z_Position)				{ step_particle_z_position = step_SpinBox->value()*length_Coeff;		  for(MyDoubleSpinBox* spb : particle_Z_Position_Spin_Boxes_List)			spb->setSingleStep(step_particle_z_position/length_Coeff);	}
-		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ step_particle_z_position_deviation = step_SpinBox->value()*length_Coeff;for(MyDoubleSpinBox* spb : particle_Z_Position_Deviation_Spin_Boxes_List)	spb->setSingleStep(step_particle_z_position_deviation/length_Coeff);	}
+		if(whats_This == whats_This_Particle_Density)					{ step_particle_density					= step_SpinBox->value();							for(MyDoubleSpinBox* spb : particle_Density_Spin_Boxes_List)				spb->setSingleStep(step_particle_density);							}
+		if(whats_This == whats_This_Particle_Radius)					{ step_particle_radius					= step_SpinBox->value()*length_Coeff;				for(MyDoubleSpinBox* spb : particle_Radius_Spin_Boxes_List)					spb->setSingleStep(step_particle_radius/length_Coeff);				}
+		if(whats_This == whats_This_Particle_Height)					{ step_particle_height					= step_SpinBox->value()*length_Coeff;				for(MyDoubleSpinBox* spb : particle_Height_Spin_Boxes_List)					spb->setSingleStep(step_particle_height/length_Coeff);				}
+		if(whats_This == whats_This_Particle_Distance)					{ step_particle_distance				= step_SpinBox->value()*length_Coeff;				for(MyDoubleSpinBox* spb : particle_Distance_Spin_Boxes_List)				spb->setSingleStep(step_particle_distance/length_Coeff);			}
+		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ step_particle_distance_deviation		= step_SpinBox->value()*length_Coeff;				for(MyDoubleSpinBox* spb : particle_Distance_Deviation_Spin_Boxes_List)		spb->setSingleStep(step_particle_distance_deviation/length_Coeff);	}
+		if(whats_This == whats_This_Domain_Size)						{ step_domain_size						= step_SpinBox->value()*correlation_Length_Coeff;	for(MyDoubleSpinBox* spb : domain_Size_Spin_Boxes_List)						spb->setSingleStep(step_domain_size/correlation_Length_Coeff);		}
+		if(whats_This == whats_This_Particle_Cross_Layer_Deviation)		{ step_particle_cross_layer_deviation	= step_SpinBox->value()*length_Coeff;				for(MyDoubleSpinBox* spb : particle_Cross_Layer_Deviation_Spin_Boxes_List)	spb->setSingleStep(step_particle_cross_layer_deviation/length_Coeff);}
+		if(whats_This == whats_This_Particle_Z_Position)				{ step_particle_z_position				= step_SpinBox->value()*length_Coeff;				for(MyDoubleSpinBox* spb : particle_Z_Position_Spin_Boxes_List)				spb->setSingleStep(step_particle_z_position/length_Coeff);			}
+		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ step_particle_z_position_deviation	= step_SpinBox->value()*length_Coeff;				for(MyDoubleSpinBox* spb : particle_Z_Position_Deviation_Spin_Boxes_List)	spb->setSingleStep(step_particle_z_position_deviation/length_Coeff);}
 
 		if(whats_This == whats_This_Gamma)								{ step_gamma = step_SpinBox->value();				for(MyDoubleSpinBox* spb : gamma_Spin_Boxes_List)			spb->setSingleStep(step_gamma);				}
 
@@ -5008,6 +5012,7 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Particle_Distance)					{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_distance/length_Coeff);				step_SpinBox->setDecimals(line_edit_particle_lateral_distance_precision);	}
 		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_distance_deviation/length_Coeff);  	step_SpinBox->setDecimals(line_edit_particle_lateral_distance_precision);	}
 		if(whats_This == whats_This_Domain_Size)						{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_domain_size/correlation_Length_Coeff);			step_SpinBox->setDecimals(line_edit_cor_radius_precision);	}
+		if(whats_This == whats_This_Particle_Cross_Layer_Deviation)		{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_cross_layer_deviation/length_Coeff);	step_SpinBox->setDecimals(line_edit_particle_lateral_distance_precision);	}
 		if(whats_This == whats_This_Particle_Z_Position)				{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_z_position/length_Coeff);				step_SpinBox->setDecimals(line_edit_particle_z_position_precision);	}
 		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_z_position_deviation/length_Coeff);   step_SpinBox->setDecimals(line_edit_particle_z_position_precision);	}
 

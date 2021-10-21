@@ -572,7 +572,6 @@ void Structure_Tree::refresh_Tree_Particles(bool refresh_Shape, bool refresh_Int
 		if( struct_Data.item_Type == item_Type_Layer )
 		{
 			bool is_Last_Layer = false;
-			bool is_Last_Two_Layers = false;
 			// if last layer
 			{
 				QTreeWidgetItemIterator next_It = it;
@@ -581,23 +580,10 @@ void Structure_Tree::refresh_Tree_Particles(bool refresh_Shape, bool refresh_Int
 				Data next_Struct_Data = next_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 				if(next_Struct_Data.item_Type == item_Type_Substrate)
 				{
-					is_Last_Two_Layers = true;
 					is_Last_Layer = true;
-				} else
-				{
-					if(next_Struct_Data.item_Type == item_Type_Layer)
-					{
-						++next_It;
-						QTreeWidgetItem* next_Next_Item = *next_It;
-						Data next_Next_Struct_Data = next_Next_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-						if(next_Next_Struct_Data.item_Type == item_Type_Substrate)
-						{
-							is_Last_Two_Layers = true;
-						}
-					}
 				}
 			}
-			Global_Variables::enable_Disable_Particles_Model(struct_Data, multilayer->imperfections_Model, is_Last_Layer, is_Last_Two_Layers && !is_Last_Layer);
+			Global_Variables::enable_Disable_Particles_Model(struct_Data, multilayer->imperfections_Model, is_Last_Layer);
 
 			if(refresh_Shape)
 			{

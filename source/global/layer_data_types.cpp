@@ -260,6 +260,7 @@ Data::Data(QString item_Type_Passed)
 					interlayer_Composition[i].interlayer.fit.is_Fitable = false;
 					interlayer_Composition[i].interlayer.fit.min = 0;
 					interlayer_Composition[i].interlayer.fit.max = 1;
+					interlayer_Composition[i].interlayer.indicator.whats_This = whats_This_Interlayer_Composition;
 					interlayer_Composition[i].interlayer.indicator.item_Id = id;
 
 					interlayer_Composition[i].interlayer.confidence.calc_Conf_Interval = false;
@@ -272,13 +273,14 @@ Data::Data(QString item_Type_Passed)
 					interlayer_Composition[i].my_Sigma_Diffuse.fit.is_Fitable = false;
 					interlayer_Composition[i].my_Sigma_Diffuse.fit.min = default_diffuse_sigma_min;
 					interlayer_Composition[i].my_Sigma_Diffuse.fit.max = default_diffuse_sigma_max;
+					interlayer_Composition[i].my_Sigma_Diffuse.indicator.whats_This = whats_This_Interlayer_My_Sigma_Diffuse;
 					interlayer_Composition[i].my_Sigma_Diffuse.indicator.item_Id = id;
 
 					interlayer_Composition[i].my_Sigma_Diffuse.confidence.calc_Conf_Interval = false;
 					interlayer_Composition[i].my_Sigma_Diffuse.confidence.min = interlayer_Composition[i].my_Sigma_Diffuse.fit.min;
 					interlayer_Composition[i].my_Sigma_Diffuse.confidence.max = interlayer_Composition[i].my_Sigma_Diffuse.fit.max;
 					interlayer_Composition[i].my_Sigma_Diffuse.confidence.num_Points = default_num_confidence_points;
-				}
+				}				
 			}
 		}
 		// roughness
@@ -1326,12 +1328,13 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 		item_Type == item_Type_Layer   ||
 		item_Type == item_Type_Substrate )
 	{
-		if(!composed_Material)
+		if(!composed_Material) {
 			potentially_Fitable_Parameters.push_back(&relative_Density);
-		else
+		} else {
 			potentially_Fitable_Parameters.push_back(&absolute_Density);
+		}
 
-		// material composition
+		// material compositionb
 		if(composition.size()>1 && composed_Material)
 		{
 			for(Stoichiometry& stoichiometry : composition)
@@ -1453,16 +1456,19 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 	{			
 		potentially_Fitable_Parameters.push_back(&thickness);
 
-		if(imperfections_Model.use_Particles && particles_Model.is_Enabled && particles_Model.is_Used)	 // automatically imperfections_Model.use_Particles == particles_Model.is_Enabled
+		if(imperfections_Model.use_Particles && particles_Model.is_Enabled)	 // automatically imperfections_Model.use_Particles == particles_Model.is_Enabled
 		{
 			// particles
-			if(imperfections_Model.use_Particles_Material)
+			if(particles_Model.is_Used)
 			{
-				if(particles_Model.particle_Composition.size()>1 && composed_Material)
+				if(imperfections_Model.use_Particles_Material)
 				{
-					for(Stoichiometry& stoichiometry : particles_Model.particle_Composition)
+					if(particles_Model.particle_Composition.size()>1 && composed_Material)
 					{
-						potentially_Fitable_Parameters.push_back(&stoichiometry.composition);
+						for(Stoichiometry& stoichiometry : particles_Model.particle_Composition)
+						{
+							potentially_Fitable_Parameters.push_back(&stoichiometry.composition);
+						}
 					}
 				}
 				if(composed_Material) {
@@ -1473,23 +1479,27 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 			}
 			if(particles_Model.is_Independent)
 			{
-				potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radius);
-				potentially_Fitable_Parameters.push_back(&particles_Model.particle_Height);
+				if(imperfections_Model.use_Common_Particle_Function || particles_Model.is_Used)
+				{
+					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radius);
+					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Height);
+					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Z_Position);
+					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Z_Position_Deviation);
+
+					if(imperfections_Model.particle_Vertical_Correlation == partial_Correlation)
+					{
+						potentially_Fitable_Parameters.push_back(&particles_Model.particle_Cross_Layer_Deviation);
+					}
+				}
+			}
+			if(particles_Model.is_Independent || particles_Model.is_Used)
+			{
 				if(imperfections_Model.particle_Vertical_Correlation == zero_Correlation || particles_Model.is_Last_Layer)
 				{
 					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Average_Distance);
 					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radial_Distance);
 					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Radial_Distance_Deviation);
 					potentially_Fitable_Parameters.push_back(&particles_Model.domain_Size);
-				}
-				potentially_Fitable_Parameters.push_back(&particles_Model.particle_Z_Position);
-				potentially_Fitable_Parameters.push_back(&particles_Model.particle_Z_Position_Deviation);
-			}
-			if(imperfections_Model.particle_Vertical_Correlation == partial_Correlation)
-			{
-				if(particles_Model.is_Independent || particles_Model.is_Second_Last_Layer)
-				{
-					potentially_Fitable_Parameters.push_back(&particles_Model.particle_Cross_Layer_Deviation);
 				}
 			}
 		}
@@ -1712,13 +1722,12 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 						table_Showed_Parameters.push_back(&stoichiometry.composition);
 					}
 				}
-				if(composed_Material) {
-					table_Showed_Parameters.push_back(&particles_Model.particle_Absolute_Density);
-				} else {
-					table_Showed_Parameters.push_back(&particles_Model.particle_Relative_Density);
-				}
 			}
-
+			if(composed_Material) {
+				table_Showed_Parameters.push_back(&particles_Model.particle_Absolute_Density);
+			} else {
+				table_Showed_Parameters.push_back(&particles_Model.particle_Relative_Density);
+			}
 			if(particles_Model.is_Independent)
 			{
 				table_Showed_Parameters.push_back(&particles_Model.particle_Radius);
@@ -1735,7 +1744,7 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 			}
 			if(imperfections_Model.particle_Vertical_Correlation == partial_Correlation)
 			{
-				if(particles_Model.is_Independent || particles_Model.is_Second_Last_Layer)
+				if(particles_Model.is_Independent || particles_Model.is_Last_Layer)
 				{
 					table_Showed_Parameters.push_back(&particles_Model.particle_Cross_Layer_Deviation);
 				}

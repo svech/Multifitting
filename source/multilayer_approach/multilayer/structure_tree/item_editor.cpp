@@ -1162,6 +1162,7 @@ void Item_Editor::more_Elements_Clicked()
 	else								{fewer_Elements->show();}
 
 	Stoichiometry stoich;
+	stoich.composition.indicator.whats_This == whats_This_Composition;
 
 	QLineEdit* line_Edit = new QLineEdit;
 		line_Edit->setFixedWidth(50);
@@ -1205,7 +1206,12 @@ void Item_Editor::more_Elements_Clicked()
 
 	// adding stoich
 	struct_Data.composition.append(stoich);
-	struct_Data.particles_Model.particle_Composition.append(stoich);
+
+	// make particle stoich
+	Stoichiometry particle_Stoich = stoich;
+	particle_Stoich.composition.indicator.id = Global_Definitions::generate_Id();
+	particle_Stoich.composition.indicator.whats_This == whats_This_Particle_Composition;
+	struct_Data.particles_Model.particle_Composition.append(particle_Stoich);
 
 	// placing ui elements
 	QFrame* element_Frame = new QFrame;
@@ -1248,7 +1254,10 @@ void Item_Editor::more_Elements_Clicked()
 
 		for(int n=0; n<parent_Data.num_Repetition.value(); n++)
 		{
+			stoich.composition.indicator.id = Global_Definitions::generate_Id();
 			parent_Data.regular_Components[my_I].components[n].composition.append(stoich);
+			particle_Stoich.composition.indicator.id = Global_Definitions::generate_Id();
+			parent_Data.regular_Components[my_I].components[n].particles_Model.particle_Composition.append(particle_Stoich);
 		}
 		save_Parent_Data();
 	}

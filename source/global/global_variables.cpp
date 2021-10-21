@@ -964,11 +964,57 @@ QString Global_Variables::structure_Item_Name(const Data& struct_Data)
 	return text;
 }
 
+int Global_Variables::get_Index_For_Parameter_Name(const Data& struct_Data, const Parameter& parameter)
+{
+	if( parameter.indicator.whats_This == whats_This_Interlayer_Composition )
+	{
+		for(int i=0; i<struct_Data.interlayer_Composition.size(); i++)
+		{
+			if(parameter.indicator.id == struct_Data.interlayer_Composition[i].interlayer.indicator.id)
+			{
+				return i;
+			}
+		}
+	}
+	if( parameter.indicator.whats_This == whats_This_Interlayer_My_Sigma_Diffuse )
+	{
+		for(int i=0; i<struct_Data.interlayer_Composition.size(); i++)
+		{
+			if(parameter.indicator.id == struct_Data.interlayer_Composition[i].my_Sigma_Diffuse.indicator.id)
+			{
+				return i;
+			}
+		}
+	}
+	if( parameter.indicator.whats_This == whats_This_Composition )
+	{
+		for(int i=0; i<struct_Data.composition.size(); i++)
+		{
+			if(parameter.indicator.id == struct_Data.composition[i].composition.indicator.id)
+			{
+				return i;
+			}
+		}
+	}
+	if( parameter.indicator.whats_This == whats_This_Particle_Composition )
+	{
+		for(int i=0; i<struct_Data.particles_Model.particle_Composition.size(); i++)
+		{
+			if(parameter.indicator.id == struct_Data.particles_Model.particle_Composition[i].composition.indicator.id)
+			{
+				return i;
+			}
+		}
+	}
+
+	return -1;
+}
+
 QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_This, int index)
 {
 	// PARAMETER
 
-	QString text = "variable_Name", brackets;
+	QString text = "variable_Name", brackets;	
 
 	if(struct_Data.item_Type == item_Type_Ambient)			{brackets = "(ambient)";}
 	if(struct_Data.item_Type == item_Type_Layer)			{brackets = "(layer " + Locale.toString(struct_Data.layer_Index) + ")";}
@@ -1006,7 +1052,7 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		struct_Data.item_Type == item_Type_Substrate  )
 	{
 		// interlayer
-		if(whats_This == whats_This_Sigma_Diffuse || "Sigma")				text = struct_Data.material + " " + brackets + " Diffuseness, s";
+		if(whats_This == whats_This_Sigma_Diffuse || whats_This == "Sigma")	text = struct_Data.material + " " + brackets + " Diffuseness, s";
 		if(whats_This == whats_This_Sigma_Drift_Line_Value)					text = struct_Data.material + " " + brackets + " Diffuseness linear drift, ds";
 		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)					text = struct_Data.material + " " + brackets + " Diffuseness random drift, ds";
 		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)				text = struct_Data.material + " " + brackets + " Diffuseness sine drift : amplitude, ds";
@@ -1014,8 +1060,8 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)					text = struct_Data.material + " " + brackets + " Diffuseness sine srift : phase, " + Phi_Sym;
 
 		// composition
-		if(whats_This == whats_This_Interlayer_Composition)					text = struct_Data.material + " " + brackets + " Interlayer composition, " + transition_Layer_Functions[index];
-		if(whats_This == whats_This_Interlayer_My_Sigma_Diffuse)			text = struct_Data.material + " " + brackets + " Individual diffuseness, s_" + transition_Layer_Functions[index];
+		if(whats_This == whats_This_Interlayer_Composition && index>=0)		text = struct_Data.material + " " + brackets + " Interlayer composition, " + transition_Layer_Functions[index];
+		if(whats_This == whats_This_Interlayer_My_Sigma_Diffuse && index>=0)text = struct_Data.material + " " + brackets + " Individual diffuseness, s_" + transition_Layer_Functions[index];
 
 		// roughness
 		if(whats_This == whats_This_Sigma_Roughness)						text = struct_Data.material + " " + brackets + " Roughness, " + Sigma_Sym;
@@ -1159,7 +1205,7 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	if(id == struct_Data.particles_Model.particle_Radial_Distance.indicator.id)				return &struct_Data.particles_Model.particle_Radial_Distance;
 	if(id == struct_Data.particles_Model.particle_Radial_Distance_Deviation.indicator.id)	return &struct_Data.particles_Model.particle_Radial_Distance_Deviation;
 	if(id == struct_Data.particles_Model.domain_Size.indicator.id)							return &struct_Data.particles_Model.domain_Size;
-	if(id == struct_Data.particles_Model.particle_Cross_Layer_Deviation.indicator.id)			return &struct_Data.particles_Model.particle_Cross_Layer_Deviation;
+	if(id == struct_Data.particles_Model.particle_Cross_Layer_Deviation.indicator.id)		return &struct_Data.particles_Model.particle_Cross_Layer_Deviation;
 	if(id == struct_Data.particles_Model.particle_Z_Position.indicator.id)					return &struct_Data.particles_Model.particle_Z_Position;
 	if(id == struct_Data.particles_Model.particle_Z_Position_Deviation.indicator.id)		return &struct_Data.particles_Model.particle_Z_Position_Deviation;
 
@@ -1236,7 +1282,7 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	if(whats_This == whats_This_Particle_Radial_Distance)				{*line_edit_precision = line_edit_particle_lateral_distance_precision;		*thumbnail_precision = thumbnail_particle_lateral_distance_precision;	*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);							return &struct_Data.particles_Model.particle_Radial_Distance;			}
 	if(whats_This == whats_This_Particle_Radial_Distance_Deviation)		{*line_edit_precision = line_edit_particle_lateral_distance_precision;		*thumbnail_precision = thumbnail_particle_lateral_distance_precision;	*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);							return &struct_Data.particles_Model.particle_Radial_Distance_Deviation;	}
 	if(whats_This == whats_This_Domain_Size)							{*line_edit_precision = line_edit_cor_radius_precision;						*thumbnail_precision = thumbnail_cor_radius_precision;					*units = " " + correlation_length_units;*coeff = correlation_Length_Coefficients_Map.value(correlation_length_units);	return &struct_Data.particles_Model.domain_Size;						}
-	if(whats_This == whats_This_Particle_Cross_Layer_Deviation)			{*line_edit_precision = line_edit_particle_lateral_distance_precision;		*thumbnail_precision = thumbnail_particle_lateral_distance_precision;	*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);							return &struct_Data.particles_Model.particle_Cross_Layer_Deviation;			}
+	if(whats_This == whats_This_Particle_Cross_Layer_Deviation)			{*line_edit_precision = line_edit_particle_lateral_distance_precision;		*thumbnail_precision = thumbnail_particle_lateral_distance_precision;	*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);							return &struct_Data.particles_Model.particle_Cross_Layer_Deviation;		}
 	if(whats_This == whats_This_Particle_Z_Position)					{*line_edit_precision = line_edit_particle_z_position_precision;			*thumbnail_precision = thumbnail_particle_z_position_precision;			*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);							return &struct_Data.particles_Model.particle_Z_Position;				}
 	if(whats_This == whats_This_Particle_Z_Position_Deviation)			{*line_edit_precision = line_edit_particle_z_position_precision;			*thumbnail_precision = thumbnail_particle_z_position_precision;			*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);							return &struct_Data.particles_Model.particle_Z_Position_Deviation;		}
 
@@ -1314,14 +1360,13 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 	}
 }
 
-void Global_Variables::enable_Disable_Particles_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model, bool last_Layer, bool second_Last_Layer)
+void Global_Variables::enable_Disable_Particles_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model, bool last_Layer)
 {
 	// common
 	if( struct_Data.item_Type == item_Type_Layer )
 	{
 		struct_Data.particles_Model.is_Enabled = imperfections_Model.use_Particles;
 		struct_Data.particles_Model.is_Last_Layer = last_Layer;
-		struct_Data.particles_Model.is_Second_Last_Layer = second_Last_Layer;
 
 		if( imperfections_Model.particle_Vertical_Correlation == full_Correlation )
 		{

@@ -2785,6 +2785,8 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 
 	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
 	{
+		int index = Global_Variables::get_Index_For_Parameter_Name(struct_Data, *parameter);
+		parameter->indicator.full_Name = Global_Variables::parameter_Name(struct_Data, parameter->indicator.whats_This, index);
 		// for my_Sigmas
 		if( parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma_Diffuse && !struct_Data.common_Sigma_Diffuse )
 		{	parameter->fit.is_Fitable = struct_Data.sigma_Diffuse.fit.is_Fitable; }
@@ -2818,6 +2820,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 				fitables.values_Parametrized.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max)); // will be recalculated at solver initialization
 				fitables.parent_Iterators	.push_back(current);					// used for period and gamma only, but should be filled for all for the length purpose!
 
+//				qInfo() << parameter->indicator.full_Name << endl;
 				/// for rejection
 
 				// sigma value is close to zero. Roughness_Peak_Sigma is not checked

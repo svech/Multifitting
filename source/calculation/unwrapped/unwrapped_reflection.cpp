@@ -3956,7 +3956,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									if(j<l)
 									{
-
 										double s_j = unwrapped_Structure->lateral_Sigma_Particles[j];
 										double ex = q2*s_j*s_j/2.;
 										if(ex<20)

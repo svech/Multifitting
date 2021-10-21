@@ -305,6 +305,7 @@ public:
 	static int get_Tree_Depth(QTreeWidgetItem* item);
 	static int get_Tree_Depth(tree<Node>& calc_Tree, const tree<Node>::iterator& parent);
 	static QString structure_Item_Name(const Data& struct_Data);
+	static int get_Index_For_Parameter_Name(const Data& struct_Data, const Parameter& parameter);
 	static QString parameter_Name(const Data& struct_Data, QString whats_This, int index = -1);
 	static bool expression_Is_Valid(QString expression_String, QStringList expression_Variables);
 	static Parameter* get_Parameter_From_Struct_Item_by_Id		  (Data& struct_Data, id_Type id);
@@ -378,7 +379,7 @@ public:
 	static bool if_Last_Layer       (QTreeWidget* tree, QTreeWidgetItem* potential_Layer);
 	static bool if_Second_Last_Layer(QTreeWidget* tree, QTreeWidgetItem* potential_Layer);
 	static void enable_Disable_Roughness_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model, bool last_Layer = false);
-	static void enable_Disable_Particles_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model, bool last_Layer = false, bool second_Last_Layer = false);
+	static void enable_Disable_Particles_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model, bool last_Layer = false/*, bool second_Last_Layer = false*/);
 	static void new_Layer_Particles_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model);
 	static double PSD_ABC_1D						 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
 	static double PSD_ABC_1D_from_nu				 (double factor, double xi, double alpha, double p, double a, gsl_spline* spline, gsl_interp_accel* acc);

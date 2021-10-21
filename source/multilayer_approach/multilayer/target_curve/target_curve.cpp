@@ -24,7 +24,8 @@ Curve::Curve()
 	val_Factor.value = 1;
 	val_Factor.fit.min = 0.1;
 	val_Factor.fit.max = 10;
-	val_Factor.indicator.full_Name = "Target curve scale factor";
+	val_Factor.indicator.whats_This = "Target curve scale factor";
+	val_Factor.indicator.full_Name  = "Target curve scale factor";
 
 	// intensity
 	divide_On_Beam_Intensity = true;
