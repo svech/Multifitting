@@ -350,16 +350,16 @@ void Unwrapped_Structure::fill_PSD_Inheritance_Powers()
 
 void Unwrapped_Structure::fill_Particles_Parameters()
 {
-	lateral_Sigma_Particles.resize(num_Inherited_Layers);
+	lateral_Sigma_Particles.resize(num_Layers);
 	if(imperfections_Model.use_Common_Particle_Function)
 	{
-		for(int layer_Index=0; layer_Index<num_Inherited_Layers; layer_Index++)
+		for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
 		{
-			lateral_Sigma_Particles[layer_Index] = media_Data_Map_Vector[num_Inherited_Layers].particles_Model.particle_Cross_Layer_Deviation.value;
+			lateral_Sigma_Particles[layer_Index] = media_Data_Map_Vector[num_Layers].particles_Model.particle_Cross_Layer_Deviation.value;
 		}
 	} else
 	{
-		for(int layer_Index=0; layer_Index<num_Inherited_Layers; layer_Index++)
+		for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
 		{
 			lateral_Sigma_Particles[layer_Index] = media_Data_Map_Vector[layer_Index+1].particles_Model.particle_Cross_Layer_Deviation.value;
 		}
