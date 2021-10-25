@@ -40,6 +40,7 @@ public:
 	QVBoxLayout* main_Layout;
 
 	// detector
+	QLabel* detector_Type_Label;
 	QComboBox* detector_Type_ComboBox;
 	MyDoubleSpinBox* detector_Distance_SpinBox;
 	QStackedWidget* detectors_Stack;
@@ -56,6 +57,7 @@ public:
 	QLabel* binning_Factor_Label;
 	QSpinBox* binning_Factor_Spinbox;
 	// 2D
+	QCheckBox* set_Pixel_Size_Checkbox;
 	MyDoubleSpinBox* pixel_Polar_Height_SpinBox;
 	MyDoubleSpinBox* pixel_Azimuthal_Width_SpinBox;
 	MyDoubleSpinBox* theta_Resolution_SpinBox;

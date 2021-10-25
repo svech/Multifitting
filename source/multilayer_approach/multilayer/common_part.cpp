@@ -42,7 +42,7 @@ void Common_Part::create_1D_Detector_GroupBox()
 
 	// detector type
 	{
-		QLabel* detector_Type_Label = new QLabel("Detector type");
+		detector_Type_Label = new QLabel("Detector type");
 		first_Row_Layout->addWidget(detector_Type_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -238,7 +238,13 @@ void Common_Part::create_2D_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* detector_Type_Label = new QLabel("Detector type");
+		set_Pixel_Size_Checkbox = new QCheckBox("Set pixel size");
+			set_Pixel_Size_Checkbox->setChecked(measurement.detector_2D.set_Pixel_Size);
+		detector_Type_Layout->addWidget(set_Pixel_Size_Checkbox,0,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		detector_Type_Label = new QLabel("Detector type");
+			detector_Type_Label->setEnabled(measurement.detector_2D.set_Pixel_Size);
 		detector_Type_Layout->addWidget(detector_Type_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -247,7 +253,8 @@ void Common_Part::create_2D_Detector_GroupBox()
 			detector_Type_ComboBox->addItem(detectors[Matrix]);
 			detector_Type_ComboBox->addItem(detectors[Spherical]);
 			detector_Type_ComboBox->setCurrentText(measurement.detector_2D.detector_Type);
-			detector_Type_ComboBox->setFixedWidth(130);
+			detector_Type_ComboBox->setEnabled(measurement.detector_2D.set_Pixel_Size);
+			detector_Type_ComboBox->setFixedWidth(70);
 		detector_Type_Layout->addWidget(detector_Type_ComboBox,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -322,6 +329,7 @@ void Common_Part::create_2D_Detector_GroupBox()
 	// pages
 	{
 		detectors_Stack = new QStackedWidget;
+			detectors_Stack->setEnabled(measurement.detector_2D.set_Pixel_Size);
 		if(is_Independent)
 		{
 			detector_GroupBox_Layout->addWidget(detectors_Stack,1,0,1,2);
@@ -397,7 +405,7 @@ void Common_Part::create_2D_Detector_GroupBox()
 
 		// theta
 		{
-			QLabel* spherical_Theta_Resolution_Label = new QLabel("    Angular resolution, FWHM, "+Delta_Big_Sym+Theta_Sym);
+			QLabel* spherical_Theta_Resolution_Label = new QLabel("    Pixel height, FWHM, "+Delta_Big_Sym+Theta_Sym); // "    Angular resolution, FWHM, "+Delta_Big_Sym+Theta_Sym
 			spherical_Layout->addWidget(spherical_Theta_Resolution_Label,0,0,Qt::AlignLeft);
 
 			// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -422,7 +430,7 @@ void Common_Part::create_2D_Detector_GroupBox()
 		}
 		// phi
 		{
-			QLabel* spherical_Phi_Resolution_Label = new QLabel("    Angular resolution, FWHM, "+Delta_Big_Sym+Phi_Sym);
+			QLabel* spherical_Phi_Resolution_Label = new QLabel("    Pixel width,  FWHM, "+Delta_Big_Sym+Phi_Sym);// "    Angular resolution, FWHM, "+Delta_Big_Sym+Phi_Sym
 			spherical_Layout->addWidget(spherical_Phi_Resolution_Label,1,0,Qt::AlignLeft);
 
 			// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1162,6 +1170,16 @@ void Common_Part::connecting()
 	}
 	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
+		connect(set_Pixel_Size_Checkbox,&QCheckBox::toggled, this, [=]
+		{
+			measurement.detector_2D.set_Pixel_Size = set_Pixel_Size_Checkbox->isChecked();
+
+			detector_Type_Label->setEnabled(measurement.detector_2D.set_Pixel_Size);
+			detector_Type_ComboBox->setEnabled(measurement.detector_2D.set_Pixel_Size);
+			detectors_Stack->setEnabled(measurement.detector_2D.set_Pixel_Size);
+
+			global_Multilayer_Approach->global_Recalculate();
+		});
 		// 2D detector type
 		connect(detector_Type_ComboBox, &QComboBox::currentTextChanged, this, [=]
 		{

@@ -294,7 +294,7 @@ QDataStream& operator >>( QDataStream& stream,		 Detector_1D& detector_1D )
 
 QDataStream& operator <<( QDataStream& stream, const Detector_2D& detector_2D )
 {
-	return stream << detector_2D.detector_Type
+	return stream << detector_2D.detector_Type << detector_2D.set_Pixel_Size
 				  << detector_2D.pixel_Azimuthal_Width << detector_2D.pixel_Polar_Height << detector_2D.distance_To_Sample
 				  << detector_2D.detector_Theta_Resolution << detector_2D.detector_Phi_Resolution
 				  << detector_2D.use_Binning << detector_2D.theta_Binning_Factor << detector_2D.phi_Binning_Factor;
@@ -302,6 +302,9 @@ QDataStream& operator <<( QDataStream& stream, const Detector_2D& detector_2D )
 QDataStream& operator >>( QDataStream& stream,		 Detector_2D& detector_2D )
 {
 	stream >> detector_2D.detector_Type;
+
+	if(Global_Variables::check_Loaded_Version(1,11,30))
+	{stream >> detector_2D.set_Pixel_Size;}
 
 	if(Global_Variables::check_Loaded_Version(1,11,1))
 	{stream >> detector_2D.pixel_Azimuthal_Width >> detector_2D.pixel_Polar_Height >> detector_2D.distance_To_Sample;}

@@ -17,7 +17,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 29
+#define VERSION_BUILD 30
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -608,6 +608,7 @@ struct Detector_1D				{ QString detector_Type;
 								};
 
 struct Detector_2D				{ QString detector_Type;
+								  bool set_Pixel_Size = false;
 
 								  // matrix
 								  double pixel_Azimuthal_Width = 172; // mcm

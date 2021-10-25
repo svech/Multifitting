@@ -1187,8 +1187,17 @@ void Data::calc_Mixed_Resolution()
 	if( measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		// pure detector
-		if(detector_2D.detector_Type == detectors[Matrix])		{theta_Resolution_FWHM = qRadiansToDegrees(detector_2D.pixel_Polar_Height/detector_2D.distance_To_Sample/1000/* pixel in mcm */); theta_Distribution = distributions[Gate];}
-		if(detector_2D.detector_Type == detectors[Spherical])	{theta_Resolution_FWHM = detector_2D.detector_Theta_Resolution.FWHM_distribution; theta_Distribution = detector_2D.detector_Theta_Resolution.distribution_Function;}
+		/// theta
+		if(detector_2D.set_Pixel_Size)
+		{
+			int num_Points = detector_Theta_Angle_Vec.size();
+			theta_Resolution_FWHM = qRadiansToDegrees(abs(detector_Theta_Angle.independent.max - detector_Theta_Angle.independent.min)/(num_Points-1));
+			theta_Distribution = distributions[Gate];
+		} else
+		{
+			if(detector_2D.detector_Type == detectors[Matrix])		{theta_Resolution_FWHM = qRadiansToDegrees(detector_2D.pixel_Polar_Height/detector_2D.distance_To_Sample/1000/* pixel in mcm */); theta_Distribution = distributions[Gate];}
+			if(detector_2D.detector_Type == detectors[Spherical])	{theta_Resolution_FWHM = detector_2D.detector_Theta_Resolution.FWHM_distribution; theta_Distribution = detector_2D.detector_Theta_Resolution.distribution_Function;}
+		}
 
 		theta_Resolution_Vec.resize(detector_Theta_Angle_Vec.size());
 		for(size_t i=0; i<theta_Resolution_Vec.size(); ++i)
@@ -1196,8 +1205,17 @@ void Data::calc_Mixed_Resolution()
 			theta_Resolution_Vec[i] = theta_Resolution_FWHM;
 		}
 
-		if(detector_2D.detector_Type == detectors[Matrix])		{phi_Resolution_FWHM = qRadiansToDegrees(detector_2D.pixel_Azimuthal_Width/detector_2D.distance_To_Sample/1000/* pixel in mcm */*beam_Theta_0_Cos_Value); phi_Distribution = distributions[Gate];}
-		if(detector_2D.detector_Type == detectors[Spherical])	{phi_Resolution_FWHM = detector_2D.detector_Phi_Resolution.FWHM_distribution; phi_Distribution = detector_2D.detector_Phi_Resolution.distribution_Function;}
+		/// phi
+		if(detector_2D.set_Pixel_Size)
+		{
+			int num_Points = detector_Phi_Angle_Vec.size();
+			phi_Resolution_FWHM = qRadiansToDegrees(abs(detector_Phi_Angle.independent.max - detector_Phi_Angle.independent.min)/(num_Points-1));
+			phi_Distribution = distributions[Gate];
+		} else
+		{
+			if(detector_2D.detector_Type == detectors[Matrix])		{phi_Resolution_FWHM = qRadiansToDegrees(detector_2D.pixel_Azimuthal_Width/detector_2D.distance_To_Sample/1000/* pixel in mcm */*beam_Theta_0_Cos_Value); phi_Distribution = distributions[Gate];}
+			if(detector_2D.detector_Type == detectors[Spherical])	{phi_Resolution_FWHM = detector_2D.detector_Phi_Resolution.FWHM_distribution; phi_Distribution = detector_2D.detector_Phi_Resolution.distribution_Function;}
+		}
 
 		phi_Resolution_Vec.resize(detector_Phi_Angle_Vec.size());
 		phi_Beam_Spot_Size_Vec.resize(detector_Phi_Angle_Vec.size());
