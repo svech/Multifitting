@@ -2134,7 +2134,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 	// usual 1D PSD
 	{
 		/// correlation function
-		auto f = [&](double r) {return sigma*sigma * exp(-pow(r/xi,2*alpha));};
+		auto f = [&](double r) {return sigma*sigma * Global_Variables::Cor_Fractal_Gauss(xi, alpha, r);};
 		const double tolerance = 1E-5;
 		const int depth = 2;
 
@@ -2237,7 +2237,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 		// first part
 		auto f_1 = [&](double r)
 		{
-			return exp(-pow(r/xi,2*alpha)) * cyl_bessel_j(0, nu*r) * r;
+			return Global_Variables::Cor_Fractal_Gauss(xi, alpha, r) * cyl_bessel_j(0, nu*r) * r;
 		};
 		integral = 2*M_PI*tanh_sinh_Integrator.integrate(f_1, 0, division_Point, tanh_Sinh_Tolerance);
 
@@ -2247,14 +2247,14 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 			double r_Sh = r + shift/nu;
 			double r_Sh_W = nu*r + shift;
 			double cos_Val = Global_Variables::val_Cos_Expansion(r_Sh_W, cos_a_Coeff_For_BesselJ0);
-			return exp(-pow(r_Sh/xi,2*alpha)) * cos_Val * sqrt(r_Sh/nu);
+			return Global_Variables::Cor_Fractal_Gauss(xi, alpha, r_Sh) * cos_Val * sqrt(r_Sh/nu);
 		};
 		auto f_2_sin = [&](double r)
 		{
 			double r_Sh = r + shift/nu;
 			double r_Sh_W = nu*r + shift;
 			double sin_Val = Global_Variables::val_Sin_Expansion(r_Sh_W, sin_a_Coeff_For_BesselJ0);
-			return exp(-pow(r_Sh/xi,2*alpha)) * sin_Val * sqrt(r_Sh/nu);
+			return Global_Variables::Cor_Fractal_Gauss(xi, alpha, r_Sh) * sin_Val * sqrt(r_Sh/nu);
 		};
 		std::pair<double, double> cos_Integral = integrator_Cos.integrate(f_2_cos, nu);
 		integral += sqrt(8*M_PI)*cos_Integral.first;
