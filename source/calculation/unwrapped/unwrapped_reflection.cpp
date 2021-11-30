@@ -2027,9 +2027,11 @@ void Unwrapped_Reflection::calc_Amplitudes_Field(int thread_Index, int point_Ind
 
 	vector<complex<double>>& U_i = polarization == "s" ? U_i_s : U_i_p;
 	vector<complex<double>>& U_r = polarization == "s" ? U_r_s : U_r_p;
-	vector<complex<double>>& r_Local = polarization == "s" ? r_Local_s[thread_Index] : r_Local_p[thread_Index];
-	vector<complex<double>>& t_Local = polarization == "s" ? t_Local_s[thread_Index] : t_Local_p[thread_Index];
-	vector<complex<double>>& r_Exp   = polarization == "s" ? r_Exp_s  [thread_Index] : r_Exp_p  [thread_Index];
+	vector<complex<double>>& r_Local   = polarization == "s" ? r_Local_s  [thread_Index] : r_Local_p  [thread_Index];
+	vector<complex<double>>& t_Local   = polarization == "s" ? t_Local_s  [thread_Index] : t_Local_p  [thread_Index];
+	vector<complex<double>>& r_Exp     = polarization == "s" ? r_Exp_s    [thread_Index] : r_Exp_p    [thread_Index];
+	vector<complex<double>>& r_Fresnel = polarization == "s" ? r_Fresnel_s[thread_Index] : r_Fresnel_p[thread_Index];
+	vector<complex<double>>& t_Fresnel = polarization == "s" ? t_Fresnel_s[thread_Index] : t_Fresnel_p[thread_Index];
 
 	/// from surface to substrate
 //	complex<double> factor = 1;
@@ -2055,10 +2057,10 @@ void Unwrapped_Reflection::calc_Amplitudes_Field(int thread_Index, int point_Ind
 
 	/// mixed: normally from substrate to surface, but if t==0, from surface to substrate
 	complex<double> factor = 1;
-	U_i[num_Boundaries] = t_Local.front();
-	U_r[num_Boundaries] = 0;
 	U_i[0] = 1;
 	U_r[0] = r_Local[0];
+	U_i[num_Boundaries] = t_Local[0];
+	U_r[num_Boundaries] = 0;
 	for (int j = 1; j<num_Boundaries; j++)
 	{
 		if(norm(t_Local[j])>0)
@@ -2068,6 +2070,9 @@ void Unwrapped_Reflection::calc_Amplitudes_Field(int thread_Index, int point_Ind
 		{
 			factor = exponenta[point_Index][j-1]/(1. + r_Exp[j-1]);
 			U_i[j] = (U_i[j-1] + U_r[j-1])*factor;
+
+//			factor = t_Fresnel[j-1] * exponenta[point_Index][j-1]/(1. + r_Fresnel[j-1]*r_Exp[j-1]); // alternative
+//			U_i[j] = U_i[j-1] * factor;																// alternative
 		}
 		U_r[j] = U_i[j] * r_Local[j];
 	}
@@ -4241,7 +4246,7 @@ double Unwrapped_Reflection::body_Scattering_Particles_Zero_Correlation(int thre
 
 	if(particle_Interference_Function == radial_Paracrystal)
 	{
-		G2_Type_Value_Sqrt = sqrt(G2_node->G2_Type_Outer(q));
+		G2_Type_Value_Sqrt = sqrt(G2_node->G2_Type_Outer(q));		
 	}
 	calc_Item_Form_Factor_From_Spline(thread_Index, item_Index, q);
 	calc_Coherent_Coef_G2            (thread_Index, item_Index, G2_Type_Value_Sqrt, d_Eps);

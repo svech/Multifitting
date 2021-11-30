@@ -2,7 +2,7 @@
 
 General_Settings_Editor::General_Settings_Editor(QWidget *parent) : QWidget(parent)
 {
-	setWindowTitle("General Settings");
+	setWindowTitle("General settings");
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);

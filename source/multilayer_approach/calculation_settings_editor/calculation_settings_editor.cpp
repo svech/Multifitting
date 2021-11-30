@@ -6,7 +6,7 @@ Calculation_Settings_Editor::Calculation_Settings_Editor(QWidget* parent) :
 	multilayer_Tabs(global_Multilayer_Approach->multilayer_Tabs),
 	QWidget(parent)
 {
-	setWindowTitle("Calculation Settings");
+	setWindowTitle("Calculation settings");
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);

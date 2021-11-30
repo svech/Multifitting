@@ -5,7 +5,7 @@ Fitting_Settings_Editor::Fitting_Settings_Editor(QWidget* parent) :
 	fitting_Settings(global_Multilayer_Approach->fitting_Settings),
 	QWidget(parent)
 {
-	setWindowTitle("Fitting Settings");
+	setWindowTitle("Fitting settings");
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);

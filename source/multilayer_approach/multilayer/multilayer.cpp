@@ -679,8 +679,8 @@ Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
 	}
 
 	// other data
-	num_Target_Rows		 = referent_Multilayer.num_Target_Rows;		 // rows in Calculation Settings
-	num_Independent_Rows = referent_Multilayer.num_Independent_Rows; // rows in Calculation Settings
+	num_Target_Rows		 = referent_Multilayer.num_Target_Rows;		 // rows in Calculation settings
+	num_Independent_Rows = referent_Multilayer.num_Independent_Rows; // rows in Calculation settings
 
 	graph_Options_1D = referent_Multilayer.graph_Options_1D;
 	graph_Options_2D = referent_Multilayer.graph_Options_2D;

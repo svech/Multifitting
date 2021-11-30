@@ -298,6 +298,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					weak_Factor_R[i] = 0;
 //					s_r[i] = sqrt(above_Node->hi[i]*hi[i]);
 					s_r[i] = sqrt(real(above_Node->hi[i])*real(hi[i]));
+//					s_r[i] = sqrt(real(above_Node->hi[i]*hi[i]));
 
 					// transmittance
 					weak_Factor_T[i] = 0;
@@ -3404,13 +3405,15 @@ void Node::create_Spline_G2_2D(const Imperfections_Model& imperfections_Model, c
 		}
 		std::sort(q_Peak.begin(), q_Peak.end());
 	}
-	double N_size = 1e7*min(measurement.sample_Geometry.size, measurement.beam_Geometry.size/max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON))/a;
+//	double N_size = 1e7*min(measurement.sample_Geometry.size, measurement.beam_Geometry.size/max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON))/a;
 	double N_domain = struct_Data.particles_Model.domain_Size.value/a;
-	double N = min(N_size, N_domain);
+//	double N = min(N_size, N_domain);
+	double N = N_domain;
 	N = max(N,3.);
-	double M_size = 1e7*measurement.beam_Geometry.lateral_Width/b;
+//	double M_size = 1e7*measurement.beam_Geometry.lateral_Width/b;
 	double M_domain = struct_Data.particles_Model.domain_Size.value/b;
-	double M = min(M_size, M_domain);
+//	double M = min(M_size, M_domain);
+	double M = M_domain;
 	M = max(M,3.);
 	// we will use M dependent of N
 	if(struct_Data.particles_Model.geometric_Model == square_Model)		 M = N;
