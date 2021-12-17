@@ -533,6 +533,9 @@ void Curve_Plot_2D::refresh_Axes_Range(bool rescale_Axes)
 			x_Range_Real = QCPRange(measurement.detector_Theta_Angle.independent.min/angular_Coeff, measurement.detector_Theta_Angle.independent.max/angular_Coeff);
 			y_Range_Real = QCPRange(measurement.detector_Phi_Angle.independent.min/angular_Coeff,   measurement.detector_Phi_Angle.independent.max/angular_Coeff);
 
+//			x_Range_Real = QCPRange(10*measurement.k_Value*sin(qDegreesToRadians(measurement.detector_Theta_Angle.independent.min/angular_Coeff)), 10*measurement.k_Value*sin(qDegreesToRadians(measurement.detector_Theta_Angle.independent.max/angular_Coeff)));
+//			y_Range_Real = QCPRange(10*measurement.k_Value*sin(qDegreesToRadians(measurement.detector_Phi_Angle.  independent.min/angular_Coeff)), 10*measurement.k_Value*sin(qDegreesToRadians(measurement.detector_Phi_Angle.  independent.max/angular_Coeff)));
+
 			color_Map->data()->setRange(x_Range, y_Range);
 			if(plot_Options.rescale || rescale_Axes)
 			{
