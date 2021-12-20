@@ -177,7 +177,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 		// for scattering on particles
 		if(mode == SCATTERED_MODE)
 		{
-			fill_Epsilon_Contrast_For_Particles(spectral_Points);
+			fill_Epsilon_Contrast_For_Particles(spectral_Points, imperfections_Model.use_Particles_Material);
 		}
 	}
 
@@ -699,7 +699,7 @@ void Node::fill_Delta_Epsilon(vector<complex<double>>& delta_Epsilon, const vect
 	}
 }
 
-void Node::fill_Epsilon_Contrast_For_Particles(vector<double>& spectral_Points)
+void Node::fill_Epsilon_Contrast_For_Particles(vector<double>& spectral_Points, bool use_Particles_Material)
 {
 	if(struct_Data.particles_Model.is_Used)
 	{
@@ -712,15 +712,19 @@ void Node::fill_Epsilon_Contrast_For_Particles(vector<double>& spectral_Points)
 		// if known material
 		if(struct_Data.composed_Material == false)
 		{
-			Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.approved_Material + nk_Ext);
+			QString approved_Material = use_Particles_Material ? struct_Data.particles_Model.particle_Approved_Material : struct_Data.approved_Material;
+
+			Material_Data temp_Material_Data = optical_Constants->material_Map.value(approved_Material + nk_Ext);
 			vector<complex<double>> n;
-			optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.approved_Material);
+			optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, approved_Material);
 			delta_Epsilon_Ang = 1. - n.front()*n.front();
 		} else
 		// compile from elements
 		{
+			QList<Stoichiometry>& composition = use_Particles_Material ? struct_Data.particles_Model.particle_Composition : struct_Data.composition;
+
 			vector<complex<double>> temp_Epsilon;
-			optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.particles_Model.particle_Absolute_Density.value, spectral_Points, temp_Epsilon);
+			optical_Constants->make_Epsilon_From_Factors(composition, struct_Data.particles_Model.particle_Absolute_Density.value, spectral_Points, temp_Epsilon);
 			delta_Epsilon_Ang = 1. - temp_Epsilon.front();
 		}
 
