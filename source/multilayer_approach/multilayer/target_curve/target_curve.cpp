@@ -244,7 +244,23 @@ void Target_Curve::parse_2D_Data()
 	// for point-by-point table
 	int last_Row = -2021;
 
+//	qInfo() << "lines_List.size()" << lines_List.size() << endl;
+
+	/// SG199
+//	int start = 38;
+//	int end   = 450+1;
+	/// SG201
+//	int start = 0;
+//	int end   = lines_List.size();
+	/// SG202
+//	int start = 13;
+//	int end   = 431+1;
+	/// SG203
+//	int start = 20;
+//	int end   = 442+1;
+
 	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
+//	for(int line_Index=start; line_Index<end; ++line_Index)
 	{
 		QString temp_Line = lines_List[line_Index];
 		temp_Line = temp_Line.simplified();
@@ -290,8 +306,23 @@ void Target_Curve::parse_2D_Data()
 			} else
 			/// case of rectangular table
 			{
+				/// SG199
+//				int start_1 = 81;
+//				int end_1   = 1406+1;
+				/// SG201
+//				int start_1 = 97;
+//				int end_1   = potentional_Numbers.size();
+				/// SG202
+//				int start_1 = 50;
+//				int end_1   = 1368+1;
+				/// SG203
+//				int start_1 = 80;
+//				int end_1   = 1427+1;
+
 				QVector<double> numbers_Row(potentional_Numbers.size());
+//				QVector<double> numbers_Row(end_1-start_1);
 				for(int num_Index=0; num_Index<potentional_Numbers.size(); num_Index++)
+//				for(int num_Index=start_1; num_Index<end_1; num_Index++)
 				{
 					bool ok_To_Double = false;
 					double temp_Value = QString(potentional_Numbers[num_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
@@ -299,9 +330,11 @@ void Target_Curve::parse_2D_Data()
 					if(ok_To_Double)
 					{
 						numbers_Row[num_Index] = temp_Value;
+//						numbers_Row[num_Index-start_1] = temp_Value;
 					} else
 					{
 						numbers_Row[num_Index] = -2020;
+//						numbers_Row[num_Index-start_1] = -2020;
 						qInfo() << "Target_Curve::parse_2D_Data  :  bad number in row" << line_Index << "column" << num_Index << endl;
 					}
 
