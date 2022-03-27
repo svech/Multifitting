@@ -38,7 +38,7 @@ void Multilayer::create_Main_Layout()
 	bottom_Part_Layout = new QVBoxLayout(bottom_Part_Widget);
 		bottom_Part_Layout->setContentsMargins(0,0,0,0);
 //		bottom_Part_Layout->setSpacing(0);
-	bottom_Part_Layout->addWidget(structure_Tree->structure_Toolbar->toolbar);
+		bottom_Part_Layout->addWidget(structure_Tree->structure_Toolbar->toolbar);
 
 	// buttons
 	create_Main_Tools();
