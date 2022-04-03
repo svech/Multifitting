@@ -215,6 +215,3 @@ HEADERS += \
     multilayer_approach/multilayer/structure_tree/aperiodic_load_setup.h \
     multilayer_approach/multilayer/structure_tree/regular_aperiodic_table.h \
     multilayer_approach/multilayer/structure_tree/regular_aperiodic_table_widget.h
-
-DISTFILES += \
-    ../cppcheck-suppressions-list.txt
