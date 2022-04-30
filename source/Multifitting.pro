@@ -17,11 +17,11 @@ TEMPLATE = app
 win32 {
 
     INCLUDEPATH +=  "C:/Program Files (x86)/C++ libraries/boost_1_78_0" \
-	                "C:/Program Files (x86)/C++ libraries" \
+                    "C:/Program Files (x86)/C++ libraries" \
                     "C:/Program Files (x86)/C++ libraries/SwarmOps/include" \
-					"C:/Program Files (x86)/C++ libraries/RandomOps/include" \
-					"C:/Program Files (x86)/C++ libraries/Faddeeva Package/include" \
-					"C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1"
+                    "C:/Program Files (x86)/C++ libraries/RandomOps/include" \
+                    "C:/Program Files (x86)/C++ libraries/Faddeeva Package/include" \
+                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1"
 
 #---MinGW---MinGW---MinGW---MinGW---MinGW---MinGW---MinGW---MinGW---
 # DOESN'T WORK
