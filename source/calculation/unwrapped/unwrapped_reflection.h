@@ -4,7 +4,7 @@
 #include "unwrapped_structure.h"
 #include "gsl/gsl_integration.h"
 #include "iostream"
-#include "faddeeva.hh"
+#include "Faddeeva.hh"
 
 class Multilayer;
 

@@ -1,12 +1,12 @@
 #include "mydoublespinbox.h"
 
-const QRegExp positive_Symbols = QRegExp("[^0-9"+QString(Locale.decimalPoint())+"]");
-const QRegExp negative_Symbols = QRegExp("[^0-9"+QString(Locale.decimalPoint())+"\\-]");
-
 MyDoubleSpinBox::MyDoubleSpinBox(QWidget *parent, bool auto_Resize):
 	QDoubleSpinBox(parent),
 	auto_Resize(auto_Resize)
 {
+    positive_Symbols = QRegExp("[^0-9"+QString(Locale.decimalPoint())+"]");
+    negative_Symbols = QRegExp("[^0-9"+QString(Locale.decimalPoint())+"\\-]");
+
 	create_Text_Change_Connection();
 }
 

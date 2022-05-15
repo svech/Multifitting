@@ -58,7 +58,8 @@ class Node;
 	#endif
 #endif
 #ifdef __linux__
-	#define Pre_Path QString("../")
+//    #define Pre_Path QString("../")
+    #define Pre_Path QString("./")
 #endif
 
 #define Paths_Icon_Path Pre_Path + "icons/"

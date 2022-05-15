@@ -1,9 +1,16 @@
 #include "launcher.h"
+#include <string>
+#include <iostream>
+#include <filesystem>
 
 Launcher::Launcher(QWidget *parent) :
 	QWidget(parent)
 {
 	QApplication::setWindowIcon(QIcon(QPixmap(Paths_Icon_Path + "icon.ico")));
+
+//    std::string path = QString("./").toStdString();
+//    for (const auto & entry : std::filesystem::directory_iterator(path))
+//        std::cout << entry.path() << std::endl;
 
 	Locale.setNumberOptions(QLocale::OmitGroupSeparator);
 
