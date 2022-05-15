@@ -108,6 +108,7 @@ bool auto_density_from_elements;
 
 // Layer_Values
 QString	default_layer_material;
+QString	default_layer_material_second;
 
 double	default_layer_absolute_density;
 double	default_layer_absolute_density_min;
@@ -773,6 +774,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 
 	structure_Default_Values.beginGroup( Layer_Values );
 		default_layer_material					= structure_Default_Values.value( "default_layer_material",					"Be"		).toString();
+        default_layer_material_second   		= structure_Default_Values.value( "default_layer_material_second",			"Mo"		).toString();
 
 		default_layer_absolute_density			= structure_Default_Values.value( "default_layer_absolute_density",			2.699		).toDouble();
 		default_layer_absolute_density_min		= structure_Default_Values.value( "default_layer_absolute_density_min",		2.500		).toDouble();
@@ -1044,6 +1046,7 @@ void Settings::save_Structure_Default_Values()
 
 	structure_Default_Values.beginGroup( Layer_Values );
 		structure_Default_Values.setValue( "default_layer_material",					default_layer_material						);
+        structure_Default_Values.setValue( "default_layer_material_second",				default_layer_material_second				);
 
 		structure_Default_Values.setValue( "default_layer_absolute_density",			default_layer_absolute_density				);
 		structure_Default_Values.setValue( "default_layer_absolute_density_min",		default_layer_absolute_density_min			);

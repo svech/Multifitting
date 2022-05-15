@@ -114,6 +114,7 @@ extern bool auto_density_from_elements;
 
 // Layer_Values
 extern QString	default_layer_material;
+extern QString	default_layer_material_second;
 
 extern double	default_layer_absolute_density;
 extern double	default_layer_absolute_density_min;

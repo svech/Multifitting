@@ -657,7 +657,7 @@ void Curve_Plot_1D::plot_All_Data()
 			// TODO
 			if(values.size() == 0)
 			{
-				qInfo() << "Target curve " << plot_Indicator << " : calculation of " << target_Curve->curve.value_Type << "is not done. Fake data are shown." << endl;
+                qInfo() << "Target curve " << plot_Indicator << " : calculation of " << target_Curve->curve.value_Type << "is not done." << endl;
 				values = target_Curve->curve.shifted_Values;
 				for(size_t i=0; i<values.size(); i++) {values[i] = 0;}
 			}
@@ -715,7 +715,7 @@ void Curve_Plot_1D::plot_All_Data()
 		// TODO
 		if(values.size() == 0 )
 		{
-			qInfo() << "Independent curve " << plot_Indicator << " : calculation is not done. Fake data are shown." << endl;
+            qInfo() << "Independent curve " << plot_Indicator << " : calculation is not done." << endl;
 			if(argument.size() == 0)
 			{
 				argument.resize(1000);

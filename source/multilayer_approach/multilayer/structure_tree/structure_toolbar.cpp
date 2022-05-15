@@ -181,6 +181,11 @@ void Structure_Toolbar::add_Multilayer()
 				layer.interlayer_Composition[interlayer_Index].enabled = false;
 			}
 		}
+        if(i==1)
+        {
+            layer.material = default_layer_material_second;
+            layer.approved_Material = layer.material;
+        }
 //		Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model, is_Last_Layer);
 		Global_Variables::new_Layer_Particles_Model     (layer, structure_Tree->multilayer->imperfections_Model);
 
@@ -677,7 +682,7 @@ void Structure_Toolbar::destroy()
 	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Remove all layers?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	if (reply == QMessageBox::Yes)
 	{
-		QMessageBox::information(this,"Removal", "Caution: the file is the same!");
+        QMessageBox::information(this,"Removal", "Caution: the file remains the same!");
 
 		structure_Tree->tree->clear();
 		add_Ambient();

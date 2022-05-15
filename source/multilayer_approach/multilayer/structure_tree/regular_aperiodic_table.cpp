@@ -520,12 +520,12 @@ void Regular_Aperiodic_Table::create_Table()
 		}
 	}
 
-	Table_Of_Structures::fit_Column(regular_Table, 0, 0);
-	Table_Of_Structures::fit_Column(regular_Table, 0, 1);
-	Table_Of_Structures::fit_Column(regular_Table, 0, 2);
-	Table_Of_Structures::fit_Column(regular_Table, 0, 3);
-	Table_Of_Structures::fit_Column(regular_Table, 0, 4);
-	Table_Of_Structures::fit_Column(regular_Table, 0, 5);
+    Table_Of_Structures::fit_Column(regular_Table, 0, 0);
+    Table_Of_Structures::fit_Column(regular_Table, 0, 1);
+    Table_Of_Structures::fit_Column(regular_Table, 0, 2);
+    Table_Of_Structures::fit_Column(regular_Table, 0, 3);
+    Table_Of_Structures::fit_Column(regular_Table, 0, 4);
+    Table_Of_Structures::fit_Column(regular_Table, 0, 5);
 
 	int width = 0;
 	for(int i=0; i<2; i++) {width += regular_Table->columnWidth(i);}

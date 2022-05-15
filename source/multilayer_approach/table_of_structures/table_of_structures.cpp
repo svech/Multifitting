@@ -339,6 +339,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				new_Table->insertRow(new_Table->rowCount());
 			}
 
+//            return;
+
 			new_Table->insertRow(new_Table->rowCount());
 			current_Row = new_Table->rowCount()-2;
 			new_Table->insertRow(new_Table->rowCount());
@@ -2752,7 +2754,7 @@ void Table_Of_Structures::fit_Column(QTableWidget* table, int start_Width, int c
 				const QFont& myFont = current_CheckBox->font();
 				QFontMetrics fm(myFont);
 				int check_Box_Width=fm.width(current_CheckBox->text());
-				int shift = 25;
+                int shift = 25;
 				int current_Width = 0;
 				if(current_Column<=1) current_Width = max(COLOR_LEGEND_LABEL_WIDTH, check_Box_Width + shift);
 				else                  current_Width = check_Box_Width + shift + 1;
@@ -2764,7 +2766,7 @@ void Table_Of_Structures::fit_Column(QTableWidget* table, int start_Width, int c
 			}
 		}
 	}
-	table->setColumnWidth(current_Column, max_Width);
+    table->setColumnWidth(current_Column, max_Width);
 
 	// fit other line edits
 //	for(int row = 0; row<table->rowCount(); ++row)
@@ -2881,7 +2883,7 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 				if(item_Check_Box->property(item_Table_CheckBox_Property).toString() == item_Table_CheckBox_Property)
 				{
 					int current_Column = item_Check_Box->property(column_Property).toInt();
-					fit_Column(table, 0, current_Column);
+                    fit_Column(table, 0, current_Column);
 				}
 			}
 		});
@@ -3707,7 +3709,7 @@ void Table_Of_Structures::create_Nu0_Spin_Box(My_Table_Widget* table, int tab_In
 		if(ff>=1E-3 && ff<1E0)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(4);
 		if(ff>=1    && ff<10)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(3);
 		if(ff>=10)				vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(2);
-		fit_Column(table, 0, current_Column);
+        fit_Column(table, 0, current_Column);
 	}
 
 	// add widget to table
@@ -3736,7 +3738,7 @@ void Table_Of_Structures::create_Nu0_Spin_Box(My_Table_Widget* table, int tab_In
 			if(ff>=1E-3 && ff<1E0)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(4);
 			if(ff>=1    && ff<10)	vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(3);
 			if(ff>=10)				vertical_Inheritance_Roughness_Frequency_Spinbox->setDecimals(2);
-			fit_Column(table, 0, current_Column);
+            fit_Column(table, 0, current_Column);
 		}
 	});
 //	vertical_Inheritance_Roughness_Frequency_Spinbox->valueChanged(multilayer->imperfections_Model.vertical_Inheritance_Frequency/arg_Coeff);
@@ -5451,7 +5453,7 @@ void Table_Of_Structures::refresh_Element(My_Table_Widget* table, bool is_Partic
 			{
 				item_Check_Box->setText(Global_Variables::structure_Item_Name(struct_Data));
 				int current_Column = item_Check_Box->property(column_Property).toInt();
-				fit_Column(table, 0, current_Column);
+                fit_Column(table, 0, current_Column);
 			}
 		}
 
@@ -5708,7 +5710,7 @@ void Table_Of_Structures::refresh_Material(My_Table_Widget* table, bool is_Parti
 			{
 				item_Check_Box->setText(Global_Variables::structure_Item_Name(struct_Data));
 				int current_Column = item_Check_Box->property(column_Property).toInt();
-				fit_Column(table, 0, current_Column);
+                fit_Column(table, 0, current_Column);
 			}
 		}
 
@@ -7021,7 +7023,7 @@ void Table_Of_Structures::resize_Line_Edit(My_Table_Widget* table, Type* line_Ed
 	Global_Variables::resize_Line_Edit(line_Edit);
 
 	int current_Column = line_Edit->property(column_Property).toInt();
-	fit_Column(table, 0, current_Column);
+    fit_Column(table, 0, current_Column);
 }
 template void Table_Of_Structures::resize_Line_Edit<QLineEdit>		 (My_Table_Widget* , QLineEdit* );
 template void Table_Of_Structures::resize_Line_Edit<MyDoubleSpinBox> (My_Table_Widget* , MyDoubleSpinBox* );
