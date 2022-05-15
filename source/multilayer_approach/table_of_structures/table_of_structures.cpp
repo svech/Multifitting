@@ -171,7 +171,7 @@ void Table_Of_Structures::add_Tabs()
 		min_Max_Thickness_Spin_Boxes_List.append(QList<MyDoubleSpinBox*>());
 		min_Max_Sigma_Diffuse_Spin_Boxes_List.append(QList<MyDoubleSpinBox*>());
 
-		create_Table(new_Table, tab_Index);
+        create_Table(new_Table, tab_Index);
 		main_Tabs->addTab(new_Table, multilayer_Tabs->tabText(tab_Index));
 	}
 	for(int i = 0; i<main_Tabs->tabBar()->count(); i++)
@@ -216,7 +216,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		int steps_Row = 0;
 
 		// structure display
-		int max_Depth = Global_Variables::get_Tree_Depth(list_Of_Trees[tab_Index]->tree->invisibleRootItem());
+        int max_Depth = Global_Variables::get_Tree_Depth(list_Of_Trees[tab_Index]->tree->invisibleRootItem());
 		int depth, current_Column;
 
 		int interlayer_Types_To_Show = 0;
@@ -431,7 +431,6 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				new_Table->setSpan(current_Row+2,2,1,2);
 			}
 
-//            return;
             // density min/max
 			create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, "nothing", Rho_Sym/*+", "+Minus_Sym+"%"*/);
 			create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Density);
@@ -653,7 +652,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// print item name
 			QTableWidgetItem* table_Item = new QTableWidgetItem(/*Global_Variables::structure_Item_Name(struct_Data)*/);
-				table_Item->setWhatsThis(struct_Data.item_Type);
+                table_Item->setWhatsThis(struct_Data.item_Type);
 				table_Item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 			new_Table->setItem(current_Row,current_Column, table_Item);
 			struct_Table_Map.insert(structure_Item, table_Item);
@@ -2750,27 +2749,27 @@ void Table_Of_Structures::fit_Column(QTableWidget* table, int start_Width, int c
 			}
 		} else
 		// for item names
-		{
-			bool not_Fit_CheckBox = false;
-			if(current_CheckBox) not_Fit_CheckBox = current_CheckBox->property(fit_Column_Property).toBool();
+        {
+            bool not_Fit_CheckBox = false;
+            if(current_CheckBox) not_Fit_CheckBox = current_CheckBox->property(fit_Column_Property).toBool();
 
-			if(current_CheckBox && !not_Fit_CheckBox)
-			{
-				const QFont& myFont = current_CheckBox->font();
-				QFontMetrics fm(myFont);
-				int check_Box_Width=fm.width(current_CheckBox->text());
+            if(current_CheckBox && !not_Fit_CheckBox)
+            {
+                const QFont& myFont = current_CheckBox->font();
+                QFontMetrics fm(myFont);
+                int check_Box_Width=fm.width(current_CheckBox->text());
                 int shift = 25;
-				int current_Width = 0;
-				if(current_Column<=1) current_Width = max(COLOR_LEGEND_LABEL_WIDTH, check_Box_Width + shift);
-				else                  current_Width = check_Box_Width + shift + 1;
+                int current_Width = 0;
+                if(current_Column<=1) current_Width = max(COLOR_LEGEND_LABEL_WIDTH, check_Box_Width + shift);
+                else                  current_Width = check_Box_Width + shift + 1;
 
-				if(max_Width<current_Width)
-				{
-					max_Width = current_Width + 1;
-				}
-			}
+                if(max_Width<current_Width)
+                {
+                    max_Width = current_Width + 1;
+                }
+            }
         }
-	}
+    }
     table->setColumnWidth(current_Column, max_Width);
 
 	// fit other line edits
