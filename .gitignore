@@ -31,5 +31,8 @@
 
 *.nb
 
+*.fit
+*.txt
+
 build*
 settings

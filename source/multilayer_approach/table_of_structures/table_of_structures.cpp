@@ -339,8 +339,6 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				new_Table->insertRow(new_Table->rowCount());
 			}
 
-//            return;
-
 			new_Table->insertRow(new_Table->rowCount());
 			current_Row = new_Table->rowCount()-2;
 			new_Table->insertRow(new_Table->rowCount());
@@ -352,31 +350,35 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			/// color legend
 			{
+                int column_0_width = 110;
+
 				// slave parameter
 				QLabel* slave_Label = new QLabel("pure slave");
 					slave_Label->setAlignment(Qt::AlignCenter);
-					slave_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
+                    slave_Label->setMinimumWidth(column_0_width);
 				slave_Label->setStyleSheet(slave_Parameter_Color);
 				new_Table->setCellWidget(current_Row,0, slave_Label);
 
 				// master and slave parameter
 				QLabel* master_Slave_Label = new QLabel("master/slave");
 					master_Slave_Label->setAlignment(Qt::AlignCenter);
-					master_Slave_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
+                    master_Slave_Label->setMinimumWidth(column_0_width);
 				master_Slave_Label->setStyleSheet(master_Slave_Parameter_Color);
 				new_Table->setCellWidget(current_Row+1,0, master_Slave_Label);
 
 				// master parameter
 				QLabel* master_Label = new QLabel("pure master");
 					master_Label->setAlignment(Qt::AlignCenter);
-					master_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
+                    master_Label->setMinimumWidth(column_0_width);
 				master_Label->setStyleSheet(master_Parameter_Color);
 				new_Table->setCellWidget(current_Row+2,0, master_Label);
+
+                int column_1_width = 100;
 
 				// free parameter
 				QLabel* free_Label = new QLabel("free parameter");
 					free_Label->setAlignment(Qt::AlignCenter);
-					free_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
+                    free_Label->setMinimumWidth(column_1_width);
 				free_Label->setStyleSheet(free_Parameter_Color);
 //				new_Table->setCellWidget(current_Row+3,0, free_Label);
 				new_Table->setCellWidget(current_Row+2,1, free_Label);
@@ -384,14 +386,14 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				// confidence parameter
 				QLabel* confidence_Label = new QLabel("confidence interval");
 					confidence_Label->setAlignment(Qt::AlignCenter);
-					confidence_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
+                    confidence_Label->setMinimumWidth(column_1_width);
 				confidence_Label->setStyleSheet(confidence_Parameter_Color);
 				new_Table->setCellWidget(current_Row,1, confidence_Label);
 
 				// confidence master parameter
 				QLabel* confidence_Master_Label = new QLabel("master/confidence");
 					confidence_Master_Label->setAlignment(Qt::AlignCenter);
-					confidence_Master_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
+                    confidence_Master_Label->setMinimumWidth(column_1_width);
 				confidence_Master_Label->setStyleSheet(master_Confidence_Parameter_Color);
 				new_Table->setCellWidget(current_Row+1,1, confidence_Master_Label);
 
@@ -402,10 +404,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 //				restrict_Z_Label->setStyleSheet(soft_Restriction_Color);
 //				new_Table->setCellWidget(current_Row+2,1, restrict_Z_Label);
 
+                int column_2_width = 80;
+
 				// active fit
 				QLabel* fit_Label = new QLabel("active fit");
 					fit_Label->setAlignment(Qt::AlignCenter);
-					fit_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+                    fit_Label->setMinimumWidth(column_2_width);
 				fit_Label->setStyleSheet(fit_Color);
 				new_Table->setCellWidget(current_Row,2, fit_Label);
 				new_Table->setSpan(current_Row,2,1,2);
@@ -413,7 +417,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				// particles on/off
 				QLabel* particles_On_Off_Label = new QLabel("use particles");
 					particles_On_Off_Label->setAlignment(Qt::AlignCenter);
-					particles_On_Off_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+                    particles_On_Off_Label->setMinimumWidth(column_2_width);
 				particles_On_Off_Label->setStyleSheet(particles_On_Off_Color);
 				new_Table->setCellWidget(current_Row+1,2, particles_On_Off_Label);
 				new_Table->setSpan(current_Row+1,2,1,2);
@@ -421,13 +425,14 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				// nothing
 				QLabel* not_Parameter_Label = new QLabel("not parameter");
 					not_Parameter_Label->setAlignment(Qt::AlignCenter);
-					not_Parameter_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+                    not_Parameter_Label->setMinimumWidth(column_2_width);
 				not_Parameter_Label->setStyleSheet(not_Parameter_Color);
 				new_Table->setCellWidget(current_Row+2,2, not_Parameter_Label);
 				new_Table->setSpan(current_Row+2,2,1,2);
 			}
 
-			// density min/max
+//            return;
+            // density min/max
 			create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, "nothing", Rho_Sym/*+", "+Minus_Sym+"%"*/);
 			create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Density);
 			create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Density);
@@ -2764,7 +2769,7 @@ void Table_Of_Structures::fit_Column(QTableWidget* table, int start_Width, int c
 					max_Width = current_Width + 1;
 				}
 			}
-		}
+        }
 	}
     table->setColumnWidth(current_Column, max_Width);
 
