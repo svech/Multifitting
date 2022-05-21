@@ -250,7 +250,7 @@ void Curve_Plot_2D::create_Main_Layout()
 	create_Plot_Frame_And_Scale();
 	plot_All_Data();
 //	refresh_Axes_Labels();
-	refresh_Corner_Labels();
+    refresh_Corner_Labels();
 	create_Plot_Options_GroupBox(rescale);
 	touch_It();
 
@@ -1263,8 +1263,8 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 		});
 	}
 	// mark on click
-	{
-		connect(main_2D_Custom_Plot, &QCustomPlot::itemClick, this, [=](QCPAbstractItem* item, QMouseEvent* event)
+    {
+        connect(main_2D_Custom_Plot, &QCustomPlot::itemClick, this, [=](QCPAbstractItem* item, QMouseEvent* event)
 		{
 			Q_UNUSED(item)
 
@@ -1277,7 +1277,7 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 				y = graph_2D_Positions.y_Mark;
 			}
 
-			color_Map->data()->coordToCell(x,y,&x_Cell_Fix,&y_Cell_Fix);
+            color_Map->data()->coordToCell(x,y,&x_Cell_Fix,&y_Cell_Fix);
 
 			int x_Cell_Size = plot_Options.orientation == horizontal ? int(values_2D->front().size())-1 : int(values_2D->size())-1;
 			int y_Cell_Size = plot_Options.orientation == horizontal ? int(values_2D->size())-1 : int(values_2D->front().size())-1;
@@ -1293,10 +1293,16 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 				if(event->button() & Qt::RightButton)
 				{
 					clear_Section_Plots();
-				}
+
+                    x_Cell_Fix_Approved = -2022;
+                    y_Cell_Fix_Approved = -2022;
+                }
 				if(event->button() & Qt::LeftButton)
 				{
-					graph_2D_Positions.x_Mark = x;
+                    x_Cell_Fix_Approved = x_Cell_Fix;
+                    y_Cell_Fix_Approved = y_Cell_Fix;
+
+                    graph_2D_Positions.x_Mark = x;
 					graph_2D_Positions.y_Mark = y;
 
 					// mark position
@@ -1365,7 +1371,7 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 	{
 		QCPItemText* text_Item = new QCPItemText(main_2D_Custom_Plot);
 			text_Item->position->setCoords(QPointF(-MAX_DOUBLE, -MAX_DOUBLE));
-		connect(main_2D_Custom_Plot, &QCustomPlot::mouseMove, this, [=](QMouseEvent* event)
+        connect(main_2D_Custom_Plot, &QCustomPlot::mouseMove, this, [=](QMouseEvent* event)
 		{
 			if(event->button() == Qt::NoButton)
 			{
@@ -1469,7 +1475,7 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 						text_Item->setFont(QFont(font().family(), 10, QFont::Bold));
 	//					text_Item->setColor(Qt::white);
 					}
-					refresh_Corner_Labels(x, y, x_Cell_Cur, y_Cell_Cur);
+                    refresh_Corner_Labels(x, y, x_Cell_Cur, y_Cell_Cur);
 					replot_All();
 				} else
 				{
@@ -1486,9 +1492,15 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 						bottom_Horizontal_Custom_Plot->graph(1)->data()->clear();
 						bottom_Vertical_Custom_Plot->graph(1)->data()->clear();
 						left_Vertical_Custom_Plot->graph(1)->data()->clear();
-					}
-					refresh_Corner_Labels();
-					replot_All();
+                    }
+
+                    /// shows marked position
+                    double x_Fix, y_Fix;
+                    color_Map->data()->cellToCoord(x_Cell_Fix_Approved,y_Cell_Fix_Approved,&x_Fix,&y_Fix);
+                    refresh_Corner_Labels(x_Fix, y_Fix, x_Cell_Fix_Approved, y_Cell_Fix_Approved);
+                    /// just clears fields
+                    // refresh_Corner_Labels();
+                    replot_All();
 				}
 			}
 		});
