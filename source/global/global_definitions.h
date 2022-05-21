@@ -205,7 +205,7 @@ class Node;
 #define PERMANENT_INDEPENDENT 2				// angle and wavelength items in list
 #define MAX_PRECISION_USED 10				// tthumbnail and lineedit precisions
 #define RAND_SHIFT	100000					// rand * RAND_SHIFT + rand
-#define TABLE_FIX_WIDTH_LINE_EDIT_SHORT		50  // qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
+#define TABLE_FIX_WIDTH_LINE_EDIT_SHORT		60  // qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
 #define TABLE_FIX_WIDTH_LINE_EDIT_SIGMA		50
 #define TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS 57
 #define TABLE_FIX_WIDTH_LINE_EDIT_DENSITY	50

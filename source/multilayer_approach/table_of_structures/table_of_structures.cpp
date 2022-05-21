@@ -2360,10 +2360,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		if(show_Bottom_Row) rows_List_To_Span.append(new_Table->rowCount()-1);
 		else					new_Table->removeRow(new_Table->rowCount()-1);
 	}
-	span_Structure_Headers(new_Table);
-	span_Structure_Items(new_Table);
-	new_Table->resizeColumnsToContents();
+    new_Table->resizeColumnsToContents();
 	new_Table->resizeRowsToContents();
+    span_Structure_Headers(new_Table);
+    span_Structure_Items(new_Table);
 }
 
 void Table_Of_Structures::read_Trees()
@@ -3045,7 +3045,7 @@ void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int 
 void Table_Of_Structures::create_Browse_Button(My_Table_Widget* table, int current_Row, int start_Column, int material_LineEdit_Row, int material_LineEdit_Column)
 {
 	QPushButton* browse_Button = new QPushButton("Browse");
-		browse_Button->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+        browse_Button->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	table->setCellWidget(current_Row, start_Column, browse_Button);
 
 	QLineEdit* material_Line_Edit = qobject_cast<QLineEdit*>(table->cellWidget(material_LineEdit_Row, material_LineEdit_Column));
