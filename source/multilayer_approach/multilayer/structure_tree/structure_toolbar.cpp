@@ -710,8 +710,9 @@ void Structure_Toolbar::export_Structure()
 			index = i+1;
 		}
 	}
-	QString name = "structure_"+Locale.toString(index)+"_"+tab_Text+".txt";
-	QFile file(name);
+    QString path = Global_Variables::working_Directory() + "/";
+    QString name = "structure_"+Locale.toString(index)+"_"+tab_Text+".txt";
+    QFile file(path + name);
 	if (file.open(QIODevice::WriteOnly))
 	{
 		QTextStream out(&file);

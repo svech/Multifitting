@@ -95,49 +95,17 @@ void Menu::create_File_Menu()
 			QAction* act_Export_Structures = new QAction("Export structures", this);
 				act_Export_Structures->setShortcut(Qt::Key_T | Qt::CTRL);
 			file_Menu->addAction(act_Export_Structures);
-			connect(act_Export_Structures, &QAction::triggered, global_Multilayer_Approach, [=]
-			{
-				for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
-				{
-					Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
-					multilayer->structure_Tree->structure_Toolbar->export_Structure();
-				}
-			});
+            connect(act_Export_Structures, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::export_Structures);
 
 			QAction* act_Export_Curves = new QAction("Export curves", this);
 				act_Export_Curves->setShortcut(Qt::Key_T | Qt::CTRL | Qt::SHIFT);
 			file_Menu->addAction(act_Export_Curves);
-			connect(act_Export_Curves, &QAction::triggered, global_Multilayer_Approach, [=]
-			{
-				bool state_Print_1D = print_1D_Data_On_Recalculation;
-				bool state_Print_2D = print_2D_Data_On_Recalculation;
-				bool state_Print_1D_PSD = print_1D_PSD_From_Scattering_On_Recalculation;
-
-				print_1D_Data_On_Recalculation = true;
-				print_2D_Data_On_Recalculation = true;
-				print_1D_PSD_From_Scattering_On_Recalculation = true;
-
-				global_Multilayer_Approach->calculate();
-
-				print_1D_Data_On_Recalculation = state_Print_1D;
-				print_2D_Data_On_Recalculation = state_Print_2D;
-				print_1D_PSD_From_Scattering_On_Recalculation = state_Print_1D_PSD;
-			});
+            connect(act_Export_Curves, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::export_Curves);
 
             QAction* act_Export_Profile = new QAction("Export profile", this);
                 act_Export_Profile->setShortcut(Qt::Key_P | Qt::CTRL | Qt::SHIFT);
             file_Menu->addAction(act_Export_Profile);
-            connect(act_Export_Profile, &QAction::triggered, global_Multilayer_Approach, [=]
-            {
-//                qInfo() << "Export profile" << endl;
-//                if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key)) {
-//                    for(Profile_Plot* profile_Plot : global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector) {
-//                        profile_Plot->export_Profile();
-//                    }
-//                } else {
-//                    global_Multilayer_Approach->open_Profile_Plots();
-//                }
-            });
+            connect(act_Export_Profile, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::export_Profiles);
 		}
 		if(window_Type == window_Type_Table_Of_Structures)
 		{
@@ -193,7 +161,7 @@ void Menu::create_Optical_Constants_Menu()
 	optical_Constants_Menu = new QMenu("Optical constants", this);
 
 	QAction* act_optical_Constants = new QAction("Reload optical constants", this);
-	connect(act_optical_Constants, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->reload_Optical_Constants();});
+    connect(act_optical_Constants, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::reload_Optical_Constants);
 	optical_Constants_Menu->addAction(act_optical_Constants);
 }
 

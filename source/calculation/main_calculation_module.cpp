@@ -3063,9 +3063,7 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 		specular_Substraction = ", specular peak substracted from measurement data before PSD calculation";
 	}
 
-	QString path = "";
-	if(use_working_directory) path = working_directory + "/";
-	if(use_last_directory)	  path = last_directory + "/";
+    QString path = Global_Variables::working_Directory() + "/";
 
 	int prec = 10;
 
@@ -3256,9 +3254,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		first_Name = struct_Name + "_target_" + target_Curve->index/*Locale.toString(index+1)*/ + "_" + data_Element.the_Class->name;
 	}
 
-	QString path = "";
-	if(use_working_directory) path = working_directory + "/";
-	if(use_last_directory)	  path = last_directory + "/";
+    QString path = Global_Variables::working_Directory() + "/";
 
 	//-----------------------------------------------------------------------------------------------------
 	// 1D

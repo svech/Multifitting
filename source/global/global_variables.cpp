@@ -2230,26 +2230,39 @@ bool Global_Variables::check_Loaded_Version(int MAJOR, int MINOR, int BUILD)
 
 void Global_Variables::create_Shortcuts(QWidget* this_Widget)
 {
-	// shortcuts
-	{
-		QShortcut* save_Shortcut			= new QShortcut(QKeySequence(Qt::Key_S | Qt::CTRL),				this_Widget);
-		QShortcut* save_As_Shortcut			= new QShortcut(QKeySequence(Qt::Key_S | Qt::CTRL | Qt::SHIFT), this_Widget);
-		QShortcut* open_Shortcut			= new QShortcut(QKeySequence(Qt::Key_O | Qt::CTRL),				this_Widget);
-		QShortcut* open_As_Shortcut			= new QShortcut(QKeySequence(Qt::Key_O | Qt::CTRL | Qt::SHIFT), this_Widget);
-		QShortcut* fit_Shortcut				= new QShortcut(QKeySequence(Qt::Key_F | Qt::CTRL | Qt::SHIFT), this_Widget);
-		QShortcut* calc_Specular_Shortcut	= new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this_Widget);
-		QShortcut* calc_Confidence_Shortcut	= new QShortcut(QKeySequence(Qt::Key_A | Qt::CTRL | Qt::SHIFT), this_Widget);
-		QShortcut* abort_Shortcut			= new QShortcut(QKeySequence(Qt::Key_Period | Qt::ALT),         this_Widget);
+    QShortcut* save_Shortcut			  = new QShortcut(QKeySequence(Qt::Key_S | Qt::CTRL),			  this_Widget);
+    QShortcut* save_As_Shortcut			  = new QShortcut(QKeySequence(Qt::Key_S | Qt::CTRL | Qt::SHIFT), this_Widget);
+    QShortcut* open_Shortcut			  = new QShortcut(QKeySequence(Qt::Key_O | Qt::CTRL),			  this_Widget);
+    QShortcut* open_As_Shortcut			  = new QShortcut(QKeySequence(Qt::Key_O | Qt::CTRL | Qt::SHIFT), this_Widget);
+    QShortcut* fit_Shortcut				  = new QShortcut(QKeySequence(Qt::Key_F | Qt::CTRL | Qt::SHIFT), this_Widget);
+    QShortcut* calc_Specular_Shortcut	  = new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this_Widget);
+    QShortcut* calc_Confidence_Shortcut	  = new QShortcut(QKeySequence(Qt::Key_A | Qt::CTRL | Qt::SHIFT), this_Widget);
+    QShortcut* abort_Shortcut			  = new QShortcut(QKeySequence(Qt::Key_Period | Qt::ALT),         this_Widget);
+    QShortcut* export_Structures_Shortcut = new QShortcut(QKeySequence(Qt::Key_T | Qt::CTRL),             this_Widget);
+    QShortcut* export_Curves_Shortcut     = new QShortcut(QKeySequence(Qt::Key_T | Qt::CTRL | Qt::SHIFT), this_Widget);
+    QShortcut* export_Profiles_Shortcut   = new QShortcut(QKeySequence(Qt::Key_P | Qt::CTRL | Qt::SHIFT), this_Widget);
 
-        connect(save_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::save_Action);
-        connect(save_As_Shortcut,			&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::save_As);
-        connect(open_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::open_Action);
-        connect(open_As_Shortcut,			&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::open_As);
-        connect(fit_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::start_Fitting);
-        connect(calc_Specular_Shortcut,		&QShortcut::activated, global_Multilayer_Approach, [=](){global_Multilayer_Approach->calculate();});
-        connect(calc_Confidence_Shortcut,	&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::calc_Confidence_Intervals);
-        connect(abort_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::abort_Calculations);
-	}
+    connect(save_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::save_Action);
+    connect(save_As_Shortcut,			&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::save_As);
+    connect(open_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::open_Action);
+    connect(open_As_Shortcut,			&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::open_As);
+    connect(fit_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::start_Fitting);
+    connect(calc_Specular_Shortcut,		&QShortcut::activated, global_Multilayer_Approach, [=](){global_Multilayer_Approach->calculate();});
+    connect(calc_Confidence_Shortcut,	&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::calc_Confidence_Intervals);
+    connect(abort_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::abort_Calculations);
+    connect(export_Structures_Shortcut, &QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::export_Structures);
+    connect(export_Curves_Shortcut,     &QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::export_Curves);
+    connect(export_Profiles_Shortcut,   &QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::export_Profiles);
+}
+
+QString Global_Variables::working_Directory()
+{
+    QString dir = QDir::currentPath();
+    if(use_multifitting_directory)  dir = QDir::currentPath();
+    if(use_working_directory)       dir = working_directory;
+    if(use_last_directory)          dir = last_directory;
+
+    return dir;
 }
 
 void Global_Variables::parallel_For(int num_Points, int num_Threads, const std::function<void(int n_Min, int n_Max, int thread_Index)>& lambda)

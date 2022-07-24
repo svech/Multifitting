@@ -68,6 +68,9 @@ public:
 	void calculation_Finished();
 	void calc_Confidence_Intervals();
 	void reload_Optical_Constants();
+    void export_Structures();
+    void export_Curves();
+    void export_Profiles();
 
 	void open_Table_Of_Structures();
 	void open_Profile_Plots();

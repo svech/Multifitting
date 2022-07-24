@@ -1300,10 +1300,7 @@ void Multilayer_Approach::open(QString filename)
 
 void Multilayer_Approach::open_As()
 {
-	QString directory_To_Open = QDir::currentPath();
-    if(use_multifitting_directory)  directory_To_Open = QDir::currentPath() + "/";
-    if(use_working_directory)       directory_To_Open = working_directory;
-    if(use_last_directory)          directory_To_Open = last_directory;
+    QString directory_To_Open = Global_Variables::working_Directory();
 
 	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Open saved file", directory_To_Open, "Multifitting files " + QString("*.fit") + ";;All files (*.*)"));
 	if(!filename.completeBaseName().isEmpty())
@@ -1320,12 +1317,7 @@ void Multilayer_Approach::open_Action()
     if(file_Was_Opened_or_Saved || open_last_file) {
         open(last_file);
     } else {
-        QString path = "";
-
-        if(use_multifitting_directory)  path = QDir::currentPath() + "/";
-        if(use_working_directory)       path = working_directory + "/";
-        if(use_last_directory)          path = last_directory + "/";
-        open(path + default_File);
+        open(Global_Variables::working_Directory() + "/" + default_File);
     }
 }
 
@@ -1524,9 +1516,7 @@ void Multilayer_Approach::save(QString filename)
 
 void Multilayer_Approach::save_As()
 {
-	QString directory_To_Save = QDir::currentPath();
-	if(use_working_directory) directory_To_Save = working_directory;
-	if(use_last_directory)	  directory_To_Save = last_directory;
+    QString directory_To_Save = Global_Variables::working_Directory();
 
 	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, "Save as", directory_To_Save, "Multifitting files " + QString("*.fit") + ";;All files (*.*)"));
 	if(!filename.completeBaseName().isEmpty())
@@ -1548,12 +1538,7 @@ void Multilayer_Approach::save_Action()
     if(file_Was_Opened_or_Saved) {
         save(last_file);
     } else {
-        QString path = "";
-
-        if(use_multifitting_directory)  path = QDir::currentPath() + "/";
-        if(use_working_directory)       path = working_directory + "/";
-        if(use_last_directory)          path = last_directory + "/";
-        save(path + default_File);
+        save(Global_Variables::working_Directory() + "/" + default_File);
     }
 }
 
@@ -1692,5 +1677,43 @@ void Multilayer_Approach::reload_Optical_Constants()
 					 "\nreload optical constants..."
 					 "\n-------------------------------------------------------\n\n";
 		optical_Constants->reload();
-	}
+    }
+}
+
+void Multilayer_Approach::export_Structures()
+{
+    for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
+    {
+        Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+        multilayer->structure_Tree->structure_Toolbar->export_Structure();
+    }
+}
+
+void Multilayer_Approach::export_Curves()
+{
+    bool state_Print_1D = print_1D_Data_On_Recalculation;
+    bool state_Print_2D = print_2D_Data_On_Recalculation;
+    bool state_Print_1D_PSD = print_1D_PSD_From_Scattering_On_Recalculation;
+
+    print_1D_Data_On_Recalculation = true;
+    print_2D_Data_On_Recalculation = true;
+    print_1D_PSD_From_Scattering_On_Recalculation = true;
+
+    calculate();
+
+    print_1D_Data_On_Recalculation = state_Print_1D;
+    print_2D_Data_On_Recalculation = state_Print_2D;
+    print_1D_PSD_From_Scattering_On_Recalculation = state_Print_1D_PSD;
+}
+
+void Multilayer_Approach::export_Profiles()
+{
+    qInfo() << "Export profile" << endl;
+//    if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key)) {
+//        for(Profile_Plot* profile_Plot : global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector) {
+//            profile_Plot->export_Profile();
+//        }
+//    } else {
+//        global_Multilayer_Approach->open_Profile_Plots();
+//    }
 }

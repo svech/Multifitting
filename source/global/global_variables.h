@@ -316,6 +316,7 @@ public:
 	static void copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree);
 	static bool check_Loaded_Version(int MAJOR, int MINOR, int BUILD);
 	static void create_Shortcuts(QWidget* this_Widget);
+    static QString working_Directory();
 
 	static void parallel_For(int num_Points, int num_Threads, const std::function<void(int n_Min, int n_Max, int thread_Index)> &lambda);
 	static double get_Order_Of_Magnitude(double number);
