@@ -103,7 +103,7 @@ void Menu::create_File_Menu()
             connect(act_Export_Curves, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::export_Curves);
 
             QAction* act_Export_Profile = new QAction("Export profile", this);
-                act_Export_Profile->setShortcut(Qt::Key_P | Qt::CTRL | Qt::SHIFT);
+                act_Export_Profile->setShortcut(Qt::Key_P | Qt::SHIFT);
             file_Menu->addAction(act_Export_Profile);
             connect(act_Export_Profile, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::export_Profiles);
 		}

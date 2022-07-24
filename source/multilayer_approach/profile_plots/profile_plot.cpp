@@ -1406,7 +1406,156 @@ void Profile_Plot::calculate_Profile()
 void Profile_Plot::export_Profile()
 {
     qInfo() << "export_Profile()" << endl;
+
+    QString name = Global_Variables::working_Directory() + "/" + "test.txt";
+    QFile file(name);
+    file.open(QIODevice::WriteOnly);
+    QTextStream out(&file);
+    out.setFieldAlignment(QTextStream::AlignLeft);
+
+    print_Profile(out);
+    file.close();
 }
+
+void Profile_Plot::print_Profile(QTextStream& out)
+{
+    // point as decimal separator
+    Locale=QLocale::c();
+
+//	// headline
+//	QString S_mixed  = "S_mixed";
+//	QString S_s      = "S_s";
+//	QString S_p      = "S_p";
+
+//	int precision_Arg = 16;
+//	int precision_R_T_A_S = 6;
+//	int precision_Phi = 4;
+
+//	int arg_Shift = 3;
+//	int width_Short= 8+precision_Arg;
+//	int width_Long = 11+precision_R_T_A_S;
+
+//	///------------------------------------------------------------------------
+//	/// headline
+//	{
+//		QDateTime date_Time = QDateTime::currentDateTime();
+
+//		// top header
+//		{
+//			out << "; " << date_Time.toString("<dd.MM.yyyy | hh:mm:ss>")  <<endl;
+//			out << "; " << measurement_Type << endl << endl;
+//			out << "; polarization = " << Locale.toString(incident_Polarization,'f', 3) << endl;
+//			out << "; " << at_Fixed_Heading << endl << endl;
+//			out << "; " << instrumental_Heading << endl << endl;
+//			out << "; " << geometry_Heading << endl << endl;
+//		}
+
+//		// argument
+//		{
+//			out << qSetFieldWidth(arg_Shift-1) << ";";
+//			out << qSetFieldWidth(width_Short) << argument_Heading  << qSetFieldWidth(width_Long);
+//		}
+
+//		// reflectance
+//		if(calc_Functions.check_Reflectance)
+//		{
+//																		out << R_mixed;
+//			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << R_s;
+//			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << R_p;
+//			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Phi_R_s;
+//			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Phi_R_p;
+//		}
+
+//		// transmittance
+//		if(calc_Functions.check_Transmittance)
+//		{
+//																		out << T_mixed;
+//			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << T_s;
+//			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << T_p;
+//			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Phi_T_s;
+//			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Phi_T_p;
+//		}
+
+//		// absorptance
+//		if(calc_Functions.check_Absorptance)
+//		{
+//																		out << A_mixed;
+//			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << A_s;
+//			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << A_p;
+//		}
+
+//		// scattering
+//		if(calc_Functions.check_Scattering)
+//		{																out << S_mixed;
+//			if(unwrapped_Reflection->multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
+//			{
+//				if((incident_Polarization + 1) > POLARIZATION_TOLERANCE) out << S_s;
+//				if((incident_Polarization - 1) <-POLARIZATION_TOLERANCE) out << S_p;
+//			}
+//		}
+//		out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
+//	}
+//	///------------------------------------------------------------------------
+//	/// data
+//	{
+//		for(size_t i=0; i<arg.size(); ++i)
+//		{
+//			// argument
+//			{
+//				out << qSetFieldWidth(width_Short) << Locale.toString(arg[i],'f',precision_Arg)  << qSetFieldWidth(width_Long);
+//			}
+
+//			// reflectance
+//			if(calc_Functions.check_Reflectance) {
+//			if(unwrapped_Reflection->calculated_Values.R_Instrumental.size() == arg.size())
+//			{
+//																			out << Locale.toString(unwrapped_Reflection->calculated_Values.R_Instrumental[i],'e',precision_R_T_A_S);
+//				if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.R_s           [i],'e',precision_R_T_A_S);
+//				if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.R_p           [i],'e',precision_R_T_A_S);
+//				if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_R_s       [i],'f',precision_Phi);
+//				if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_R_p       [i],'f',precision_Phi);
+//			}}
+
+//			// transmittance
+//			if(calc_Functions.check_Transmittance) {
+//			if(unwrapped_Reflection->calculated_Values.T_Instrumental.size() == arg.size())
+//			{
+//																			out << Locale.toString(unwrapped_Reflection->calculated_Values.T_Instrumental[i],'e',precision_R_T_A_S);
+//				if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.T_s           [i],'e',precision_R_T_A_S);
+//				if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.T_p           [i],'e',precision_R_T_A_S);
+//				if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_T_s       [i],'f',precision_Phi);
+//				if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_T_p       [i],'f',precision_Phi);
+//			}}
+
+//			// absorptance
+//			if(calc_Functions.check_Absorptance)
+//			if(unwrapped_Reflection->calculated_Values.A.size() == arg.size())
+//			{
+//																			out << Locale.toString(unwrapped_Reflection->calculated_Values.A			 [i],'e',precision_R_T_A_S);
+//				if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.A_s           [i],'e',precision_R_T_A_S);
+//				if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.A_p           [i],'e',precision_R_T_A_S);
+//			}
+
+//			// scattering
+//			if(calc_Functions.check_Scattering) {
+//			if(unwrapped_Reflection->calculated_Values.S_Instrumental.size() == arg.size())
+//			{
+//																			 out << Locale.toString(unwrapped_Reflection->calculated_Values.S_Instrumental[i],'e',precision_R_T_A_S);
+//				if(unwrapped_Reflection->multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
+//				{
+//					if((incident_Polarization + 1) > POLARIZATION_TOLERANCE) out << Locale.toString(unwrapped_Reflection->calculated_Values.S_s           [i],'e',precision_R_T_A_S);
+//					if((incident_Polarization - 1) <-POLARIZATION_TOLERANCE) out << Locale.toString(unwrapped_Reflection->calculated_Values.S_p           [i],'e',precision_R_T_A_S);
+//				}
+//			}}
+
+//			if(i!=arg.size()-1)	out << qSetFieldWidth(arg_Shift) << endl << qSetFieldWidth(width_Short);
+//		}
+//	}
+
+    // back to system locale
+    Locale = QLocale::system();
+}
+
 
 complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z, int thread_Index, QString given_Material_or_Element)
 {

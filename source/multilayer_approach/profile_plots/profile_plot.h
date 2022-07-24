@@ -19,6 +19,7 @@ public:
 	void plot_Data(bool recalculate_Profile = false);
     void calculate_Profile();
     void export_Profile();
+    void print_Profile(QTextStream &out);
     void get_Delta_Epsilon(const Data& struct_Data, double& delta, double& beta);
 	void get_Material(const Data& struct_Data);
 	void get_Element_Map(const Data& struct_Data, QMap<QString,double>& element_Map);
@@ -110,7 +111,7 @@ public:
 	QVector<QVector<double>> val_Sharp_Multiple;
 
 	QMap<QCPGraph*,QCPGraph*> map_Sharp_Smooth;
-	bool visibility_State = true;
+    bool visibility_State = true;
 };
 
 #endif // PROFILE_PLOT_H

@@ -2240,7 +2240,7 @@ void Global_Variables::create_Shortcuts(QWidget* this_Widget)
     QShortcut* abort_Shortcut			  = new QShortcut(QKeySequence(Qt::Key_Period | Qt::ALT),         this_Widget);
     QShortcut* export_Structures_Shortcut = new QShortcut(QKeySequence(Qt::Key_T | Qt::CTRL),             this_Widget);
     QShortcut* export_Curves_Shortcut     = new QShortcut(QKeySequence(Qt::Key_T | Qt::CTRL | Qt::SHIFT), this_Widget);
-    QShortcut* export_Profiles_Shortcut   = new QShortcut(QKeySequence(Qt::Key_P | Qt::CTRL | Qt::SHIFT), this_Widget);
+    QShortcut* export_Profiles_Shortcut   = new QShortcut(QKeySequence(Qt::Key_P | Qt::SHIFT),            this_Widget);
 
     connect(save_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::save_Action);
     connect(save_As_Shortcut,			&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::save_As);

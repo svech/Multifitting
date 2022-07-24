@@ -1709,11 +1709,11 @@ void Multilayer_Approach::export_Curves()
 void Multilayer_Approach::export_Profiles()
 {
     qInfo() << "Export profile" << endl;
-//    if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key)) {
-//        for(Profile_Plot* profile_Plot : global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector) {
-//            profile_Plot->export_Profile();
-//        }
-//    } else {
-//        global_Multilayer_Approach->open_Profile_Plots();
-//    }
+    if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key)) {
+        for(Profile_Plot* profile_Plot : global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector) {
+            profile_Plot->export_Profile();
+        }
+    } else {
+        global_Multilayer_Approach->open_Profile_Plots();
+    }
 }
