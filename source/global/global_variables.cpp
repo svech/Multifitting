@@ -2241,40 +2241,14 @@ void Global_Variables::create_Shortcuts(QWidget* this_Widget)
 		QShortcut* calc_Confidence_Shortcut	= new QShortcut(QKeySequence(Qt::Key_A | Qt::CTRL | Qt::SHIFT), this_Widget);
 		QShortcut* abort_Shortcut			= new QShortcut(QKeySequence(Qt::Key_Period | Qt::ALT),         this_Widget);
 
-		connect(save_Shortcut,				&QShortcut::activated, this_Widget, [=]
-		{
-			if(global_Multilayer_Approach->file_Was_Opened_or_Saved)
-			{
-				global_Multilayer_Approach->save(last_file);
-			}
-			else
-			{
-				QString path = "";
-				if(use_working_directory) path = working_directory + "/";
-				if(use_last_directory)	  path = last_directory + "/";
-				global_Multilayer_Approach->save(path + default_File);
-			}
-		});
-		connect(save_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->save_As();					 });
-		connect(open_Shortcut,				&QShortcut::activated, this_Widget, [=]
-		{
-			if(global_Multilayer_Approach->file_Was_Opened_or_Saved || open_last_file)
-			{
-				global_Multilayer_Approach->open(last_file);
-			}
-			else
-			{
-				QString path = "";
-				if(use_working_directory) path = working_directory + "/";
-				if(use_last_directory)	  path = last_directory + "/";
-				global_Multilayer_Approach->open(path + default_File);
-			}
-		});
-		connect(open_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->open_As();					 });
-		connect(fit_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->start_Fitting();		     });
-		connect(calc_Specular_Shortcut,		&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->calculate();				 });
-		connect(calc_Confidence_Shortcut,	&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->calc_Confidence_Intervals();});
-		connect(abort_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->abort_Calculations();		 });
+        connect(save_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::save_Action);
+        connect(save_As_Shortcut,			&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::save_As);
+        connect(open_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::open_Action);
+        connect(open_As_Shortcut,			&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::open_As);
+        connect(fit_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::start_Fitting);
+        connect(calc_Specular_Shortcut,		&QShortcut::activated, global_Multilayer_Approach, [=](){global_Multilayer_Approach->calculate();});
+        connect(calc_Confidence_Shortcut,	&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::calc_Confidence_Intervals);
+        connect(abort_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::abort_Calculations);
 	}
 }
 

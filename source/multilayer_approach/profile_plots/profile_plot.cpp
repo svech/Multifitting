@@ -1400,7 +1400,12 @@ void Profile_Plot::calculate_Profile()
 		}
 		custom_Plot->legend->setVisible(true);
 		custom_Plot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight/*|Qt::AlignTop*/);
-	}
+    }
+}
+
+void Profile_Plot::export_Profile()
+{
+    qInfo() << "export_Profile()" << endl;
 }
 
 complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z, int thread_Index, QString given_Material_or_Element)

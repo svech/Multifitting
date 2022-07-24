@@ -33,7 +33,7 @@ void Optical_Constants::read_All()
 
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-	qInfo() << "Read optical constants: "<< elapsed.count()/1000. << " seconds" << endl;
+    qInfo() << "Read optical constants: "<< elapsed.count()/1000. << " seconds" << endl;
 
 //	Material_Data temp_Material_Data = material_Map.value("Y_sae-lao.nk");
 //	qInfo() << temp_Material_Data.substance << "\t" << temp_Material_Data.filename << endl;

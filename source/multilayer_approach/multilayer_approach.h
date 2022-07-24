@@ -55,9 +55,11 @@ public:
 	void refresh_All_Multilayers_View();
 	void open(QString filename);
 	void open_As();
+    void open_Action();
 	void save(QString filename);
 	void save_As();
-	void calculate(bool silent = false);
+    void save_Action();
+    void calculate(bool silent = false);
 	void global_Recalculate(bool silent = true);
 	void recalculate_From_Table(bool silent = true);
 	void start_Fitting();

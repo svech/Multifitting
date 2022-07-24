@@ -74,52 +74,23 @@ void Menu::create_File_Menu()
 		{
 			QAction* act_Open = new QAction("Open last", this);
 				act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
-			connect(act_Open, &QAction::triggered, global_Multilayer_Approach, [=]
-			{
-				if(global_Multilayer_Approach->file_Was_Opened_or_Saved || open_last_file)
-				{
-					global_Multilayer_Approach->open(last_file);
-				}
-				else
-				{
-					QString path = "";
-
-					if(use_multifitting_directory) path = QDir::currentPath() + "/";
-					if(use_working_directory) path = working_directory + "/";
-					if(use_last_directory)	  path = last_directory + "/";
-
-					global_Multilayer_Approach->open(path + default_File);
-				}
-			});
+            connect(act_Open, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::open_Action);
 			file_Menu->addAction(act_Open);
 
 			QAction* act_Open_As = new QAction("Open", this);
 				act_Open_As->setShortcut(Qt::Key_O | Qt::CTRL | Qt::SHIFT);
-			connect(act_Open_As, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->open_As();});
+            connect(act_Open_As, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::open_As);
 			file_Menu->addAction(act_Open_As);
 
 			QAction* act_Save = new QAction("Save", this);
 			act_Save->setShortcut(Qt::Key_S | Qt::CTRL);
 			file_Menu->addAction(act_Save);
-			connect(act_Save, &QAction::triggered, global_Multilayer_Approach, [=]
-			{
-				if(global_Multilayer_Approach->file_Was_Opened_or_Saved)
-				{
-					global_Multilayer_Approach->save(last_file);
-				}
-				else
-				{
-					QString path = "";
-					if(use_working_directory) path = working_directory + "/";
-					if(use_last_directory)	  path = last_directory + "/";
-					global_Multilayer_Approach->save(path + default_File);
-				}
-			});
+            connect(act_Save, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::save_Action);
 
 			QAction* act_Save_As = new QAction("Save as", this);
 				act_Save_As->setShortcut(Qt::Key_S | Qt::CTRL | Qt::SHIFT);
 			file_Menu->addAction(act_Save_As);
-			connect(act_Save_As, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->save_As();});
+            connect(act_Save_As, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::save_As);
 
 			QAction* act_Export_Structures = new QAction("Export structures", this);
 				act_Export_Structures->setShortcut(Qt::Key_T | Qt::CTRL);
@@ -152,6 +123,21 @@ void Menu::create_File_Menu()
 				print_2D_Data_On_Recalculation = state_Print_2D;
 				print_1D_PSD_From_Scattering_On_Recalculation = state_Print_1D_PSD;
 			});
+
+            QAction* act_Export_Profile = new QAction("Export profile", this);
+                act_Export_Profile->setShortcut(Qt::Key_P | Qt::CTRL | Qt::SHIFT);
+            file_Menu->addAction(act_Export_Profile);
+            connect(act_Export_Profile, &QAction::triggered, global_Multilayer_Approach, [=]
+            {
+//                qInfo() << "Export profile" << endl;
+//                if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key)) {
+//                    for(Profile_Plot* profile_Plot : global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector) {
+//                        profile_Plot->export_Profile();
+//                    }
+//                } else {
+//                    global_Multilayer_Approach->open_Profile_Plots();
+//                }
+            });
 		}
 		if(window_Type == window_Type_Table_Of_Structures)
 		{
@@ -190,10 +176,10 @@ void Menu::create_Calculate_Menu()
 
 	if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table_Of_Structures)
 	{
-		connect(act_Specular,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calculate();				 });
-		connect(act_Fitting,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->start_Fitting();			 });
-		connect(act_Confidence,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calc_Confidence_Intervals();});
-		connect(act_Abort,		&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->abort_Calculations();		 });
+        connect(act_Specular,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calculate();});
+        connect(act_Fitting,	&QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::start_Fitting);
+        connect(act_Confidence,	&QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::calc_Confidence_Intervals);
+        connect(act_Abort,		&QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::abort_Calculations);
 
 		calculate_Menu->addAction(act_Specular);
 		calculate_Menu->addAction(act_Fitting);

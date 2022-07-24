@@ -17,8 +17,9 @@ public:
 	void create_Left_Side();
 	void create_Plot_Frame_And_Scale();
 	void plot_Data(bool recalculate_Profile = false);
-	void calculate_Profile();
-	void get_Delta_Epsilon(const Data& struct_Data, double& delta, double& beta);
+    void calculate_Profile();
+    void export_Profile();
+    void get_Delta_Epsilon(const Data& struct_Data, double& delta, double& beta);
 	void get_Material(const Data& struct_Data);
 	void get_Element_Map(const Data& struct_Data, QMap<QString,double>& element_Map);
 	void fill_All_Data_From_Struct_Vector();

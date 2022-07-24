@@ -1301,8 +1301,9 @@ void Multilayer_Approach::open(QString filename)
 void Multilayer_Approach::open_As()
 {
 	QString directory_To_Open = QDir::currentPath();
-	if(use_working_directory) directory_To_Open = working_directory;
-	if(use_last_directory)	  directory_To_Open = last_directory;
+    if(use_multifitting_directory)  directory_To_Open = QDir::currentPath() + "/";
+    if(use_working_directory)       directory_To_Open = working_directory;
+    if(use_last_directory)          directory_To_Open = last_directory;
 
 	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Open saved file", directory_To_Open, "Multifitting files " + QString("*.fit") + ";;All files (*.*)"));
 	if(!filename.completeBaseName().isEmpty())
@@ -1311,7 +1312,21 @@ void Multilayer_Approach::open_As()
 		preliminary_last_directory = filename.absolutePath();
 
 		open(preliminary_last_file);
-	}
+    }
+}
+
+void Multilayer_Approach::open_Action()
+{
+    if(file_Was_Opened_or_Saved || open_last_file) {
+        open(last_file);
+    } else {
+        QString path = "";
+
+        if(use_multifitting_directory)  path = QDir::currentPath() + "/";
+        if(use_working_directory)       path = working_directory + "/";
+        if(use_last_directory)          path = last_directory + "/";
+        open(path + default_File);
+    }
 }
 
 void Multilayer_Approach::save(QString filename)
@@ -1525,7 +1540,21 @@ void Multilayer_Approach::save_As()
 
 		save(last_file_0);
 		last_file = last_file_0;
-	}
+    }
+}
+
+void Multilayer_Approach::save_Action()
+{
+    if(file_Was_Opened_or_Saved) {
+        save(last_file);
+    } else {
+        QString path = "";
+
+        if(use_multifitting_directory)  path = QDir::currentPath() + "/";
+        if(use_working_directory)       path = working_directory + "/";
+        if(use_last_directory)          path = last_directory + "/";
+        save(path + default_File);
+    }
 }
 
 void Multilayer_Approach::calculate(bool silent)
