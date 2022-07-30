@@ -1405,10 +1405,12 @@ void Profile_Plot::calculate_Profile()
 
 void Profile_Plot::export_Profile()
 {
-    qInfo() << "export_Profile()" << endl;
+    int index = global_Multilayer_Approach->profile_Plots_Window->main_Tabs->currentIndex();
+    QString tab_Text = global_Multilayer_Approach->multilayer_Tabs->tabText(index);
 
-    QString name = Global_Variables::working_Directory() + "/" + "test.txt";
-    QFile file(name);
+    QString path = Global_Variables::working_Directory() + "/";
+    QString name = "profile_"+Locale.toString(index)+"_"+tab_Text+".txt";
+    QFile file(path + name);
     file.open(QIODevice::WriteOnly);
     QTextStream out(&file);
     out.setFieldAlignment(QTextStream::AlignLeft);
@@ -1422,80 +1424,57 @@ void Profile_Plot::print_Profile(QTextStream& out)
     // point as decimal separator
     Locale=QLocale::c();
 
-//	// headline
-//	QString S_mixed  = "S_mixed";
-//	QString S_s      = "S_s";
-//	QString S_p      = "S_p";
+    // headline
+    QString real_Eps  = "Re(1-epsilon)";
+    QString imag_Eps  = "Im(epsilon)";
 
-//	int precision_Arg = 16;
-//	int precision_R_T_A_S = 6;
-//	int precision_Phi = 4;
+    int precision_Spectral_Units = 10;
+    QString angular_Units_Name;// = length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+    QString spectral_Units_Name = wavelength_Units_Legend_Map.value(multilayer->profile_Plot_Options.local_wavelength_units);
 
-//	int arg_Shift = 3;
-//	int width_Short= 8+precision_Arg;
-//	int width_Long = 11+precision_R_T_A_S;
 
-//	///------------------------------------------------------------------------
-//	/// headline
-//	{
-//		QDateTime date_Time = QDateTime::currentDateTime();
+    int precision_Arg = 16;
+    int precision_R_T_A_S = 6;
+    int precision_Phi = 4;
 
-//		// top header
-//		{
-//			out << "; " << date_Time.toString("<dd.MM.yyyy | hh:mm:ss>")  <<endl;
-//			out << "; " << measurement_Type << endl << endl;
-//			out << "; polarization = " << Locale.toString(incident_Polarization,'f', 3) << endl;
-//			out << "; " << at_Fixed_Heading << endl << endl;
-//			out << "; " << instrumental_Heading << endl << endl;
-//			out << "; " << geometry_Heading << endl << endl;
-//		}
+    int arg_Shift = 3;
+    int width_Short= 8+precision_Arg;
+    int width_Long = 11+precision_R_T_A_S;
 
-//		// argument
-//		{
-//			out << qSetFieldWidth(arg_Shift-1) << ";";
-//			out << qSetFieldWidth(width_Short) << argument_Heading  << qSetFieldWidth(width_Long);
-//		}
+    double spectral_Coeff = wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units);
+    QString at_Fixed_Heading = Global_Variables::wavelength_Energy_Name(multilayer->profile_Plot_Options.local_wavelength_units, true) + " = " +
+                               Locale.toString(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units,
+                                                                                   multilayer->profile_Plot_Options.local_Wavelength)/spectral_Coeff, 'g', precision_Spectral_Units) + " " +
+                                                                                   spectral_Units_Name;
+    QString argument_Heading = "Depth (" + angular_Units_Name + ")";
 
-//		// reflectance
-//		if(calc_Functions.check_Reflectance)
-//		{
-//																		out << R_mixed;
-//			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << R_s;
-//			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << R_p;
-//			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Phi_R_s;
-//			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Phi_R_p;
-//		}
 
-//		// transmittance
-//		if(calc_Functions.check_Transmittance)
-//		{
-//																		out << T_mixed;
-//			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << T_s;
-//			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << T_p;
-//			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Phi_T_s;
-//			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Phi_T_p;
-//		}
+    ///------------------------------------------------------------------------
+    /// headline
+    {
+        QDateTime date_Time = QDateTime::currentDateTime();
 
-//		// absorptance
-//		if(calc_Functions.check_Absorptance)
-//		{
-//																		out << A_mixed;
-//			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << A_s;
-//			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << A_p;
-//		}
+        // top header
+        {
+            out << "; " << date_Time.toString("<dd.MM.yyyy | hh:mm:ss>")  <<endl;
+            out << "; " << at_Fixed_Heading << endl << endl;
+        }
 
-//		// scattering
-//		if(calc_Functions.check_Scattering)
-//		{																out << S_mixed;
-//			if(unwrapped_Reflection->multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
-//			{
-//				if((incident_Polarization + 1) > POLARIZATION_TOLERANCE) out << S_s;
-//				if((incident_Polarization - 1) <-POLARIZATION_TOLERANCE) out << S_p;
-//			}
-//		}
-//		out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
-//	}
-//	///------------------------------------------------------------------------
+        // argument
+        {
+            out << qSetFieldWidth(arg_Shift-1) << ";";
+            out << qSetFieldWidth(width_Short) << argument_Heading  << qSetFieldWidth(width_Long);
+        }
+
+        // reflectance
+        {
+            out << real_Eps << qSetFieldWidth(width_Long);
+            out << imag_Eps << qSetFieldWidth(width_Long);
+        }
+
+        out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
+    }
+    ///------------------------------------------------------------------------
 //	/// data
 //	{
 //		for(size_t i=0; i<arg.size(); ++i)
