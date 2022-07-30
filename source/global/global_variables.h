@@ -198,7 +198,7 @@ enum SO_Methods_Enum	{	/* Mesh Iteration. */
 extern QStringList wavelength_Units_List;	extern QMap<QString, double> wavelength_Coefficients_Map;	extern QMap<QString, QString> wavelength_Units_Legend_Map;
 enum wavelength_Units_List_Enum		{ angstrom, nm, eV, keV }; // mcm
 
-extern QStringList length_Units_List;				extern QMap<QString, double> length_Coefficients_Map;
+extern QStringList length_Units_List;		extern QMap<QString, double> length_Coefficients_Map;       extern QMap<QString, QString> length_Units_Legend_Map;
 
 extern QStringList correlation_Length_Units_List;	extern QMap<QString, double> correlation_Length_Coefficients_Map;
 

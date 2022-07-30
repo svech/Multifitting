@@ -365,8 +365,10 @@ QMap<QString, QString> wavelength_Units_Legend_Map;
 
 // length
 QStringList   length_Units_List					{Angstrom_Sym,"nm"}; // Mu_Sym + "m"			// change enum!
+QStringList   length_Units_Legend_List          {"A"         ,"nm"}; // Mu_Sym+"m"
 QList<double> length_Coefficients_List			{1.          , 1E1}; // 1E4
 QMap<QString, double>  length_Coefficients_Map;
+QMap<QString, QString> length_Units_Legend_Map;
 
 // correlation length
 QStringList correlation_Length_Units_List				{Mu_Sym + "m","nm", Angstrom_Sym}; 	// change enum!
@@ -823,7 +825,8 @@ void Global_Variables::fill_Units_Maps()
 	for(int i=0; i<length_Units_List.size(); i++)
 	{
 		length_Coefficients_Map.insert(length_Units_List[i], length_Coefficients_List[i]);
-	}
+        length_Units_Legend_Map.insert(length_Units_List[i],length_Units_Legend_List[i]);
+    }
 	// correlation length
 	for(int i=0; i<correlation_Length_Units_List.size(); i++)
 	{
