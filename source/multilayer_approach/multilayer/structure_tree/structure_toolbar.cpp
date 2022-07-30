@@ -752,9 +752,8 @@ void Structure_Toolbar::export_Structure()
 				out.setFieldAlignment(QTextStream::AlignLeft);
 
 				// header
-				QDateTime date_Time = QDateTime::currentDateTime();
-				out << date_Time.toString(";< dd.MM.yyyy | hh:mm:ss >") << qSetFieldWidth(0) << endl;
-				out << ";< Multifitting v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+" >" << qSetFieldWidth(0) << endl;
+                out << "; " << Global_Variables::date_Time() << qSetFieldWidth(0) << endl;
+                out << "; " << Global_Variables::multifitting_Version() << qSetFieldWidth(0) << endl;
 				out << qSetFieldWidth(index_Width) << ";cell" << qSetFieldWidth(0) << " " << qSetFieldWidth(my_material_Width) << "material" << qSetFieldWidth(0);
 				out.setFieldAlignment(QTextStream::AlignRight);
 				out << qSetFieldWidth(my_thickness_Width-3) << "d ("      << qSetFieldWidth(0) << thickness_units << ")" << "    ";
@@ -851,9 +850,8 @@ void Structure_Toolbar::iterate_Over_Tree(QTextStream& out, QTreeWidgetItem* par
 
 void Structure_Toolbar::print_Structure_Header(QTextStream &out)
 {
-	QDateTime date_Time = QDateTime::currentDateTime();
-	out << date_Time.toString("< dd.MM.yyyy | hh:mm:ss >") << qSetFieldWidth(0) << endl;
-	out << "< Multifitting v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+" >" << qSetFieldWidth(0) << endl;
+    out << Global_Variables::date_Time() << qSetFieldWidth(0) << endl;
+    out << Global_Variables::multifitting_Version() << qSetFieldWidth(0) << endl;
 
 	// legend
 	out << "< legend: >" << qSetFieldWidth(0) << endl;

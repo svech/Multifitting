@@ -904,8 +904,7 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 			{
 				out << qSetFieldWidth(0) << endl;
 			}
-			QDateTime date_Time = QDateTime::currentDateTime();
-			out << date_Time.toString("< dd.MM.yyyy | hh:mm:ss >") << qSetFieldWidth(0) <<endl;
+            out << Global_Variables::date_Time() << qSetFieldWidth(0) <<endl;
 
 			widths.clear();
 			//------------------------------------------------------
@@ -997,8 +996,7 @@ void Fitting::add_Confidence_Distribution_To_File(double real_Conf_Value, QStrin
 			{
 				out << qSetFieldWidth(0) << endl;
 			}
-			QDateTime date_Time = QDateTime::currentDateTime();
-			out << date_Time.toString("< dd.MM.yyyy | hh:mm:ss >") << qSetFieldWidth(0) <<endl;
+            out << Global_Variables::date_Time() << qSetFieldWidth(0) <<endl;
 
 			widths.clear();
 			//------------------------------------------------------

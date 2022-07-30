@@ -285,7 +285,9 @@ class Global_Variables : public QObject
 	Q_OBJECT
 public:
 	Global_Variables();
-	static void find_Gui_Shifts();
+    static QString date_Time();
+    static QString multifitting_Version();
+    static void find_Gui_Shifts();
 	static void read_Optical_Constants();
 	static void create_Sorted_Elements_Map();
 	static void   serialize_Tree(QDataStream &out, QTreeWidget* tree);

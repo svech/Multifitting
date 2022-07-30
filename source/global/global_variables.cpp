@@ -514,6 +514,18 @@ Global_Variables::Global_Variables()
 
 }
 
+QString Global_Variables::date_Time()
+{
+    return QDateTime::currentDateTime().toString("< dd.MM.yyyy | hh:mm:ss >");
+}
+
+QString Global_Variables::multifitting_Version()
+{
+    return "< Multifitting v." + QString::number(VERSION_MAJOR) + "." +
+                                 QString::number(VERSION_MINOR) + "." +
+                                 QString::number(VERSION_BUILD)+" >";
+}
+
 void Global_Variables::find_Gui_Shifts()
 {
 #ifdef _WIN32

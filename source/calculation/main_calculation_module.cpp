@@ -3173,11 +3173,9 @@ void Main_Calculation_Module::print_PSD_Data(QTextStream& out, vector<double>& a
 	///------------------------------------------------------------------------
 	/// headline
 	{
-		QDateTime date_Time = QDateTime::currentDateTime();
-
 		// top header
 		{
-			out << "; " << date_Time.toString("<dd.MM.yyyy | hh:mm:ss>") << endl;
+            out << "; " << Global_Variables::date_Time() << endl;
 			out << "; " << data_Type << endl << endl;
 			out << "; polarization = " << Locale.toString(incident_Polarization,'f', 3) << endl;
 			out << "; " << at_Fixed_Heading << endl << endl;
@@ -3444,11 +3442,9 @@ void Main_Calculation_Module::print_Data(QTextStream &out,
 	///------------------------------------------------------------------------
 	/// headline
 	{
-		QDateTime date_Time = QDateTime::currentDateTime();
-
 		// top header
 		{
-			out << "; " << date_Time.toString("<dd.MM.yyyy | hh:mm:ss>")  <<endl;
+            out << "; " << Global_Variables::date_Time()  <<endl;
 			out << "; " << measurement_Type << endl << endl;
 			out << "; polarization = " << Locale.toString(incident_Polarization,'f', 3) << endl;
 			out << "; " << at_Fixed_Heading << endl << endl;
@@ -3569,8 +3565,7 @@ void Main_Calculation_Module::print_Matrix(QString function, const Calc_Function
 
 	if(matrix.size()>0)
 	{
-		QDateTime date_Time = QDateTime::currentDateTime();
-		out << "; " << date_Time.toString("<dd.MM.yyyy | hh:mm:ss>") <<endl;
+        out << "; " << Global_Variables::date_Time() <<endl;
 
 		if(function == intensity_Function)	out << "; " << "Field intensity distribution" << endl;
 		if(function == joule_Function)		out << "; " << "Photoabsorption distribution" << endl;

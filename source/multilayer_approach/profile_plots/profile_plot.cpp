@@ -1015,6 +1015,7 @@ void Profile_Plot::calculate_Profile()
 				beta_To_Plot_Vector.resize(num_Slices);
 				arg.resize(num_Slices);
 				val.resize(num_Slices);
+                real_Z_Arg.resize(num_Slices);
 
 				double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.front();
 				for(int i=0; i<num_Slices; ++i)
@@ -1523,12 +1524,10 @@ void Profile_Plot::print_Profile(QTextStream& out)
     ///------------------------------------------------------------------------
     /// headline
     {
-        QDateTime date_Time = QDateTime::currentDateTime();
-
         // top header
         {
-            out << "; " << date_Time.toString("<dd.MM.yyyy | hh:mm:ss>")  << endl;
-            out << ";< Multifitting v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+" >" << qSetFieldWidth(0) << endl;
+            out << "; " << Global_Variables::date_Time()  << endl;
+            out << "; " << Global_Variables::multifitting_Version() << qSetFieldWidth(0) << endl;
             if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
             {
                 out << "; " << at_Fixed_Heading << endl;
