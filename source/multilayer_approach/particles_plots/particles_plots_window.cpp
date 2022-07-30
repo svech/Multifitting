@@ -41,7 +41,7 @@ void Particles_Plots_Window::create_Main_Layout()
 	add_Tabs();
 
 	// shortcuts
-	Global_Variables::create_Shortcuts(this);
+    Global_Variables::create_Shortcuts(this);
 	connect(main_Tabs,	&QTabWidget::currentChanged, this, [=]
 	{
 		if(tab_synchronization)

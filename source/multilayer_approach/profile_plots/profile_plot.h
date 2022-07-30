@@ -19,6 +19,7 @@ public:
 	void plot_Data(bool recalculate_Profile = false);
     void calculate_Profile();
     void export_Profile();
+    void print_To_File(QString path);
     void print_Profile(QTextStream &out);
     void get_Delta_Epsilon(const Data& struct_Data, double& delta, double& beta);
 	void get_Material(const Data& struct_Data);
@@ -103,7 +104,6 @@ public:
 	QVector<QVector<QCPGraphData>> sharp_Elements_To_Plot_Vector_Vector;
 
 	// general
-    QVector<double> real_Z_Arg;
     QVector<double> arg;
 	QVector<double> val;
 	QVector<double> val_Sharp;

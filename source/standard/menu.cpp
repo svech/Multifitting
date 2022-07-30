@@ -93,12 +93,12 @@ void Menu::create_File_Menu()
             connect(act_Save_As, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::save_As);
 
 			QAction* act_Export_Structures = new QAction("Export structures", this);
-				act_Export_Structures->setShortcut(Qt::Key_T | Qt::CTRL);
+                act_Export_Structures->setShortcut(Qt::Key_T | Qt::CTRL | Qt::SHIFT);
 			file_Menu->addAction(act_Export_Structures);
             connect(act_Export_Structures, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::export_Structures);
 
 			QAction* act_Export_Curves = new QAction("Export curves", this);
-				act_Export_Curves->setShortcut(Qt::Key_T | Qt::CTRL | Qt::SHIFT);
+//				act_Export_Curves->setShortcut(Qt::Key_ | Qt::CTRL | Qt::SHIFT);
 			file_Menu->addAction(act_Export_Curves);
             connect(act_Export_Curves, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::export_Curves);
 

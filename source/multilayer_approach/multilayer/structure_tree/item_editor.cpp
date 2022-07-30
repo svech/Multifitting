@@ -93,7 +93,7 @@ void Item_Editor::create_Main_Layout()
 	hor_Layout = new QHBoxLayout;
 	main_Layout->addLayout(hor_Layout);
 	create_Menu();
-	Global_Variables::create_Shortcuts(this);
+    Global_Variables::create_Shortcuts(this);
 
 	if(struct_Data.item_Type == item_Type_Ambient)			make_Ambient_Editor();
 	if(struct_Data.item_Type == item_Type_Layer)			make_Layer_Editor();

@@ -62,7 +62,7 @@ void Calculation_Settings_Editor::create_Main_Layout()
 		main_Layout->setContentsMargins(0,0,0,0);
 
 	global_Multilayer_Approach->lock_Mainwindow_Interface();
-	Global_Variables::create_Shortcuts(this);
+    Global_Variables::create_Shortcuts(this);
 	create_Tabs();
 		main_Layout->addWidget(main_Tabs);
 	add_Tabs();

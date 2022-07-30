@@ -40,7 +40,7 @@ void Fitting_Settings_Editor::create_Main_Layout()
 		main_Layout->setContentsMargins(4,4,4,0);
 		main_Layout->setAlignment(Qt::AlignTop);
 
-	Global_Variables::create_Shortcuts(this);
+    Global_Variables::create_Shortcuts(this);
 	create_Metods();
 	create_Pages();
 	create_GSL_Main_Params_Group_Box();

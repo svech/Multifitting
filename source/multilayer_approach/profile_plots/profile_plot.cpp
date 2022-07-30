@@ -789,7 +789,7 @@ void Profile_Plot::calculate_Profile()
 	int data_Count = ceil(length/step)+1;
 	int limit_For_Line_Thickness = 5000;	// restriction for line thickness
 	data_Count = min(data_Count, 1000000);	// restriction for points
-	step = length/(data_Count-1);
+    step = length/(data_Count-1);
 
 	// discretization
 	int num_Prefix_Slices =1, num_Suffix_Slices = 1;
@@ -878,7 +878,6 @@ void Profile_Plot::calculate_Profile()
 			{
 				delta_To_Plot_Vector.resize(num_Slices);
                 arg.resize(num_Slices);
-                real_Z_Arg.resize(num_Slices);
                 val.resize(num_Slices);
 
 				double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.front();
@@ -890,7 +889,6 @@ void Profile_Plot::calculate_Profile()
 
                     arg[i] = delta_To_Plot_Vector[i].key;
 					val[i] = delta_To_Plot_Vector[i].value;
-                    real_Z_Arg[i] = real_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 
 					if(i<(num_Slices-1)) {
 						real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
@@ -915,7 +913,6 @@ void Profile_Plot::calculate_Profile()
 				delta_To_Plot_Vector.append(substrate);
                 arg.append(delta_To_Plot_Vector.last().key);
 				val.append(delta_To_Plot_Vector.last().value);
-                real_Z_Arg.append(arg.last());
 
 				custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
 			} else
@@ -923,7 +920,6 @@ void Profile_Plot::calculate_Profile()
 				delta_To_Plot_Vector.resize(data_Count);
 				arg.resize(data_Count);
 				val.resize(data_Count);
-                real_Z_Arg.resize(data_Count);
 
 				Global_Variables::parallel_For(data_Count, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 				{
@@ -938,7 +934,6 @@ void Profile_Plot::calculate_Profile()
 				{
 					arg[i] = delta_To_Plot_Vector[i].key;
 					val[i] = delta_To_Plot_Vector[i].value;
-                    real_Z_Arg[i] = arg[i];
 				}
 
 			}
@@ -1015,7 +1010,6 @@ void Profile_Plot::calculate_Profile()
 				beta_To_Plot_Vector.resize(num_Slices);
 				arg.resize(num_Slices);
 				val.resize(num_Slices);
-                real_Z_Arg.resize(num_Slices);
 
 				double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.front();
 				for(int i=0; i<num_Slices; ++i)
@@ -1026,7 +1020,6 @@ void Profile_Plot::calculate_Profile()
 
 					arg[i] = beta_To_Plot_Vector[i].key;
 					val[i] = beta_To_Plot_Vector[i].value;
-                    real_Z_Arg[i] = real_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 
 					if(i<(num_Slices-1)) {
 						real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
@@ -1051,7 +1044,6 @@ void Profile_Plot::calculate_Profile()
 				beta_To_Plot_Vector.append(substrate);
 				arg.append(beta_To_Plot_Vector.last().key);
                 val.append(beta_To_Plot_Vector.last().value);
-                real_Z_Arg.append(arg.last());
 
 				custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
 			} else
@@ -1059,7 +1051,6 @@ void Profile_Plot::calculate_Profile()
 				beta_To_Plot_Vector.resize(data_Count);
 				arg.resize(data_Count);
 				val.resize(data_Count);
-                real_Z_Arg.resize(data_Count);
 
 				Global_Variables::parallel_For(data_Count, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 				{
@@ -1074,7 +1065,6 @@ void Profile_Plot::calculate_Profile()
 				{
 					arg[i] = beta_To_Plot_Vector[i].key;
 					val[i] = beta_To_Plot_Vector[i].value;
-                    real_Z_Arg[i] = arg[i];
                 }
 			}
 			custom_Plot->graph()->data()->set(beta_To_Plot_Vector);
@@ -1175,7 +1165,6 @@ void Profile_Plot::calculate_Profile()
 				{
 					val_Multiple[material_index].resize(num_Slices);
                     arg.resize(num_Slices);
-                    real_Z_Arg.resize(num_Slices);
                     materials_To_Plot_Vector_Vector[material_index].resize(num_Slices);
 
 					double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.front();
@@ -1187,7 +1176,6 @@ void Profile_Plot::calculate_Profile()
 
 						arg[i] = materials_To_Plot_Vector_Vector[material_index][i].key;
 						val_Multiple[material_index][i] = materials_To_Plot_Vector_Vector[material_index][i].value;
-                        real_Z_Arg[i] = real_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 
 						if(i<(num_Slices-1)) {
 							real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
@@ -1211,7 +1199,6 @@ void Profile_Plot::calculate_Profile()
 						substrate.value = struct_Data_Vector.back().relative_Density.value;
 					materials_To_Plot_Vector_Vector[material_index].append(substrate);
 					arg.append(materials_To_Plot_Vector_Vector[material_index].last().key);
-                    real_Z_Arg.append(arg.last());
                     val_Multiple[material_index].append(materials_To_Plot_Vector_Vector[material_index].last().value);
 
 					custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
@@ -1219,7 +1206,6 @@ void Profile_Plot::calculate_Profile()
 				{
 					val_Multiple[material_index].resize(data_Count);
 					arg.resize(data_Count);
-                    real_Z_Arg.resize(data_Count);
                     materials_To_Plot_Vector_Vector[material_index].resize(data_Count);
 
 					Global_Variables::parallel_For(data_Count, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
@@ -1235,7 +1221,6 @@ void Profile_Plot::calculate_Profile()
 					{
 						arg[i] = materials_To_Plot_Vector_Vector[material_index][i].key; // many times, but OK
 						val_Multiple[material_index][i] = materials_To_Plot_Vector_Vector[material_index][i].value;
-                        real_Z_Arg[i] = arg[i];
                     }
 				}
 				custom_Plot->graph()->data()->set(materials_To_Plot_Vector_Vector[material_index]);
@@ -1340,7 +1325,6 @@ void Profile_Plot::calculate_Profile()
 				{
 					val_Multiple[element_Index].resize(num_Slices);
                     arg.resize(num_Slices);
-                    real_Z_Arg.resize(num_Slices);
                     elements_To_Plot_Vector_Vector[element_Index].resize(num_Slices);
 
 					double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.front();
@@ -1352,7 +1336,6 @@ void Profile_Plot::calculate_Profile()
 
 						arg[i] = elements_To_Plot_Vector_Vector[element_Index][i].key;
 						val_Multiple[element_Index][i] = elements_To_Plot_Vector_Vector[element_Index][i].value;
-                        real_Z_Arg[i] = real_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);;
 
 						if(i<(num_Slices-1)) {
 							real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
@@ -1376,7 +1359,6 @@ void Profile_Plot::calculate_Profile()
 						substrate.value = element_Concentration_Map_Vector.last().value(different_Elements[element_Index]);
 					elements_To_Plot_Vector_Vector[element_Index].append(substrate);
                     arg.append(elements_To_Plot_Vector_Vector[element_Index].last().key);
-                    real_Z_Arg.append(arg.last());
                     val_Multiple[element_Index].append(elements_To_Plot_Vector_Vector[element_Index].last().value);
 
 					custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
@@ -1384,7 +1366,6 @@ void Profile_Plot::calculate_Profile()
 				{
 					val_Multiple[element_Index].resize(data_Count);
                     arg.resize(data_Count);
-                    real_Z_Arg.resize(data_Count);
                     elements_To_Plot_Vector_Vector[element_Index].resize(data_Count);
 
 					Global_Variables::parallel_For(data_Count, reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
@@ -1400,7 +1381,6 @@ void Profile_Plot::calculate_Profile()
 					{
 						arg[i] = elements_To_Plot_Vector_Vector[element_Index][i].key; // many times, but OK
 						val_Multiple[element_Index][i] = elements_To_Plot_Vector_Vector[element_Index][i].value;
-                        real_Z_Arg[i] = arg[i];
                     }
 				}
 				custom_Plot->graph()->data()->set(elements_To_Plot_Vector_Vector[element_Index]);
@@ -1430,11 +1410,14 @@ void Profile_Plot::export_Profile()
     QString type = multilayer->profile_Plot_Options.type;
     QString permittivity_Type = multilayer->profile_Plot_Options.permittivity_Type;
     bool show_Sharp_Profile = multilayer->profile_Plot_Options.show_Sharp_Profile;
+    multilayer->profile_Plot_Options.show_Sharp_Profile = true; // for calculation
 
     int index = global_Multilayer_Approach->profile_Plots_Window->main_Tabs->currentIndex();
     QString tab_Text = global_Multilayer_Approach->multilayer_Tabs->tabText(index);
     QString path = Global_Variables::working_Directory() + "/";
     QString name_End = /*Locale.toString(index)+"_"+*/tab_Text+".txt";
+
+    qInfo() << "profile saved for structure" << tab_Text << endl;
 
     // permittivity
     {
@@ -1448,14 +1431,11 @@ void Profile_Plot::export_Profile()
         multilayer->profile_Plot_Options.permittivity_Type = BETA_EPS;
         calculate_Profile();
 
-        QString name = "profile_Permittivity_"+name_End;
-        QFile file(path + name);
-        file.open(QIODevice::WriteOnly);
-        QTextStream out(&file);
-        out.setFieldAlignment(QTextStream::AlignLeft);
-        qInfo() << "permittivity profile saved as text :"<< name << endl;
-        print_Profile(out);
-        file.close();
+        multilayer->profile_Plot_Options.show_Sharp_Profile = false;
+        print_To_File(path + "profile_Permittivity_" + name_End);
+
+        multilayer->profile_Plot_Options.show_Sharp_Profile = true;
+        print_To_File(path + "profile_Permittivity_Sharp_" + name_End);
     }
     // materials
     {
@@ -1463,15 +1443,13 @@ void Profile_Plot::export_Profile()
         multilayer->profile_Plot_Options.type = MATERIAL;
         calculate_Profile();
 
-        if(different_Materials.size()>0) {
-            QString name = "profile_Materials_"+name_End;
-            QFile file(path + name);
-            file.open(QIODevice::WriteOnly);
-            QTextStream out(&file);
-            out.setFieldAlignment(QTextStream::AlignLeft);
-            qInfo() << "materials profile saved as text :"<< name << endl;
-            print_Profile(out);
-            file.close();
+        if(different_Materials.size()>0)
+        {
+            multilayer->profile_Plot_Options.show_Sharp_Profile = false;
+            print_To_File(path + "profile_Materials_" + name_End);
+
+            multilayer->profile_Plot_Options.show_Sharp_Profile = true;
+            print_To_File(path + "profile_Materials_Sharp_" + name_End);
         }
     }
     // elements
@@ -1480,20 +1458,28 @@ void Profile_Plot::export_Profile()
         multilayer->profile_Plot_Options.type = ELEMENTS;
         calculate_Profile();
 
-        if(different_Elements.size()>0) {
-            QString name = "profile_Elements_"+name_End;
-            QFile file(path + name);
-            file.open(QIODevice::WriteOnly);
-            QTextStream out(&file);
-            out.setFieldAlignment(QTextStream::AlignLeft);
-            qInfo() << "elements profile saved as text :"<< name << endl;
-            print_Profile(out);
-            file.close();
+        if(different_Elements.size()>0)
+        {
+            multilayer->profile_Plot_Options.show_Sharp_Profile = false;
+            print_To_File(path + "profile_Elements_" + name_End);
+
+            multilayer->profile_Plot_Options.show_Sharp_Profile = true;
+            print_To_File(path + "profile_Elements_Sharp_" + name_End);
         }
     }
     multilayer->profile_Plot_Options.type = type;
     multilayer->profile_Plot_Options.permittivity_Type = permittivity_Type;
     multilayer->profile_Plot_Options.show_Sharp_Profile = show_Sharp_Profile;
+}
+
+void Profile_Plot::print_To_File(QString path)
+{
+    QFile file(path);
+    file.open(QIODevice::WriteOnly);
+    QTextStream out(&file);
+    out.setFieldAlignment(QTextStream::AlignLeft);
+    print_Profile(out);
+    file.close();
 }
 
 void Profile_Plot::print_Profile(QTextStream& out)
@@ -1530,7 +1516,24 @@ void Profile_Plot::print_Profile(QTextStream& out)
             out << "; " << Global_Variables::multifitting_Version() << qSetFieldWidth(0) << endl;
             if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
             {
-                out << "; " << at_Fixed_Heading << endl;
+                out << endl << "; " << at_Fixed_Heading << endl;
+            }
+
+            if(multilayer->profile_Plot_Options.show_Sharp_Profile)
+            {
+                out << endl << "; Sharp profile: arguments correspond to the top layer boundaries";
+                out << endl << "; For visualization please use step line with data point on the left of the step" << endl;
+            } else
+            {
+                if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
+                {
+                    out << endl << "; Discretized profile: arguments correspond to the top slice boundaries";
+                    out << endl << "; For visualization please use step line with data point on the left of the step" << endl;
+                } else
+                {
+                    out << endl << "; No discretization: arguments correspond to the real positions" << endl;
+                    out << endl << "; For visualization please use continuous line" << endl;
+                }
             }
             out << endl;
         }
@@ -1567,30 +1570,53 @@ void Profile_Plot::print_Profile(QTextStream& out)
     ///------------------------------------------------------------------------
     /// data
     {
-        if(arg.size() != real_Z_Arg.size())
-            qInfo() << "Profile_Plot::print_Profile : arg.size() != real_Z_Arg.size()" << endl;
+        if(multilayer->profile_Plot_Options.show_Sharp_Profile) {
+            for(size_t i=0; i<=struct_Data_Vector.size(); ++i)
+            {
+                if(multilayer->profile_Plot_Options.type == PERMITTIVITY) {
+                    // argument
+                    out << qSetFieldWidth(width_Short) << Locale.toString(sharp_Delta_To_Plot_Vector[i].key,'f',precision_Arg)  << qSetFieldWidth(width_Long);
+                    // values
+                    out << Locale.toString(sharp_Delta_To_Plot_Vector[i].value,'e',precision_Val);
+                    out << Locale.toString(sharp_Beta_To_Plot_Vector[i].value,'e',precision_Val);
+                }
+                if(multilayer->profile_Plot_Options.type == MATERIAL) {
+                    // argument
+                    out << qSetFieldWidth(width_Short) << Locale.toString(sharp_Materials_To_Plot_Vector_Vector.first()[i].key,'f',precision_Arg)  << qSetFieldWidth(width_Long);
+                    // values
+                    for(int m = 0; m<different_Materials.size(); m++)
+                        out << Locale.toString(sharp_Materials_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
+                }
+                if(multilayer->profile_Plot_Options.type == ELEMENTS) {
+                    // argument
+                    out << qSetFieldWidth(width_Short) << Locale.toString(sharp_Elements_To_Plot_Vector_Vector.first()[i].key,'f',precision_Arg)  << qSetFieldWidth(width_Long);
+                    // values
+                    for(int m = 0; m<different_Elements.size(); m++)
+                        out << Locale.toString(sharp_Elements_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
+                }
+               if(i!=struct_Data_Vector.size())	out << qSetFieldWidth(arg_Shift) << endl << qSetFieldWidth(width_Short);
+            }
+        } else {
+            for(size_t i=0; i<arg.size(); ++i)
+            {
+                // argument
+                out << qSetFieldWidth(width_Short) << Locale.toString(arg[i],'f',precision_Arg)  << qSetFieldWidth(width_Long);
 
-        for(size_t i=0; i<arg.size(); ++i)
-        {
-            // argument
-            out << qSetFieldWidth(width_Short) << Locale.toString(real_Z_Arg[i],'f',precision_Arg)  << qSetFieldWidth(width_Long);
-
-            // values
-            if(multilayer->profile_Plot_Options.type == PERMITTIVITY) {
-                // delta
-                out << Locale.toString(delta_To_Plot_Vector[i].value,'e',precision_Val);
-                // beta
-                out << Locale.toString(beta_To_Plot_Vector[i].value,'e',precision_Val);
+                // values
+                if(multilayer->profile_Plot_Options.type == PERMITTIVITY) {
+                    out << Locale.toString(delta_To_Plot_Vector[i].value,'e',precision_Val);
+                    out << Locale.toString(beta_To_Plot_Vector[i].value,'e',precision_Val);
+                }
+                if(multilayer->profile_Plot_Options.type == MATERIAL) {
+                    for(int m = 0; m<different_Materials.size(); m++)
+                        out << Locale.toString(materials_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
+                }
+                if(multilayer->profile_Plot_Options.type == ELEMENTS) {
+                    for(int m = 0; m<different_Elements.size(); m++)
+                        out << Locale.toString(elements_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
+                }
+               if(i!=arg.size()-1)	out << qSetFieldWidth(arg_Shift) << endl << qSetFieldWidth(width_Short);
             }
-            if(multilayer->profile_Plot_Options.type == MATERIAL) {
-                for(int m = 0; m<different_Materials.size(); m++)
-                    out << Locale.toString(materials_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
-            }
-            if(multilayer->profile_Plot_Options.type == ELEMENTS) {
-                for(int m = 0; m<different_Elements.size(); m++)
-                    out << Locale.toString(elements_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
-            }
-           if(i!=arg.size()-1)	out << qSetFieldWidth(arg_Shift) << endl << qSetFieldWidth(width_Short);
         }
     }
 

@@ -78,7 +78,7 @@ void Independent_Curve_Editor::create_Main_Layout()
 
 	create_Main_Part();
 
-	Global_Variables::create_Shortcuts(this);
+    Global_Variables::create_Shortcuts(this);
 
 	if(make_all_windows_resizeable)
 	{

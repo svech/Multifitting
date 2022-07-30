@@ -47,7 +47,7 @@ void Layer_Thickness_Transfer::create_Main_Layout()
 	}
 	main_Layout->addLayout(button_Layout);
 
-	Global_Variables::create_Shortcuts(this);
+    Global_Variables::create_Shortcuts(this);
 }
 
 void Layer_Thickness_Transfer::create_Content_Box()

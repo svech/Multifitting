@@ -272,7 +272,7 @@ void Regular_Aperiodic_Table::create_Main_Layout()
 		main_Layout->setContentsMargins(3,0,3,0);
 
 	create_Menu();
-	Global_Variables::create_Shortcuts(this);
+    Global_Variables::create_Shortcuts(this);
 
 	create_Table();
 

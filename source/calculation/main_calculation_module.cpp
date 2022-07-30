@@ -3046,7 +3046,10 @@ double Main_Calculation_Module::unparametrize(double parametrized_Shifted_Value,
 
 void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& data_Element, QString struct_Name, int index)
 {
-	const Data& measurement = data_Element.the_Class->measurement;
+    // point as decimal separator
+    Locale = QLocale::c();
+
+    const Data& measurement = data_Element.the_Class->measurement;
 
 	if(!print_1D_PSD_From_Scattering_On_Recalculation) return;
 	if(	measurement.measurement_Type != measurement_Types[Detector_Scan] &&
@@ -3155,6 +3158,9 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 					   geometry_Heading);
 		file_Right.close();
 	}
+
+    // back to system locale
+    Locale = QLocale::system();
 }
 
 void Main_Calculation_Module::print_PSD_Data(QTextStream& out, vector<double>& arg, vector<double>& val, double incident_Polarization, QString data_Type, QString argument_Heading, QString value_Heading, QString at_Fixed_Heading, QString instrumental_Heading, QString geometry_Heading)
@@ -3244,6 +3250,9 @@ void Main_Calculation_Module::print_Calculated_To_File()
 template <typename Type>
 void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Element, QString struct_Name, int index)
 {
+    // point as decimal separator
+    Locale = QLocale::c();
+
 	QString first_Name;
 	if(data_Element.curve_Class == INDEPENDENT)	first_Name = struct_Name + "_independent_" + /*Locale.toString(index+1) + "_" +*/ data_Element.the_Class->name;
 	if(data_Element.curve_Class == TARGET)
@@ -3390,6 +3399,9 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 			file.close();
 		}
 	}
+
+    // back to system locale
+    Locale = QLocale::system();
 }
 template void Main_Calculation_Module::print_Reflect_To_File<Independent_Curve>(Data_Element<Independent_Curve>&, QString, int);
 template void Main_Calculation_Module::print_Reflect_To_File<Target_Curve>	   (Data_Element<Target_Curve>&,      QString, int);

@@ -179,7 +179,7 @@ void Target_Curve_Editor::create_Main_Layout()
 	main_Layout->addWidget(bottom_Part_Widget);
 
 	// shortcuts
-	Global_Variables::create_Shortcuts(this);
+    Global_Variables::create_Shortcuts(this);
 
 	if(make_all_windows_resizeable)
 	{

@@ -36,7 +36,7 @@ void General_Settings_Editor::create_Main_Layout()
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(0,0,0,0);
 
-	Global_Variables::create_Shortcuts(this);
+    Global_Variables::create_Shortcuts(this);
 
 	main_Tabs = new QTabWidget(this);
 		main_Tabs->setMovable(false);

@@ -101,7 +101,7 @@ void Fits_Selector::create_Main_Layout()
 	}
 
 	// shortcuts
-	Global_Variables::create_Shortcuts(this);
+    Global_Variables::create_Shortcuts(this);
 }
 
 void Fits_Selector::set_Window_Geometry()

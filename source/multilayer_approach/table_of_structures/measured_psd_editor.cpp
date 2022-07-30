@@ -75,7 +75,7 @@ void Measured_PSD_Editor::create_Main_Layout()
 	bottom_Widget->setFixedHeight(bottom_Widget->height());
 
 	// shortcuts
-	Global_Variables::create_Shortcuts(this);
+    Global_Variables::create_Shortcuts(this);
 }
 
 void Measured_PSD_Editor::create_Plot()

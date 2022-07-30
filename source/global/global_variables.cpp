@@ -2253,8 +2253,8 @@ void Global_Variables::create_Shortcuts(QWidget* this_Widget)
     QShortcut* calc_Specular_Shortcut	  = new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this_Widget);
     QShortcut* calc_Confidence_Shortcut	  = new QShortcut(QKeySequence(Qt::Key_A | Qt::CTRL | Qt::SHIFT), this_Widget);
     QShortcut* abort_Shortcut			  = new QShortcut(QKeySequence(Qt::Key_Period | Qt::ALT),         this_Widget);
-    QShortcut* export_Structures_Shortcut = new QShortcut(QKeySequence(Qt::Key_T | Qt::CTRL),             this_Widget);
-    QShortcut* export_Curves_Shortcut     = new QShortcut(QKeySequence(Qt::Key_T | Qt::CTRL | Qt::SHIFT), this_Widget);
+    QShortcut* export_Structures_Shortcut = new QShortcut(QKeySequence(Qt::Key_T | Qt::CTRL | Qt::SHIFT), this_Widget);
+//    QShortcut* export_Curves_Shortcut     = new QShortcut(QKeySequence(Qt::Key_ | Qt::CTRL | Qt::SHIFT), this_Widget);
     QShortcut* export_Profiles_Shortcut   = new QShortcut(QKeySequence(Qt::Key_P | Qt::CTRL | Qt::SHIFT), this_Widget);
 
     connect(save_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::save_Action);
@@ -2266,7 +2266,7 @@ void Global_Variables::create_Shortcuts(QWidget* this_Widget)
     connect(calc_Confidence_Shortcut,	&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::calc_Confidence_Intervals);
     connect(abort_Shortcut,				&QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::abort_Calculations);
     connect(export_Structures_Shortcut, &QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::export_Structures);
-    connect(export_Curves_Shortcut,     &QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::export_Curves);
+//    connect(export_Curves_Shortcut,     &QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::export_Curves);
     connect(export_Profiles_Shortcut,   &QShortcut::activated, global_Multilayer_Approach, &Multilayer_Approach::export_Profiles);
 }
 
