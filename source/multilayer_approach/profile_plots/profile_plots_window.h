@@ -12,7 +12,7 @@ class Profile_Plots_Window : public QWidget
 	Q_OBJECT
 
 public:
-	explicit Profile_Plots_Window(QWidget *parent = nullptr);
+    explicit Profile_Plots_Window(bool profile_Export = false, QWidget *parent = nullptr);
 
 	void contextMenuEvent(QContextMenuEvent *event);
 	void closeEvent(QCloseEvent* event);
@@ -27,6 +27,7 @@ public:
 	QVBoxLayout* main_Layout;
 	QTabWidget* main_Tabs;
 	QVector<Profile_Plot*> profile_Plot_Vector;
+    bool profile_Export;
 };
 
 #endif // PROFILE_PLOTS_WINDOW_H

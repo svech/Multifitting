@@ -341,12 +341,12 @@ void Multilayer_Approach::open_Table_Of_Structures()
 	}
 }
 
-void Multilayer_Approach::open_Profile_Plots()
+void Multilayer_Approach::open_Profile_Plots(bool profile_Export)
 {
 	if(!runned_Profile_Plots_Window.contains(profile_Plots_Key))
 	{
 		runned_Profile_Plots_Window.insert(profile_Plots_Key, profile_Plots_Window);
-		profile_Plots_Window = new Profile_Plots_Window();//(this);
+        profile_Plots_Window = new Profile_Plots_Window(profile_Export);
 			profile_Plots_Window->setWindowFlags(Qt::Window);
 			profile_Plots_Window->show();
 
@@ -1709,16 +1709,16 @@ void Multilayer_Approach::export_Curves()
 void Multilayer_Approach::export_Profiles()
 {
     bool opened_Especially = false;
-    if(!global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key)) {
-        global_Multilayer_Approach->open_Profile_Plots();
-        global_Multilayer_Approach->profile_Plots_Window->hide();
+    if(!runned_Profile_Plots_Window.contains(profile_Plots_Key)) {
+        open_Profile_Plots(true);
+        profile_Plots_Window->hide();
         opened_Especially = true;
     }
 
-    for(Profile_Plot* profile_Plot : global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector) {
+    for(Profile_Plot* profile_Plot : profile_Plots_Window->profile_Plot_Vector) {
         profile_Plot->export_Profile();
     }
 
     if(opened_Especially)
-        global_Multilayer_Approach->profile_Plots_Window->close();
+        profile_Plots_Window->close();
 }

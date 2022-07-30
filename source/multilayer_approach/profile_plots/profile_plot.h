@@ -9,7 +9,7 @@ class Profile_Plot : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Profile_Plot(Multilayer* multilayer, Profile_Plots_Window* profile_Plots_Window, QWidget *parent = nullptr);
+    explicit Profile_Plot(Multilayer* multilayer, Profile_Plots_Window* profile_Plots_Window, bool profile_Export = false);
 
 	void create_Main_Layout();
 		void horizontall_ScrollbarChanged(int value);
@@ -103,7 +103,8 @@ public:
 	QVector<QVector<QCPGraphData>> sharp_Elements_To_Plot_Vector_Vector;
 
 	// general
-	QVector<double> arg;
+    QVector<double> real_Z_Arg;
+    QVector<double> arg;
 	QVector<double> val;
 	QVector<double> val_Sharp;
 
@@ -112,6 +113,7 @@ public:
 
 	QMap<QCPGraph*,QCPGraph*> map_Sharp_Smooth;
     bool visibility_State = true;
+    bool profile_Export = false;
 };
 
 #endif // PROFILE_PLOT_H

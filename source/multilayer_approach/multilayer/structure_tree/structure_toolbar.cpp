@@ -711,7 +711,7 @@ void Structure_Toolbar::export_Structure()
 		}
 	}
     QString path = Global_Variables::working_Directory() + "/";
-    QString name = "structure_"+Locale.toString(index)+"_"+tab_Text+".txt";
+    QString name = "structure_"+/*Locale.toString(index)+"_"+*/tab_Text+".txt";
     QFile file(path + name);
 	if (file.open(QIODevice::WriteOnly))
 	{

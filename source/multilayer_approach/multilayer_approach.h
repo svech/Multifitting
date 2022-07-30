@@ -73,7 +73,7 @@ public:
     void export_Profiles();
 
 	void open_Table_Of_Structures();
-	void open_Profile_Plots();
+    void open_Profile_Plots(bool profile_Export = false);
 	void open_Optical_Graphs_1D(QString keep_Splitter = "");
 	void open_Optical_Graphs_2D(QString keep_Splitter = "");
 	void open_Roughness_Plots();

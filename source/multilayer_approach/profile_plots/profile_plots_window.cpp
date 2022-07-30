@@ -1,6 +1,8 @@
 #include "profile_plots_window.h"
 
-Profile_Plots_Window::Profile_Plots_Window(QWidget *parent) : QWidget(parent)
+Profile_Plots_Window::Profile_Plots_Window(bool profile_Export, QWidget *parent) :
+    profile_Export(profile_Export),
+    QWidget(parent)
 {
 	setWindowTitle("Profile plot");
 	create_Main_Layout();
@@ -187,7 +189,7 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 {
 	Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
 
-	Profile_Plot* new_Plot = new Profile_Plot(multilayer, this);
+    Profile_Plot* new_Plot = new Profile_Plot(multilayer, this, profile_Export);
 		profile_Plot_Vector[tab_Index] = new_Plot;
 
 	QHBoxLayout* tab_Layout = new QHBoxLayout(new_Widget);
