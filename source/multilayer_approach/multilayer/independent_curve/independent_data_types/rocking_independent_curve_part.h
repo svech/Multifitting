@@ -12,7 +12,7 @@ class Rocking_Independent_Curve_Part : public QWidget
 public:
 	explicit Rocking_Independent_Curve_Part(Independent_Curve* independent_Curve, QWidget *parent = nullptr);
 
-	void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent*);
 	void create_Units_GroupBox();
 	void create_Argument_GroupBox();
 	void create_Beam_GroupBox();

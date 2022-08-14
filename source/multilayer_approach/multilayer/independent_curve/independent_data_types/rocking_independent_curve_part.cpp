@@ -12,7 +12,7 @@ Rocking_Independent_Curve_Part::Rocking_Independent_Curve_Part(Independent_Curve
 	create_Argument_GroupBox();
 	create_Beam_GroupBox();
 
-	Target_Curve* target_Curve;
+    Target_Curve* target_Curve = nullptr;
 	independent_Common_Part = new Common_Part(independent_Curve, target_Curve, true);
 	main_Layout->addWidget(independent_Common_Part);
 
@@ -20,7 +20,7 @@ Rocking_Independent_Curve_Part::Rocking_Independent_Curve_Part(Independent_Curve
 	independent_Curve->refresh_Description_Label();
 }
 
-void Rocking_Independent_Curve_Part::closeEvent(QCloseEvent* event)
+void Rocking_Independent_Curve_Part::closeEvent(QCloseEvent*)
 {
 	independent_Curve->measurement.beam_Theta_0_Angle.independent.min = temporary_Min;
 	independent_Curve->measurement.beam_Theta_0_Angle.independent.max = temporary_Max;

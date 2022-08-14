@@ -352,7 +352,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						weak_Factor_R[i] += struct_Data.interlayer_Composition[Lin].interlayer.value * factor_r;
 
 						// transmittance
-						if(abs(x_t)>DBL_MIN) {
+                        x_t = sqrt(3.) * s_t[i] * my_Sigma * 2.;
+                        if(abs(x_t)>DBL_MIN) {
 							factor_t = sin(x_t) / (x_t);
 						} else {
 							factor_t = 1;
@@ -2824,7 +2825,7 @@ void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfe
 		}
 	}
 	/// combined PSD 2D function
-	auto combined_PSD_2D_Func = [&](double nu)
+    auto combined_PSD_2D_Func = [&](double nu)
 	{
 		double nu_Start = imperfections_Model.PSD_2D.argument.front();
 		double nu_End   = imperfections_Model.PSD_2D.argument.back();
@@ -2838,7 +2839,8 @@ void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfe
 		} else
 		if(nu_Start<nu && nu<nu_End)	{
 			return gsl_spline_eval(spline_PSD_Meas_2D, nu, acc_PSD_Meas_2D);
-		}
+        }
+        return 0.;
 	};
 	/// choosing PSD gauss peak function
 	double (*PSD_2D_Peak_Func_from_nu)(double, double, double, double, gsl_spline*, gsl_interp_accel*);

@@ -12,7 +12,7 @@ Detector_Independent_Curve_Part::Detector_Independent_Curve_Part(Independent_Cur
 	create_Argument_GroupBox();
 	create_Beam_GroupBox();
 
-	Target_Curve* target_Curve;
+    Target_Curve* target_Curve = nullptr;
 	independent_Common_Part = new Common_Part(independent_Curve, target_Curve, true);
 	main_Layout->addWidget(independent_Common_Part);
 

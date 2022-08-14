@@ -14,7 +14,7 @@ Rocking_Target_Curve_Part::Rocking_Target_Curve_Part(Target_Curve* target_Curve,
 	create_Value_GroupBox();
 	create_Beam_GroupBox();
 
-	Independent_Curve* independent_Curve;
+    Independent_Curve* independent_Curve = nullptr;
 	target_Common_Part = new Common_Part(independent_Curve, target_Curve, false, target_Curve_Editor);
 	main_Layout->addWidget(target_Common_Part);
 

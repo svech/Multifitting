@@ -374,7 +374,7 @@ Target_Curve* Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 	return new_Target_Curve;
 }
 
-void Multilayer::target_Curve_Context_Menu(const QPoint& pos)
+void Multilayer::target_Curve_Context_Menu()
 {
 	QLabel* description_Label = qobject_cast<QLabel*>(QObject::sender());
 

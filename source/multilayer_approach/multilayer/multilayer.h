@@ -38,7 +38,7 @@ public:
 	void refresh_Structure_And_Independent(QObject* my_Sender = nullptr);
 
 	Target_Curve* add_Target_Curve (int index_Pressed, bool opening = false);
-	void target_Curve_Context_Menu(const QPoint& pos);
+    void target_Curve_Context_Menu();
 	void duplicate_Target_Curve(int old_Index);
 	void remove_Target_Curve(int index_Pressed, bool clean = false);
 	template<typename Type_Curve, typename Type_Curve_Editor>
