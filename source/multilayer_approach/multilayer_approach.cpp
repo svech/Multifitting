@@ -1697,7 +1697,7 @@ void Multilayer_Approach::export_Curves()
 
     print_1D_Data_On_Recalculation = true;
     print_2D_Data_On_Recalculation = true;
-    print_1D_PSD_From_Scattering_On_Recalculation = true;
+    print_1D_PSD_From_Scattering_On_Recalculation = false; // true
 
     calculate();
 

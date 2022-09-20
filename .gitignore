@@ -31,5 +31,8 @@
 
 *.nb
 
+*.tmp
+~$*
+
 build*
 settings
