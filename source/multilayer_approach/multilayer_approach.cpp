@@ -347,8 +347,9 @@ void Multilayer_Approach::open_Profile_Plots(bool profile_Export)
 	{
 		runned_Profile_Plots_Window.insert(profile_Plots_Key, profile_Plots_Window);
         profile_Plots_Window = new Profile_Plots_Window(profile_Export);
-			profile_Plots_Window->setWindowFlags(Qt::Window);
-			profile_Plots_Window->show();
+        profile_Plots_Window->setWindowFlags(Qt::Window);
+        if(!profile_Export)
+            profile_Plots_Window->show();
 
 		runned_Profile_Plots_Window.clear();
 		runned_Profile_Plots_Window.insert(profile_Plots_Key, profile_Plots_Window);
@@ -1711,7 +1712,6 @@ void Multilayer_Approach::export_Profiles()
     bool opened_Especially = false;
     if(!runned_Profile_Plots_Window.contains(profile_Plots_Key)) {
         open_Profile_Plots(true);
-        profile_Plots_Window->hide();
         opened_Especially = true;
     }
 
