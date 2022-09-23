@@ -739,13 +739,13 @@ void Structure_Toolbar::export_Structure()
 
 	QTreeWidgetItemIterator it(structure_Tree->tree);
 	while (*it)
-	{
+    {
 		QTreeWidgetItem* structure_Item = *it;
 		const Data struct_Data = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
 		if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
 		{
-			QString name = "structure_"+Locale.toString(index)+"_"+tab_Text+"_Aperiodic_#"+QString::number(aperiodics_Counter)+".txt";
-			QFile file(name);
+            QString name = "structure_"+Locale.toString(index)+"_"+tab_Text+"_Aperiodic_#"+QString::number(aperiodics_Counter)+".txt";
+            QFile file(Global_Variables::working_Directory() + "/" + name);
 			if (file.open(QIODevice::WriteOnly))
 			{
 				QTextStream out(&file);
