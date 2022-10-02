@@ -368,7 +368,10 @@ void Target_Curve_Editor::create_Buttons()
 			close_Button->setDefault(true);
 			connect(close_Button, &QPushButton::clicked, this, [=]{ close(); });
 		button_Layout->addWidget(close_Button,0,Qt::AlignCenter);
-	}
+
+        QShortcut* close_Shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+        connect(close_Shortcut, &QShortcut::activated, this, &Item_Editor::close);
+    }
 
 	// read data
 	{

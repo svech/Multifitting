@@ -75,6 +75,8 @@ void Independent_Curve_Editor::create_Main_Layout()
 		done_Button->setDefault(true);
 	main_Layout->addWidget(done_Button,1,0,Qt::AlignCenter);
 	connect(done_Button, &QPushButton::clicked, this, &Independent_Curve_Editor::close);
+    QShortcut* close_Shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(close_Shortcut, &QShortcut::activated, this, &Item_Editor::close);
 
 	create_Main_Part();
 

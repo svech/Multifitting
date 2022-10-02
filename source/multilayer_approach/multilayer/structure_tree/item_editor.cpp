@@ -42,7 +42,7 @@ Item_Editor::Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* ite
 	{
 		QMessageBox::critical(nullptr, "Item_Editor::Item_Editor", "Can't find structure_Tree in multilayers");
 		exit(EXIT_FAILURE);
-	}
+    }
 }
 
 Item_Editor::~Item_Editor()
@@ -57,6 +57,7 @@ void Item_Editor::emit_Item_Data_Edited()
 
 void Item_Editor::closeEvent(QCloseEvent* event)
 {
+    qInfo() << "close event" << endl;
 	if(struct_Data.item_Type == item_Type_Ambient || struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate)
 	{
 		if(!struct_Data.composed_Material)
@@ -112,6 +113,8 @@ void Item_Editor::create_Main_Layout()
 	button_Layout->addWidget(done_Button,0,Qt::AlignCenter);
 
 	connect(done_Button, &QPushButton::clicked, this, &Item_Editor::close);
+    QShortcut* close_Shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(close_Shortcut, &QShortcut::activated, this, &Item_Editor::close);
 
 	if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
 	{
