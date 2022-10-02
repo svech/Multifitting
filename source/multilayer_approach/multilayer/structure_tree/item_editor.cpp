@@ -1025,7 +1025,7 @@ void Item_Editor::make_Sigma_Group_Box()
 		QFrame* PSD_Frame = new QFrame;
 		QVBoxLayout* PSD_Layout = new QVBoxLayout(PSD_Frame);
 			PSD_Layout->setContentsMargins(10,0,0,0);
-		individual_Sigma_Check_Box = new QCheckBox("Use many s");
+        individual_Sigma_Check_Box = new QCheckBox("Individual \"s\"");
 		if(item->parent())
 		{
 			if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
