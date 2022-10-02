@@ -30,10 +30,24 @@ void Menu::add_Menu_Points()
 	if(window_Type == window_Type_Item_Editor)
 	{
 		item_Editor = qobject_cast<Item_Editor*>(my_Parent);
-		create_Length_Units_Menu();
-			menu_Bar->addMenu(menu_Length_Units);
-		create_Precision_Menu();
-			menu_Bar->addMenu(precision_Menu);
+
+        QString item_Type = item_Editor->item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type;
+
+        if(item_Type == item_Type_Layer     ||
+           item_Type == item_Type_Substrate ||
+           item_Type == item_Type_Multilayer)
+        {
+            create_Length_Units_Menu();
+                menu_Bar->addMenu(menu_Length_Units);
+        }
+        if(item_Type == item_Type_Ambient   ||
+           item_Type == item_Type_Layer     ||
+           item_Type == item_Type_Substrate ||
+           item_Type == item_Type_Multilayer)
+        {
+            create_Precision_Menu();
+                menu_Bar->addMenu(precision_Menu);
+        }
 	}
 	if(window_Type == window_Type_Table_Of_Structures)
 	{
@@ -329,9 +343,7 @@ void Menu::create_Precision_Menu()
 			precision_Menu->addMenu(menu_Composition_Precision);
 			precision_Menu->addMenu(menu_Density_Precision);
 		}
-		if(item_Type == item_Type_Regular_Aperiodic ||
-		   item_Type == item_Type_General_Aperiodic ||
-		   item_Type == item_Type_Multilayer ||
+        if(item_Type == item_Type_Multilayer ||
 		   item_Type == item_Type_Layer	   ||
 		   item_Type == item_Type_Substrate)
 		{
