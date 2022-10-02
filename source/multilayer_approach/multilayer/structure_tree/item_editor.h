@@ -111,7 +111,7 @@ public:
 	void save_Parent_Data();
 
 	QString absolute_Density_Label = "Density [g/cm" + Cube_Sym + "]:";
-	QString relative_Density_Label = "Relative Density:";
+    QString relative_Density_Label = "Relative density:";
 	QString atoms = "atoms of";
 	QString AtWt = "At. weight=";
 	QString thickness_Label_1 = "Thickness, z [";
