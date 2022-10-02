@@ -54,7 +54,6 @@ public:
 	MyDoubleSpinBox* slit_Width_SpinBox;
 	MyDoubleSpinBox* crystal_Resolution_SpinBox;
 	QLabel* crystal_Resolution_Units_Label;
-	QLabel* binning_Factor_Label;
 	QSpinBox* binning_Factor_Spinbox;
 	// 2D
 	QCheckBox* set_Pixel_Size_Checkbox;

@@ -57,7 +57,6 @@ void Item_Editor::emit_Item_Data_Edited()
 
 void Item_Editor::closeEvent(QCloseEvent* event)
 {
-    qInfo() << "close event" << endl;
 	if(struct_Data.item_Type == item_Type_Ambient || struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate)
 	{
 		if(!struct_Data.composed_Material)

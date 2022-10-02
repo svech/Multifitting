@@ -86,10 +86,6 @@ void Common_Part::create_1D_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		binning_Factor_Label = new QLabel("n =");
-			binning_Factor_Label->setEnabled(measurement.detector_1D.use_Binning);
-//		detector_Type_Layout->addWidget(binning_Factor_Label,0,Qt::AlignLeft);
-
 		binning_Factor_Spinbox = new QSpinBox;
 			binning_Factor_Spinbox->setRange(1, MAX_BINNING_FACTOR);
 			binning_Factor_Spinbox->setSingleStep(1);
@@ -1119,7 +1115,6 @@ void Common_Part::connecting()
 			{
 				measurement.detector_1D.use_Binning = use_Binning_Checkbox->isChecked();
 
-				binning_Factor_Label->setEnabled(measurement.detector_1D.use_Binning);
 				binning_Factor_Spinbox->setEnabled(measurement.detector_1D.use_Binning);
 
 				target_Curve_Editor->binning_Changed();
