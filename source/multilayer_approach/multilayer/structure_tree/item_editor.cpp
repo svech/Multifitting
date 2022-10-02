@@ -998,7 +998,7 @@ void Item_Editor::make_Sigma_Group_Box()
 				sigma_Grading_Button->adjustSize();
 				sigma_Grading_Button->setFixedSize(sigma_Grading_Button->size());
 				sigma_Grading_Button->setFocusPolicy(Qt::NoFocus);
-			sigma_Group_Box_Layout->addWidget(sigma_Grading_Button,0,Qt::AlignRight);
+            sigma_Group_Box_Layout->addWidget(sigma_Grading_Button,0,0,Qt::AlignRight);
 			connect(sigma_Grading_Button,	&QPushButton::clicked,  this, &Item_Editor::sigma_Grading);
 		}
 		if(item->parent())
