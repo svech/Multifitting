@@ -274,8 +274,9 @@ class Node;
 #define SA_approximation	"SA approximation"
 #define CSA_approximation	"CSA approximation"
 
-#define perturbative_R		"perturbative refrectance"
-#define Debye_Waller_R		"Debye Waller refrectance"
+#define perturbative_R		"perturbative reflectance"
+#define Debye_Waller_R		"Debye Waller reflectance"
+#define Debye_Waller_R_old	"Debye Waller refrectance"
 
 #define full_Correlation		"full vertical correlation"
 #define partial_Correlation		"partial vertical correlation"
@@ -283,6 +284,7 @@ class Node;
 
 // base PSD models
 #define ABC_Model				"ABC model"
+#define stretched_exp_Model		"stretched exp model"
 #define fractal_Gauss_Model		"fractal Gauss model"
 
 // measured PSD types

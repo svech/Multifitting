@@ -756,7 +756,10 @@ QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfecti
 	}
 
 	if(Global_Variables::check_Loaded_Version(1,11,12))
-	{stream >> imperfections_Model.reflectivity_With_Roughness >> imperfections_Model.DWBA_n_Max_Series;}
+    {stream >> imperfections_Model.reflectivity_With_Roughness >> imperfections_Model.DWBA_n_Max_Series;
+        if(imperfections_Model.reflectivity_With_Roughness == Debye_Waller_R_old)
+            imperfections_Model.reflectivity_With_Roughness = Debye_Waller_R;
+    }
 
 	if(Global_Variables::check_Loaded_Version(1,11,17))
 	{stream >> imperfections_Model.nu_Limit;}
