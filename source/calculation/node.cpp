@@ -582,7 +582,7 @@ void Node::calculate_PSD_Factor(const Imperfections_Model& imperfections_Model)
 			struct_Data.main_PSD_1D_factor = struct_Data.PSD_ABC_1D_Factor;
 			struct_Data.main_PSD_2D_factor = struct_Data.PSD_ABC_2D_Factor;
 		}
-		if(imperfections_Model.PSD_Model == fractal_Gauss_Model)
+        if(imperfections_Model.PSD_Model == stretched_exp_Model)
 		{
 			struct_Data.main_PSD_1D_factor = struct_Data.PSD_Real_Gauss_1D_Factor;
 			struct_Data.main_PSD_2D_factor = struct_Data.PSD_Real_Gauss_2D_Factor;
@@ -755,7 +755,7 @@ double Node::combined_Effective_Sigma_2(const Data& measurement, const Imperfect
 	{
 		func_Integral_0_Nu = (PSD_Type == PSD_Type_1D ? &Global_Variables::ABC_1D_Integral_0_Nu : &Global_Variables::ABC_2D_Integral_0_Nu );
 	}
-	if(imperfections_Model.PSD_Model == fractal_Gauss_Model)
+    if(imperfections_Model.PSD_Model == stretched_exp_Model)
 	{
 		if(abs(alpha-1)>DBL_EPSILON) {
 			func_Integral_0_Nu = (PSD_Type == PSD_Type_1D ? &Global_Variables::FG_1D_Integral_0_Nu : &Global_Variables::FG_2D_Integral_0_Nu );
@@ -1000,7 +1000,7 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 	// case check
 	if(!imperfections_Model.use_Roughness) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
-	if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
+    if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == stretched_exp_Model)
 	{
 		if(struct_Data.item_Type == item_Type_Layer &&
 		  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return; // if use_Common_Roughness_Function (or partial correlation) we calculate DW factor only for substrate
@@ -1642,7 +1642,7 @@ void Node::calc_Debye_Waller_Total_Sigma(const Imperfections_Model& imperfection
 	// case check
 	if(!imperfections_Model.use_Roughness) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
-	if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
+    if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == stretched_exp_Model)
 	{
 		if(struct_Data.item_Type == item_Type_Layer &&
 		  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return; // if use_Common_Roughness_Function (or partial correlation) we calculate DW factor only for substrate
@@ -1884,7 +1884,7 @@ void Node::calc_Integral_Intensity_Near_Specular(const Imperfections_Model& impe
 		PSD_Func = &Global_Variables::PSD_ABC_1D;
 		factor = struct_Data.PSD_ABC_1D_Factor;
 	}
-	if(imperfections_Model.PSD_Model == fractal_Gauss_Model)	{
+    if(imperfections_Model.PSD_Model == stretched_exp_Model)	{
 		const double& alpha = struct_Data.roughness_Model.fractal_alpha.value;
 
 		if(abs(alpha-1)>DBL_EPSILON) {
@@ -2070,7 +2070,7 @@ double Node::get_Asymptotics_Nu(double xi, double alpha)
 
 void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model, const Data& measurement)
 {
-	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
+    if(imperfections_Model.PSD_Model != stretched_exp_Model) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
 	if(struct_Data.item_Type == item_Type_Layer &&
 	  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return;
@@ -2195,7 +2195,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfe
 }
 void Node::clear_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model)
 {
-	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
+    if(imperfections_Model.PSD_Model != stretched_exp_Model) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
 	if(struct_Data.item_Type == item_Type_Layer &&
 	  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return; // if use_Common_Roughness_Function (or partial correlation) we calculate DW factor only for substrate
@@ -2206,7 +2206,7 @@ void Node::clear_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfec
 
 void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfections_Model)
 {
-	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
+    if(imperfections_Model.PSD_Model != stretched_exp_Model) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
 	if(struct_Data.item_Type == item_Type_Layer &&
 	  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return; // if use_Common_Roughness_Function (or partial correlation) we calculate DW factor only for substrate
@@ -2325,7 +2325,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfe
 }
 void Node::clear_Spline_PSD_Fractal_Gauss_2D(const Imperfections_Model& imperfections_Model)
 {
-	if(imperfections_Model.PSD_Model != fractal_Gauss_Model) return;
+    if(imperfections_Model.PSD_Model != stretched_exp_Model) return;
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
 	if(struct_Data.item_Type == item_Type_Layer &&
 	  (imperfections_Model.use_Common_Roughness_Function || imperfections_Model.vertical_Correlation == partial_Correlation)) return; // if use_Common_Roughness_Function (or partial correlation) we calculate DW factor only for substrate
@@ -2496,7 +2496,7 @@ void Node::create_Spline_PSD_Combined_1D(const Imperfections_Model& imperfection
 		factor_1D = struct_Data.PSD_ABC_1D_Factor;
 		factor_2D = struct_Data.PSD_ABC_2D_Factor;
 	}
-	if(imperfections_Model.PSD_Model == fractal_Gauss_Model)	{
+    if(imperfections_Model.PSD_Model == stretched_exp_Model)	{
 		if(abs(alpha-1)>DBL_EPSILON) {
 			PSD_1D_Func_from_nu = &Global_Variables::PSD_Fractal_Gauss_1D_from_nu;
 			PSD_2D_Func_from_nu = &Global_Variables::PSD_Fractal_Gauss_2D_from_nu;
@@ -2815,7 +2815,7 @@ void Node::create_Spline_PSD_Linear_Growth_2D(const Imperfections_Model& imperfe
 		PSD_2D_Func_from_nu = &Global_Variables::PSD_ABC_2D_from_nu;
 		factor_2D = struct_Data.PSD_ABC_2D_Factor;
 	}
-	if(imperfections_Model.PSD_Model == fractal_Gauss_Model)	{
+    if(imperfections_Model.PSD_Model == stretched_exp_Model)	{
 		if(abs(alpha-1)>DBL_EPSILON) {
 			PSD_2D_Func_from_nu = &Global_Variables::PSD_Fractal_Gauss_2D_from_nu;
 			factor_2D = 1;

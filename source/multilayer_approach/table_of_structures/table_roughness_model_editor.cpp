@@ -453,7 +453,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		PSD_Model_Layout->addWidget(ABC_Radiobutton);
 
 		QRadioButton* fractal_Gauss_Radiobutton = new QRadioButton("Fractal Gauss");
-			fractal_Gauss_Radiobutton->setChecked(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model);
+            fractal_Gauss_Radiobutton->setChecked(multilayer->imperfections_Model.PSD_Model == stretched_exp_Model);
 		PSD_Model_Layout->addWidget(fractal_Gauss_Radiobutton);
 
 		QButtonGroup* use_Model_Group = new QButtonGroup;
@@ -701,7 +701,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 	{
 		if(fractal_Gauss_Radiobutton->isChecked())
 		{
-			multilayer->imperfections_Model.PSD_Model = fractal_Gauss_Model;
+            multilayer->imperfections_Model.PSD_Model = stretched_exp_Model;
 		}
 	});
 	connect(measured_PSD_1D_Checkbox, &QCheckBox::toggled, this, [=]

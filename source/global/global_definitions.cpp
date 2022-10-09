@@ -733,6 +733,11 @@ QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfecti
 		   >> imperfections_Model.use_Roughness >> imperfections_Model.approximation >> imperfections_Model.PSD_Model
 		   >> imperfections_Model.vertical_Correlation;
 
+    // change model name. fractal_Gauss_Model is deprecated
+    if(imperfections_Model.PSD_Model == fractal_Gauss_Model) {
+        imperfections_Model.PSD_Model = stretched_exp_Model;
+    }
+
 	if(Global_Variables::check_Loaded_Version(1,11,9))
 	{stream >> imperfections_Model.vertical_Inheritance_Frequency;}
 
@@ -757,6 +762,8 @@ QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfecti
 
 	if(Global_Variables::check_Loaded_Version(1,11,12))
     {stream >> imperfections_Model.reflectivity_With_Roughness >> imperfections_Model.DWBA_n_Max_Series;
+
+        // typo fix
         if(imperfections_Model.reflectivity_With_Roughness == Debye_Waller_R_old)
             imperfections_Model.reflectivity_With_Roughness = Debye_Waller_R;
     }

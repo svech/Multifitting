@@ -2372,7 +2372,7 @@ void Unwrapped_Reflection::choose_Cor_Function(int thread_Index)
 	{
 		Cor_Func_Vec[thread_Index] = Global_Variables::Cor_ABC;
 	} else
-	if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
+    if(multilayer->imperfections_Model.PSD_Model == stretched_exp_Model)
 	{
 		Cor_Func_Vec[thread_Index] = Global_Variables::Cor_Fractal_Gauss;
 	}
@@ -2976,7 +2976,7 @@ void Unwrapped_Reflection::choose_PSD_1D_Function(const Data& struct_Data, int t
 		{
 			PSD_1D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_1D;
 		} else
-		if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
+        if(multilayer->imperfections_Model.PSD_Model == stretched_exp_Model)
 		{
 			if(abs(struct_Data.roughness_Model.fractal_alpha.value-1)>DBL_EPSILON)
 			{
@@ -3016,7 +3016,7 @@ void Unwrapped_Reflection::choose_PSD_2D_Function(const Data& struct_Data, int t
 		{
 			PSD_2D_Func_Vec[thread_Index] = Global_Variables::PSD_ABC_2D;
 		} else
-		if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
+        if(multilayer->imperfections_Model.PSD_Model == stretched_exp_Model)
 		{
 			if(abs(struct_Data.roughness_Model.fractal_alpha.value-1)>DBL_EPSILON)
 			{
