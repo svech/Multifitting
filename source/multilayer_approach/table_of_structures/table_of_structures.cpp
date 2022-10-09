@@ -1224,7 +1224,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if(struct_Data.item_Type == item_Type_Substrate)
 				{
 					if( multilayer->imperfections_Model.PSD_Model == ABC_Model ||
-						multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model )
+                        multilayer->imperfections_Model.PSD_Model == stretched_exp_Model )
 					{
 						show_Sigma = true;
 					}
@@ -1232,7 +1232,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if(struct_Data.item_Type == item_Type_Layer)
 				{
 					if((multilayer->imperfections_Model.PSD_Model == ABC_Model ||
-						multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model) &&
+                        multilayer->imperfections_Model.PSD_Model == stretched_exp_Model) &&
 					   (multilayer->imperfections_Model.vertical_Correlation == zero_Correlation && multilayer->imperfections_Model.use_Common_Roughness_Function == false))
 					{
 						show_Sigma = true;
@@ -1269,7 +1269,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if(struct_Data.item_Type == item_Type_Substrate)
 				{
 					if( multilayer->imperfections_Model.PSD_Model == ABC_Model ||
-						multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model )
+                        multilayer->imperfections_Model.PSD_Model == stretched_exp_Model )
 					{
 						show_Cor_Radius = true;
 					}
@@ -1277,7 +1277,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if(struct_Data.item_Type == item_Type_Layer)
 				{
 					if((multilayer->imperfections_Model.PSD_Model == ABC_Model ||
-						multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model) &&
+                        multilayer->imperfections_Model.PSD_Model == stretched_exp_Model) &&
 						(multilayer->imperfections_Model.vertical_Correlation == zero_Correlation && multilayer->imperfections_Model.use_Common_Roughness_Function == false))
 					{
 						show_Cor_Radius = true;
@@ -1396,7 +1396,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if( struct_Data.item_Type == item_Type_Substrate)
 				{
 					if( multilayer->imperfections_Model.PSD_Model == ABC_Model ||
-						multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model )
+                        multilayer->imperfections_Model.PSD_Model == stretched_exp_Model )
 					{
 						show_Alpha = true;
 					}
@@ -1404,7 +1404,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if( struct_Data.item_Type == item_Type_Layer)
 				{
 					if( (multilayer->imperfections_Model.PSD_Model == ABC_Model ||
-						 multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model) &&
+                         multilayer->imperfections_Model.PSD_Model == stretched_exp_Model) &&
 						 (multilayer->imperfections_Model.vertical_Correlation == zero_Correlation && multilayer->imperfections_Model.use_Common_Roughness_Function == false))
 					{
 						show_Alpha = true;
@@ -1742,7 +1742,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				if( struct_Data.item_Type == item_Type_Layer)
 				{
-					if( multilayer->imperfections_Model.PSD_Model == ABC_Model || multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model)
+                    if( multilayer->imperfections_Model.PSD_Model == ABC_Model || multilayer->imperfections_Model.PSD_Model == stretched_exp_Model)
 					{
 						if((multilayer->imperfections_Model.vertical_Correlation != partial_Correlation &&
 							multilayer->imperfections_Model.use_Common_Roughness_Function == true) ||
@@ -4716,7 +4716,7 @@ void Table_Of_Structures::create_Min_Max_Button(My_Table_Widget* table, int tab_
 	add_Columns(table,current_Column);
 
 	QPushButton* min_Max_Button = new QPushButton("Reset");
-		min_Max_Button->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+//		min_Max_Button->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	table->setCellWidget(current_Row, current_Column, min_Max_Button);
 
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
@@ -4820,7 +4820,7 @@ void Table_Of_Structures::create_Min_Max_Spin_Box(My_Table_Widget* table, int ta
 			spin_Box->setPrefix(Plus_Minus_Sym);
 		}
 		spin_Box->setDecimals(1);
-		spin_Box->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+//		spin_Box->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 
 		spin_Box->setAccelerated(true);
 		if(whats_This == whats_This_Density)
