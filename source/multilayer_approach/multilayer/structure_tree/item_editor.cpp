@@ -466,7 +466,7 @@ void Item_Editor::unique_Items_In_General_Aperiodic(QHBoxLayout* aperiodic_Group
 
 	QVBoxLayout* relate_Z_Layout = new QVBoxLayout;
 	aperiodic_Group_Box_Layout->addLayout(relate_Z_Layout);
-	QLabel* relate_Z_Label = new QLabel(" Relate \"z\" ");
+    QLabel* relate_Z_Label = new QLabel(" Link \"z\" ");
 	relate_Z_Layout->addWidget(relate_Z_Label);
 
 	QVBoxLayout* fit_Z_Layout = new QVBoxLayout;
@@ -476,7 +476,7 @@ void Item_Editor::unique_Items_In_General_Aperiodic(QHBoxLayout* aperiodic_Group
 
 	QVBoxLayout* relate_Sigma_Layout = new QVBoxLayout;
 	aperiodic_Group_Box_Layout->addLayout(relate_Sigma_Layout);
-	QLabel* relate_Sigma_Label = new QLabel(" Relate \"s\" ");
+    QLabel* relate_Sigma_Label = new QLabel(" Link \"s\" ");
 	relate_Sigma_Layout->addWidget(relate_Sigma_Label,0,Qt::AlignCenter);
 
 	QVBoxLayout* fit_Sigma_Layout = new QVBoxLayout;
