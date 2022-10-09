@@ -1427,7 +1427,7 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 				{
 					// ABC and FG models
 					if( imperfections_Model.PSD_Model == ABC_Model ||
-						imperfections_Model.PSD_Model == fractal_Gauss_Model)		{
+                        imperfections_Model.PSD_Model == stretched_exp_Model)		{
 						potentially_Fitable_Parameters.push_back(&roughness_Model.cor_radius);
 						potentially_Fitable_Parameters.push_back(&roughness_Model.sigma);
 						potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
@@ -1445,7 +1445,7 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 			{
 				// ABC and FG models
 				if( imperfections_Model.PSD_Model == ABC_Model ||
-					imperfections_Model.PSD_Model == fractal_Gauss_Model)		{
+                    imperfections_Model.PSD_Model == stretched_exp_Model)		{
 					potentially_Fitable_Parameters.push_back(&roughness_Model.cor_radius);
 					potentially_Fitable_Parameters.push_back(&roughness_Model.sigma);
 					potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
@@ -1681,7 +1681,7 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 				{
 					// ABC and FG models
 					if( imperfections_Model.PSD_Model == ABC_Model ||
-						imperfections_Model.PSD_Model == fractal_Gauss_Model)		{
+                        imperfections_Model.PSD_Model == stretched_exp_Model)		{
 						table_Showed_Parameters.push_back(&roughness_Model.cor_radius);
 						table_Showed_Parameters.push_back(&roughness_Model.sigma);
 						table_Showed_Parameters.push_back(&roughness_Model.fractal_alpha);
@@ -1699,7 +1699,7 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 			{
 				// ABC and FG models
 				if( imperfections_Model.PSD_Model == ABC_Model ||
-					imperfections_Model.PSD_Model == fractal_Gauss_Model)		{
+                    imperfections_Model.PSD_Model == stretched_exp_Model)		{
 					table_Showed_Parameters.push_back(&roughness_Model.cor_radius);
 					table_Showed_Parameters.push_back(&roughness_Model.sigma);
 					table_Showed_Parameters.push_back(&roughness_Model.fractal_alpha);

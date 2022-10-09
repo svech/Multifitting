@@ -789,7 +789,7 @@ void Roughness_Plot::calc_PSD_For_Interface(int interface_Index, QVector<double>
 				factor = current_Data.PSD_ABC_2D_Factor;
 			}
 		}
-		if(multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model) {
+        if(multilayer->imperfections_Model.PSD_Model == stretched_exp_Model) {
 			const double& alpha = current_Data.roughness_Model.fractal_alpha.value;
 
 			if(abs(alpha-1)>DBL_EPSILON) {

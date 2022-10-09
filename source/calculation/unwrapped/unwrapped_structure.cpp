@@ -247,7 +247,7 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
 	{
 		int media_Index = layer_Index+1;
-		if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
+        if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == stretched_exp_Model)
 		{
 //			double s = media_Data_Map_Vector[media_Index]->roughness_Model.sigma.value;
 			double s =  media_Node_Map_Vector[media_Index]->specular_Debye_Waller_Total_Sigma;
@@ -272,7 +272,7 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 		a4[layer_Index] = media_Data_Map_Vector[media_Index].roughness_Model.a4.value;
 	}
 	// substrate
-	if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
+    if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == stretched_exp_Model)
 	{
 		double s =  media_Node_Map_Vector[num_Layers+1]->specular_Debye_Waller_Total_Sigma;
 		sigma_Roughness[num_Layers] = s;

@@ -79,7 +79,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 		bool discretization_DWBA_SA_CSA = false;
 
 		if( have_GISAS &&
-		   (//multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model ||
+           (//multilayer->imperfections_Model.PSD_Model == stretched_exp_Model ||
 			multilayer->imperfections_Model.approximation == DWBA_approximation ||
 			multilayer->imperfections_Model.approximation == SA_approximation   ||
 			multilayer->imperfections_Model.approximation == CSA_approximation  ))
@@ -99,7 +99,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 			if(GISAS_DWBA_SA_CSA)
 			{
 				QString text;
-//				if( multilayer->imperfections_Model.PSD_Model == fractal_Gauss_Model ) text = "Fractal Gauss model";
+//				if( multilayer->imperfections_Model.PSD_Model == stretched_exp_Model ) text = "Stretched exp model";
 				if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "DWBA approximation";
 				if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "SA approximation";
 				if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "CSA approximation";
@@ -452,7 +452,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			ABC_Radiobutton->setChecked(multilayer->imperfections_Model.PSD_Model == ABC_Model);
 		PSD_Model_Layout->addWidget(ABC_Radiobutton);
 
-		QRadioButton* fractal_Gauss_Radiobutton = new QRadioButton("Fractal Gauss");
+        QRadioButton* fractal_Gauss_Radiobutton = new QRadioButton("Stretched exp");
             fractal_Gauss_Radiobutton->setChecked(multilayer->imperfections_Model.PSD_Model == stretched_exp_Model);
 		PSD_Model_Layout->addWidget(fractal_Gauss_Radiobutton);
 

@@ -1212,7 +1212,7 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 		// case check
 		if(!imperfections_Model.use_Roughness) return;
 		if(struct_Data.item_Type == item_Type_Ambient ) return;
-		if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == fractal_Gauss_Model)
+        if(imperfections_Model.PSD_Model == ABC_Model || imperfections_Model.PSD_Model == stretched_exp_Model)
 		{
 			if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return; // if use_Common_Roughness_Function we calculate DW factor only for substrate
 		}
@@ -1444,7 +1444,7 @@ void Node::calc_Debye_Waller_Sigma(const Imperfections_Model& imperfections_Mode
 				}
 			}
 		}
-		if(imperfections_Model.PSD_Model == fractal_Gauss_Model)
+        if(imperfections_Model.PSD_Model == stretched_exp_Model)
 		{
 			double sigma = struct_Data.roughness_Model.sigma.value;
 			double xi =    struct_Data.roughness_Model.cor_radius.value;
