@@ -30,7 +30,7 @@ void Structure_Toolbar::create_Toolbar()
 //	QPixmap thickness_Plot	(Paths_Icon_Path + "zplot.bmp");
 //	QPixmap sigma_Plot		(Paths_Icon_Path + "sigmaplot.bmp");
 	QPixmap destroy			(Paths_Icon_Path + "bomb.bmp");
-	QPixmap export_Structure(Paths_Icon_Path + "save.bmp");
+//	QPixmap export_Structure(Paths_Icon_Path + "save.bmp");
 
 	toolbar = new QToolBar(this);
 	toolbar->addAction(QIcon(add_Layer),		"Add layer");						// 0
@@ -49,7 +49,7 @@ void Structure_Toolbar::create_Toolbar()
 //	toolbar->addAction(QIcon(thickness_Plot),	"Plot layer thickness profile");	// 13
 //	toolbar->addAction(QIcon(sigma_Plot),		"Plot interface width profile");	// 14
 	toolbar->addAction(QIcon(destroy),			"Remove all layers");				// 15
-	toolbar->addAction(QIcon(export_Structure),	"Save structure as text");			// 16
+//	toolbar->addAction(QIcon(export_Structure),	"Save structure as text");			// 16
 
 	toolbar->setIconSize(add_Layer.size());
 
@@ -69,7 +69,7 @@ void Structure_Toolbar::create_Toolbar()
 //	connect(toolbar->actions()[Thickness_Plot],  &QAction::triggered, this, &Structure_Toolbar::thickness_Plot);
 //	connect(toolbar->actions()[Sigma_Plot],		 &QAction::triggered, this, &Structure_Toolbar::sigma_Plot);
 	connect(toolbar->actions()[Destroy],		 &QAction::triggered, this, &Structure_Toolbar::destroy);
-	connect(toolbar->actions()[Export_Structure],&QAction::triggered, this, &Structure_Toolbar::export_Structure);
+//	connect(toolbar->actions()[Export_Structure],&QAction::triggered, this, &Structure_Toolbar::export_Structure);
 
 	if_Selected();
 }
@@ -682,7 +682,7 @@ void Structure_Toolbar::destroy()
 	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Remove all layers?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	if (reply == QMessageBox::Yes)
 	{
-        QMessageBox::information(this,"Removal", "Caution: the file remains the same!");
+        QMessageBox::information(this,"Removal", "Caution: the project remains the same!");
 
 		structure_Tree->tree->clear();
 		add_Ambient();

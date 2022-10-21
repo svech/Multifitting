@@ -66,8 +66,9 @@ enum multilayer_Toolbar_Enum    { Add_Layer,
 								  Ungroup,
 //								  Thickness_Plot,
 //								  Sigma_Plot,
-								  Destroy,
-								  Export_Structure};
+                                  Destroy
+//								  , Export_Structure
+                                };
 
 // independent variables toolbar
 enum independent_Toolbar_Enum   { New_Variable_Independent,
