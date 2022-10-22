@@ -1814,7 +1814,7 @@ double Global_Variables::integral_1D_0_p_Finite_Slit(double factor, double xi, d
 	{
 		func_Integral_0_Nu = &Global_Variables::PSD_ABC_1D_Finite_from_nu;
 	}
-	if(PSD_Model == fractal_Gauss_Model)
+    if(PSD_Model == stretched_exp_Model)
 	{
 		if(abs(alpha-1)>DBL_EPSILON) {
 			func_Integral_0_Nu = &Global_Variables::PSD_Fractal_Gauss_1D_Finite_from_nu;
