@@ -117,22 +117,30 @@ void Profile_Plot::create_Left_Side()
 
 		at_Wavelength_Label = new QLabel("At fixed " + Global_Variables::wavelength_Energy_Name(multilayer->profile_Plot_Options.local_wavelength_units, true) + " " + Global_Variables::wavelength_Energy_Symbol(multilayer->profile_Plot_Options.local_wavelength_units));
 			permittivity_Layout->addWidget(at_Wavelength_Label,1,2,1,4);
-		at_Wavelength_LineEdit = new QLineEdit(Locale.toString(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, multilayer->profile_Plot_Options.local_Wavelength)/wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units),line_edit_double_format));
-			at_Wavelength_LineEdit->setFixedWidth(80);
-			at_Wavelength_LineEdit->setProperty(min_Size_Property, 80);
-			at_Wavelength_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			connect(at_Wavelength_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(at_Wavelength_LineEdit, false);});
-			connect(at_Wavelength_LineEdit, &QLineEdit::editingFinished, this, [=]
-			{
-				multilayer->profile_Plot_Options.local_Wavelength = Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, Locale.toDouble(at_Wavelength_LineEdit->text()))*wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units);
-				plot_Data(true);
-			});
+
+        double coeff = wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units);
+        at_Wavelength_Spinbox = new MyDoubleSpinBox(/*nullptr, false*/);
+            at_Wavelength_Spinbox->setAccelerated(true);
+            at_Wavelength_Spinbox->setRange(0,MAX_DOUBLE);
+            at_Wavelength_Spinbox->setDecimals(7);
+            at_Wavelength_Spinbox->setSingleStep(0.01);
+            at_Wavelength_Spinbox->setValue(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, multilayer->profile_Plot_Options.local_Wavelength)/coeff);
+            at_Wavelength_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+            at_Wavelength_Spinbox->setProperty(min_Size_Property, 80);
+        Global_Variables::resize_Line_Edit(at_Wavelength_Spinbox);
+        connect(at_Wavelength_Spinbox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+        {
+            double coeff = wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units);
+            multilayer->profile_Plot_Options.local_Wavelength = Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, at_Wavelength_Spinbox->value()*coeff);
+            plot_Data(true);
+        });
+
 		at_Wavelength_Unints_Label = new QLabel(" " + multilayer->profile_Plot_Options.local_wavelength_units);
 
 		QHBoxLayout* wavelength_Layout = new QHBoxLayout;
 			wavelength_Layout->setAlignment(Qt::AlignLeft);
-			wavelength_Layout->addWidget(at_Wavelength_LineEdit,0,Qt::AlignLeft);
-			wavelength_Layout->addWidget(at_Wavelength_Unints_Label,0,Qt::AlignLeft);
+            wavelength_Layout->addWidget(at_Wavelength_Spinbox,0,Qt::AlignLeft);
+            wavelength_Layout->addWidget(at_Wavelength_Unints_Label,0,Qt::AlignLeft);
 			permittivity_Layout->addLayout(wavelength_Layout,2,5);
 
 		delta_RadioButton = new QRadioButton("Re(1-"+Epsilon_Sym+")");
@@ -179,7 +187,7 @@ void Profile_Plot::create_Left_Side()
 		{
 			bool checked = permittivity_RadioButton->isChecked();
 			at_Wavelength_Label->setEnabled(checked);
-			at_Wavelength_LineEdit->setEnabled(checked);
+            at_Wavelength_Spinbox->setEnabled(checked);
 			at_Wavelength_Unints_Label->setEnabled(checked);
 
 			if(checked)

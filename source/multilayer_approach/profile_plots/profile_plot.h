@@ -39,8 +39,8 @@ public:
 		QGroupBox* value_Type_GroupBox;
 			QRadioButton* permittivity_RadioButton;
 			QLabel* at_Wavelength_Label;
-			QLineEdit* at_Wavelength_LineEdit;
-			QLabel* at_Wavelength_Unints_Label;
+            MyDoubleSpinBox* at_Wavelength_Spinbox;
+            QLabel* at_Wavelength_Unints_Label;
 			QRadioButton* delta_RadioButton;
 			QRadioButton* beta_RadioButton;
 			QRadioButton* materials_RadioButton;
