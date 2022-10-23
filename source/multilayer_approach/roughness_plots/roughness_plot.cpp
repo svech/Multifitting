@@ -230,7 +230,7 @@ void Roughness_Plot::create_Left_Side()
 			z_Range_Layout->setAlignment(Qt::AlignLeft);
 		scale_Layout->addLayout(z_Range_Layout);
 
-		QLabel* orders_Label = new QLabel("Y range, orders: ");
+        QLabel* orders_Label = new QLabel("PSD range, orders: ");
 		z_Range_Layout->addWidget(orders_Label);
 
 		orders_Spinbox = new MyDoubleSpinBox(nullptr, false);
