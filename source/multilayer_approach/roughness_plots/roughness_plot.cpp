@@ -154,7 +154,7 @@ void Roughness_Plot::create_Left_Side()
 		});
 
 		interface_by_Number_ComboBox = new QComboBox;
-			interface_by_Number_ComboBox->setFixedWidth(55);
+            interface_by_Number_ComboBox->setFixedWidth(55);
 			interface_by_Number_ComboBox->setEnabled(multilayer->roughness_Plot_Options.show_Interface_With_Number);
 		interface_Number_layout->addWidget(interface_by_Number_ComboBox,0,Qt::AlignLeft);
 		connect(interface_by_Number_ComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=]

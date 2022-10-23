@@ -60,6 +60,9 @@ public:
 			QRadioButton* lin_Y_RadioButton;
 			QRadioButton* log_Y_RadioButton;
 
+        QGroupBox* units_GroupBox;
+            QLabel* depth_Units_Label;
+            QComboBox* depth_Units_ComboBox;
 
 	QCustomPlot* custom_Plot;
 	QScrollBar* horizontall_Scrollbar;

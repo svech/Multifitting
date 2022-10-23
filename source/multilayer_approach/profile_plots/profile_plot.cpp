@@ -386,9 +386,45 @@ void Profile_Plot::create_Left_Side()
         ///------------------------------------------------------------------------------------------
         // argument units part
         ///------------------------------------------------------------------------------------------
+        units_GroupBox = new QGroupBox;
+            left_Layout->addWidget(units_GroupBox);
+
+        // ----------------------------------------------------
+        QGridLayout* depth_Layout = new QGridLayout(units_GroupBox);
+            depth_Layout->setAlignment(Qt::AlignLeft);
+            depth_Layout->setSpacing(2);
+            depth_Layout->setContentsMargins(8,5,6,5);
+
+        depth_Units_Label = new QLabel("Depth units ");
+            depth_Layout->addWidget(depth_Units_Label,0,0);
+
+        depth_Units_ComboBox = new QComboBox;
+            depth_Units_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+            depth_Units_ComboBox->addItems(length_Units_List);
+            depth_Units_ComboBox->setCurrentText(multilayer->profile_Plot_Options.local_length_units);
+        depth_Layout->addWidget(depth_Units_ComboBox,0,1);
+        connect(depth_Units_ComboBox, &QComboBox::currentTextChanged, this, [=]
+        {
+            double old_Factor = length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+            multilayer->profile_Plot_Options.local_length_units = length_Units_List[depth_Units_ComboBox->currentIndex()];
+            double new_Factor = length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+
+            custom_Plot->xAxis->setLabel("Depth, "+multilayer->profile_Plot_Options.local_length_units);
+
+            multilayer->profile_Plot_Options.old_X_Begin = multilayer->profile_Plot_Options.old_X_Begin / new_Factor * old_Factor;
+            multilayer->profile_Plot_Options.old_X_End   = multilayer->profile_Plot_Options.old_X_End   / new_Factor * old_Factor;
+
+            horizontall_Scrollbar->blockSignals(true);
+            plot_Data(true);
+            horizontall_Scrollbar->blockSignals(false);
+        });
+        // ----------------------------------------------------
+        units_GroupBox->adjustSize();
+        units_GroupBox->setFixedSize(units_GroupBox->size());
 
 		value_Type_GroupBox->setFixedWidth(scale_GroupBox->width());
 		line_Type_GroupBox->setFixedWidth(scale_GroupBox->width());
+        units_GroupBox->setFixedWidth(scale_GroupBox->width());
 
 	///==============================================================================================
 	// ----------------------------------------------------
