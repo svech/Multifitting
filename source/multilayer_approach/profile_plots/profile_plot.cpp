@@ -96,7 +96,7 @@ void Profile_Plot::create_Left_Side()
 			main_Layout->addLayout(left_Layout);
 
 		///------------------------------------------------------------------------------------------
-		// top part
+        // epsilon/materials/elements part
 		///------------------------------------------------------------------------------------------
 		value_Type_GroupBox = new QGroupBox;
 			left_Layout->addWidget(value_Type_GroupBox);
@@ -245,7 +245,7 @@ void Profile_Plot::create_Left_Side()
 		value_Type_GroupBox->setFixedSize(value_Type_GroupBox->size());
 
 		///------------------------------------------------------------------------------------------
-		// middle part
+        // line types
 		///------------------------------------------------------------------------------------------
 		line_Type_GroupBox = new QGroupBox;
 			left_Layout->addWidget(line_Type_GroupBox);
@@ -318,24 +318,27 @@ void Profile_Plot::create_Left_Side()
 		line_Type_GroupBox->setFixedSize(line_Type_GroupBox->size());
 
 		///------------------------------------------------------------------------------------------
-		// bottom part
+        // scaling part
 		///------------------------------------------------------------------------------------------
 		scale_GroupBox = new QGroupBox;
 			left_Layout->addWidget(scale_GroupBox);
-		QVBoxLayout* scale_Layout = new QVBoxLayout(scale_GroupBox);
+        QVBoxLayout* scale_Layout = new QVBoxLayout(scale_GroupBox);
 			scale_Layout->setSpacing(2);
 			scale_Layout->setContentsMargins(8,5,2,5);
 
 		// ----------------------------------------------------
-		rescale_X_CheckBox = new QCheckBox("Rescale X");
-			scale_Layout->addWidget(rescale_X_CheckBox);
+        QHBoxLayout* rescale_Layout = new QHBoxLayout();
+            scale_Layout->addLayout(rescale_Layout);
+
+        rescale_X_CheckBox = new QCheckBox("Rescale X");
+            rescale_Layout->addWidget(rescale_X_CheckBox);
 			connect(rescale_X_CheckBox, &QCheckBox::toggled, this, [=]
 			{
 				multilayer->profile_Plot_Options.rescale_X = rescale_X_CheckBox->isChecked();
 			});
 
-		rescale_Y_CheckBox = new QCheckBox("Rescale Y");
-			scale_Layout->addWidget(rescale_Y_CheckBox);
+        rescale_Y_CheckBox = new QCheckBox("Rescale Y");
+            rescale_Layout->addWidget(rescale_Y_CheckBox);
 			connect(rescale_Y_CheckBox, &QCheckBox::toggled, this, [=]
 			{
 				multilayer->profile_Plot_Options.rescale_Y = rescale_Y_CheckBox->isChecked();
@@ -379,6 +382,10 @@ void Profile_Plot::create_Left_Side()
 		// ----------------------------------------------------
 		scale_GroupBox->adjustSize();
 		scale_GroupBox->setFixedSize(scale_GroupBox->size());
+
+        ///------------------------------------------------------------------------------------------
+        // argument units part
+        ///------------------------------------------------------------------------------------------
 
 		value_Type_GroupBox->setFixedWidth(scale_GroupBox->width());
 		line_Type_GroupBox->setFixedWidth(scale_GroupBox->width());
