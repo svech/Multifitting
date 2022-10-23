@@ -350,18 +350,15 @@ void Profile_Plot::create_Left_Side()
 			scale_Layout->setContentsMargins(8,5,2,5);
 
 		// ----------------------------------------------------
-        QHBoxLayout* rescale_Layout = new QHBoxLayout();
-            scale_Layout->addLayout(rescale_Layout);
-
         rescale_X_CheckBox = new QCheckBox("Rescale X");
-            rescale_Layout->addWidget(rescale_X_CheckBox);
+            scale_Layout->addWidget(rescale_X_CheckBox);
 			connect(rescale_X_CheckBox, &QCheckBox::toggled, this, [=]
 			{
 				multilayer->profile_Plot_Options.rescale_X = rescale_X_CheckBox->isChecked();
 			});
 
         rescale_Y_CheckBox = new QCheckBox("Rescale Y");
-            rescale_Layout->addWidget(rescale_Y_CheckBox);
+            scale_Layout->addWidget(rescale_Y_CheckBox);
 			connect(rescale_Y_CheckBox, &QCheckBox::toggled, this, [=]
 			{
 				multilayer->profile_Plot_Options.rescale_Y = rescale_Y_CheckBox->isChecked();
