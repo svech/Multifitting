@@ -14,7 +14,6 @@ class Profile_Plots_Window : public QWidget
 public:
     explicit Profile_Plots_Window(bool profile_Export = false, QWidget *parent = nullptr);
 
-	void contextMenuEvent(QContextMenuEvent *event);
 	void closeEvent(QCloseEvent* event);
 
 	void create_Main_Layout();

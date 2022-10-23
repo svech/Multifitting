@@ -124,6 +124,7 @@ void Profile_Plot::create_Left_Side()
             at_Wavelength_Spinbox->setRange(0,MAX_DOUBLE);
             at_Wavelength_Spinbox->setDecimals(7);
             at_Wavelength_Spinbox->setSingleStep(0.01);
+//            at_Wavelength_Spinbox->setStepType(QDoubleSpinBox::AdaptiveDecimalStepType);
             at_Wavelength_Spinbox->setValue(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, multilayer->profile_Plot_Options.local_Wavelength)/coeff);
             at_Wavelength_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
             at_Wavelength_Spinbox->setProperty(min_Size_Property, 80);
@@ -135,13 +136,27 @@ void Profile_Plot::create_Left_Side()
             plot_Data(true);
         });
 
-		at_Wavelength_Unints_Label = new QLabel(" " + multilayer->profile_Plot_Options.local_wavelength_units);
+        at_Wavelength_Units_ComboBox = new QComboBox;
+            at_Wavelength_Units_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+            at_Wavelength_Units_ComboBox->addItems(wavelength_Units_List);
+            at_Wavelength_Units_ComboBox->setCurrentText(multilayer->profile_Plot_Options.local_wavelength_units);
+        connect(at_Wavelength_Units_ComboBox, &QComboBox::currentTextChanged, this, [=]
+        {
+            int index = at_Wavelength_Units_ComboBox->currentIndex();
+            multilayer->profile_Plot_Options.local_wavelength_units = wavelength_Units_List[index];
+
+            at_Wavelength_Label->setText("At fixed " + Global_Variables::wavelength_Energy_Name(multilayer->profile_Plot_Options.local_wavelength_units, true) + " " + Global_Variables::wavelength_Energy_Symbol(multilayer->profile_Plot_Options.local_wavelength_units));
+            at_Wavelength_Spinbox->blockSignals(true);
+            double coeff = wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units);
+            at_Wavelength_Spinbox->setValue(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, multilayer->profile_Plot_Options.local_Wavelength)/coeff);
+            at_Wavelength_Spinbox->blockSignals(false);
+        });
 
 		QHBoxLayout* wavelength_Layout = new QHBoxLayout;
 			wavelength_Layout->setAlignment(Qt::AlignLeft);
             wavelength_Layout->addWidget(at_Wavelength_Spinbox,0,Qt::AlignLeft);
-            wavelength_Layout->addWidget(at_Wavelength_Unints_Label,0,Qt::AlignLeft);
-			permittivity_Layout->addLayout(wavelength_Layout,2,5);
+            wavelength_Layout->addWidget(at_Wavelength_Units_ComboBox,0,Qt::AlignLeft);
+            permittivity_Layout->addLayout(wavelength_Layout,2,5);
 
 		delta_RadioButton = new QRadioButton("Re(1-"+Epsilon_Sym+")");
 			permittivity_Layout->addWidget(delta_RadioButton,3,2,1,4);
@@ -188,7 +203,7 @@ void Profile_Plot::create_Left_Side()
 			bool checked = permittivity_RadioButton->isChecked();
 			at_Wavelength_Label->setEnabled(checked);
             at_Wavelength_Spinbox->setEnabled(checked);
-			at_Wavelength_Unints_Label->setEnabled(checked);
+            at_Wavelength_Units_ComboBox->setEnabled(checked);
 
 			if(checked)
 			{

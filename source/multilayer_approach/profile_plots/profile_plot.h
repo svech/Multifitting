@@ -40,8 +40,8 @@ public:
 			QRadioButton* permittivity_RadioButton;
 			QLabel* at_Wavelength_Label;
             MyDoubleSpinBox* at_Wavelength_Spinbox;
-            QLabel* at_Wavelength_Unints_Label;
-			QRadioButton* delta_RadioButton;
+            QComboBox* at_Wavelength_Units_ComboBox;
+            QRadioButton* delta_RadioButton;
 			QRadioButton* beta_RadioButton;
 			QRadioButton* materials_RadioButton;
 			QRadioButton* elements_RadioButton;

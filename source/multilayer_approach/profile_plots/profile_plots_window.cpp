@@ -10,42 +10,6 @@ Profile_Plots_Window::Profile_Plots_Window(bool profile_Export, QWidget *parent)
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
-void Profile_Plots_Window::contextMenuEvent(QContextMenuEvent *event)
-{
-	Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(main_Tabs->currentIndex()));
-
-	QMenu wavelength_Units("Wavelength units");
-	{
-		QActionGroup* group_Act_Unit = new QActionGroup(this);
-			group_Act_Unit->setExclusive(true);
-
-		for(int index=0; index<wavelength_Units_List.size(); index++)
-		{
-			QAction* act_Unit = new QAction(wavelength_Units_List[index], this);
-			act_Unit->setProperty(index_Property, index);
-			act_Unit->setCheckable(true);
-			act_Unit->setActionGroup(group_Act_Unit);
-
-			if(wavelength_Units_List[index] == multilayer->profile_Plot_Options.local_wavelength_units) {act_Unit->setChecked(true);}
-			wavelength_Units.addAction(act_Unit);
-			connect(act_Unit,  &QAction::triggered, this, [=]
-			{
-				multilayer->profile_Plot_Options.local_wavelength_units = wavelength_Units_List[index];
-
-				profile_Plot_Vector[main_Tabs->currentIndex()]->at_Wavelength_Label->setText("At fixed " + Global_Variables::wavelength_Energy_Name(multilayer->profile_Plot_Options.local_wavelength_units, true) + " " + Global_Variables::wavelength_Energy_Symbol(multilayer->profile_Plot_Options.local_wavelength_units));
-                profile_Plot_Vector[main_Tabs->currentIndex()]->at_Wavelength_Spinbox->blockSignals(true);
-                profile_Plot_Vector[main_Tabs->currentIndex()]->at_Wavelength_Spinbox->setValue(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, multilayer->profile_Plot_Options.local_Wavelength)/wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units));
-                profile_Plot_Vector[main_Tabs->currentIndex()]->at_Wavelength_Spinbox->blockSignals(false);
-                profile_Plot_Vector[main_Tabs->currentIndex()]->at_Wavelength_Unints_Label->setText(" " + multilayer->profile_Plot_Options.local_wavelength_units);
-			});
-		}
-	}
-
-	QMenu menu;
-	menu.addMenu(&wavelength_Units);
-    menu.exec(event->globalPos());
-}
-
 void Profile_Plots_Window::closeEvent(QCloseEvent *event)
 {
 	global_Multilayer_Approach->runned_Profile_Plots_Window.remove(profile_Plots_Key);

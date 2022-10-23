@@ -18,7 +18,6 @@ public:
 	QLineEdit* myLineEdit() const;
 	bool auto_Resize;
 	void create_Text_Change_Connection();
-	void setMyAdaptiveStep(bool on);
 
     QRegExp positive_Symbols;
     QRegExp negative_Symbols;
