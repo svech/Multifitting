@@ -873,7 +873,7 @@ void Point::read_Row(QTextStream& input, bool if_Factors)
 		input >> temp_Energy >> re >> im;
 		lambda = Global_Variables::angstrom_eV(temp_Energy);
 	} else
-	{
+	{        
 		input >> lambda >> re >> im;
 	}
 }
