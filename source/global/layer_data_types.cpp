@@ -1118,7 +1118,7 @@ void Data::calc_Mixed_Resolution()
 		spectral_Resolution_Vec.resize(lambda_Vec.size());
 		for(size_t i=0; i<spectral_Resolution_Vec.size(); ++i)
 		{
-			spectral_Resolution_Vec[i] = spectral_Distribution.FWHM_distribution;
+            spectral_Resolution_Vec[i] = spectral_Distribution.FWHM_distribution*lambda_Vec[i];
 		}
 
 		// from angular resolution
