@@ -1,8 +1,8 @@
 ;  Atomic scattering factors for Be.
 ;   
-;  Higher 19.3061 eV - Concatenation of data from CXRO <http://www-cxro.lbl.gov>
+;  At E >= 19.3061 eV - Concatenation of data from CXRO <http://www-cxro.lbl.gov>
 ;  and LLNL <http://www-phys.llnl.gov/V_Div/scattering/asf.html>
-;  Lower 19.3061 eV - obtained from Be.nk;  here f1, f2 ~ delta_n, beta_n
+;  At E < 19.3061 eV - obtained from Be.nk;  here f1, f2 ~ delta_n, beta_n
 ;  E (eV) f1 f2
 ;---------------
 0.02000067640090973  	 	-0.00039986311473608357 	 	0.0007377028086200367
