@@ -201,7 +201,7 @@ void Regular_Aperiodic_Table::read_Data_File(QString fileName)
 	if(materials.size() != num_Layers_Regular_Aperiodic)
 	{
 		QMessageBox::StandardButton reply = QMessageBox::Yes;
-		reply = QMessageBox::question(this,"Number of layers", "File has "+QString::number(materials.size())+" layers, while\nRegular Aperiodic has "+
+        reply = QMessageBox::question(this,"Number of layers", "File has "+QString::number(materials.size())+" layers, while\nregular aperiodic has "+
 									  QString::number(num_Layers_Regular_Aperiodic)+"\n\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply != QMessageBox::Yes)
 		{

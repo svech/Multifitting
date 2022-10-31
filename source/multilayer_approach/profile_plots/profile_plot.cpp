@@ -1475,12 +1475,16 @@ void Profile_Plot::export_Profile()
     bool show_Sharp_Profile = multilayer->profile_Plot_Options.show_Sharp_Profile;
     multilayer->profile_Plot_Options.show_Sharp_Profile = true; // for calculation
 
-    int index = global_Multilayer_Approach->profile_Plots_Window->main_Tabs->currentIndex();
+    int index = profile_Plots_Window->profile_Plot_Vector.indexOf(this);
     QString tab_Text = global_Multilayer_Approach->multilayer_Tabs->tabText(index);
     QString path = Global_Variables::working_Directory() + "/";
     QString name_End = /*Locale.toString(index)+"_"+*/tab_Text+".txt";
 
     qInfo() << "profile saved for structure" << tab_Text << endl;
+
+    QString discrete_Addition = "";
+    if(multilayer->profile_Plot_Options.show_Discretization)
+        discrete_Addition = "Discrete_";
 
     // permittivity
     {
@@ -1495,7 +1499,7 @@ void Profile_Plot::export_Profile()
         calculate_Profile();
 
         multilayer->profile_Plot_Options.show_Sharp_Profile = false;
-        print_To_File(path + "profile_Permittivity_" + name_End);
+        print_To_File(path + "profile_Permittivity_" + discrete_Addition + name_End);
 
         multilayer->profile_Plot_Options.show_Sharp_Profile = true;
         print_To_File(path + "profile_Permittivity_Sharp_" + name_End);
@@ -1509,7 +1513,7 @@ void Profile_Plot::export_Profile()
         if(different_Materials.size()>0)
         {
             multilayer->profile_Plot_Options.show_Sharp_Profile = false;
-            print_To_File(path + "profile_Materials_" + name_End);
+            print_To_File(path + "profile_Materials_" + discrete_Addition + name_End);
 
             multilayer->profile_Plot_Options.show_Sharp_Profile = true;
             print_To_File(path + "profile_Materials_Sharp_" + name_End);
@@ -1524,7 +1528,7 @@ void Profile_Plot::export_Profile()
         if(different_Elements.size()>0)
         {
             multilayer->profile_Plot_Options.show_Sharp_Profile = false;
-            print_To_File(path + "profile_Elements_" + name_End);
+            print_To_File(path + "profile_Elements_" + discrete_Addition + name_End);
 
             multilayer->profile_Plot_Options.show_Sharp_Profile = true;
             print_To_File(path + "profile_Elements_Sharp_" + name_End);
@@ -1594,7 +1598,7 @@ void Profile_Plot::print_Profile(QTextStream& out)
                     out << endl << "; For visualization please use step line with data point on the left of the step" << endl;
                 } else
                 {
-                    out << endl << "; No discretization: arguments correspond to the real positions" << endl;
+                    out << endl << "; No discretization: arguments correspond to the real positions";
                     out << endl << "; For visualization please use continuous line" << endl;
                 }
             }

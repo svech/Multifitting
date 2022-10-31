@@ -3096,7 +3096,7 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 	}
 	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
-		at_Fixed_Heading += "\n; specular grazing angle direction = " + Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+        at_Fixed_Heading += "\n; specular grazing angle position = " + Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
 	}
 	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{
@@ -3319,7 +3319,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 			}
 			if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 			{
-				at_Fixed_Heading += "\n; specular grazing angle direction = " + Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+                at_Fixed_Heading += "\n; specular grazing angle position = " + Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
 				instrumental_Heading += detector_Width_Heading;
 				argument_Heading = "Beam grazing angle (" + angular_Units_Name + ")";
 				argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
@@ -3605,10 +3605,10 @@ void Main_Calculation_Module::print_Matrix(QString function, const Calc_Function
 									  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.lambda_Value)/spectral_Coeff, 'f', prec) + " " +
 									  spectral_Units_Name;
 		QString spectral_Resolution     = "spectral resolution         :  " + Locale.toString(measurement.spectral_Distribution.FWHM_distribution, 'f', prec);
-		QString beam_Theta_0_Divergence = "beam vertical divergence    :  " + Locale.toString(measurement.beam_Theta_0_Distribution.FWHM_distribution/angular_Coeff, 'f', prec) + " " + angular_Units_Name;
-		QString beam_Phi_0_Divergence   = "beam horizontal divergence  :  " + Locale.toString(measurement.beam_Phi_0_Distribution.FWHM_distribution/angular_Coeff, 'f', prec) + " " + angular_Units_Name;
-		QString beam_Geometry           = "beam width                  :  " + Locale.toString(measurement.beam_Geometry.size, 'f', prec) + " mm";
-		QString sample_Geometry		    = "sample size                 :  " + Locale.toString(measurement.sample_Geometry.size, 'f', prec) + " mm";
+        QString beam_Theta_0_Divergence = "beam polar divergence       :  " + Locale.toString(measurement.beam_Theta_0_Distribution.FWHM_distribution/angular_Coeff, 'f', prec) + " " + angular_Units_Name;
+        QString beam_Phi_0_Divergence   = "beam azimuthal divergence   :  " + Locale.toString(measurement.beam_Phi_0_Distribution.FWHM_distribution/angular_Coeff, 'f', prec) + " " + angular_Units_Name;
+        QString beam_Geometry           = "beam width                  :  " + Locale.toString(measurement.beam_Geometry.size, 'f', prec) + " mm";
+        QString sample_Geometry		    = "sample size                 :  " + Locale.toString(measurement.sample_Geometry.size, 'f', prec) + " mm";
 
 		if(function == gisas_Function)
 		{
@@ -3626,9 +3626,9 @@ void Main_Calculation_Module::print_Matrix(QString function, const Calc_Function
 			out << "; " << "detector point size Phi     :  " << Locale.toString(measurement.phi_Resolution_FWHM/angular_Coeff,'f', prec) << " " << angular_Units_Name << endl;
 			out << endl;
 
-			out << "; " << "detector Theta    :   (" << Locale.toString(measurement.detector_Theta_Angle.independent.min/angular_Coeff,'f', prec)
+            out << "; " << "detector Theta range   :   (" << Locale.toString(measurement.detector_Theta_Angle.independent.min/angular_Coeff,'f', prec)
 											<< " , " << Locale.toString(measurement.detector_Theta_Angle.independent.max/angular_Coeff,'f', prec) << ") " << angular_Units_Name << endl;
-			out << "; " << "detector Phi      :   (" << Locale.toString(measurement.detector_Phi_Angle.independent.min/angular_Coeff,'f', prec)
+            out << "; " << "detector Phi range     :   (" << Locale.toString(measurement.detector_Phi_Angle.independent.min/angular_Coeff,'f', prec)
 											<< " , " << Locale.toString(measurement.detector_Phi_Angle.independent.max/angular_Coeff,'f', prec) << ") " << angular_Units_Name << endl;
 		}
 		if(function == intensity_Function || function == joule_Function)

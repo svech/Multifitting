@@ -700,14 +700,12 @@ void Structure_Toolbar::export_Structure()
 	Locale=QLocale::c();
 
 	QString tab_Text = "";
-	int index = -2019;
 	for(int i=0; i<global_Multilayer_Approach->multilayer_Tabs->count(); ++i)
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(i));
 		if(multilayer == structure_Tree->multilayer)
 		{
 			tab_Text = global_Multilayer_Approach->multilayer_Tabs->tabText(i);
-			index = i+1;
 		}
 	}
     QString path = Global_Variables::working_Directory() + "/";
@@ -744,7 +742,7 @@ void Structure_Toolbar::export_Structure()
 		const Data struct_Data = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
 		if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
 		{
-            QString name = "structure_"+Locale.toString(index)+"_"+tab_Text+"_Aperiodic_#"+QString::number(aperiodics_Counter)+".txt";
+            QString name = "structure_"+/*Locale.toString(index)+"_"+*/tab_Text+"_Aperiodic_#"+QString::number(aperiodics_Counter)+".txt";
             QFile file(Global_Variables::working_Directory() + "/" + name);
 			if (file.open(QIODevice::WriteOnly))
 			{
@@ -855,11 +853,13 @@ void Structure_Toolbar::print_Structure_Header(QTextStream &out)
 
 	// legend
 	out << "< legend: >" << qSetFieldWidth(0) << endl;
-	out << "\tN   - number of elementary cells" << qSetFieldWidth(0) << endl;
-	out << "\td   - period or thickness" << qSetFieldWidth(0) << endl;
-	out << "\ts_d - root-mean-square interlayer width (sigma diffuse)" << qSetFieldWidth(0) << endl;
-	out << "\ts_r - root-mean-square roughness (sigma roughness)" << qSetFieldWidth(0) << endl;
-	out << "\tr   - material density (rho), absolute or relative" << qSetFieldWidth(0) << endl;
+    out << "\tN    - number of elementary cells" << qSetFieldWidth(0) << endl;
+    out << "\td    - period or thickness" << qSetFieldWidth(0) << endl;
+    out << "\ts_d  - root-mean-square interlayer thickness (sigma diffuse)" << qSetFieldWidth(0) << endl;
+    out << "\ts_r  - root-mean-square roughness (sigma roughness)" << qSetFieldWidth(0) << endl;
+    out << "\tr    - material density (rho), absolute or relative" << qSetFieldWidth(0) << endl;
+    out << "\tA    - angstroms" << qSetFieldWidth(0) << endl;
+    out << "\tr.u. - relative units" << qSetFieldWidth(0) << endl;
 
 	out << "-------------------------------------------------------------------------------" << qSetFieldWidth(0) << endl << endl;
 }
