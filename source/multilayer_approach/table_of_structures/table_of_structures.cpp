@@ -492,7 +492,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			current_Row = new_Table->rowCount()-2;
 
 			rows_List_To_Span.append(current_Row);
-			new_Table->setItem(current_Row,0, new QTableWidgetItem("Set increase/decrease steps"));
+            new_Table->setItem(current_Row,0, new QTableWidgetItem("Parameter change steps"));
 			new_Table->item   (current_Row,0)->setTextAlignment(Qt::AlignCenter);
 			new_Table->item   (current_Row,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 			new_Table->item   (current_Row,0)->setFont(font_Header);
