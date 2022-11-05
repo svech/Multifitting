@@ -183,7 +183,7 @@ void Grading_Editor::read_Drift_From_Item()
 			sine_Frequency_Line->setProperty(min_Size_Property, default_Min_Line_Size);
 			sine_Frequency_Line->setText(Locale.toString(drift.drift_Sine_Frequency.value));
 
-		sine_Phase_Label = new QLabel("Phase, part of 1",this);
+        sine_Phase_Label = new QLabel("Phase"+Element_Sym+"[0,1]",this);
 		sine_Phase_Line = new QLineEdit(this);
 			sine_Phase_Line->setFixedWidth(default_Min_Line_Size);
 			sine_Phase_Line->setProperty(min_Size_Property, default_Min_Line_Size);

@@ -978,7 +978,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Line_Edit		(new_Table, tab_Index, current_Row+1, current_Column+2, structure_Item, whats_This_Thickness_Drift_Sine_Phase,	   VAL);
 
 					// second
-					create_Check_Box_Label	(new_Table, tab_Index, current_Row,   current_Column,   structure_Item, whats_This_Thickness_Drift_Sine,"dz sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 2);
+                    create_Check_Box_Label	(new_Table, tab_Index, current_Row,   current_Column,   structure_Item, whats_This_Thickness_Drift_Sine,"dz sin : A*sin[2"+Pi_Sym+"(n"+Nu_Sym+"+"+Phi_Sym+")]", 1, 1, 0, 2);
 
 					create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column,   structure_Item, whats_This_Thickness_Drift_Sine_Amplitude, MIN);
 					create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column+1, structure_Item, whats_This_Thickness_Drift_Sine_Frequency, MIN);
@@ -1121,7 +1121,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Line_Edit		(new_Table, tab_Index, current_Row+1, current_Column+2, structure_Item, whats_This_Sigma_Drift_Sine_Phase,	   VAL);
 
 					// second
-					create_Check_Box_Label	(new_Table, tab_Index, current_Row,   current_Column,   structure_Item, whats_This_Sigma_Drift_Sine,"ds sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 2);
+                    create_Check_Box_Label	(new_Table, tab_Index, current_Row,   current_Column,   structure_Item, whats_This_Sigma_Drift_Sine,"ds sin : A*sin[2"+Pi_Sym+"(n"+Nu_Sym+"+"+Phi_Sym+")]", 1, 1, 0, 2);
 
 					create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column,   structure_Item, whats_This_Sigma_Drift_Sine_Amplitude, MIN);
 					create_Line_Edit		(new_Table, tab_Index, current_Row+3, current_Column+1, structure_Item, whats_This_Sigma_Drift_Sine_Frequency, MIN);
@@ -1677,7 +1677,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				QString whats_This = whats_This_Roughness_Peak_Frequency;
 				add_Columns			(new_Table, current_Column+1);
-				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Nu_Sym+" ["+spatial_frequency_units+"]");
+                create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Nu_Sym+Zero_Subscript_Sym+" ["+spatial_frequency_units+"]");
 				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
 				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
@@ -2333,10 +2333,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					model_Text = "disorder";
 				}
 				if(last_Layer_Data.particles_Model.geometric_Model == square_Model) {
-					geometry_Text = ", square model";
+                    geometry_Text = ", square lattice";
 				}
 				if(last_Layer_Data.particles_Model.geometric_Model == hexagonal_Model) {
-					geometry_Text = ", hexagonal model";
+                    geometry_Text = ", hexagonal lattice";
 				}
 				if(last_Layer_Data.particles_Model.geometric_Model == pure_Radial_Model) {
 					geometry_Text = ", pure radial model";
@@ -3517,7 +3517,7 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 	if(shape_Pattern_Model == "model")
 	{
 		// settings group box
-		choice_Group_Box->setTitle("Model");
+        choice_Group_Box->setTitle("Lattice type");
 
 		// buttons
 		QRadioButton* hexagonal_Radiobutton = new QRadioButton("Hexagonal");
@@ -3668,7 +3668,7 @@ void Table_Of_Structures::create_Nu0_Label(My_Table_Widget *table, int tab_Index
 
 	add_Columns(table,current_Column);
 
-	QLabel* label = new QLabel(Nu_Sym+Zero_Subscript_Sym+" ["+spatial_frequency_units+"]");
+    QLabel* label = new QLabel(Nu_Sym+Subscript_l_Sym /*Zero_Subscript_Sym*/+" ["+spatial_frequency_units+"]");
 		label->setAlignment(Qt::AlignCenter);
 		label->setStyleSheet("background-color: lightblue");
 	all_Widgets_To_Reload[tab_Index].append(label);
@@ -3682,7 +3682,7 @@ void Table_Of_Structures::create_Nu0_Label(My_Table_Widget *table, int tab_Index
 
 	connect(label, &QLabel::windowTitleChanged, this, [=]
 	{
-		label->setText(Nu_Sym+Zero_Subscript_Sym+" ["+spatial_frequency_units+"]");
+        label->setText(Nu_Sym+Subscript_l_Sym /*Zero_Subscript_Sym*/+" ["+spatial_frequency_units+"]");
 	});
 }
 
@@ -4692,7 +4692,7 @@ void Table_Of_Structures::create_Simple_Label(My_Table_Widget* table, int tab_In
 		if(whats_This == whats_This_Linear_A3)							label->setText("a"+Subscript_3_Sym+" ["+linear_a3_units+"]");
 		if(whats_This == whats_This_Linear_A4)							label->setText("a"+Subscript_4_Sym+" ["+linear_a4_units+"]");
 		if(whats_This == whats_This_Roughness_Peak_Sigma)				label->setText(Sigma_Sym+Subscript_v_Sym+" ["+length_units+"]");
-		if(whats_This == whats_This_Roughness_Peak_Frequency)			label->setText(                Nu_Sym+" ["+spatial_frequency_units+"]");
+        if(whats_This == whats_This_Roughness_Peak_Frequency)			label->setText(Nu_Sym+Zero_Subscript_Sym+" ["+spatial_frequency_units+"]");
 		if(whats_This == whats_This_Roughness_Peak_Frequency_Width)		label->setText(Delta_Small_Sym+Nu_Sym+" ["+spatial_frequency_units+"]");
 		if(whats_This == whats_This_Sigma_Eff_PSD)						label->setText(Sigma_Sym+Subscript_e_Sym+" ["+length_units+"]");
 
@@ -5869,7 +5869,7 @@ void Table_Of_Structures::refresh_Header(QString)
 			if(whats_This == whats_This_Linear_A3)							label->setText("a"+Subscript_3_Sym+" ["+linear_a3_units+"]");
 			if(whats_This == whats_This_Linear_A4)							label->setText("a"+Subscript_4_Sym+" ["+linear_a4_units+"]");
 			if(whats_This == whats_This_Roughness_Peak_Sigma)				label->setText(Sigma_Sym+Subscript_v_Sym+" ["+length_units+"]");
-			if(whats_This == whats_This_Roughness_Peak_Frequency 	)		label->setText(                Nu_Sym+" ["+spatial_frequency_units+"]");
+            if(whats_This == whats_This_Roughness_Peak_Frequency 	)		label->setText(Nu_Sym+Zero_Subscript_Sym+" ["+spatial_frequency_units+"]");
 			if(whats_This == whats_This_Roughness_Peak_Frequency_Width 	)	label->setText(Delta_Small_Sym+Nu_Sym+" ["+spatial_frequency_units+"]");
 
 			if(whats_This == whats_This_Particle_Radius)					label->setText("R ["+length_units+"]");

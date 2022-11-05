@@ -853,7 +853,7 @@ void Table_Roughness_Model_Editor::create_Particles_Groupbox()
 			model_Layout->setAlignment(Qt::AlignTop);
 		groupbox_Layout->addLayout(model_Layout);
 
-		QLabel* model_Label = new QLabel("Model");
+        QLabel* model_Label = new QLabel("Lattice type");
 			model_Layout->addWidget(model_Label);
 
 		QRadioButton* hexagonal_Radiobutton = new QRadioButton("Hexagonal");
