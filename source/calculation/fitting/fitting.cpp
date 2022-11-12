@@ -750,20 +750,18 @@ bool Fitting::fit()
 	}
 	// --------------------------------------------------------------------------------
 	initialize_Position();
-	bool fit_Return = false;
+    main_Calculation_Module->add_Fit(before_Fitting_State);
+
+    bool fit_Return = false;
 	// single fit
 	if(!global_Multilayer_Approach->fitting_Settings->randomized_Start)
 	{
 //		add_Fit_To_File(params.x, params.init_Residual, default_Fit_Statictics_File, 0);
-		main_Calculation_Module->add_Fit(before_Fitting_State);
 		fit_Return = run_Fitting();
 //		add_Fit_To_File(params.x, params.final_Residual, default_Fit_Statictics_File, 1);
 	} else
 	// randomized fit
 	{
-		// save trees to fit
-		main_Calculation_Module->add_Fit(fit_Run_State, 0);
-
 		double residual_To_Write = -2019;
 		if(params.maximize)		{
 			residual_To_Write = params.max_Integral-params.init_Residual;

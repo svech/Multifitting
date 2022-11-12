@@ -310,7 +310,7 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 			GSL_num_Runs_SpinBox->setAccelerated(true);
 			GSL_num_Runs_SpinBox->setEnabled(fitting_Settings->randomized_Start);
 
-		GSL_max_Iter_Label = new QLabel("Max number of iterations");
+        GSL_max_Iter_Label = new QLabel("Number of iterations");
 		GSL_max_Iter_SpinBox = new QSpinBox;
 			GSL_max_Iter_SpinBox->setRange(1,MAX_INTEGER);
 			GSL_max_Iter_SpinBox->setValue(fitting_Settings->max_Iter);
