@@ -115,7 +115,7 @@ public:
 									 QString geometry_Heading);
 	void print_Matrix(QString function, const Calc_Functions& calc_Functions, QTextStream& out, const vector<vector<double>>& matrix, const Data& measurement, QString angular_Units, QString spectral_Units);
 
-	void add_Fit(QString name_Modificator, int run=0);
+    void add_Fit(QString name_Modificator, int run=0, QString par_Name = "", double val = 0);
 };
 
 #endif // MAIN_CALCULATION_MODULE_H

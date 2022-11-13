@@ -266,7 +266,7 @@ void Multilayer_Approach::rename_Multilayer(int tab_Index)
 	}
 }
 
-void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying, QVector<Imperfections_Model>& imperfections_Models_for_Copying, QString name_Modificator, int run)
+void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying, QVector<Imperfections_Model>& imperfections_Models_for_Copying, QString name_Modificator, int run, QString par_Name, double val)
 {
 	// new instance for storing
 	Fitted_Structure new_Fitted_Structure;
@@ -306,6 +306,8 @@ void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Tre
 		new_Fitted_Structure.name = "# " + Locale.toString(++fits_Positive_Counter) + " fit ||  "                                  + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss") + " || final";	}
 	if( name_Modificator == fit_Run_State )	{
 		new_Fitted_Structure.name = "# " + Locale.toString(++fits_Positive_Counter) + " fit run " + Locale.toString(run) + " ||  " + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");			}
+    if( name_Modificator == confidence_Run_State )	{
+        new_Fitted_Structure.name = "# " + Locale.toString(++fits_Positive_Counter) + " confidence ||  " + par_Name + " = " + Locale.toString(val) + " ||  " + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");			}
 
 	// put new instance to storage
 	fitted_Structures.append(new_Fitted_Structure);

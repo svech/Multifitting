@@ -120,7 +120,8 @@ public:
 	void catch_Warning    (QString warning_Text);
 	void catch_Information(QString information_Text);
 
-	void add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying, QVector<Imperfections_Model>& imperfections_Models_for_Copying, QString name_Modificator, int run=0);
+    void add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying, QVector<Imperfections_Model>& imperfections_Models_for_Copying, QString name_Modificator,
+                              int run=0, QString par_Name = "", double val = 0);
 
 	bool file_Was_Opened_or_Saved = false;
 	Menu* menu;

@@ -830,7 +830,11 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 			{
 				fit_Return = run_Fitting();
 
-				// reset to initial state
+                // update tree and create fit before reseting
+                main_Calculation_Module->renew_Item_Trees();
+                main_Calculation_Module->add_Fit(confidence_Run_State, 0, confidentials.param_Names[confidence_Index], real_Conf_Value);
+
+                // reset to initial state
 				for(size_t i=0; i<fitables.param_Pointers.size(); i++)			{
 					fitables.param_Pointers[i]->value = fitables_Pointers_Value_Backup[i];
 				}
@@ -840,27 +844,57 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 			} else
 			// randomized fit
 			{
-				vector<double> rand_Fit_Residuals;
-					rand_Fit_Residuals.reserve(global_Multilayer_Approach->fitting_Settings->num_Runs);
-				for(size_t rand_Index=0; rand_Index<rand_Fit_Residuals.size(); rand_Index++)
+                vector<double> rand_Fit_Residuals_Unsorted;
+                int runs = global_Multilayer_Approach->fitting_Settings->num_Runs;
+                vector<double> rand_Fit_Residuals;
+                rand_Fit_Residuals.reserve(runs);
+
+                vector<vector<double>> fitables_Pointers_Value_set;
+                fitables_Pointers_Value_set.reserve(runs);
+
+                for(size_t rand_Index=0; rand_Index<runs; rand_Index++)
 				{
-					if(!global_Multilayer_Approach->fitting_Settings->abort)
+                    if(!global_Multilayer_Approach->fitting_Settings->abort)
 					{
 						randomize_Position(rand_Index); // first without randomization
 						fit_Return = run_Fitting();
-						rand_Fit_Residuals.push_back(params.final_Residual);
+                        rand_Fit_Residuals.push_back(params.final_Residual);
 
+                        fitables_Pointers_Value_set.push_back(vector<double>());
 						// reset to initial state
 						for(size_t i=0; i<fitables.param_Pointers.size(); i++)			{
+                            fitables_Pointers_Value_set.back().push_back(fitables.param_Pointers[i]->value);
 							fitables.param_Pointers[i]->value = fitables_Pointers_Value_Backup[i];
 						}
 					}
-				}
+                }
 				// sort residuals
-				sort(rand_Fit_Residuals.begin(), rand_Fit_Residuals.end());
+                rand_Fit_Residuals_Unsorted = rand_Fit_Residuals;
+                sort(rand_Fit_Residuals.begin(), rand_Fit_Residuals.end());
 
-				// take best
+                // take best residual
 				params.final_Residual = rand_Fit_Residuals.front();
+
+                // take best fitables
+                int index = (find(rand_Fit_Residuals_Unsorted.begin(),
+                                  rand_Fit_Residuals_Unsorted.end(),
+                                  rand_Fit_Residuals.front()) - rand_Fit_Residuals_Unsorted.begin());
+
+                if(index<fitables_Pointers_Value_set.size()) {
+                    // reset to best state
+                    for(size_t i=0; i<fitables.param_Pointers.size(); i++)			{
+                        fitables.param_Pointers[i]->value = fitables_Pointers_Value_set[index][i];
+                    }
+                }
+
+                // update tree and create fit before reseting
+                main_Calculation_Module->renew_Item_Trees();
+                main_Calculation_Module->add_Fit(confidence_Run_State, 0, confidentials.param_Names[confidence_Index], real_Conf_Value);
+
+                // reset to initial state
+                for(size_t i=0; i<fitables.param_Pointers.size(); i++)			{
+                    fitables.param_Pointers[i]->value = fitables_Pointers_Value_Backup[i];
+                }
 
 				// write point to file
 				add_Confidence_Distribution_To_File(real_Conf_Value, default_Confidence_Distribution_File, confidence_Index, point_Index, params.final_Residual, &rand_Fit_Residuals);

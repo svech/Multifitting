@@ -3671,7 +3671,7 @@ void Main_Calculation_Module::print_Matrix(QString function, const Calc_Function
 	Locale = QLocale::system();
 }
 
-void Main_Calculation_Module::add_Fit(QString name_Modificator, int run)
+void Main_Calculation_Module::add_Fit(QString name_Modificator, int run, QString par_Name, double val)
 {
 	// save new trees
 	QVector<QTreeWidget*> fitted_Trees(multilayers.size());
@@ -3681,5 +3681,5 @@ void Main_Calculation_Module::add_Fit(QString name_Modificator, int run)
 		fitted_Trees[tab_Index] = calculation_Trees[tab_Index]->real_Struct_Tree;
 		fitted_Imperfections_Models[tab_Index] = multilayers[tab_Index]->imperfections_Model;
 	}
-	global_Multilayer_Approach->add_Fitted_Structure(fitted_Trees, fitted_Imperfections_Models, name_Modificator, run);
+    global_Multilayer_Approach->add_Fitted_Structure(fitted_Trees, fitted_Imperfections_Models, name_Modificator, run, par_Name, val);
 }

@@ -510,6 +510,7 @@ class Node;
 #define before_Fitting_State "before_Fitting_State"
 #define after_Fitting_State	 "after_Fitting_State"
 #define fit_Run_State		 "fit_Run_State"
+#define confidence_Run_State "confidence_Run_State"
 
 // aperiodic
 #define relate_Thickness "relate_Thickness"
