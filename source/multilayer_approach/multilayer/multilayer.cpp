@@ -320,7 +320,7 @@ Target_Curve* Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 	QPushButton* new_Import_Button = new QPushButton("Import");
 	QLabel* new_Description_Label  = new QLabel("<no description>");
 		new_Description_Label->setContextMenuPolicy(Qt::CustomContextMenu);
-	QPushButton* new_Add_Button    = new QPushButton("Add Row");
+    QPushButton* new_Add_Button    = new QPushButton("Add row");
 //	QToolButton* new_Add_Button    = new QToolButton;	new_Add_Button   ->setText("+");
 //	QPushButton* new_Remove_Button = new QPushButton("x");//("Remove");
 	QToolButton* new_Remove_Button = new QToolButton;	new_Remove_Button->setText("x");
