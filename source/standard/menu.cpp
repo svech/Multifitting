@@ -1,6 +1,9 @@
 #include "menu.h"
 #include "multilayer_approach/table_of_structures/table_of_structures.h"
 
+const QString engManualName = "Multifitting_manual_English_v2.0.pdf";
+const QString rusManualName = "Multifitting_manual_Russian_v2.0.pdf";
+
 Menu::Menu(QString window_Type, QWidget *parent):
 	window_Type(window_Type),
 	QWidget(parent),
@@ -409,20 +412,20 @@ void Menu::create_Help_Menu()
 void Menu::open_Documentation_Rus()
 {
 #ifdef _WIN32
-	QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+"Multifitting_manual_Russian.pdf"));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+rusManualName));
 #endif
 #ifdef __linux__
-	QDesktopServices::openUrl(QUrl(Pre_Path+"Multifitting_manual_Russian.pdf"));
+    QDesktopServices::openUrl(QUrl(Pre_Path+rusManualName));
 #endif
 }
 
 void Menu::open_Documentation_Eng()
 {
 #ifdef _WIN32
-	QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+"Multifitting_manual_English.pdf"));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+engManualName));
 #endif
 #ifdef __linux__
-	QDesktopServices::openUrl(QUrl(Pre_Path+"Multifitting_manual_English.pdf"));
+    QDesktopServices::openUrl(QUrl(Pre_Path+engManualName));
 #endif
 }
 
