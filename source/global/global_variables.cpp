@@ -48,7 +48,7 @@ int coeff_For_Bessel_Size = cos_a_Coeff_For_BesselJ0.size(); // common for all o
 double max_Phi_Azimuthal_Integration = 90;
 
 // locale
-QLocale Locale;
+QLocale Locale = QLocale::system();
 
 // delimiters for file parsing
 QRegExp delimiters("\\ |\\:|\\t|\\;|\\{|\\}"); // "," removed. Now "," and "." are decimal separators
