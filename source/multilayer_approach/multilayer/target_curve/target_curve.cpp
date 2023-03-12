@@ -1141,10 +1141,10 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 		{stream >> curve.divide_On_Beam_Intensity; }	// since 1.8.1
 
 		{
-			QString angle_Type;
-			stream >> curve.argument_Type >> angle_Type >> curve.angular_Units >> curve.spectral_Units;
+            stream >> curve.argument_Type >> curve.angle_Type >> curve.angular_Units >> curve.spectral_Units;
 		}
 		stream >> curve.value_Type;
+
         // Absorptance deprecated in target curve
         if(curve.value_Type == value_Types[Absorptance])
             curve.value_Type = value_Types[Reflectance];
@@ -1252,9 +1252,25 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 		// argument type and units from old files
 		if(target_Curve->curve.argument_Type == "Wavelength") target_Curve->measurement.argument_Type = argument_Types[Wavelength_Energy];
         if(target_Curve->curve.argument_Type == "Angle")	  target_Curve->measurement.argument_Type = argument_Types[Beam_Grazing_Angle];
+
+        target_Curve->curve.angular_Units = target_Curve->curve.angular_Units.simplified(); // rm spaces
         if(angle_Units_List.	 contains(target_Curve->curve.angular_Units )) target_Curve->angular_Units  = target_Curve->curve.angular_Units;
 		if(wavelength_Units_List.contains(target_Curve->curve.spectral_Units)) target_Curve->spectral_Units = target_Curve->curve.spectral_Units;
-	}
+
+        // convert from incident angle to grazing
+        if( target_Curve->curve.angle_Type == "Incidence") {
+            if(target_Curve->curve.argument_Type == "Angle") {
+                double coeff = angle_Coefficients_Map.value(target_Curve->angular_Units);
+                if(target_Curve->curve.angular_Units == " mrad") coeff = 0.18/M_PI;
+                for(auto& arg : target_Curve->curve.argument)
+                    arg = 90./coeff - arg;
+            }
+            if(target_Curve->curve.argument_Type == "Wavelength") {
+                double val = target_Curve->measurement.beam_Theta_0_Angle.value;
+                target_Curve->measurement.beam_Theta_0_Angle.value = 90 - val;
+            }
+        }
+    }
 
 	target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 	target_Curve->refresh_Description_Label();
