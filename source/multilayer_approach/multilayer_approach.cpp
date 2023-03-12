@@ -1016,19 +1016,7 @@ void Multilayer_Approach::open(QString filename)
 		Global_Variables::deserialize_Tree(in, multilayer->structure_Tree->tree);
 
         // if old file has no substrate
-        int count = multilayer->structure_Tree->tree->topLevelItemCount();
-        Data lastElement = multilayer->structure_Tree->tree->topLevelItem(count-1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-        if(lastElement.item_Type != item_Type_Substrate) {
-            multilayer->structure_Tree->structure_Toolbar->add_Substrate();
-            QTreeWidgetItem* substrateItem = multilayer->structure_Tree->tree->topLevelItem(multilayer->structure_Tree->tree->topLevelItemCount()-1);
-            Data substrate = substrateItem->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-            substrate.material = Vacuum;
-            substrate.approved_Material = substrate.material;
-
-            QVariant var;
-            var.setValue(substrate);
-            substrateItem->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-        }
+        Global_Variables::add_Substrate(multilayer->structure_Tree->tree);
 
 		if(!Global_Variables::check_Loaded_Version(1,11,0))
 		{
@@ -1215,6 +1203,9 @@ void Multilayer_Approach::open(QString filename)
 				// trees
 				fitted_Structure.fitted_Trees[tree_Index] = new QTreeWidget(this);
 				Global_Variables::deserialize_Tree(in, fitted_Structure.fitted_Trees[tree_Index]);
+
+                // if old file has no substrate
+                Global_Variables::add_Substrate(fitted_Structure.fitted_Trees[tree_Index]);
 
 				// imperfections
 				if(Global_Variables::check_Loaded_Version(1,11,6))

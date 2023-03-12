@@ -688,7 +688,23 @@ void Global_Variables::deserialize_Tree(QDataStream& in, QTreeWidget* tree)
 	{
 		tree_Map.value(id_Parent_List[i])->addChild(item_Vec[i]);
 	}
-	tree->expandAll();
+    tree->expandAll();
+}
+
+void Global_Variables::add_Substrate(QTreeWidget* tree)
+{
+    int count = tree->topLevelItemCount();
+    Data lastElement = tree->topLevelItem(count-1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+    if(lastElement.item_Type != item_Type_Substrate) {
+        Data substrate(item_Type_Substrate);
+        substrate.material = Vacuum;
+        substrate.approved_Material = substrate.material;
+        QVariant var;
+        var.setValue( substrate );
+        QTreeWidgetItem* substrateItem = new QTreeWidgetItem;
+        substrateItem->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+        tree->addTopLevelItem(substrateItem);
+    }
 }
 
 void Global_Variables::pseudo_Deserialize_Tree(QDataStream &in)

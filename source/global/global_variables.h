@@ -293,6 +293,7 @@ public:
 	static void create_Sorted_Elements_Map();
 	static void   serialize_Tree(QDataStream &out, QTreeWidget* tree);
 	static void deserialize_Tree(QDataStream &in,  QTreeWidget* tree);
+    static void add_Substrate(QTreeWidget *tree);
 	static void pseudo_Deserialize_Tree(QDataStream &in);
 	static void   serialize_Variables_List(QDataStream &out, QListWidget* list);
 	static void deserialize_Variables_List(QDataStream &in,  QListWidget* list);
