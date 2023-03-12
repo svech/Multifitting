@@ -3047,7 +3047,7 @@ double Main_Calculation_Module::unparametrize(double parametrized_Shifted_Value,
 void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& data_Element, QString struct_Name, int index)
 {
     // point as decimal separator
-    Locale = QLocale::c();
+    QLocale tempLoc = QLocale::c();
 
     const Data& measurement = data_Element.the_Class->measurement;
 
@@ -3056,7 +3056,7 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 		measurement.measurement_Type != measurement_Types[Rocking_Curve] &&
 		measurement.measurement_Type != measurement_Types[Offset_Scan] ) return;
 
-	QString first_Name = struct_Name + "_PSD_1D_" + data_Element.the_Class->index/*Locale.toString(index+1)*/ + "_" + data_Element.the_Class->name;
+    QString first_Name = struct_Name + "_PSD_1D_" + data_Element.the_Class->index/*tempLoc.toString(index+1)*/ + "_" + data_Element.the_Class->name;
 
 	QString specular_Substraction_Filename = "";
 	QString specular_Substraction = "";
@@ -3081,26 +3081,26 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 	QString val_Units_Name = PSD_1D_Value_Units_Legend_Map.value(PSD_1D_value_units);
 
 	QString at_Fixed_Heading = Global_Variables::wavelength_Energy_Name(data_Element.the_Class->spectral_Units, true) + " = " +
-							   Locale.toString(Global_Variables::wavelength_Energy(data_Element.the_Class->spectral_Units, measurement.lambda_Value)/spectral_Coeff, 'g', prec) + " " +
+                               tempLoc.toString(Global_Variables::wavelength_Energy(data_Element.the_Class->spectral_Units, measurement.lambda_Value)/spectral_Coeff, 'g', prec) + " " +
 							   spectral_Units_Name;
-	QString instrumental_Heading =  "spectral resolution (FWHM) = " + Locale.toString(measurement.spectral_Distribution.FWHM_distribution, 'g', prec) +
-									"\n; beam divergence (FWHM) = " + Locale.toString(measurement.beam_Theta_0_Distribution.FWHM_distribution/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
-	QString geometry_Heading =  "beam width = " + Locale.toString(measurement.beam_Geometry.size, 'g', prec) + " mm" +
-								"\n; sample size = " + Locale.toString(measurement.sample_Geometry.size, 'g', prec) + " mm";
+    QString instrumental_Heading =  "spectral resolution (FWHM) = " + tempLoc.toString(measurement.spectral_Distribution.FWHM_distribution, 'g', prec) +
+                                    "\n; beam divergence (FWHM) = " + tempLoc.toString(measurement.beam_Theta_0_Distribution.FWHM_distribution/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+    QString geometry_Heading =  "beam width = " + tempLoc.toString(measurement.beam_Geometry.size, 'g', prec) + " mm" +
+                                "\n; sample size = " + tempLoc.toString(measurement.sample_Geometry.size, 'g', prec) + " mm";
 
-	QString detector_Width_Heading = "\n; detector angular width (FWHM) = " + Locale.toString(measurement.theta_Resolution_FWHM/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+    QString detector_Width_Heading = "\n; detector angular width (FWHM) = " + tempLoc.toString(measurement.theta_Resolution_FWHM/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
 
 	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Detector_Scan] )
 	{
-		at_Fixed_Heading += "\n; beam grazing angle = " + Locale.toString(measurement.beam_Theta_0_Angle_Value/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+        at_Fixed_Heading += "\n; beam grazing angle = " + tempLoc.toString(measurement.beam_Theta_0_Angle_Value/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
 	}
 	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
-        at_Fixed_Heading += "\n; specular grazing angle position = " + Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+        at_Fixed_Heading += "\n; specular grazing angle position = " + tempLoc.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
 	}
 	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{
-		at_Fixed_Heading += "\n; detector offset from specular direction = " + Locale.toString(measurement.detector_Theta_Offset/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+        at_Fixed_Heading += "\n; detector offset from specular direction = " + tempLoc.toString(measurement.detector_Theta_Offset/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
 	}
 	instrumental_Heading += detector_Width_Heading;
 	QString argument_Heading = "Spatial frequency (" + arg_Units_Name + ")";
@@ -3158,15 +3158,12 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 					   geometry_Heading);
 		file_Right.close();
 	}
-
-    // back to system locale
-    Locale = QLocale::system();
 }
 
 void Main_Calculation_Module::print_PSD_Data(QTextStream& out, vector<double>& arg, vector<double>& val, double incident_Polarization, QString data_Type, QString argument_Heading, QString value_Heading, QString at_Fixed_Heading, QString instrumental_Heading, QString geometry_Heading)
 {
-	// point as decimal separator
-	Locale=QLocale::c();
+    // point as decimal separator
+    QLocale tempLoc = QLocale::c();
 
 	// headline
 	int precision_Arg = 6;
@@ -3183,7 +3180,7 @@ void Main_Calculation_Module::print_PSD_Data(QTextStream& out, vector<double>& a
 		{
             out << "; " << Global_Variables::date_Time() << endl;
 			out << "; " << data_Type << endl << endl;
-			out << "; polarization = " << Locale.toString(incident_Polarization,'f', 3) << endl;
+            out << "; polarization = " << tempLoc.toString(incident_Polarization,'f', 3) << endl;
 			out << "; " << at_Fixed_Heading << endl << endl;
 			out << "; " << instrumental_Heading << endl << endl;
 			out << "; " << geometry_Heading << endl << endl;
@@ -3207,7 +3204,7 @@ void Main_Calculation_Module::print_PSD_Data(QTextStream& out, vector<double>& a
 		{
 			// argument
 			{
-				out << qSetFieldWidth(width_Short) << Locale.toString(arg[i],'e',precision_Arg)  << qSetFieldWidth(width_Long);
+                out << qSetFieldWidth(width_Short) << tempLoc.toString(arg[i],'e',precision_Arg)  << qSetFieldWidth(width_Long);
 			}
 
 			// psd
@@ -3217,9 +3214,6 @@ void Main_Calculation_Module::print_PSD_Data(QTextStream& out, vector<double>& a
 			if(i!=arg.size()-1)	out << qSetFieldWidth(arg_Shift) << endl << qSetFieldWidth(width_Short);
 		}
 	}
-
-	// back to system locale
-	Locale = QLocale::system();
 }
 
 void Main_Calculation_Module::print_Calculated_To_File()
