@@ -1015,6 +1015,21 @@ void Multilayer_Approach::open(QString filename)
 		// load tree
 		Global_Variables::deserialize_Tree(in, multilayer->structure_Tree->tree);
 
+        // if old file has no substrate
+        int count = multilayer->structure_Tree->tree->topLevelItemCount();
+        Data lastElement = multilayer->structure_Tree->tree->topLevelItem(count-1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+        if(lastElement.item_Type != item_Type_Substrate) {
+            multilayer->structure_Tree->structure_Toolbar->add_Substrate();
+            QTreeWidgetItem* substrateItem = multilayer->structure_Tree->tree->topLevelItem(multilayer->structure_Tree->tree->topLevelItemCount()-1);
+            Data substrate = substrateItem->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+            substrate.material = Vacuum;
+            substrate.approved_Material = substrate.material;
+
+            QVariant var;
+            var.setValue(substrate);
+            substrateItem->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+        }
+
 		if(!Global_Variables::check_Loaded_Version(1,11,0))
 		{
 			int current_Variable_Tab_Index;
