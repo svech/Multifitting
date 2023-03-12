@@ -1145,6 +1145,9 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 			stream >> curve.argument_Type >> angle_Type >> curve.angular_Units >> curve.spectral_Units;
 		}
 		stream >> curve.value_Type;
+        // Absorptance deprecated in target curve
+        if(curve.value_Type == value_Types[Absorptance])
+            curve.value_Type = value_Types[Reflectance];
 		{
 			QString value_Mode;
 			stream >> value_Mode;
@@ -1248,8 +1251,8 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 
 		// argument type and units from old files
 		if(target_Curve->curve.argument_Type == "Wavelength") target_Curve->measurement.argument_Type = argument_Types[Wavelength_Energy];
-		if(target_Curve->curve.argument_Type == "Angle")	  target_Curve->measurement.argument_Type = argument_Types[Beam_Grazing_Angle];
-		if(angle_Units_List.	 contains(target_Curve->curve.angular_Units )) target_Curve->angular_Units  = target_Curve->curve.angular_Units;
+        if(target_Curve->curve.argument_Type == "Angle")	  target_Curve->measurement.argument_Type = argument_Types[Beam_Grazing_Angle];
+        if(angle_Units_List.	 contains(target_Curve->curve.angular_Units )) target_Curve->angular_Units  = target_Curve->curve.angular_Units;
 		if(wavelength_Units_List.contains(target_Curve->curve.spectral_Units)) target_Curve->spectral_Units = target_Curve->curve.spectral_Units;
 	}
 
