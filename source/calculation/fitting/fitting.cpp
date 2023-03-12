@@ -918,8 +918,8 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 
 void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString filename, int run)
 {
-	// point as decimal separator
-	Locale = QLocale::c();
+    // point as decimal separator
+    QLocale tempLoc = QLocale::c();
 
     QFile file(Global_Variables::working_Directory() + "/" + filename);
 	if(file.open(QIODevice::WriteOnly | QIODevice::Append))
@@ -967,11 +967,11 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 		//------------------------------------------------------
 		index=0;
 
-		current_String = Locale.toString(run);
+        current_String = tempLoc.toString(run);
 		out << qSetFieldWidth(widths[index]) << current_String;
 		index++;
 
-		current_String = Locale.toString(residual,'e',3);
+        current_String = tempLoc.toString(residual,'e',3);
 		out << qSetFieldWidth(widths[index]) << current_String;
 		index++;
 
@@ -983,10 +983,10 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 																					params.fitables.param_Pointers[param_Index]->fit.max);
 			if(params.fitables.param_Pointers[param_Index]->indicator.whats_This == whats_This_Num_Repetitions)
 			{
-				current_String = Locale.toString(round(unparametrized));
+                current_String = tempLoc.toString(round(unparametrized));
 			} else
 			{
-				current_String = Locale.toString(unparametrized,'f',4);
+                current_String = tempLoc.toString(unparametrized,'f',4);
 			}
 			//------------------------------------------------------
 			out << qSetFieldWidth(widths[index]) << current_String;
@@ -1003,15 +1003,12 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 		QMessageBox::critical(nullptr, "Fitting::add_Fit_To_File", "Can't write file " + filename);
 		exit(EXIT_FAILURE);
 	}
-
-	// back to system locale
-	Locale = QLocale::system();
 }
 
 void Fitting::add_Confidence_Distribution_To_File(double real_Conf_Value, QString filename, size_t confidence_Index, int point_Index, double residual, vector<double>* residuals_Set)
 {
-	// point as decimal separator
-	Locale = QLocale::c();
+    // point as decimal separator
+    QLocale tempLoc = QLocale::c();
 
     QFile file(Global_Variables::working_Directory() + "/" + filename);
 	if(file.open(QIODevice::WriteOnly | QIODevice::Append))
@@ -1058,11 +1055,11 @@ void Fitting::add_Confidence_Distribution_To_File(double real_Conf_Value, QStrin
 		//------------------------------------------------------
 		index=1;
 
-		current_String = Locale.toString(real_Conf_Value);
+        current_String = tempLoc.toString(real_Conf_Value);
 		out << qSetFieldWidth(widths[index]) << current_String;
 		index++;
 
-		current_String = Locale.toString(residual,'e',5);
+        current_String = tempLoc.toString(residual,'e',5);
 		out << qSetFieldWidth(widths[index]) << current_String;
 		index++;
 		//------------------------------------------------------
@@ -1073,7 +1070,7 @@ void Fitting::add_Confidence_Distribution_To_File(double real_Conf_Value, QStrin
 			out << qSetFieldWidth(2) <<  "(";
 			for(size_t i=0; i<residuals_Set->size(); ++i)
 			{
-				current_String = Locale.toString((*residuals_Set)[i],'e',3);
+                current_String = tempLoc.toString((*residuals_Set)[i],'e',3);
 				out << qSetFieldWidth(0) << current_String;
 				if(i!=residuals_Set->size()-1)
 					out << qSetFieldWidth(3) << "," <<qSetFieldWidth(2) ;
@@ -1091,9 +1088,6 @@ void Fitting::add_Confidence_Distribution_To_File(double real_Conf_Value, QStrin
 		QMessageBox::critical(nullptr, "Fitting::add_Confidence_Distribution_To_File", "Can't write file " + filename);
 		exit(EXIT_FAILURE);
 	}
-
-	// back to system locale
-	Locale = QLocale::system();
 }
 
 bool Fitting::check_Residual_Expression()

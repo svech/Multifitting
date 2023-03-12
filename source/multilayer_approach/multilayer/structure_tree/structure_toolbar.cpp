@@ -696,8 +696,8 @@ void Structure_Toolbar::destroy()
 
 void Structure_Toolbar::export_Structure()
 {
-	// point as decimal separator
-	Locale=QLocale::c();
+    // point as decimal separator
+    QLocale tempLoc = QLocale::c();
 
 	QString tab_Text = "";
 	for(int i=0; i<global_Multilayer_Approach->multilayer_Tabs->count(); ++i)
@@ -709,7 +709,7 @@ void Structure_Toolbar::export_Structure()
 		}
 	}
     QString path = Global_Variables::working_Directory() + "/";
-    QString name = "structure_"+/*Locale.toString(index)+"_"+*/tab_Text+".txt";
+    QString name = "structure_"+/*tempLoc.toString(index)+"_"+*/tab_Text+".txt";
     QFile file(path + name);
 	if (file.open(QIODevice::WriteOnly))
 	{
@@ -742,7 +742,7 @@ void Structure_Toolbar::export_Structure()
 		const Data struct_Data = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
 		if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
 		{
-            QString name = "structure_"+/*Locale.toString(index)+"_"+*/tab_Text+"_Aperiodic_#"+QString::number(aperiodics_Counter)+".txt";
+            QString name = "structure_"+/*tempLoc.toString(index)+"_"+*/tab_Text+"_Aperiodic_#"+QString::number(aperiodics_Counter)+".txt";
             QFile file(Global_Variables::working_Directory() + "/" + name);
 			if (file.open(QIODevice::WriteOnly))
 			{
@@ -768,8 +768,8 @@ void Structure_Toolbar::export_Structure()
 
 						out << qSetFieldWidth(index_Width) << QString::number(n+1) << qSetFieldWidth(0) << " " << qSetFieldWidth(my_material_Width) << regular_Data.material << qSetFieldWidth(0);
 						out.setFieldAlignment(QTextStream::AlignRight);
-						out << qSetFieldWidth(my_thickness_Width) << Locale.toString(regular_Data.thickness.value,'f',thickness_Precision) << qSetFieldWidth(0) << "    ";
-						out << qSetFieldWidth(my_sigma_Width)     << Locale.toString(regular_Data.sigma_Diffuse.value, 'f',sigma_Precision) << qSetFieldWidth(0);
+                        out << qSetFieldWidth(my_thickness_Width) << tempLoc.toString(regular_Data.thickness.value,'f',thickness_Precision) << qSetFieldWidth(0) << "    ";
+                        out << qSetFieldWidth(my_sigma_Width)     << tempLoc.toString(regular_Data.sigma_Diffuse.value, 'f',sigma_Precision) << qSetFieldWidth(0);
 						out.setFieldAlignment(QTextStream::AlignLeft);
 						out	<< qSetFieldWidth(0) << endl;
 					}
@@ -786,9 +786,6 @@ void Structure_Toolbar::export_Structure()
 		}
 		++it;
 	}
-
-	// back to system locale
-	Locale = QLocale::system();
 }
 
 void Structure_Toolbar::iterate_Over_Tree(QTextStream& out, QTreeWidgetItem* parent_Item, QString parent_Index_String)

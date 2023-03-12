@@ -1552,7 +1552,7 @@ void Profile_Plot::print_To_File(QString path)
 void Profile_Plot::print_Profile(QTextStream& out)
 {
     // point as decimal separator
-    Locale=QLocale::c();
+    QLocale tempLoc = QLocale::c();
 
     int precision_Spectral_Units = 10;
     QString length_Units_Name = length_Units_Legend_Map.value(multilayer->profile_Plot_Options.local_length_units);
@@ -1568,7 +1568,7 @@ void Profile_Plot::print_Profile(QTextStream& out)
 
     double spectral_Coeff = wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units);
     QString at_Fixed_Heading = Global_Variables::wavelength_Energy_Name(multilayer->profile_Plot_Options.local_wavelength_units, true) + " = " +
-                               Locale.toString(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units,
+                               tempLoc.toString(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units,
                                                                                    multilayer->profile_Plot_Options.local_Wavelength)/spectral_Coeff, 'g', precision_Spectral_Units) + " " +
                                                                                    spectral_Units_Name;
     QString argument_Heading = "Depth (" + length_Units_Name + ")";
@@ -1642,24 +1642,24 @@ void Profile_Plot::print_Profile(QTextStream& out)
             {
                 if(multilayer->profile_Plot_Options.type == PERMITTIVITY) {
                     // argument
-                    out << qSetFieldWidth(width_Short) << Locale.toString(sharp_Delta_To_Plot_Vector[i].key,'f',precision_Arg)  << qSetFieldWidth(width_Long);
+                    out << qSetFieldWidth(width_Short) << tempLoc.toString(sharp_Delta_To_Plot_Vector[i].key,'f',precision_Arg)  << qSetFieldWidth(width_Long);
                     // values
-                    out << Locale.toString(sharp_Delta_To_Plot_Vector[i].value,'e',precision_Val);
-                    out << Locale.toString(sharp_Beta_To_Plot_Vector[i].value,'e',precision_Val);
+                    out << tempLoc.toString(sharp_Delta_To_Plot_Vector[i].value,'e',precision_Val);
+                    out << tempLoc.toString(sharp_Beta_To_Plot_Vector[i].value,'e',precision_Val);
                 }
                 if(multilayer->profile_Plot_Options.type == MATERIAL) {
                     // argument
-                    out << qSetFieldWidth(width_Short) << Locale.toString(sharp_Materials_To_Plot_Vector_Vector.first()[i].key,'f',precision_Arg)  << qSetFieldWidth(width_Long);
+                    out << qSetFieldWidth(width_Short) << tempLoc.toString(sharp_Materials_To_Plot_Vector_Vector.first()[i].key,'f',precision_Arg)  << qSetFieldWidth(width_Long);
                     // values
                     for(int m = 0; m<different_Materials.size(); m++)
-                        out << Locale.toString(sharp_Materials_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
+                        out << tempLoc.toString(sharp_Materials_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
                 }
                 if(multilayer->profile_Plot_Options.type == ELEMENTS) {
                     // argument
-                    out << qSetFieldWidth(width_Short) << Locale.toString(sharp_Elements_To_Plot_Vector_Vector.first()[i].key,'f',precision_Arg)  << qSetFieldWidth(width_Long);
+                    out << qSetFieldWidth(width_Short) << tempLoc.toString(sharp_Elements_To_Plot_Vector_Vector.first()[i].key,'f',precision_Arg)  << qSetFieldWidth(width_Long);
                     // values
                     for(int m = 0; m<different_Elements.size(); m++)
-                        out << Locale.toString(sharp_Elements_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
+                        out << tempLoc.toString(sharp_Elements_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
                 }
                if(i!=struct_Data_Vector.size())	out << qSetFieldWidth(arg_Shift) << endl << qSetFieldWidth(width_Short);
             }
@@ -1667,28 +1667,25 @@ void Profile_Plot::print_Profile(QTextStream& out)
             for(size_t i=0; i<arg.size(); ++i)
             {
                 // argument
-                out << qSetFieldWidth(width_Short) << Locale.toString(arg[i],'f',precision_Arg)  << qSetFieldWidth(width_Long);
+                out << qSetFieldWidth(width_Short) << tempLoc.toString(arg[i],'f',precision_Arg)  << qSetFieldWidth(width_Long);
 
                 // values
                 if(multilayer->profile_Plot_Options.type == PERMITTIVITY) {
-                    out << Locale.toString(delta_To_Plot_Vector[i].value,'e',precision_Val);
-                    out << Locale.toString(beta_To_Plot_Vector[i].value,'e',precision_Val);
+                    out << tempLoc.toString(delta_To_Plot_Vector[i].value,'e',precision_Val);
+                    out << tempLoc.toString(beta_To_Plot_Vector[i].value,'e',precision_Val);
                 }
                 if(multilayer->profile_Plot_Options.type == MATERIAL) {
                     for(int m = 0; m<different_Materials.size(); m++)
-                        out << Locale.toString(materials_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
+                        out << tempLoc.toString(materials_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
                 }
                 if(multilayer->profile_Plot_Options.type == ELEMENTS) {
                     for(int m = 0; m<different_Elements.size(); m++)
-                        out << Locale.toString(elements_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
+                        out << tempLoc.toString(elements_To_Plot_Vector_Vector[m][i].value,'e',precision_Val);
                 }
                if(i!=arg.size()-1)	out << qSetFieldWidth(arg_Shift) << endl << qSetFieldWidth(width_Short);
             }
         }
     }
-
-    // back to system locale
-    Locale = QLocale::system();
 }
 
 
