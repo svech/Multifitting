@@ -17,7 +17,7 @@ QDataStream& operator >>(QDataStream& stream,		 Old_Independent_Variables old_In
 	stream >> old_Independent_Variables.tab_Name >> old_Independent_Variables.plot_Options;
 
 	if(Global_Variables::check_Loaded_Version(1,7,5))
-	{ stream >> old_Independent_Variables.argument_Type ; }
+    { stream >> old_Independent_Variables.argument_Type ; }
 
 	return stream;
 }
@@ -1046,19 +1046,10 @@ void Multilayer_Approach::open(QString filename)
 				in >> tab_Text;
 				multilayer->independent_Curve_Tabs->setTabText(i, tab_Text);
 
-				if(!Global_Variables::check_Loaded_Version(1,11,0))
-				{
-					Old_Independent_Variables old_independent;
-					in >> old_independent;
-					Global_Variables::pseudo_Deserialize_Tree(in);
-					Global_Variables::pseudo_Deserialize_Variables_List(in);
-				} else
-				{
-					Independent_Curve* independent = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(i));
+                Independent_Curve* independent = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(i));
 
-					// load main data
-					in >> independent;
-				}
+                // load main data
+                in >> independent;
 			}
 
 			// load index of active independent tab

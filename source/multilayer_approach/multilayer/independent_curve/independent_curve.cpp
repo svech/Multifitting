@@ -469,20 +469,20 @@ QDataStream& operator >>(QDataStream& stream,		 Independent_Curve* independent_C
 				>> independent_Curve->label_Text >> independent_Curve->graph_2D_Positions;
 	} else
 	{
-		stream >> independent_Curve->measurement >> independent_Curve->calc_Functions;
-
+        stream >> independent_Curve->measurement >> independent_Curve->calc_Functions;
 		{
 			Old_Calculated_Values old_Calculated_Values;
-			stream >> old_Calculated_Values;
+            stream >> old_Calculated_Values;
 		}
+        stream >> independent_Curve->name >> independent_Curve->plot_Options;
 
-		stream >> independent_Curve->name >> independent_Curve->plot_Options;
-
-		if(Global_Variables::check_Loaded_Version(1,7,5))
-		{
-			QString argument_Type;
-			stream >> argument_Type;
-		}
+        if(Global_Variables::check_Loaded_Version(1,7,5))
+        {
+            QString argument_Type;
+            stream >> argument_Type;
+        }
+        Global_Variables::pseudo_Deserialize_Tree(stream);
+        Global_Variables::pseudo_Deserialize_Variables_List(stream);
 	}
 	independent_Curve->refresh_Description_Label();
 	return stream;

@@ -1156,7 +1156,7 @@ struct Old_Calculated_Values	{QVector<double> R;
 
 								 QVector<double> T;
 								 QVector<double> A;
-								};
+                                };
 // -----------------------------------------------------------------------------------------
 // serialization
 
