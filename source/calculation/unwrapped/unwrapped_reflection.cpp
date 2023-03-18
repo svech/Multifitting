@@ -843,7 +843,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 			calc_Functions.check_Scattering ||
 			calc_Functions.check_GISAS )
 		{
-			calculated_Values.Phi_R_s.resize(num_Points);
+            calculated_Values.Phi_R_s.resize(num_Points);
 			calculated_Values.Phi_R_p.resize(num_Points);
 			calculated_Values.R_s.resize(num_Points);
 			calculated_Values.R_p.resize(num_Points);
@@ -854,7 +854,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 		if(	calc_Functions.check_Transmittance ||
 			calc_Functions.check_Absorptance)
 		{
-			calculated_Values.Phi_T_s.resize(num_Points);
+            calculated_Values.Phi_T_s.resize(num_Points);
 			calculated_Values.Phi_T_p.resize(num_Points);
 			calculated_Values.T_s.resize(num_Points);
 			calculated_Values.T_p.resize(num_Points);

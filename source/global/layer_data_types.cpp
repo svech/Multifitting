@@ -2170,6 +2170,18 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 		if(data.wavelength.independent.num_Points>1)		 {data.argument_Type = argument_Types[Wavelength_Energy]; } else
 		if(data.beam_Theta_0_Angle.independent.num_Points>1) {data.argument_Type = argument_Types[Beam_Grazing_Angle];} else
 															 {data.argument_Type = argument_Types[Beam_Grazing_Angle];}
+
+        // convert from incident angle to grazing
+        if( angle_Type == "Incidence") {
+            double val = data.beam_Theta_0_Angle.value;
+            data.beam_Theta_0_Angle.value = 90. - val;
+
+            double val_min = data.beam_Theta_0_Angle.independent.min;
+            data.beam_Theta_0_Angle.independent.min = 90. - val_min;
+
+            double val_max = data.beam_Theta_0_Angle.independent.max;
+            data.beam_Theta_0_Angle.independent.max = 90. - val_max;
+        }
 	}
 		// Ambient, Layer, Substrate
 		stream	>> data.composed_Material >> data.material >> data.approved_Material >> data.absolute_Density >> data.relative_Density;

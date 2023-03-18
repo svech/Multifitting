@@ -467,7 +467,7 @@ QDataStream& operator >>(QDataStream& stream,		 Independent_Curve* independent_C
 				>> independent_Curve->calc_Functions >> independent_Curve->plot_Options
 				>> independent_Curve->angular_Units	>> independent_Curve->spectral_Units
 				>> independent_Curve->label_Text >> independent_Curve->graph_2D_Positions;
-	} else
+    } else // before 1.11.0
 	{
         stream >> independent_Curve->measurement >> independent_Curve->calc_Functions;
 		{
