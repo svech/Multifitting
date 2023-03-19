@@ -21,6 +21,8 @@ public:
 
 	void setMyAdaptiveStep(bool on);
 
+    QRegExp positive_Symbols;
+    QRegExp negative_Symbols;
 };
 
 #endif // MYDOUBLESPINBOX_H

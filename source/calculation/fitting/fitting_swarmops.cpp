@@ -35,7 +35,7 @@ void Fitting_SwarmOps::callback(Fitting_Params* params, SO_TFitness residual)
 	}
 }
 
-SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitness fitnessLimit)
+SO_TFitness Fitting_SwarmOps::calc_Residual(const SO_TElm* x,  void* context, SO_TFitness fitnessLimit)
 {
 	if(global_Multilayer_Approach->fitting_Settings->abort)
 	{
@@ -45,17 +45,19 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitn
 	Q_UNUSED(fitnessLimit);
 	Fitting_Params* params = ((struct Fitting_Params*)context);
 
+    SO_TElm* var_x = const_cast<SO_TElm*>(x);
+
 	// first point is the initial
 	if(global_Multilayer_Approach->fitting_Settings->initialize_By_Current_State && params->counter == 0)
 	for(size_t i=0; i<params->p; ++i)
 	{
-		x[i]  = params->fitables.values_Parametrized[i];
+        var_x[i]  = params->fitables.values_Parametrized[i];
 	}
 
 	// fill x
 	for(size_t i=0; i<params->p; ++i)
 	{
-		gsl_vector_set(params->x, i, x[i]);
+        gsl_vector_set(params->x, i, var_x[i]);
 	}
 
 	// calc residual
@@ -68,7 +70,7 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitn
 		params->my_Res.best.fitness = params->final_Residual;
 		for(size_t i=0; i<params->p; ++i)
 		{
-			params->my_Res.best.x[i] = x[i];
+            params->my_Res.best.x[i] = var_x[i];
 		}
 	}
 

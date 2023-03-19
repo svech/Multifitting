@@ -14,7 +14,7 @@
 using namespace std;
 class Node;
 
-//#define RELEASE
+#define RELEASE
 
 //#define EXPRTK
 

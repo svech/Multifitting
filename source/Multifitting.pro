@@ -14,57 +14,41 @@ TEMPLATE = app
 
 #message( $$QMAKE_TARGET.arch )
 
+INCLUDEPATH +=  3rdparty \
+                3rdparty/Faddeeva \
+                3rdparty/QCustomPlot
+
+# requires cloned repositories
+INCLUDEPATH +=  ../../RandomOps \
+                ../../SwarmOps
+
 win32 {
+    INCLUDEPATH +=  "C:/Program Files (x86)/C++ libraries/boost_1_81_0"
 
-    INCLUDEPATH +=  "C:/Program Files (x86)/C++ libraries" \
-                    "C:/Program Files (x86)/C++ libraries/SwarmOps/include" \
-                    "C:/Program Files (x86)/C++ libraries/RandomOps/include" \
-                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1"
+    # requires prebuilt libs
+    LIBS += ../../RandomOps/build/release/RandomOps.lib \
+            ../../SwarmOps/build/release/SwarmOps.lib
 
-#---MinGW---MinGW---MinGW---MinGW---MinGW---MinGW---MinGW---MinGW---
-# DOESN'T WORK
-    win32-g++ {
-        message( "It's mingw" )
-#        equals(QMAKE_TARGET.arch, x86) {
-            message( "It's mingw x86" )
-            INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.2.1 mingw/include"
-#            LIBS += -L "C:/Program Files (x86)/C++ libraries/RandomOps/mingw_32/" -lRandomOps \
-#                    -L "C:/Program Files (x86)/C++ libraries/SwarmOps/mingw_32/" -lSwarmOps \
-#                    -L "C:/Program Files (x86)/C++ libraries/GSL 2.2.1 mingw/" -lgslcblas \
-#                    -L "C:/Program Files (x86)/C++ libraries/GSL 2.2.1 mingw/" -lgsl \
-#                    -L "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.0/qt_5.10.1/mingw_32/" -lqcustomplot
-#            LIBS += -L"$$_PRO_FILE_PWD_/" -lRandomOps -lSwarmOps -lgslcblas -lgsl -lqcustomplot
-#        }
+    QMAKE_CXXFLAGS += -bigobj
+    equals(QMAKE_TARGET.arch, x86) {
+                message( "It's 32-bit build" )
+                    INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/include"
+                        LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/cblas.lib" \
+                               "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/gsl.lib"
     } else {
-#---MSVC---MSVC---MSVC---MSVC---MSVC---MSVC---MSVC---MSVC---MSVC---
-        QMAKE_CXXFLAGS += -bigobj
-
-        equals(QMAKE_TARGET.arch, x86) {
-            message( "It's msvc2017_32" )
-            INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/include"
-            LIBS += "C:/Program Files (x86)/C++ libraries/RandomOps/msvc2017_32/RandomOps.lib" \
-                    "C:/Program Files (x86)/C++ libraries/SwarmOps/msvc2017_32/SwarmOps.lib" \
-                    "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/cblas.lib" \
-                    "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/gsl.lib" \
-                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1/qt_5.12.0/msvc2017_32/qcustomplot.lib"
-#                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1/qt_5.11.1/msvc2017_32/qcustomplot.lib"
-        } else {
-        equals(QMAKE_TARGET.arch, x86_64) {
-            message( "It's msvc2017_64" )
-            INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/include"
-            LIBS += "C:/Program Files (x86)/C++ libraries/RandomOps/msvc2017_64/RandomOps.lib" \
-                    "C:/Program Files (x86)/C++ libraries/SwarmOps/msvc2017_64/SwarmOps.lib" \
-                    "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/cblas.lib" \
-                    "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/gsl.lib" \
-                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1/qt_5.12.0/msvc2017_64/qcustomplot.lib"
-#                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1/qt_5.11.1/msvc2017_64/qcustomplot.lib"
-            }
+    equals(QMAKE_TARGET.arch, x86_64) {
+                message( "It's 64-bit build" )
+                    INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/include"
+                        LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/cblas.lib" \
+                                    "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/gsl.lib"
         }
     }
 }
 
 unix {
-    LIBS += -lgsl -lgslcblas -lSwarmRandOps -lqcustomplot
+    LIBS += -lgsl -lgslcblas
+    LIBS += -L$$PWD/../../SwarmOps/build -lSwarmOps
+    LIBS += -L$$PWD/../../RandomOps/build -lRandomOps
     QMAKE_CXXFLAGS += -Wno-reorder
 }
 
@@ -73,6 +57,7 @@ win32 {
 }
 
 SOURCES += \
+    3rdparty/QCustomPlot/qcustomplot.cpp \
     launcher.cpp \
     main.cpp \
     calculation/fitting/fitting.cpp \
@@ -124,6 +109,9 @@ SOURCES += \
 
 
 HEADERS += \
+    3rdparty/tree.hh \
+    3rdparty/exprtk.hpp \
+    3rdparty/QCustomPlot/qcustomplot.h \
     launcher.h \
     calculation/unwrapped/unwrapped_reflection.h \
     calculation/unwrapped/unwrapped_structure.h \

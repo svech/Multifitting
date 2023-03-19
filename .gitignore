@@ -31,8 +31,8 @@
 
 *.nb
 
-build-Multifitting*
-f1f2
-icons
-nk
+*.tmp
+~$*
+
+build*
 settings
