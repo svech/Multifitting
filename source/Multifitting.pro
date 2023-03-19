@@ -14,18 +14,33 @@ TEMPLATE = app
 
 #message( $$QMAKE_TARGET.arch )
 
-INCLUDEPATH +=  "3rdparty" \
-                "3rdparty/Faddeeva" \
-                "3rdparty/QCustomPlot"
-win32 {
+INCLUDEPATH +=  3rdparty \
+#                3rdparty/Faddeeva \
+                3rdparty/QCustomPlot
 
-    INCLUDEPATH +=  "C:/Program Files (x86)/C++ libraries/boost_1_78_0"
+# requires cloned repositories
+INCLUDEPATH +=  ../../RandomOps \
+                ../../SwarmOps
+
+win32 {
+    # requires prebuilt libs
+    LIBS += ../../RandomOps/build/release/RandomOps.lib \
+            ../../SwarmOps/build/release/SwarmOps.lib
+
+
+    INCLUDEPATH +=  "C:/Program Files (x86)/C++ libraries/boost_1_78_0" \
+#                        "C:/Program Files (x86)/C++ libraries/SwarmOps/include" \
+#                        "C:/Program Files (x86)/C++ libraries/RandomOps/include" \
+                        "C:/Program Files (x86)/C++ libraries/Faddeeva Package/include"
     QMAKE_CXXFLAGS += -bigobj
     equals(QMAKE_TARGET.arch, x86) {
                 message( "It's 32-bit build" )
                 INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/include"
 #			       "C:/Program Files (x86)/C++ libraries/GSL 2.7.1/include"
                        LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/cblas.lib" \
+#                               "C:/Program Files (x86)/C++ libraries/RandomOps/msvc2017_32/RandomOps.lib" \
+#                               "C:/Program Files (x86)/C++ libraries/SwarmOps/msvc2017_32/SwarmOps.lib" \
+                               "C:/Program Files (x86)/C++ libraries/Faddeeva Package/msvc2019_32/Faddeeva.lib" \
                                "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/gsl.lib"
 #                              "C:/Program Files (x86)/C++ libraries/GSL 2.7.1/msvc2019_32/gslcblas.lib" \
 #                              "C:/Program Files (x86)/C++ libraries/GSL 2.7.1/msvc2019_32/gsl.lib"
@@ -35,6 +50,9 @@ win32 {
 			INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/include"
 #				       "C:/Program Files (x86)/C++ libraries/GSL 2.7.1/include"
                             LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/cblas.lib" \
+#                                    "C:/Program Files (x86)/C++ libraries/RandomOps/msvc2017_64/RandomOps.lib" \
+#                                    "C:/Program Files (x86)/C++ libraries/SwarmOps/msvc2017_64/SwarmOps.lib" \
+                                    "C:/Program Files (x86)/C++ libraries/Faddeeva Package/msvc2019_64/Faddeeva.lib" \
                                     "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/gsl.lib"
 #                                   "C:/Program Files (x86)/C++ libraries/GSL 2.7.1/msvc2019_64/gslcblas.lib" \
 #                                   "C:/Program Files (x86)/C++ libraries/GSL 2.7.1/msvc2019_64/gsl.lib" \
