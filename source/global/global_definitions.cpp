@@ -2,6 +2,30 @@
 #include "global_variables.h"
 #include <algorithm>    // std::reverse
 
+//#include <Windows.h>
+
+QString getexepath()
+{
+#ifdef __linux__
+    char result[ PATH_MAX ];
+    ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
+    QString appPath = QString::fromStdString(std::string( result, (count > 0) ? count : 0 ));
+    QDir dir = QFileInfo(appPath).dir();
+    return dir.filePath("../");
+#endif
+#ifdef _WIN32
+//    wchar_t buffer[MAX_PATH];
+//    GetModuleFileName(NULL, buffer, sizeof(buffer));
+//    return std::filesystem::path(buffer).parent_path();
+
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+    std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+
+    return std::string(buffer).substr(0, pos);
+#endif
+}
+
 Global_Definitions::Global_Definitions()
 {
 

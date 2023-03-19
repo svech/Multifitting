@@ -50,15 +50,17 @@ class Node;
 
 // settings
 
+QString getexepath();
+
 #ifdef _WIN32
 	#ifdef RELEASE
-	   #define Pre_Path QString("../")
+       #define Pre_Path QString(getexepath() + "/../")
 	#else
-		#define Pre_Path QString("../../")
+        #define Pre_Path QString(getexepath() + "/../../")
 	#endif
 #endif
 #ifdef __linux__
-    #define Pre_Path QString("../")
+    #define Pre_Path getexepath()
 #endif
 
 #define Paths_Icon_Path Pre_Path + "icons/"
