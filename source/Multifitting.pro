@@ -32,21 +32,21 @@ win32 {
     QMAKE_CXXFLAGS += -bigobj
     equals(QMAKE_TARGET.arch, x86) {
                 message( "It's 32-bit build" )
-                INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/include"
-                       LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/cblas.lib" \
+                    INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/include"
+                        LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/cblas.lib" \
                                "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/gsl.lib"
     } else {
     equals(QMAKE_TARGET.arch, x86_64) {
-		    message( "It's 64-bit build" )
-			INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/include"
-                            LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/cblas.lib" \
+                message( "It's 64-bit build" )
+                    INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/include"
+                        LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/cblas.lib" \
                                     "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/gsl.lib"
         }
     }
 }
 
 unix {
-    LIBS += -lgsl -lgslcblas -lfaddeeva
+    LIBS += -lgsl -lgslcblas
     LIBS += -L$$PWD/../../SwarmOps/build -lSwarmOps
     LIBS += -L$$PWD/../../RandomOps/build -lRandomOps
     QMAKE_CXXFLAGS += -Wno-reorder
