@@ -22,7 +22,7 @@ public:
 	Fitting_Params* params;
 
 	static void callback(Fitting_Params* params, SO_TFitness residual);
-    static SO_TFitness calc_Residual(SO_TElm *x, void* context, SO_TFitness fitnessLimit = 0);
+    static SO_TFitness calc_Residual(const SO_TElm* x, void* context, SO_TFitness fitnessLimit = 0);
 	bool fit();
 };
 
