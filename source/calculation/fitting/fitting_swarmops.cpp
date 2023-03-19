@@ -80,163 +80,163 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitn
 
 bool Fitting_SwarmOps::fit()
 {
-//    RO_RandSeedClock(9385839);
-//    params->counter = 0;
+    RO_RandSeedClock(9385839);
+    params->counter = 0;
 
-//    /// reading parameters
+    /// reading parameters
 
-//    // read main parameters
-//    size_t kMethodId = SO_kMethodDE;	// default value
-//    const SO_TDim kDim = params->p;
-//    size_t kNumIterations = global_Multilayer_Approach->fitting_Settings->max_Evaluations;
-//    if(global_Multilayer_Approach->fitting_Settings->max_Eval_Check)
-//    {
-//        kNumIterations = global_Multilayer_Approach->fitting_Settings->max_Eval_Factor*kDim;
-//    }
-//    params->num_Iter = kNumIterations;
-//    {
-//        // read method
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Mesh_Iteration])						{	kMethodId = SO_kMethodMESH;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Random_Sampling_Uniform])				{	kMethodId = SO_kMethodRND;		}
-////		if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Gradient_Descent])					{	kMethodId = SO_kMethodGD;		}
-////		if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Gradient_Emancipated_Descent])		{	kMethodId = SO_kMethodGED;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Hill_Climber])						{	kMethodId = SO_kMethodHC;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Simulated_Annealing])					{	kMethodId = SO_kMethodSA;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Pattern_Search])						{	kMethodId = SO_kMethodPS;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Local_Unimodal_Sampling])				{	kMethodId = SO_kMethodLUS;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Differential_Evolution])				{	kMethodId = SO_kMethodDE;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Differential_Evolution_Suite])		{	kMethodId = SO_kMethodDESuite;	}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[DE_with_Temporal_Parameters])			{	kMethodId = SO_kMethodDETP;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Jan_Differential_Evolution])			{	kMethodId = SO_kMethodJDE;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Evolution_by_Lingering_Global_Best])	{	kMethodId = SO_kMethodELG;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[More_Yo_yos_Doing_Global_optimization]){	kMethodId = SO_kMethodMYG;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Particle_Swarm_Optimization])			{	kMethodId = SO_kMethodPSO;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Forever_Accumulating_Evolution])		{	kMethodId = SO_kMethodFAE;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Many_Optimizing_Liaisons])			{	kMethodId = SO_kMethodMOL;		}
-//        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Layered_and_Interleaved_CoEvolution])	{	kMethodId = SO_kMethodLICE;		}
-//    }
+    // read main parameters
+    size_t kMethodId = SO_kMethodDE;	// default value
+    const SO_TDim kDim = params->p;
+    size_t kNumIterations = global_Multilayer_Approach->fitting_Settings->max_Evaluations;
+    if(global_Multilayer_Approach->fitting_Settings->max_Eval_Check)
+    {
+        kNumIterations = global_Multilayer_Approach->fitting_Settings->max_Eval_Factor*kDim;
+    }
+    params->num_Iter = kNumIterations;
+    {
+        // read method
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Mesh_Iteration])						{	kMethodId = SO_kMethodMESH;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Random_Sampling_Uniform])				{	kMethodId = SO_kMethodRND;		}
+//		if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Gradient_Descent])					{	kMethodId = SO_kMethodGD;		}
+//		if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Gradient_Emancipated_Descent])		{	kMethodId = SO_kMethodGED;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Hill_Climber])						{	kMethodId = SO_kMethodHC;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Simulated_Annealing])					{	kMethodId = SO_kMethodSA;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Pattern_Search])						{	kMethodId = SO_kMethodPS;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Local_Unimodal_Sampling])				{	kMethodId = SO_kMethodLUS;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Differential_Evolution])				{	kMethodId = SO_kMethodDE;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Differential_Evolution_Suite])		{	kMethodId = SO_kMethodDESuite;	}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[DE_with_Temporal_Parameters])			{	kMethodId = SO_kMethodDETP;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Jan_Differential_Evolution])			{	kMethodId = SO_kMethodJDE;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Evolution_by_Lingering_Global_Best])	{	kMethodId = SO_kMethodELG;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[More_Yo_yos_Doing_Global_optimization]){	kMethodId = SO_kMethodMYG;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Particle_Swarm_Optimization])			{	kMethodId = SO_kMethodPSO;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Forever_Accumulating_Evolution])		{	kMethodId = SO_kMethodFAE;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Many_Optimizing_Liaisons])			{	kMethodId = SO_kMethodMOL;		}
+        if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Layered_and_Interleaved_CoEvolution])	{	kMethodId = SO_kMethodLICE;		}
+    }
 
-//    vector<SO_TElm> lowerBound(kDim, 0);
-//    vector<SO_TElm> upperBound(kDim, 1);
+    vector<SO_TElm> lowerBound(kDim, 0);
+    vector<SO_TElm> upperBound(kDim, 1);
 
-//    // calc init residual
-//    Fitting::calc_Residual(params->x, params, params->f);
-//    gsl_blas_ddot(params->f, params->f, &params->init_Residual);
+    // calc init residual
+    Fitting::calc_Residual(params->x, params, params->f);
+    gsl_blas_ddot(params->f, params->f, &params->init_Residual);
 
 
-//    // init my_Res for aborting
-//    params->my_Res.best.fitness = DBL_MAX;
-//    params->my_Res.best.dim = params->p;
-//    params->my_Res.best.x = new SO_TElm[params->my_Res.best.dim];
+    // init my_Res for aborting
+    params->my_Res.best.fitness = DBL_MAX;
+    params->my_Res.best.dim = params->p;
+    params->my_Res.best.x = new SO_TElm[params->my_Res.best.dim];
 
-//    SO_Results res;
+    SO_Results res;
 
-//    auto start = std::chrono::system_clock::now();
-//    int repeat = setjmp(buffer_SO);
-//    if(repeat == 0)
-//    {
-//        res = SO_OptimizePar(
-//              SO_kMethodDefaultParameters[kMethodId],			/* Behavioural parameters for optimization method. */
-//              kMethodId,										/* Optimization method. */
-//              1,												/* Number of optimization runs. */
-//              kNumIterations,									/* Number of iterations per run. */
-//              nullptr,											/* Additional optimization settings. */
-//              calc_Residual,									/* Optimization problem (aka. fitness function). */
-//              nullptr,											/* Gradient for optimization problem. */
-//              params,											/* Context for optimization problem. */
-//              kDim,												/* Dimensionality for optimization problem. */
-//              lowerBound.data(),								/* Lower initialization boundary. */
-//              upperBound.data(),								/* Upper initialization bounder. */
-//              lowerBound.data(),								/* Lower search-space boundary. */
-//              upperBound.data(),								/* Upper search-space boundary. */
-//              nullptr);											/* Fitness trace filename (null-pointer for no trace). */
-//    } else
-//    // if aborted
-//    {
-//        res = params->my_Res;
-//    }
+    auto start = std::chrono::system_clock::now();
+    int repeat = setjmp(buffer_SO);
+    if(repeat == 0)
+    {
+        res = SO_OptimizePar(
+              SO_kMethodDefaultParameters[kMethodId],			/* Behavioural parameters for optimization method. */
+              kMethodId,										/* Optimization method. */
+              1,												/* Number of optimization runs. */
+              kNumIterations,									/* Number of iterations per run. */
+              nullptr,											/* Additional optimization settings. */
+              calc_Residual,									/* Optimization problem (aka. fitness function). */
+              nullptr,											/* Gradient for optimization problem. */
+              params,											/* Context for optimization problem. */
+              kDim,												/* Dimensionality for optimization problem. */
+              lowerBound.data(),								/* Lower initialization boundary. */
+              upperBound.data(),								/* Upper initialization bounder. */
+              lowerBound.data(),								/* Lower search-space boundary. */
+              upperBound.data(),								/* Upper search-space boundary. */
+              nullptr);											/* Fitness trace filename (null-pointer for no trace). */
+    } else
+    // if aborted
+    {
+        res = params->my_Res;
+    }
 
-//    auto end = std::chrono::system_clock::now();
-//    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-//    qInfo() << "\nFit  : "<< elapsed.count()/1000. << " seconds\n";
-//    qInfo() << "previous_ID =" << previous_ID << endl;
+    auto end = std::chrono::system_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    qInfo() << "\nFit  : "<< elapsed.count()/1000. << " seconds\n";
+    qInfo() << "previous_ID =" << previous_ID << endl;
 
-////	printf("Fitness average:  %g\n", res.stat.fitnessAvg);
-////	printf("Fitness std.dev.: %g\n", res.stat.fitnessStdDev);
-////	printf("Best fitness:	  %g\n", res.best.fitness);
-////	printf("\n");
+//	printf("Fitness average:  %g\n", res.stat.fitnessAvg);
+//	printf("Fitness std.dev.: %g\n", res.stat.fitnessStdDev);
+//	printf("Best fitness:	  %g\n", res.best.fitness);
+//	printf("\n");
 
-//    params->final_Residual = res.best.fitness;
-//    if(!global_Multilayer_Approach->fitting_Settings->randomized_Start)
-//    {
-//        if(params->maximize)
-//        {
-//            printf("Initial     |f| = %g\n", params->max_Integral-params->init_Residual);
-//        } else
-//        {
-//            printf("Initial     |f| = %g\n", params->init_Residual);
-//        }
+    params->final_Residual = res.best.fitness;
+    if(!global_Multilayer_Approach->fitting_Settings->randomized_Start)
+    {
+        if(params->maximize)
+        {
+            printf("Initial     |f| = %g\n", params->max_Integral-params->init_Residual);
+        } else
+        {
+            printf("Initial     |f| = %g\n", params->init_Residual);
+        }
 
-//        // compare with previous solution
-//        double* final_State_Parametrized;
-//        if(params->init_Residual<res.best.fitness)
-//        {
-//            printf("-Keep previous solution-\n\n");
-//            final_State_Parametrized = params->fitables.values_Parametrized.data();
-//        }  else
-//        {
-//            final_State_Parametrized = res.best.x;
-//        }
+        // compare with previous solution
+        double* final_State_Parametrized;
+        if(params->init_Residual<res.best.fitness)
+        {
+            printf("-Keep previous solution-\n\n");
+            final_State_Parametrized = params->fitables.values_Parametrized.data();
+        }  else
+        {
+            final_State_Parametrized = res.best.x;
+        }
 
-//        // replace parameters
-//        for(size_t i=0; i<params->p; ++i)
-//        {
-//            // actualize params->x
-//            gsl_vector_set(params->x, i, final_State_Parametrized[i]);
+        // replace parameters
+        for(size_t i=0; i<params->p; ++i)
+        {
+            // actualize params->x
+            gsl_vector_set(params->x, i, final_State_Parametrized[i]);
 
-//            // unparametrize
-//            res.best.x[i] = params->main_Calculation_Module->unparametrize(	final_State_Parametrized[i],
-//                                                                            params->fitables.param_Pointers[i]->fit.min,
-//                                                                            params->fitables.param_Pointers[i]->fit.max);
-//            params->fitables.param_Pointers[i]->value = res.best.x[i];
-//        }
-//    } else
-//    // if randomized start
-//    {
-//        // replace parameters
-//        for(size_t i=0; i<params->p; ++i)
-//        {
-//            // actualize params->x
-//            gsl_vector_set(params->x, i, res.best.x[i]);
+            // unparametrize
+            res.best.x[i] = params->main_Calculation_Module->unparametrize(	final_State_Parametrized[i],
+                                                                            params->fitables.param_Pointers[i]->fit.min,
+                                                                            params->fitables.param_Pointers[i]->fit.max);
+            params->fitables.param_Pointers[i]->value = res.best.x[i];
+        }
+    } else
+    // if randomized start
+    {
+        // replace parameters
+        for(size_t i=0; i<params->p; ++i)
+        {
+            // actualize params->x
+            gsl_vector_set(params->x, i, res.best.x[i]);
 
-//            // unparametrize
-//            res.best.x[i] = params->main_Calculation_Module->unparametrize(	res.best.x[i],
-//                                                                            params->fitables.param_Pointers[i]->fit.min,
-//                                                                            params->fitables.param_Pointers[i]->fit.max);
-//        }
-//    }
-//    // replace parameters
-//    for(size_t i=0; i<params->p; ++i)
-//    {
-//        double old_Value = params->fitables.param_Pointers[i]->value;
-//        params->fitables.param_Pointers[i]->value = res.best.x[i];
-//        double new_Value = params->fitables.param_Pointers[i]->value;
+            // unparametrize
+            res.best.x[i] = params->main_Calculation_Module->unparametrize(	res.best.x[i],
+                                                                            params->fitables.param_Pointers[i]->fit.min,
+                                                                            params->fitables.param_Pointers[i]->fit.max);
+        }
+    }
+    // replace parameters
+    for(size_t i=0; i<params->p; ++i)
+    {
+        double old_Value = params->fitables.param_Pointers[i]->value;
+        params->fitables.param_Pointers[i]->value = res.best.x[i];
+        double new_Value = params->fitables.param_Pointers[i]->value;
 
-//        Fitting::change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, FITTING);
-//    }
+        Fitting::change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, FITTING);
+    }
 
-//    if(params->maximize)
-//    {
-//        printf("Final       |f| = %g\n", params->max_Integral-res.best.fitness);
-//    } else
-//    {
-//        printf("Final       |f| = %g\n", res.best.fitness);
-//    }
-//    printf("Best solution:   ");
-//    SO_PrintVector(res.best.x, res.best.dim);
-//    printf("\n\n");
+    if(params->maximize)
+    {
+        printf("Final       |f| = %g\n", params->max_Integral-res.best.fitness);
+    } else
+    {
+        printf("Final       |f| = %g\n", res.best.fitness);
+    }
+    printf("Best solution:   ");
+    SO_PrintVector(res.best.x, res.best.dim);
+    printf("\n\n");
 
-//    if(repeat == 0) SO_FreeResults(&res);
+    if(repeat == 0) SO_FreeResults(&res);
 
 	return true;
 }

@@ -63,7 +63,9 @@ win32 {
 }
 
 unix {
-    LIBS += -lgsl -lgslcblas
+    LIBS += -lgsl -lgslcblas -lfaddeeva
+    LIBS += -L$$PWD/../../SwarmOps/build -lSwarmOps
+    LIBS += -L$$PWD/../../RandomOps/build -lRandomOps
     QMAKE_CXXFLAGS += -Wno-reorder
 }
 
@@ -72,8 +74,7 @@ win32 {
 }
 
 # recursive search for source files
-SOURCES +=  $$files(*.cpp, true) \
-            $$files(*.c, true)
+SOURCES +=  $$files(*.cpp, true)
 
 HEADERS +=  $$files(*.h, true)  \
             $$files(*.hh, true) \
