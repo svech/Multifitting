@@ -6,7 +6,7 @@
 #include "SwarmOps/MetaOptimize.h"
 #include "SwarmOps/Methods/Methods.h"
 #include "SwarmOps/Tools/Vector.h"
-#include <RandomOps/RO_Random.h>
+#include "RandomOps/Random.h"
 
 struct Fitting_Params;
 class Fitting;
