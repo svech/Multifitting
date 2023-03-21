@@ -27,8 +27,10 @@ void Menu::add_Menu_Points()
 		create_Calculate_Menu();
 			menu_Bar->addMenu(calculate_Menu);
 		create_Optical_Constants_Menu();
-			menu_Bar->addMenu(optical_Constants_Menu);
-	}
+            menu_Bar->addMenu(optical_Constants_Menu);
+        create_Help_Menu();
+            menu_Bar->addMenu(help_Menu);
+    }
 	if(window_Type == window_Type_Independent_Variables_Editor)
 	{
 		independent_Variables_Editor = qobject_cast<Independent_Variables_Editor*>(my_Parent);
@@ -69,8 +71,7 @@ void Menu::add_Menu_Points()
 			menu_Bar->addMenu(precision_Menu);
 	}
 
-	if(window_Type == window_Type_Launcher ||
-	   window_Type == window_Type_Multilayer_Approach)
+    if(window_Type == window_Type_Launcher)
 	{
 		create_File_Menu();
 			menu_Bar->addMenu(file_Menu);
@@ -133,7 +134,7 @@ void Menu::create_File_Menu()
 		{
 			QAction* act_Open_Launcher = new QAction("Open Launcher", this);
 			connect(act_Open_Launcher, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->open_Launcher();});
-			file_Menu->addAction(act_Open_Launcher);
+            // file_Menu->addAction(act_Open_Launcher);
 		}
 		if(window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness)
 		{
