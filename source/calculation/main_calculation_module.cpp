@@ -2105,13 +2105,14 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 
 	// interpolation
 	vector<double>* calculated_Curve = nullptr;
-	vector<double>* working_Curve = nullptr;
-	if( data_Element.calc_Functions.check_Reflectance)
-	{	calculated_Curve = &calculated_Values.R; calculated_Values.R_Instrumental = calculated_Values.R; working_Curve = &calculated_Values.R_Instrumental;}
-	if( data_Element.calc_Functions.check_Transmittance)
-	{	calculated_Curve = &calculated_Values.T; calculated_Values.T_Instrumental = calculated_Values.T; working_Curve = &calculated_Values.T_Instrumental;}
-	if( data_Element.calc_Functions.check_Scattering)
+	vector<double>* working_Curve = nullptr;    
+    if( data_Element.calc_Functions.check_Reflectance)
+    {	calculated_Curve = &calculated_Values.R; calculated_Values.R_Instrumental = calculated_Values.R; working_Curve = &calculated_Values.R_Instrumental;}
+    else if( data_Element.calc_Functions.check_Transmittance)
+    {	calculated_Curve = &calculated_Values.T; calculated_Values.T_Instrumental = calculated_Values.T; working_Curve = &calculated_Values.T_Instrumental;}
+    else if( data_Element.calc_Functions.check_Scattering)
 	{	calculated_Curve = &calculated_Values.S; calculated_Values.S_Instrumental = calculated_Values.S; working_Curve = &calculated_Values.S_Instrumental;}
+    else return;
 
 	/// Specular_Scan
 	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
