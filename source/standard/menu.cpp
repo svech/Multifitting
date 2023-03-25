@@ -451,7 +451,7 @@ void Menu::open_About()
 						"<br>"
 						"Main part of optical constants<br>"
 						"database and some pieces of design<br>"
-						"are borrowed from <a href='http://www.rxollc.com/idl/'>IMD</a> by Dawid Windt<br>"
+                        "are borrowed from David Windt's <a href='http://www.rxollc.com/idl/'>IMD</a><br>"
 						"<br>"
 						"Form factors for scattering on<br>"
 						"particles are taken from <a href='https://www.bornagainproject.org/'>BornAgain</a><br>"
