@@ -1499,10 +1499,10 @@ void Profile_Plot::export_Profile()
         calculate_Profile();
 
         multilayer->profile_Plot_Options.show_Sharp_Profile = false;
-        print_To_File(path + "profile_Permittivity_" + discrete_Addition + name_End);
+        print_To_File(path + Global_Variables::slaches_To_Underline("profile_Permittivity_" + discrete_Addition + name_End));
 
         multilayer->profile_Plot_Options.show_Sharp_Profile = true;
-        print_To_File(path + "profile_Permittivity_Sharp_" + name_End);
+        print_To_File(path + Global_Variables::slaches_To_Underline("profile_Permittivity_Sharp_" + name_End));
     }
     // materials
     {
@@ -1513,10 +1513,10 @@ void Profile_Plot::export_Profile()
         if(different_Materials.size()>0)
         {
             multilayer->profile_Plot_Options.show_Sharp_Profile = false;
-            print_To_File(path + "profile_Materials_" + discrete_Addition + name_End);
+            print_To_File(path + Global_Variables::slaches_To_Underline("profile_Materials_" + discrete_Addition + name_End));
 
             multilayer->profile_Plot_Options.show_Sharp_Profile = true;
-            print_To_File(path + "profile_Materials_Sharp_" + name_End);
+            print_To_File(path + Global_Variables::slaches_To_Underline("profile_Materials_Sharp_" + name_End));
         }
     }
     // elements
@@ -1528,10 +1528,10 @@ void Profile_Plot::export_Profile()
         if(different_Elements.size()>0)
         {
             multilayer->profile_Plot_Options.show_Sharp_Profile = false;
-            print_To_File(path + "profile_Elements_" + discrete_Addition + name_End);
+            print_To_File(path + Global_Variables::slaches_To_Underline("profile_Elements_" + discrete_Addition + name_End));
 
             multilayer->profile_Plot_Options.show_Sharp_Profile = true;
-            print_To_File(path + "profile_Elements_Sharp_" + name_End);
+            print_To_File(path + Global_Variables::slaches_To_Underline("profile_Elements_Sharp_" + name_End));
         }
     }
     multilayer->profile_Plot_Options.type = type;

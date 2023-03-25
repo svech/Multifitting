@@ -3337,7 +3337,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 				for(double& arg : argument)	arg = arg/angular_Coeff;
 			}
 
-			QString name = path + first_Name + ".txt";
+            QString name = path + Global_Variables::slaches_To_Underline(first_Name + ".txt");
 			QFile file(name);
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);
@@ -3367,7 +3367,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		if(data_Element.calc_Functions.check_Field)
 		if(data_Element.the_Class->calculated_Values.field_Intensity.size()>0)
 		{
-			QString name = path + first_Name + "_intensity.txt";
+            QString name = path + Global_Variables::slaches_To_Underline(first_Name + "_intensity.txt");
 			QFile file(name);
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);
@@ -3380,7 +3380,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		if(data_Element.calc_Functions.check_Joule)
 		if(data_Element.the_Class->calculated_Values.absorption_Map.size()>0)
 		{
-			QString name = path + first_Name + "_absorption.txt";
+            QString name = path + Global_Variables::slaches_To_Underline(first_Name + "_absorption.txt");
 			QFile file(name);
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);
@@ -3393,7 +3393,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		if(data_Element.calc_Functions.check_GISAS)
 		if(data_Element.the_Class->calculated_Values.GISAS_Instrumental.size()>0)
 		{
-			QString name = path + first_Name + "_GISAS.txt";
+            QString name = path + Global_Variables::slaches_To_Underline(first_Name + "_GISAS.txt");
 			QFile file(name);
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);

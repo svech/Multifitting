@@ -710,7 +710,7 @@ void Structure_Toolbar::export_Structure()
 	}
     QString path = Global_Variables::working_Directory() + "/";
     QString name = "structure_"+/*tempLoc.toString(index)+"_"+*/tab_Text+".txt";
-    QFile file(path + name);
+    QFile file(path + Global_Variables::slaches_To_Underline(name));
 	if (file.open(QIODevice::WriteOnly))
 	{
 		QTextStream out(&file);
@@ -743,7 +743,7 @@ void Structure_Toolbar::export_Structure()
 		if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
 		{
             QString name = "structure_"+/*tempLoc.toString(index)+"_"+*/tab_Text+"_Aperiodic_#"+QString::number(aperiodics_Counter)+".txt";
-            QFile file(Global_Variables::working_Directory() + "/" + name);
+            QFile file(Global_Variables::working_Directory() + "/" + Global_Variables::slaches_To_Underline(name));
 			if (file.open(QIODevice::WriteOnly))
 			{
 				QTextStream out(&file);
