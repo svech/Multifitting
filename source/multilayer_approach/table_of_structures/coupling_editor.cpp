@@ -284,8 +284,10 @@ void Coupling_Editor::create_Slave_Box()
 
 void Coupling_Editor::remove_Slave(int index_Pressed)
 {
-	coupled_Parameter->coupled.slaves[index_Pressed].exist = false;
-	slave_Label_Vec[index_Pressed]->setText(no_Slave_Text);
+    Parameter_Indicator empty_slave_Indicator;
+    coupled_Parameter->coupled.slaves[index_Pressed] = empty_slave_Indicator;
+//    coupled_Parameter->coupled.slaves[index_Pressed].exist = false; // leaves remnants
+    slave_Label_Vec[index_Pressed]->setText(no_Slave_Text);
 	slave_Widget_Vec[index_Pressed] = nullptr;
 }
 
