@@ -2114,6 +2114,12 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 	{	calculated_Curve = &calculated_Values.S; calculated_Values.S_Instrumental = calculated_Values.S; working_Curve = &calculated_Values.S_Instrumental;}
     else return;
 
+    // crutch
+    if(!calculated_Curve || !working_Curve)
+        return;
+    if(calculated_Curve->size() ==0 || working_Curve->size() == 0)
+        return;
+
 	/// Specular_Scan
 	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
