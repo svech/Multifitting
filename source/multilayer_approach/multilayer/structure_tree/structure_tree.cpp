@@ -43,21 +43,25 @@ void Structure_Tree::create_Toolbar()
 		QShortcut* paste_Shortcut  = new QShortcut(QKeySequence(Qt::Key_V | Qt::CTRL), this);
 
 		connect(remove_Shortcut, &QShortcut::activated, this, [=]	{
-			if(bool(tree->currentItem()) && structure_Toolbar->toolbar->actions()[Remove]->isEnabled())
-			{	structure_Toolbar->remove();	}
-		});
+            if(structure_Toolbar->toolbar->isEnabled())
+                if(bool(tree->currentItem()) && structure_Toolbar->toolbar->actions()[Remove]->isEnabled())
+                {	structure_Toolbar->remove();	}
+        });
 		connect(cut_Shortcut, &QShortcut::activated, this, [=]	{
-			if(bool(tree->currentItem()) && structure_Toolbar->toolbar->actions()[Cut]->isEnabled())
-			{	structure_Toolbar->cut();	}
+            if(structure_Toolbar->toolbar->isEnabled())
+                if(bool(tree->currentItem()) && structure_Toolbar->toolbar->actions()[Cut]->isEnabled())
+                {	structure_Toolbar->cut();	}
 		});
 		connect(copy_Shortcut, &QShortcut::activated, this, [=]	{
-			if(bool(tree->currentItem()) && structure_Toolbar->toolbar->actions()[Copy]->isEnabled() )
-			{	structure_Toolbar->copy();	}
-		});
+            if(structure_Toolbar->toolbar->isEnabled())
+                if(bool(tree->currentItem()) && structure_Toolbar->toolbar->actions()[Copy]->isEnabled() )
+                {	structure_Toolbar->copy();	}
+        });
 		connect(paste_Shortcut, &QShortcut::activated, this, [=]	{
-			if(bool(tree->currentItem()) && structure_Toolbar->toolbar->actions()[Paste]->isEnabled())
-			{	structure_Toolbar->paste();	}
-		});
+            if(structure_Toolbar->toolbar->isEnabled())
+                if(bool(tree->currentItem()) && structure_Toolbar->toolbar->actions()[Paste]->isEnabled())
+                {	structure_Toolbar->paste();	}
+        });
 	}
 }
 
