@@ -2108,17 +2108,18 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 	vector<double>* working_Curve = nullptr;    
     if( data_Element.calc_Functions.check_Reflectance)
     {	calculated_Curve = &calculated_Values.R; calculated_Values.R_Instrumental = calculated_Values.R; working_Curve = &calculated_Values.R_Instrumental;}
-    else if( data_Element.calc_Functions.check_Transmittance)
+    if( data_Element.calc_Functions.check_Transmittance)
     {	calculated_Curve = &calculated_Values.T; calculated_Values.T_Instrumental = calculated_Values.T; working_Curve = &calculated_Values.T_Instrumental;}
-    else if( data_Element.calc_Functions.check_Scattering)
+    if( data_Element.calc_Functions.check_Scattering)
 	{	calculated_Curve = &calculated_Values.S; calculated_Values.S_Instrumental = calculated_Values.S; working_Curve = &calculated_Values.S_Instrumental;}
-    else return;
 
     // crutch
-    if(!calculated_Curve || !working_Curve)
-        return;
-    if(calculated_Curve->size() ==0 || working_Curve->size() == 0)
-        return;
+    if( measurement.measurement_Type != measurement_Types[GISAS_Map] ) {
+        if(!calculated_Curve || !working_Curve)
+            return;
+        if(calculated_Curve->size() ==0 || working_Curve->size() == 0)
+            return;
+    }
 
 	/// Specular_Scan
 	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
