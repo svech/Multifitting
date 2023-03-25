@@ -2296,6 +2296,11 @@ QString Global_Variables::working_Directory()
     return dir;
 }
 
+QString Global_Variables::slaches_To_Underline(QString text)
+{
+    return text.replace("/", "_").replace("\\", "_");
+}
+
 void Global_Variables::parallel_For(int num_Points, int num_Threads, const std::function<void(int n_Min, int n_Max, int thread_Index)>& lambda)
 {
 	if(num_Threads>global_Workers.size())

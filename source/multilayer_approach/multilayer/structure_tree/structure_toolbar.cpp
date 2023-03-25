@@ -705,7 +705,7 @@ void Structure_Toolbar::export_Structure()
 		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(i));
 		if(multilayer == structure_Tree->multilayer)
 		{
-			tab_Text = global_Multilayer_Approach->multilayer_Tabs->tabText(i);
+            tab_Text = Global_Variables::slaches_To_Underline(global_Multilayer_Approach->multilayer_Tabs->tabText(i));
 		}
 	}
     QString path = Global_Variables::working_Directory() + "/";

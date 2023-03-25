@@ -921,7 +921,7 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
     // point as decimal separator
     QLocale tempLoc = QLocale::c();
 
-    QFile file(Global_Variables::working_Directory() + "/" + filename);
+    QFile file(Global_Variables::working_Directory() + "/" + Global_Variables::slaches_To_Underline(filename));
 	if(file.open(QIODevice::WriteOnly | QIODevice::Append))
 	{
 		QTextStream out(&file);
@@ -1010,7 +1010,7 @@ void Fitting::add_Confidence_Distribution_To_File(double real_Conf_Value, QStrin
     // point as decimal separator
     QLocale tempLoc = QLocale::c();
 
-    QFile file(Global_Variables::working_Directory() + "/" + filename);
+    QFile file(Global_Variables::working_Directory() + "/" + Global_Variables::slaches_To_Underline(filename));
 	if(file.open(QIODevice::WriteOnly | QIODevice::Append))
 	{
 		QTextStream out(&file);

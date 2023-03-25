@@ -3126,7 +3126,8 @@ void Main_Calculation_Module::print_PSD_1D_To_File(Data_Element<Target_Curve>& d
 	// left wing
 	if(argument_Left.size()>0)
 	{
-		QString name_Left = path + first_Name + "_left" + specular_Substraction_Filename+".txt";
+        QString name_Left = path + Global_Variables::slaches_To_Underline(
+                                                     first_Name + "_left" + specular_Substraction_Filename+".txt");
 		QFile file_Left(name_Left);
 		file_Left.open(QIODevice::WriteOnly);
 		QTextStream out_Left(&file_Left);
@@ -3261,7 +3262,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	{
 		Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
         first_Name = struct_Name + "_target_" + target_Curve->index/*tempLoc.toString(index+1)*/ + "_" + data_Element.the_Class->name;
-	}
+	}  
 
     QString path = Global_Variables::working_Directory() + "/";
 
