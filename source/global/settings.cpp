@@ -575,8 +575,12 @@ void Settings::read_Windows_Geometry_Settings(bool reset_to_default)
 	windows_Geometry_Settings.beginGroup( Multilayer_Window_Geometry );
 		multilayer_x_corner			= windows_Geometry_Settings.value( "multilayer_x_corner",		228 ).toInt();
 		multilayer_y_corner			= windows_Geometry_Settings.value( "multilayer_y_corner",		0   ).toInt();
+#ifdef __linux__
         multilayer_min_width		= windows_Geometry_Settings.value( "multilayer_min_width",		325 ).toInt();
-		multilayer_min_height		= windows_Geometry_Settings.value( "multilayer_min_height",		100 ).toInt();
+#else
+        multilayer_min_width		= windows_Geometry_Settings.value( "multilayer_min_width",		300 ).toInt();
+#endif
+        multilayer_min_height		= windows_Geometry_Settings.value( "multilayer_min_height",		100 ).toInt();
 		multilayer_width			= windows_Geometry_Settings.value( "multilayer_width",			450 ).toInt();
 		multilayer_height			= windows_Geometry_Settings.value( "multilayer_height",			450 ).toInt();
 	windows_Geometry_Settings.endGroup();
