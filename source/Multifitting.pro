@@ -46,9 +46,13 @@ win32 {
 }
 
 unix {
-    LIBS += -lgsl -lgslcblas
+    INCLUDEPATH +=  ../../GSL/gsl_2.7.1/build/include
+
+#    LIBS += -lgsl -lgslcblas # dynamic linking
+    LIBS += -L$$PWD/../../GSL/gsl_2.7.1/build/lib_static -lgsl -lgslcblas
     LIBS += -L$$PWD/../../SwarmOps/build -lSwarmOps
     LIBS += -L$$PWD/../../RandomOps/build -lRandomOps
+
     QMAKE_CXXFLAGS += -Wno-reorder
     QMAKE_LFLAGS += '-Wl,--disable-new-dtags,-rpath,\'\$$ORIGIN/lib\''
 }
