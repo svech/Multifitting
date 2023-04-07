@@ -123,12 +123,12 @@ void Structure_Toolbar::add_Layer()
 		}
 	}
 
-	var.setValue( layer );
+        Global_Variables::new_Layer_Particles_Model     (layer, structure_Tree->multilayer->imperfections_Model);
+        var.setValue( layer );
 	new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	buffered_Copy_Type = copy_Type_Cut;
 	add_Buffered_Layer(new_Layer);
-	Global_Variables::new_Layer_Particles_Model     (layer, structure_Tree->multilayer->imperfections_Model);
 	structure_Tree->refresh_Tree_Roughness();
 	structure_Tree->refresh_Tree_Particles();
 	delete new_Layer;
