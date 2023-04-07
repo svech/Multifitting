@@ -1633,7 +1633,7 @@ void Settings::read_General_Settings(bool reset_to_default)
 	general_Settings_Tab_Index = general_Settings.value( "general_Settings_Tab_Index",	0 ).toInt();
 
 	general_Settings.beginGroup( Output_Tab );
-		print_1D_Data_On_Recalculation					= general_Settings.value( "print_1D_Data_On_Recalculation",					true	).toBool();
+                print_1D_Data_On_Recalculation					= general_Settings.value( "print_1D_Data_On_Recalculation",					false	).toBool();
 		print_2D_Data_On_Recalculation					= general_Settings.value( "print_2D_Data_On_Recalculation",					false	).toBool();
 		print_1D_PSD_From_Scattering_On_Recalculation	= general_Settings.value( "print_1D_PSD_From_Scattering_On_Recalculation",	false	).toBool();
 
