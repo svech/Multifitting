@@ -160,7 +160,15 @@ void Optical_Constants::read_All_Elements()
 
 void Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, const vector<double>& spectral_Points, vector<complex<double>>& output_Values, QString material)
 {
-	const gsl_interp_type *interp_type = gsl_interp_steffen;
+        output_Values.resize(spectral_Points.size());
+        if(input_Values.size()<5) {
+                QString warning_Text = "Material \"" + material + "\"\nshould have at least 1 spectral point";
+                QMessageBox::warning(nullptr, "Optical constants", warning_Text);
+                lambda_Out_Of_Range = true;
+                return;
+        }
+
+        const gsl_interp_type *interp_type = gsl_interp_steffen;
 
 	gsl_interp_accel* acc_Re = gsl_interp_accel_alloc();
 	gsl_interp_accel* acc_Im = gsl_interp_accel_alloc();
@@ -179,7 +187,6 @@ void Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, cons
 	gsl_spline_init(spline_Re, lambda.data(), re.data(), input_Values.size());
 	gsl_spline_init(spline_Im, lambda.data(), im.data(), input_Values.size());
 
-	output_Values.resize(spectral_Points.size());
 	for(size_t l=0; l<spectral_Points.size(); ++l)
 	{
 		// range check
