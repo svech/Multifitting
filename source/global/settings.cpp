@@ -1673,7 +1673,7 @@ void Settings::read_General_Settings(bool reset_to_default)
 		make_all_windows_resizeable			= general_Settings.value( "make_all_windows_resizeable",			false   ).toBool();
 		calculation_time					= general_Settings.value( "calculation_time",						true    ).toBool();
 		show_residuals						= general_Settings.value( "show_residuals",							true    ).toBool();
-		replot_graphs_during_fitting_1D		= general_Settings.value( "replot_graphs_during_fitting_1D",		true	).toBool();
+                replot_graphs_during_fitting_1D		= general_Settings.value( "replot_graphs_during_fitting_1D",		false	).toBool();
 //		replot_graphs_during_fitting_2D		= general_Settings.value( "replot_graphs_during_fitting_2D",		false	).toBool();
 
 		default_Profile_Line_Thickness		= general_Settings.value( "default_Profile_Line_Thickness",			1.9		).toDouble(); // A^-1 , > nu_Limit
