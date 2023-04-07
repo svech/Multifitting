@@ -626,7 +626,7 @@ struct Sample_Geometry			{ double size = 20;			// mm
 								  double curvature = 0;		// m-1
 								};
 
-struct Beam_Geometry			{ double size = 0.055;			// mm
+struct Beam_Geometry			{ double size = 0.0;			// mm
 								  double smoothing = 0.5;
 								  double right_Smoothing = 0.5;		// UNUSED
 								  bool asymmetric_Smoothing = false;// UNUSED
