@@ -577,11 +577,12 @@ void Settings::read_Windows_Geometry_Settings(bool reset_to_default)
 		multilayer_y_corner			= windows_Geometry_Settings.value( "multilayer_y_corner",		0   ).toInt();
 #ifdef __linux__
         multilayer_min_width		= windows_Geometry_Settings.value( "multilayer_min_width",		325 ).toInt();
+        multilayer_width		= windows_Geometry_Settings.value( "multilayer_width",			325 ).toInt();
 #else
         multilayer_min_width		= windows_Geometry_Settings.value( "multilayer_min_width",		300 ).toInt();
+        multilayer_width		= windows_Geometry_Settings.value( "multilayer_width",			300 ).toInt();
 #endif
         multilayer_min_height		= windows_Geometry_Settings.value( "multilayer_min_height",		100 ).toInt();
-		multilayer_width			= windows_Geometry_Settings.value( "multilayer_width",			450 ).toInt();
 		multilayer_height			= windows_Geometry_Settings.value( "multilayer_height",			450 ).toInt();
 	windows_Geometry_Settings.endGroup();
 
@@ -1637,10 +1638,10 @@ void Settings::read_General_Settings(bool reset_to_default)
 		print_2D_Data_On_Recalculation					= general_Settings.value( "print_2D_Data_On_Recalculation",					false	).toBool();
 		print_1D_PSD_From_Scattering_On_Recalculation	= general_Settings.value( "print_1D_PSD_From_Scattering_On_Recalculation",	false	).toBool();
 
-		use_multifitting_directory		= general_Settings.value( "use_multifitting_directory",					false	).toBool();
+                use_multifitting_directory		= general_Settings.value( "use_multifitting_directory",					true	).toBool();
 		use_working_directory			= general_Settings.value( "use_working_directory",						false	).toBool();
 		working_directory				= general_Settings.value( "working_directory",				QDir::currentPath() ).toString();
-		use_last_directory				= general_Settings.value( "use_last_directory",							true	).toBool();
+                use_last_directory				= general_Settings.value( "use_last_directory",							false	).toBool();
 		open_last_file					= general_Settings.value( "open_last_file",								true	).toBool();
 		last_directory					= general_Settings.value( "last_directory",					QDir::currentPath() ).toString();
 		last_aperiodic_data_directory	= general_Settings.value( "last_aperiodic_data_directory",	QDir::currentPath() ).toString();
