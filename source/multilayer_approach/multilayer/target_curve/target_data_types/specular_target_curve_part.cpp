@@ -394,7 +394,7 @@ void Specular_Target_Curve_Part::create_Beam_GroupBox()
 			polarization_SpinBox->setProperty(min_Size_Property, 50);
 		beam_GroupBox_Layout->addWidget(polarization_SpinBox,1,4,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(polarization_SpinBox);
-	}
+        }
 	// spectral distribution
 	{
 		spectral_Width_Label = new QLabel;

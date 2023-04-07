@@ -221,7 +221,11 @@ void Rocking_Independent_Curve_Part::create_Beam_GroupBox()
 			polarization_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
 		beam_GroupBox_Layout->addWidget(polarization_SpinBox,2,1,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(polarization_SpinBox);
-	}
+
+                // only s-polarization here
+                independent_Curve->measurement.polarization = 1;
+                polarization_SpinBox->setDisabled(true);
+        }
 	// background
 	{
 		QLabel* background_Label = new QLabel("Background");
