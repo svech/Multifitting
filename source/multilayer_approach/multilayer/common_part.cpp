@@ -470,7 +470,7 @@ void Common_Part::create_2D_Detector_GroupBox()
 
 void Common_Part::create_Footptint_GroupBox()
 {
-	QGroupBox* footprint_GroupBox = new QGroupBox("Footptint and distortion");
+        QGroupBox* footprint_GroupBox = new QGroupBox("Footprint and distortion");
 	main_Layout->addWidget(footprint_GroupBox);
 
 	QGridLayout* footprint_GroupBox_Layout = new QGridLayout(footprint_GroupBox);
