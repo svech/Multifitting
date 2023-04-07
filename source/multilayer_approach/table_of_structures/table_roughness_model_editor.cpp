@@ -681,7 +681,13 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			linear_Growth_Alpha_Radiobutton->setDisabled(true);
 			linear_Growth_n_1_4_Radiobutton->setDisabled(true);
 
-			common_Checkbox->setDisabled(multilayer->imperfections_Model.add_Measured_PSD_1D || multilayer->imperfections_Model.add_Measured_PSD_2D);
+                        if(multilayer->imperfections_Model.add_Measured_PSD_1D ||
+                            multilayer->imperfections_Model.add_Measured_PSD_2D) {
+                            common_Checkbox->setChecked(true);
+                            common_Checkbox->toggled(true);
+                            common_Checkbox->setDisabled(true);
+                        } else
+                            common_Checkbox->setDisabled(false);
 
 			// unlock measured PSD
 			measured_PSD_1D_Checkbox->setEnabled(true);
