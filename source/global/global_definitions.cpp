@@ -972,6 +972,7 @@ void Material_Data::read_Material(QString& filename)
 				}
 			}			
 		}
+                bool had_one_point = (material_Data.size()==1);
 		// add 2 points before
 		{
 			Point first_nk_Point = material_Data.first();
@@ -1006,6 +1007,16 @@ void Material_Data::read_Material(QString& filename)
 				material_Data.append(last_nk_Point);
 			}
 		}
+                // use whole range for one point
+                if(had_one_point) {
+                    Point first_nk_Point = material_Data.first();
+                    first_nk_Point.lambda = 0.0;
+                    material_Data.prepend(first_nk_Point);
+
+                    Point last_nk_Point = material_Data.last();
+                    last_nk_Point.lambda = MAX_DOUBLE;
+                    material_Data.append(last_nk_Point);
+                }
 		// final vector should be increasing
 		if(!growth) {std::reverse(material_Data.begin(), material_Data.end());}
 
