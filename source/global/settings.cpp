@@ -1527,7 +1527,7 @@ void Settings::read_Measurement_Default_Values(bool reset_to_default)
 		default_detector_2D_theta_resolution_FWHM			= measurement_Default_Values.value( "default_detector_2D_theta_resolution_FWHM",		0		).toDouble();
 		default_detector_2D_phi_resolution_FWHM				= measurement_Default_Values.value( "default_detector_2D_phi_resolution_FWHM",			0		).toDouble();
 
-		default_beam_geometry_size							= measurement_Default_Values.value( "default_beam_geometry_size",						0.050	).toDouble();
+                default_beam_geometry_size							= measurement_Default_Values.value( "default_beam_geometry_size",						0.0	).toDouble();
 		default_beam_geometry_smoothing						= measurement_Default_Values.value( "default_beam_geometry_smoothing",					0.5		).toDouble();
 		default_beam_geometry_wings_full_width				= measurement_Default_Values.value( "default_beam_geometry_wings_full_width",			0.25	).toDouble();
 		default_beam_geometry_wings_intensity				= measurement_Default_Values.value( "default_beam_geometry_wings_intensity",			0.0		).toDouble();
