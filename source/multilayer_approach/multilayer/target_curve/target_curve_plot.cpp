@@ -312,7 +312,7 @@ void Target_Curve_Plot::plot_Data_2D()
 		// z range
                 // color_Map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
                 if(target_Curve->plot_Options_Experimental.z_Scale == log_Scale) {
-                        min_Val = max(min_Val,max_Val/1e7); // no more than 7 orders
+                        min_Val = max(min_Val,max_Val/pow(10,target_Curve->plot_Options_Experimental.orders_To_Show));
                 }
 		color_Map->setDataRange(QCPRange(min_Val,max_Val));
 
@@ -438,7 +438,31 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_2D()
 			target_Curve->plot_Options_Calculated.use_Interpolation = use_Interpolation_CheckBox->isChecked();
 			plot_Data_2D();
 		});
-	}
+        }
+        // z range to show
+        {
+                QHBoxLayout* z_Range_Layout = new QHBoxLayout;
+                    z_Range_Layout->setAlignment(Qt::AlignLeft);
+                plot_Options_GroupBox_Layout->addLayout(z_Range_Layout);
+
+                QLabel* orders_Label = new QLabel("Range to show, orders: ");
+                z_Range_Layout->addWidget(orders_Label);
+
+                MyDoubleSpinBox* orders_Spinbox = new MyDoubleSpinBox(nullptr, false);
+                    orders_Spinbox->setRange(1,99);
+                    orders_Spinbox->setDecimals(1);
+                    orders_Spinbox->setSingleStep(0.1);
+                    orders_Spinbox->setValue(target_Curve->plot_Options_Experimental.orders_To_Show);
+                    orders_Spinbox->setAccelerated(true);
+                    orders_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+                z_Range_Layout->addWidget(orders_Spinbox);
+                connect(orders_Spinbox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+                {
+                    target_Curve->plot_Options_Experimental.orders_To_Show = orders_Spinbox->value();
+                    target_Curve->plot_Options_Calculated.orders_To_Show = orders_Spinbox->value();
+                    plot_Data_2D();
+                });
+        }
 	plot_Options_GroupBox->adjustSize();
 	plot_Options_GroupBox->setFixedHeight(plot_Options_GroupBox->height());
 }
