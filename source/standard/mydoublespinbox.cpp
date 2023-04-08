@@ -73,6 +73,11 @@ QLineEdit *MyDoubleSpinBox::myLineEdit() const
 	return lineEdit();
 }
 
+double MyDoubleSpinBox::myTextToValue(QString text) {
+    // return valueFromText(text); // falls down to min value on exceeding max value
+    return text.toDouble();
+}
+
 void MyDoubleSpinBox::create_Text_Change_Connection()
 {
 	connect(myLineEdit(), &QLineEdit::textChanged, this, [=]
@@ -83,25 +88,25 @@ void MyDoubleSpinBox::create_Text_Change_Connection()
 		clean_Text.remove(-suffix().size(),suffix().size());
 		clean_Text.remove(0,prefix().size());
 
-		double value = valueFromText(clean_Text);
-		if(isValid(clean_Text))
+                double value = myTextToValue(clean_Text);
+                if(isValid(clean_Text))
 		{
-			QList<QString> list = clean_Text.split(Locale.decimalPoint());
-			if(list.size() > 1)
-			{
-				if(list[1].size() > decimals())
-				{
-					list[1].remove(decimals(),list[1].size()-decimals());
-					value = valueFromText(list[0]+Locale.decimalPoint()+list[1]);
+                        QList<QString> list = clean_Text.split(Locale.decimalPoint());
+                        if(list.size() > 1)
+                        {
+                                if(list[1].size() > decimals())
+                                {
+                                        list[1].remove(decimals(),list[1].size()-decimals());
+                                        value = myTextToValue(list[0]+Locale.decimalPoint()+list[1]);
 
-					setValue(value);
-				} else
-				{
-					blockSignals(true);
-					setValue(value);
-					blockSignals(false);
-				}
-			} else
+                                        setValue(value);
+                                } else
+                                {
+                                        blockSignals(true);
+                                        setValue(value);
+                                        blockSignals(false);
+                                }
+                        } else
 			{
 				blockSignals(true);
 				setValue(value);

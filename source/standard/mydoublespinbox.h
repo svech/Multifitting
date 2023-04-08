@@ -14,13 +14,14 @@ public:
 
 	virtual QValidator::State validate(QString &input, int &pos) const override;
 	bool isValid(const QString& text) const;
+        double myTextToValue(QString text);
 
 	QLineEdit* myLineEdit() const;
 	bool auto_Resize;
 	void create_Text_Change_Connection();
 
     QRegExp positive_Symbols;
-    QRegExp negative_Symbols;
+        QRegExp negative_Symbols;
 };
 
 #endif // MYDOUBLESPINBOX_H
