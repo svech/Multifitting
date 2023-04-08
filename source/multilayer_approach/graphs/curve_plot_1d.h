@@ -74,8 +74,9 @@ public:
 	QDoubleSpinBox* thickness_Spin;
 	QDoubleSpinBox* range_Spin;
 
-	QLabel* max_Value_Label;
-	QString max_Value_Title;
+        QLabel* max_Value_Label;
+        QLabel* FWFM_Label;
+        QString max_Value_Title;
 
 	bool graph_Done = false;
 };

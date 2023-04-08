@@ -472,8 +472,9 @@ QDataStream& operator <<( QDataStream& stream, const Graph_Options& graph_Option
 {
 	return stream << graph_Options.num_Target_Graph_Rows << graph_Options.num_Independent_Graph_Rows
 				  << graph_Options.show_Scatter << graph_Options.show_Thickness << graph_Options.show_X_Scale
-				  << graph_Options.show_Max_Value << graph_Options.show_Range << graph_Options.show_Current_Coordinate << graph_Options.show_Title
-				  << graph_Options.show_Interpolation;
+                                  << graph_Options.show_Max_Value << graph_Options.show_FWHM
+                                  << graph_Options.show_Range << graph_Options.show_Current_Coordinate
+                                  << graph_Options.show_Title << graph_Options.show_Interpolation;
 }
 QDataStream& operator >>( QDataStream& stream,		 Graph_Options& graph_Options )
 {
@@ -481,6 +482,10 @@ QDataStream& operator >>( QDataStream& stream,		 Graph_Options& graph_Options )
 		   >> graph_Options.show_Scatter >> graph_Options.show_Thickness >> graph_Options.show_X_Scale
 		   >> graph_Options.show_Max_Value;
 
+        if(Global_Variables::check_Loaded_Version(1,11,31))
+        {
+                stream >> graph_Options.show_FWHM;
+        }
 	if(Global_Variables::check_Loaded_Version(1,11,11))
 	{
 		stream >> graph_Options.show_Range;

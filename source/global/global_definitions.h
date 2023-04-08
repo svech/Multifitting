@@ -15,9 +15,9 @@
 #include "tree.hh"
 #include "qcustomplot.h"
 
-#define VERSION_MAJOR 2
-#define VERSION_MINOR 0
-#define VERSION_BUILD 0
+#define VERSION_MAJOR 1
+#define VERSION_MINOR 11
+#define VERSION_BUILD 31
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -713,9 +713,10 @@ struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
 								 // 1D
 								 bool show_Scatter = false;
 								 bool show_Thickness = false;
-								 bool show_X_Scale = false;
-								 bool show_Max_Value = false;
-								 bool show_Range = true;
+                                                                 bool show_X_Scale = false;
+                                                                 bool show_Max_Value = false;
+                                                                 bool show_FWHM = false;
+                                                                 bool show_Range = true;
 
 								 // 2D
 								 bool show_Interpolation = false;

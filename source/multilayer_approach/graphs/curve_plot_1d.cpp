@@ -527,7 +527,7 @@ void Curve_Plot_1D::create_Options()
 			if(target_Curve->curve.value_Type == value_Types[Reflectance])	{ max_Value_Title = "|  Max R ="; } else
 			if(target_Curve->curve.value_Type == value_Types[Transmittance]){ max_Value_Title = "|  Max T ="; } else
 			if(target_Curve->curve.value_Type == value_Types[Scattering])	{ max_Value_Title = "|  Max S ="; } else
-																			{ max_Value_Title = "";	}
+                        { max_Value_Title = "";	}
 		}
 		if(curve_Class == INDEPENDENT)
 		{
@@ -535,12 +535,17 @@ void Curve_Plot_1D::create_Options()
 			if( independent_Curve->calc_Functions.check_Transmittance )		{ max_Value_Title = "|  Max T ="; } else
 			if( independent_Curve->calc_Functions.check_Reflectance )		{ max_Value_Title = "|  Max R ="; } else
 			if( independent_Curve->calc_Functions.check_Scattering )		{ max_Value_Title = "|  Max S ="; } else
-																			{ max_Value_Title = ""; }
+                        { max_Value_Title = ""; }
 		}
 
 		options_Layout->addWidget(max_Value_Label);
-	}
-
+        }
+        // FWHM info
+        if(multilayer->graph_Options_1D.show_FWHM)
+        {
+                FWFM_Label = new QLabel;
+                options_Layout->addWidget(FWFM_Label);
+        }
 	options_GroupBox->adjustSize();
 	options_GroupBox->setFixedHeight(options_GroupBox->height());
 }
@@ -774,23 +779,44 @@ void Curve_Plot_1D::plot_All_Data()
 			if(	measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])	argument_Units = angular_Units;
 
 			max_Value_Label->setText(max_Value_Title + " " + Locale.toString(max_Value,'g',4) + " at " + Locale.toString(max_Value_Position,'f',4) + " " + argument_Units);
-			if(measurement.argument_Type == argument_Types[Wavelength_Energy])
-			{
-				QString sym = Global_Variables::wavelength_Energy_Symbol(spectral_Units);
-				int FWHM_digits = 4;
-				if(width < 1E-2) FWHM_digits = 5;
-				if(width < 1E-4) FWHM_digits = 6;
-				int dE_E_digits = 4;
-				if(width/max_Value_Position < 1E-2) dE_E_digits = 5;
-				if(width/max_Value_Position < 1E-4) dE_E_digits = 6;
-				max_Value_Label->setText(max_Value_Label->text() + ", FWHM=" + Locale.toString(width,'f',FWHM_digits) + " " + argument_Units
-																 + ", d"+sym+"/"+sym+"="+Locale.toString(width/max_Value_Position,'f',dE_E_digits));
-			}
+//			if(measurement.argument_Type == argument_Types[Wavelength_Energy])
+//			{
+//				QString sym = Global_Variables::wavelength_Energy_Symbol(spectral_Units);
+//				int FWHM_digits = 4;
+//				if(width < 1E-2) FWHM_digits = 5;
+//				if(width < 1E-4) FWHM_digits = 6;
+//				int dE_E_digits = 4;
+//				if(width/max_Value_Position < 1E-2) dE_E_digits = 5;
+//				if(width/max_Value_Position < 1E-4) dE_E_digits = 6;
+//				max_Value_Label->setText(max_Value_Label->text() + ", FWHM=" + Locale.toString(width,'f',FWHM_digits) + " " + argument_Units
+//																 + ", d"+sym+"/"+sym+"="+Locale.toString(width/max_Value_Position,'f',dE_E_digits));
+//			}
 		} else
 		{
 			max_Value_Label->clear();
 		}
-	}
+        }
+        if(graph_Done && multilayer->graph_Options_1D.show_FWHM && measurement.argument_Type == argument_Types[Wavelength_Energy])
+        {
+            if(argument.size()>3)
+            {
+                    double max_Value, max_Value_Position, width;
+                    Global_Variables::get_Peak_Parameters(argument, values, max_Value_Position, max_Value, width);
+
+                    QString sym = Global_Variables::wavelength_Energy_Symbol(spectral_Units);
+                    int FWHM_digits = 4;
+                    if(width < 1E-2) FWHM_digits = 5;
+                    if(width < 1E-4) FWHM_digits = 6;
+                    int dE_E_digits = 4;
+                    if(width/max_Value_Position < 1E-2) dE_E_digits = 5;
+                    if(width/max_Value_Position < 1E-4) dE_E_digits = 6;
+                    FWFM_Label->setText("| FWHM=" + Locale.toString(width,'f',FWHM_digits) + " " + spectral_Units
+                                             + ", d"+sym+"/"+sym+"="+Locale.toString(width/max_Value_Position,'f',dE_E_digits));
+            } else
+            {
+                    FWFM_Label->clear();
+            }
+        }
 	custom_Plot->replot();
 }
 
