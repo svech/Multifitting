@@ -1528,7 +1528,7 @@ void Multilayer_Approach::save_As()
 	{
 		QFileInfo filename2;
 		if(filename.suffix() != "fit") { filename2 = QFileInfo(filename.absoluteFilePath()+".fit");	}
-		else						   { filename2 = QFileInfo(filename.absoluteFilePath());		}
+                else                           { filename2 = QFileInfo(filename.absoluteFilePath());		}
 
 		QString last_file_0 = filename2.absoluteFilePath();
 		last_directory = filename2.absolutePath();

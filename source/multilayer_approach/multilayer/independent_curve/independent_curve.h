@@ -26,7 +26,8 @@ public:
 	vector<Simple_Curve> additional_Curves; // without saving
 
 	Calc_Functions calc_Functions;
-	Plot_Options plot_Options;
+        Plot_Options plot_Options;
+        Plot_Options& plot_Options_Calculated = plot_Options; // to have Plot_Options under same name for target and independent
 
 	// units
 	QString angular_Units;

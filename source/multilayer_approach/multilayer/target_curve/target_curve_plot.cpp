@@ -310,8 +310,10 @@ void Target_Curve_Plot::plot_Data_2D()
 		refresh_Axes_Range_2D();
 
 		// z range
-		// color_Map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
-		if(target_Curve->plot_Options_Experimental.z_Scale == log_Scale) { min_Val = max(min_Val,max_Val/1e5); } // no more than 5 orders
+                // color_Map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
+                if(target_Curve->plot_Options_Experimental.z_Scale == log_Scale) {
+                        min_Val = max(min_Val,max_Val/1e7); // no more than 7 orders
+                }
 		color_Map->setDataRange(QCPRange(min_Val,max_Val));
 
 		color_Map->setInterpolate(target_Curve->plot_Options_Experimental.use_Interpolation);

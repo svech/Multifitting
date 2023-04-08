@@ -695,7 +695,7 @@ struct Plot_Options				{ bool rescale = true;
 
 								  // 2D
 								  bool use_Interpolation = true;
-								  QString z_Scale = lin_Scale;
+                                                                  QString z_Scale = log_Scale;
 								  QCPColorGradient::GradientPreset color_Scheme = QCPColorGradient::gpJet;
 								  int rotation_Angle = 0;
 								  bool left_Section_Plot = false;
