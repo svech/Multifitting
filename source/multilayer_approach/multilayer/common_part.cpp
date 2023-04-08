@@ -239,15 +239,15 @@ void Common_Part::create_2D_Detector_GroupBox()
 		detector_Type_Layout->addWidget(set_Pixel_Size_Checkbox,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		detector_Type_Label = new QLabel("Detector type");
-			detector_Type_Label->setEnabled(measurement.detector_2D.set_Pixel_Size);
-		detector_Type_Layout->addWidget(detector_Type_Label,0,Qt::AlignLeft);
+                detector_Type_Label = new QLabel;//("Detector type");
+                        detector_Type_Label->setEnabled(measurement.detector_2D.set_Pixel_Size);
+                 detector_Type_Layout->addWidget(detector_Type_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		detector_Type_ComboBox = new QComboBox;
-			detector_Type_ComboBox->addItem(detectors[Matrix]);
-			detector_Type_ComboBox->addItem(detectors[Spherical]);
+                        detector_Type_ComboBox->addItem(detectors[Linear]);
+                        detector_Type_ComboBox->addItem(detectors[Angular]);
 			detector_Type_ComboBox->setCurrentText(measurement.detector_2D.detector_Type);
 			detector_Type_ComboBox->setEnabled(measurement.detector_2D.set_Pixel_Size);
 			detector_Type_ComboBox->setFixedWidth(70);
@@ -464,8 +464,8 @@ void Common_Part::create_2D_Detector_GroupBox()
 		spherical_Layout->addWidget(resolution_Function_ComboBox,0,4,2,1,Qt::AlignLeft);
 	}
 
-	if(measurement.detector_2D.detector_Type == detectors[Matrix])		detectors_Stack->setCurrentIndex(0);
-	if(measurement.detector_2D.detector_Type == detectors[Spherical])	detectors_Stack->setCurrentIndex(1);
+        if(measurement.detector_2D.detector_Type == detectors[Linear])		detectors_Stack->setCurrentIndex(0);
+        if(measurement.detector_2D.detector_Type == detectors[Angular])	detectors_Stack->setCurrentIndex(1);
 }
 
 void Common_Part::create_Footptint_GroupBox()

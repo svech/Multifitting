@@ -271,7 +271,7 @@ QStringList value_Types_Short {"R", "T", "A", "S"};											  // change enum!
 QStringList distributions	{ "Gate", "Gaussian" }; //  { "Gate", "Cosine", "Gaussian", "Lorentz" };
 
 // detector types
-QStringList detectors = { "Slit", "Crystal", "Spherical", "Matrix" };
+QStringList detectors = { "Slit", "Crystal", "Angular", "Linear" };
 
 /// -------------------------------------------------------------------------
 /// GSL

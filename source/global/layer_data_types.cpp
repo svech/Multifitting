@@ -116,7 +116,7 @@ Data::Data(QString item_Type_Passed)
 		detector_1D.detector_Theta_Resolution.number_of_Samples = 5;// unused
 
 
-		detector_2D.detector_Type = detectors[Matrix];
+		detector_2D.detector_Type = detectors[Linear];
 		detector_2D.pixel_Polar_Height    = default_detector_2D_pixel_polar_height;
 		detector_2D.pixel_Azimuthal_Width = default_detector_2D_pixel_azimuthal_width;
 		detector_2D.distance_To_Sample	  = default_detector_2D_distance_to_sample;
@@ -1190,8 +1190,8 @@ void Data::calc_Mixed_Resolution()
 		/// theta
 		if(detector_2D.set_Pixel_Size)
 		{
-			if(detector_2D.detector_Type == detectors[Matrix])		{theta_Resolution_FWHM = qRadiansToDegrees(detector_2D.pixel_Polar_Height/detector_2D.distance_To_Sample/1000/* pixel in mcm */); theta_Distribution = distributions[Gate];}
-			if(detector_2D.detector_Type == detectors[Spherical])	{theta_Resolution_FWHM = detector_2D.detector_Theta_Resolution.FWHM_distribution; theta_Distribution = detector_2D.detector_Theta_Resolution.distribution_Function;}
+			if(detector_2D.detector_Type == detectors[Linear])		{theta_Resolution_FWHM = qRadiansToDegrees(detector_2D.pixel_Polar_Height/detector_2D.distance_To_Sample/1000/* pixel in mcm */); theta_Distribution = distributions[Gate];}
+			if(detector_2D.detector_Type == detectors[Angular])	{theta_Resolution_FWHM = detector_2D.detector_Theta_Resolution.FWHM_distribution; theta_Distribution = detector_2D.detector_Theta_Resolution.distribution_Function;}
 		} else
 		{
 			int num_Points = detector_Theta_Angle_Vec.size();
@@ -1208,8 +1208,8 @@ void Data::calc_Mixed_Resolution()
 		/// phi
 		if(detector_2D.set_Pixel_Size)
 		{
-			if(detector_2D.detector_Type == detectors[Matrix])		{phi_Resolution_FWHM = qRadiansToDegrees(detector_2D.pixel_Azimuthal_Width/detector_2D.distance_To_Sample/1000/* pixel in mcm */*beam_Theta_0_Cos_Value); phi_Distribution = distributions[Gate];}
-			if(detector_2D.detector_Type == detectors[Spherical])	{phi_Resolution_FWHM = detector_2D.detector_Phi_Resolution.FWHM_distribution; phi_Distribution = detector_2D.detector_Phi_Resolution.distribution_Function;}
+			if(detector_2D.detector_Type == detectors[Linear])		{phi_Resolution_FWHM = qRadiansToDegrees(detector_2D.pixel_Azimuthal_Width/detector_2D.distance_To_Sample/1000/* pixel in mcm */*beam_Theta_0_Cos_Value); phi_Distribution = distributions[Gate];}
+			if(detector_2D.detector_Type == detectors[Angular])	{phi_Resolution_FWHM = detector_2D.detector_Phi_Resolution.FWHM_distribution; phi_Distribution = detector_2D.detector_Phi_Resolution.distribution_Function;}
 		} else
 		{
 			int num_Points = detector_Phi_Angle_Vec.size();
