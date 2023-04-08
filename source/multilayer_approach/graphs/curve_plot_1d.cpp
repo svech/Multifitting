@@ -779,18 +779,6 @@ void Curve_Plot_1D::plot_All_Data()
 			if(	measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])	argument_Units = angular_Units;
 
 			max_Value_Label->setText(max_Value_Title + " " + Locale.toString(max_Value,'g',4) + " at " + Locale.toString(max_Value_Position,'f',4) + " " + argument_Units);
-//			if(measurement.argument_Type == argument_Types[Wavelength_Energy])
-//			{
-//				QString sym = Global_Variables::wavelength_Energy_Symbol(spectral_Units);
-//				int FWHM_digits = 4;
-//				if(width < 1E-2) FWHM_digits = 5;
-//				if(width < 1E-4) FWHM_digits = 6;
-//				int dE_E_digits = 4;
-//				if(width/max_Value_Position < 1E-2) dE_E_digits = 5;
-//				if(width/max_Value_Position < 1E-4) dE_E_digits = 6;
-//				max_Value_Label->setText(max_Value_Label->text() + ", FWHM=" + Locale.toString(width,'f',FWHM_digits) + " " + argument_Units
-//																 + ", d"+sym+"/"+sym+"="+Locale.toString(width/max_Value_Position,'f',dE_E_digits));
-//			}
 		} else
 		{
 			max_Value_Label->clear();
