@@ -584,9 +584,9 @@ void Curve_Plot_1D::set_Title_Text()
 			if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])
 			{
 				plot_Title_Text = plot_Indicator + ": " +
-								  Theta_Sym + Zero_Subscript_Sym + "=" + Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, line_edit_double_format, line_edit_angle_precision) + " " + angular_Units +
-								  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units +
-								  ", pol=" + QString::number(measurement.polarization,'f',3);
+                                                                  Theta_Sym + Zero_Subscript_Sym + "=" + Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, line_edit_double_format, line_edit_angle_precision) + " " + angular_Units +
+                                                  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units;
+                                                                  // + ", pol=" + QString::number(measurement.polarization,'f',3);
 			}
 		}
 		if(	measurement.measurement_Type == measurement_Types[Rocking_Curve] )
@@ -594,16 +594,16 @@ void Curve_Plot_1D::set_Title_Text()
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{
 				plot_Title_Text = plot_Indicator + ": " +
-								  "specular " + Theta_Sym + Zero_Subscript_Sym + "=" + Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, line_edit_double_format, line_edit_angle_precision) + " " + angular_Units +
-								  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units +
-								  ", pol=" + QString::number(measurement.polarization,'f',3);
+                                                                  "specular " + Theta_Sym + Zero_Subscript_Sym + "=" + Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, line_edit_double_format, line_edit_angle_precision) + " " + angular_Units +
+                                                  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units;
+                                                                  // + ", pol=" + QString::number(measurement.polarization,'f',3);
 			}
 			if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
 			{
 				plot_Title_Text = plot_Indicator + ": " +
-								  "specular " + Theta_Sym + Zero_Subscript_Sym + "=" + Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, line_edit_double_format, line_edit_angle_precision) + " " + angular_Units +
-								  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units +
-								  ", pol=" + QString::number(measurement.polarization,'f',3);
+                                                                  "specular " + Theta_Sym + Zero_Subscript_Sym + "=" + Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, line_edit_double_format, line_edit_angle_precision) + " " + angular_Units +
+                                                  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units;
+                                                                  // + ", pol=" + QString::number(measurement.polarization,'f',3);
 			}
 		}
 		if(	measurement.measurement_Type == measurement_Types[Offset_Scan] )
@@ -611,9 +611,9 @@ void Curve_Plot_1D::set_Title_Text()
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{
 				plot_Title_Text = plot_Indicator + ": " +
-								  "offset " + Delta_Big_Sym + Theta_Sym + "=" + Locale.toString(measurement.detector_Theta_Offset/angular_Coeff, line_edit_double_format, line_edit_angle_precision) + " " + angular_Units +
-								  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units +
-								  ", pol=" + QString::number(measurement.polarization,'f',3);
+                                                                  "offset " + Delta_Big_Sym + Theta_Sym + "=" + Locale.toString(measurement.detector_Theta_Offset/angular_Coeff, line_edit_double_format, line_edit_angle_precision) + " " + angular_Units +
+                                                  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units;
+                                                                  // + ", pol=" + QString::number(measurement.polarization,'f',3);
 			}
 		}
 		plot_Title->setText(plot_Title_Text);

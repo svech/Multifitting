@@ -977,9 +977,9 @@ void Curve_Plot_2D::set_Title_Text()
 		if(	measurement.measurement_Type == measurement_Types[GISAS_Map] ) // both independent and target
 		{
 			plot_Title_Text = plot_Indicator + ": GISAS at " +
-							  Theta_Sym + Zero_Subscript_Sym + "=" + Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, line_edit_double_format, line_edit_angle_precision) + " " + angular_Units +
-							  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units +
-							  ", pol=" + QString::number(measurement.polarization,'f',3);
+                                                          Theta_Sym + Zero_Subscript_Sym + "=" + Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, line_edit_double_format, line_edit_angle_precision) + " " + angular_Units +
+                                                  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units;
+                                                          // + ", pol=" + QString::number(measurement.polarization,'f',3);
 
 		}
 		if(curve_Class == INDEPENDENT)
