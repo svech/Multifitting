@@ -465,7 +465,7 @@ void General_Settings_Editor::create_Output_Tab()
 			last_Radiobitton->setChecked(use_last_directory);
 		groupbox_Layout->addWidget(last_Radiobitton);
 
-		QLineEdit* last_LineEdit = new QLineEdit;
+                last_LineEdit = new QLineEdit;
 			last_LineEdit->setText(last_directory);
 			last_LineEdit->setReadOnly(true);
 			last_LineEdit->setEnabled(use_last_directory);

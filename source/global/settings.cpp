@@ -1639,13 +1639,13 @@ void Settings::read_General_Settings(bool reset_to_default)
 		print_1D_PSD_From_Scattering_On_Recalculation	= general_Settings.value( "print_1D_PSD_From_Scattering_On_Recalculation",	false	).toBool();
 
                 use_multifitting_directory		= general_Settings.value( "use_multifitting_directory",					true	).toBool();
-		use_working_directory			= general_Settings.value( "use_working_directory",						false	).toBool();
-		working_directory				= general_Settings.value( "working_directory",				QDir::currentPath() ).toString();
-                use_last_directory				= general_Settings.value( "use_last_directory",							false	).toBool();
-		open_last_file					= general_Settings.value( "open_last_file",								true	).toBool();
-		last_directory					= general_Settings.value( "last_directory",					QDir::currentPath() ).toString();
+                use_working_directory = general_Settings.value( "use_working_directory", false ).toBool();
+                working_directory = general_Settings.value( "working_directory", QDir::currentPath() ).toString();
+                use_last_directory = general_Settings.value( "use_last_directory", true ).toBool();
+                open_last_file = general_Settings.value( "open_last_file", false ).toBool();
+                last_directory = general_Settings.value( "last_directory", QDir::currentPath() ).toString();
 		last_aperiodic_data_directory	= general_Settings.value( "last_aperiodic_data_directory",	QDir::currentPath() ).toString();
-		last_file						= general_Settings.value( "last_file",						default_File		).toString();
+                last_file = general_Settings.value( "last_file", "").toString();
 		if(last_directory				 == "")	last_directory				  = QDir::currentPath();
 		if(last_aperiodic_data_directory == "") last_aperiodic_data_directory = QDir::currentPath();
 		if(working_directory			 == "") working_directory			  = QDir::currentPath();

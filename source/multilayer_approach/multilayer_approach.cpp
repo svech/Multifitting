@@ -883,7 +883,11 @@ void Multilayer_Approach::open(QString filename)
 //	last_directory = preliminary_last_directory;
 	QFileInfo info(file);
 	last_file = info.absoluteFilePath();
-	last_directory = info.absolutePath();
+        last_directory = info.absolutePath();
+
+        // upd general_Settings_Editor
+        if(runned_General_Settings_Editor.contains(general_Settings_Key))
+                general_Settings_Editor->last_LineEdit->setText(last_directory);
 
 	// close table of structures
 	bool reopen_Table = runned_Tables_Of_Structures.contains(table_Of_Structures_Key);
@@ -1317,12 +1321,13 @@ void Multilayer_Approach::open_Action()
     if(file_Was_Opened_or_Saved || open_last_file) {
         open(last_file);
     } else {
-        open(Global_Variables::working_Directory() + "/" + default_File);
+        // open(Global_Variables::working_Directory() + "/" + default_File);
+        open_As();
     }
 }
 
 void Multilayer_Approach::save(QString filename)
-{	
+{
 	// resaving file from older version
 	if(filename == last_file)
 	{
@@ -1528,6 +1533,10 @@ void Multilayer_Approach::save_As()
 		QString last_file_0 = filename2.absoluteFilePath();
 		last_directory = filename2.absolutePath();
 
+                // upd general_Settings_Editor
+                if(runned_General_Settings_Editor.contains(general_Settings_Key))
+                    general_Settings_Editor->last_LineEdit->setText(last_directory);
+
 		save(last_file_0);
 		last_file = last_file_0;
     }
@@ -1538,7 +1547,8 @@ void Multilayer_Approach::save_Action()
     if(file_Was_Opened_or_Saved) {
         save(last_file);
     } else {
-        save(Global_Variables::working_Directory() + "/" + default_File);
+        //save(Global_Variables::working_Directory() + "/" + default_File);
+        save_As();
     }
 }
 

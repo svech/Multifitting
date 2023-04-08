@@ -22,6 +22,7 @@ public:
 	QTabWidget* main_Tabs;
 	QPushButton* close_Button;
 	QCheckBox* structure_Table_Recalculation_Checkbox;
+        QLineEdit* last_LineEdit;
 };
 
 #endif // GENERAL_SETTINGS_EDITOR_H
