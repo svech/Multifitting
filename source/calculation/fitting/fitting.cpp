@@ -649,7 +649,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 			} else
 			{
 				integral += (fi_1+fi_1_next)/2*(fi_2+fi_2_next)/2*delta_Lambda;
-				params->max_Integral+=1000*(fi_1+fi_1_next)*delta_Lambda; // 1000 is a big number, but if f(R) is bigger, then incorrect
+                                params->max_Integral+=10000*(fi_1+fi_1_next)*delta_Lambda; // 10000 is a big number, but if f(R) is bigger, then incorrect
 			}
 		}
 
