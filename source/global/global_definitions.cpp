@@ -515,31 +515,36 @@ QDataStream& operator <<( QDataStream& stream, const Profile_Plot_Options& profi
 	return stream << profile_Plot_Options.type << profile_Plot_Options.permittivity_Type
 				  << profile_Plot_Options.apply_Roughness << profile_Plot_Options.apply_Diffuseness
 				  << profile_Plot_Options.show_Sharp_Profile << profile_Plot_Options.show_Discretization << profile_Plot_Options.show_Cursor_Position
-				  << profile_Plot_Options.rescale_X << profile_Plot_Options.rescale_Y << profile_Plot_Options.y_Scale
-				  << profile_Plot_Options.old_X_Begin << profile_Plot_Options.old_X_End << profile_Plot_Options.old_Y_Begin << profile_Plot_Options.old_Y_End
-				  << profile_Plot_Options.local_wavelength_units << profile_Plot_Options.local_length_units << profile_Plot_Options.local_Wavelength;
+                                  << profile_Plot_Options.rescale_X << profile_Plot_Options.rescale_Y << profile_Plot_Options.y_Scale
+                                  << profile_Plot_Options.first_opening
+                                  << profile_Plot_Options.old_X_Begin << profile_Plot_Options.old_X_End << profile_Plot_Options.old_Y_Begin << profile_Plot_Options.old_Y_End
+                                  << profile_Plot_Options.local_wavelength_units << profile_Plot_Options.local_length_units << profile_Plot_Options.local_Wavelength;
 }
 QDataStream& operator >>( QDataStream& stream,		 Profile_Plot_Options& profile_Plot_Options )
 {
 	stream >> profile_Plot_Options.type >> profile_Plot_Options.permittivity_Type
-		   >> profile_Plot_Options.apply_Roughness >> profile_Plot_Options.apply_Diffuseness
-		   >> profile_Plot_Options.show_Sharp_Profile >> profile_Plot_Options.show_Discretization >> profile_Plot_Options.show_Cursor_Position
-		   >> profile_Plot_Options.rescale_X >> profile_Plot_Options.rescale_Y >> profile_Plot_Options.y_Scale
-		   >> profile_Plot_Options.old_X_Begin >> profile_Plot_Options.old_X_End >> profile_Plot_Options.old_Y_Begin >> profile_Plot_Options.old_Y_End
-		   >> profile_Plot_Options.local_wavelength_units >> profile_Plot_Options.local_length_units >> profile_Plot_Options.local_Wavelength;
+               >> profile_Plot_Options.apply_Roughness >> profile_Plot_Options.apply_Diffuseness
+               >> profile_Plot_Options.show_Sharp_Profile >> profile_Plot_Options.show_Discretization >> profile_Plot_Options.show_Cursor_Position
+               >> profile_Plot_Options.rescale_X >> profile_Plot_Options.rescale_Y >> profile_Plot_Options.y_Scale;
+        if(Global_Variables::check_Loaded_Version(1,11,32))
+        {
+            stream >> profile_Plot_Options.first_opening;
+        }
+        stream >> profile_Plot_Options.old_X_Begin >> profile_Plot_Options.old_X_End >> profile_Plot_Options.old_Y_Begin >> profile_Plot_Options.old_Y_End
+               >> profile_Plot_Options.local_wavelength_units >> profile_Plot_Options.local_length_units >> profile_Plot_Options.local_Wavelength;
 	return stream;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Roughness_Plot_Options& roughness_Plot_Options )
 {
 	return stream << roughness_Plot_Options.PSD_Type
-				  << roughness_Plot_Options.show_Top_Surface << roughness_Plot_Options.show_Interface_With_Number << roughness_Plot_Options.show_Substrate_Surface << roughness_Plot_Options.interface_Number_To_Show << roughness_Plot_Options.show_Cursor_Position
-				  << roughness_Plot_Options.rescale_X << roughness_Plot_Options.rescale_Y
-				  << roughness_Plot_Options.x_Min << roughness_Plot_Options.x_Max
-				  << roughness_Plot_Options.old_X_Begin << roughness_Plot_Options.old_X_End
-				  << roughness_Plot_Options.orders_To_Show << roughness_Plot_Options.old_Y_Begin << roughness_Plot_Options.old_Y_End
-				  << roughness_Plot_Options.x_Scale << roughness_Plot_Options.y_Scale
-				  << roughness_Plot_Options.local_frequency_units << roughness_Plot_Options.local_PSD_1D_units << roughness_Plot_Options.local_PSD_2D_units;
+                      << roughness_Plot_Options.show_Top_Surface << roughness_Plot_Options.show_Interface_With_Number << roughness_Plot_Options.show_Substrate_Surface << roughness_Plot_Options.interface_Number_To_Show << roughness_Plot_Options.show_Cursor_Position
+                      << roughness_Plot_Options.rescale_X << roughness_Plot_Options.rescale_Y
+                      << roughness_Plot_Options.x_Min << roughness_Plot_Options.x_Max
+                      << roughness_Plot_Options.old_X_Begin << roughness_Plot_Options.old_X_End
+                      << roughness_Plot_Options.orders_To_Show << roughness_Plot_Options.old_Y_Begin << roughness_Plot_Options.old_Y_End
+                      << roughness_Plot_Options.x_Scale << roughness_Plot_Options.y_Scale
+                      << roughness_Plot_Options.local_frequency_units << roughness_Plot_Options.local_PSD_1D_units << roughness_Plot_Options.local_PSD_2D_units;
 }
 QDataStream& operator >>( QDataStream& stream,		 Roughness_Plot_Options& roughness_Plot_Options )
 {

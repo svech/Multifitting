@@ -17,7 +17,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 31
+#define VERSION_BUILD 32
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -742,8 +742,9 @@ struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 								 bool rescale_Y = true;
 								 QString y_Scale = lin_Scale;
 
+                                                                 bool first_opening = true;
 								 double old_X_Begin = -10;
-								 double old_X_End   = +500;
+                                                                 double old_X_End   = +1000;
 								 double old_Y_Begin = 0;
 								 double old_Y_End   = 1;
 

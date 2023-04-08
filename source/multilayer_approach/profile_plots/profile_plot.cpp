@@ -561,12 +561,14 @@ void Profile_Plot::create_Plot_Frame_And_Scale()
 		connect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
 
 		connect(custom_Plot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange&)>(&QCPAxis::rangeChanged), this, [=](const QCPRange&)
-		{
+                {
+                        multilayer->profile_Plot_Options.first_opening = false;
 			multilayer->profile_Plot_Options.old_X_Begin = custom_Plot->xAxis->range().lower;
 			multilayer->profile_Plot_Options.old_X_End   = custom_Plot->xAxis->range().upper;
 		});
 		connect(custom_Plot->yAxis, static_cast<void(QCPAxis::*)(const QCPRange&)>(&QCPAxis::rangeChanged), this, [=](const QCPRange&)
 		{
+                        multilayer->profile_Plot_Options.first_opening = false;
 			multilayer->profile_Plot_Options.old_Y_Begin = custom_Plot->yAxis->range().lower;
 			multilayer->profile_Plot_Options.old_Y_End   = custom_Plot->yAxis->range().upper;
 		});
@@ -750,10 +752,23 @@ void Profile_Plot::plot_Data(bool recalculate_Profile)
 		maximum = maximum_Raw_Non_Zero*1.5;
 	}
 
-	if(multilayer->profile_Plot_Options.rescale_X)	{ custom_Plot->xAxis->setRange(arg.first(), arg.last());	}
-	else											{ custom_Plot->xAxis->setRange(multilayer->profile_Plot_Options.old_X_Begin, multilayer->profile_Plot_Options.old_X_End);}
-	if(multilayer->profile_Plot_Options.rescale_Y)	{ custom_Plot->yAxis->setRange(minimum, maximum);			}
-	else											{ custom_Plot->yAxis->setRange(multilayer->profile_Plot_Options.old_Y_Begin, multilayer->profile_Plot_Options.old_Y_End);}
+        if(multilayer->profile_Plot_Options.rescale_X)	{
+                custom_Plot->xAxis->setRange(arg.first(), arg.last());
+        } else {
+                double begin = multilayer->profile_Plot_Options.old_X_Begin;
+                double end = multilayer->profile_Plot_Options.old_X_End;
+                if(multilayer->profile_Plot_Options.first_opening) {
+                        begin = arg.first();
+                        end = min(end, arg.last());
+                }
+                custom_Plot->xAxis->setRange(begin, end);
+        }
+        if(multilayer->profile_Plot_Options.rescale_Y) {
+                custom_Plot->yAxis->setRange(minimum, maximum);
+        } else {
+                custom_Plot->yAxis->setRange(multilayer->profile_Plot_Options.old_Y_Begin,
+                                             multilayer->profile_Plot_Options.old_Y_End);
+        }
 
 	// scrollbar
 	horizontall_Scrollbar->setRange(arg.first()*scrollbar_Factor, arg.last()*scrollbar_Factor);
