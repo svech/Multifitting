@@ -4034,15 +4034,15 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	if(	whats_This == whats_This_Gamma	)						spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
 
 	if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
-		whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
-		whats_This == whats_This_Sigma_Drift_Line_Value			||
-		whats_This == whats_This_Sigma_Drift_Rand_Rms			||
+                whats_This == whats_This_Sigma_Drift_Line_Value		||
 		whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
 		whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
-		whats_This == whats_This_Thickness_Drift_Sine_Phase		||
-		whats_This == whats_This_Sigma_Drift_Sine_Amplitude		||
-		whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
-		whats_This == whats_This_Sigma_Drift_Sine_Phase	)		spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
+                whats_This == whats_This_Thickness_Drift_Sine_Phase	||
+                whats_This == whats_This_Sigma_Drift_Sine_Amplitude	||
+                whats_This == whats_This_Sigma_Drift_Sine_Frequency	||
+                whats_This == whats_This_Sigma_Drift_Sine_Phase	)		spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DRIFT);
+        if(     whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
+                whats_This == whats_This_Sigma_Drift_Rand_Rms	)		spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DRIFT_RAND);
 
 	spin_Box->setProperty(min_Size_Property, spin_Box->width());
 	spin_Box->setProperty(column_Property, current_Column);
@@ -4898,15 +4898,15 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Gamma)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_LONG; step_SpinBox->setRange(0, 0.5);}
 
 		if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
-			whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
-			whats_This == whats_This_Sigma_Drift_Line_Value			||
-			whats_This == whats_This_Sigma_Drift_Rand_Rms			||
+                        whats_This == whats_This_Sigma_Drift_Line_Value		||
 			whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
 			whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
-			whats_This == whats_This_Thickness_Drift_Sine_Phase		||
-			whats_This == whats_This_Sigma_Drift_Sine_Amplitude		||
-			whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
-			whats_This == whats_This_Sigma_Drift_Sine_Phase	)		{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
+                        whats_This == whats_This_Thickness_Drift_Sine_Phase	||
+                        whats_This == whats_This_Sigma_Drift_Sine_Amplitude	||
+                        whats_This == whats_This_Sigma_Drift_Sine_Frequency	||
+                        whats_This == whats_This_Sigma_Drift_Sine_Phase	)		{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_DRIFT; }
+                if(     whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
+                        whats_This == whats_This_Sigma_Drift_Rand_Rms	)		{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_DRIFT_RAND; }
 
 		step_SpinBox->setFixedWidth(min_Width);
 		step_SpinBox->setProperty(min_Size_Property, step_SpinBox->width());
