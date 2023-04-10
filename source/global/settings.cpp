@@ -781,9 +781,9 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		default_layer_material					= structure_Default_Values.value( "default_layer_material",					"Be"		).toString();
         default_layer_material_second   		= structure_Default_Values.value( "default_layer_material_second",			"Mo"		).toString();
 
-		default_layer_absolute_density			= structure_Default_Values.value( "default_layer_absolute_density",			2.699		).toDouble();
-		default_layer_absolute_density_min		= structure_Default_Values.value( "default_layer_absolute_density_min",		2.500		).toDouble();
-		default_layer_absolute_density_max		= structure_Default_Values.value( "default_layer_absolute_density_max",		2.700		).toDouble();
+                default_layer_absolute_density			= structure_Default_Values.value( "default_layer_absolute_density",			1.0		).toDouble();
+                default_layer_absolute_density_min		= structure_Default_Values.value( "default_layer_absolute_density_min",		0.1		).toDouble();
+                default_layer_absolute_density_max		= structure_Default_Values.value( "default_layer_absolute_density_max",		3.0		).toDouble();
 
 		default_layer_relative_density			= structure_Default_Values.value( "default_layer_relative_density",			1			).toDouble();
 		default_layer_relative_density_min		= structure_Default_Values.value( "default_layer_relative_density_min",		0.7			).toDouble();
@@ -930,9 +930,9 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		default_particles_enabled							= structure_Default_Values.value( "default_particles_enabled",						false ).toBool();
 		default_particles_used							= structure_Default_Values.value( "default_particles_used",							true	 ).toBool();
 
-		default_particles_absolute_density				= structure_Default_Values.value( "default_particles_absolute_density",				2.699 ).toDouble();
-		default_particles_absolute_density_min			= structure_Default_Values.value( "default_particles_absolute_density_min",			2.500 ).toDouble();
-		default_particles_absolute_density_max			= structure_Default_Values.value( "default_particles_absolute_density_max",			2.700 ).toDouble();
+                default_particles_absolute_density				= structure_Default_Values.value( "default_particles_absolute_density",				1.0 ).toDouble();
+                default_particles_absolute_density_min			= structure_Default_Values.value( "default_particles_absolute_density_min",			0.1 ).toDouble();
+                default_particles_absolute_density_max			= structure_Default_Values.value( "default_particles_absolute_density_max",			3.0 ).toDouble();
 
 		default_particles_relative_density				= structure_Default_Values.value( "default_particles_relative_density",				1	  ).toDouble();
 		default_particles_relative_density_min			= structure_Default_Values.value( "default_particles_relative_density_min",			0.7	  ).toDouble();

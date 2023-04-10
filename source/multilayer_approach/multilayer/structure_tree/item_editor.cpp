@@ -1245,9 +1245,9 @@ void Item_Editor::more_Elements_Clicked()
 	}
 
 	element_Index = composition_Combo_Box_Vec.indexOf(elements);
-	auto_Density_On = true; refresh_Data(); auto_Density_On = false;
-	connect(line_Edit, &QLineEdit::textEdited,        this, [=]{element_Index = composition_Combo_Box_Vec.indexOf(elements); auto_Density_On = true; refresh_Data(); auto_Density_On = false;});
-	connect(elements, &QComboBox::currentTextChanged, this, [=]{element_Index = -2019; auto_Density_On = true; refresh_Data(); auto_Density_On = false; });
+        /*auto_Density_On = true;*/ refresh_Data(); /*auto_Density_On = false;*/
+        connect(line_Edit, &QLineEdit::textEdited,        this, [=]{element_Index = composition_Combo_Box_Vec.indexOf(elements); /*auto_Density_On = true;*/ refresh_Data(); /*auto_Density_On = false;*/});
+        connect(elements, &QComboBox::currentTextChanged, this, [=]{element_Index = -2019; /*auto_Density_On = true;*/ refresh_Data(); /*auto_Density_On = false;*/ });
 
 	if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 	{
@@ -1305,8 +1305,8 @@ void Item_Editor::read_Elements_From_Item()
 		composition_Combo_Box_Vec[i]=elements;
 		composition_At_Weight_Vec[i]=at_Weight;
 
-		connect(line_Edit, &QLineEdit::textEdited,		   this, [=]{element_Index = i;     auto_Density_On = true; refresh_Data(); auto_Density_On = false;});
-		connect(elements,  &QComboBox::currentTextChanged, this, [=]{element_Index = -2019; auto_Density_On = true; refresh_Data(); auto_Density_On = false;});
+                connect(line_Edit, &QLineEdit::textEdited,		   this, [=]{element_Index = i;    /* auto_Density_On = true;*/ refresh_Data(); /*auto_Density_On = false;*/});
+                connect(elements,  &QComboBox::currentTextChanged, this, [=]{element_Index = -2019; /*auto_Density_On = true;*/ refresh_Data(); /*auto_Density_On = false;*/});
 
 		// placing ui elements
 		QFrame* element_Frame = new QFrame;
@@ -1444,9 +1444,9 @@ void Item_Editor::fewer_Elements_Clicked()
 	delete element_Frame_Vec.last();
 	element_Frame_Vec.removeLast();
 
-	auto_Density_On = true;
+        //auto_Density_On = true;
 	refresh_Data();
-	auto_Density_On = false;
+        //auto_Density_On = false;
 	if (element_Frame_Vec.size()==1)
 	{
 		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
@@ -1723,13 +1723,13 @@ void Item_Editor::refresh_Data()
 				}
 
 				// only if element changed or added
-				if(auto_Density_On && i == element_Index)
-				{
-					struct_Data.composition[i].composition.fit.min = default_stoichiometry_composition_min;
-					struct_Data.composition[i].composition.fit.max = default_stoichiometry_composition_max;
-					struct_Data.composition[i].composition.confidence.min = struct_Data.composition[i].composition.fit.min;
-					struct_Data.composition[i].composition.confidence.max = struct_Data.composition[i].composition.fit.max;
-				}
+//				if(auto_Density_On && i == element_Index)
+//				{
+//					struct_Data.composition[i].composition.fit.min = default_stoichiometry_composition_min;
+//					struct_Data.composition[i].composition.fit.max = default_stoichiometry_composition_max;
+//					struct_Data.composition[i].composition.confidence.min = struct_Data.composition[i].composition.fit.min;
+//					struct_Data.composition[i].composition.confidence.max = struct_Data.composition[i].composition.fit.max;
+//				}
 
 				struct_Data.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
 				composition_At_Weight_Vec[i]->setText(AtWt + Locale.toString(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");
@@ -1738,13 +1738,13 @@ void Item_Editor::refresh_Data()
 				stoich_Weight += struct_Data.composition[i].composition.value;
 			}
 
-			if(auto_Density_On && auto_density_from_elements)
-			{
-				// automatical density
-				struct_Data.absolute_Density.value = auto_Density/stoich_Weight;
-				density_Line_Edit->setText(Locale.toString(struct_Data.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
-				Global_Variables::resize_Line_Edit(density_Line_Edit);
-			} else
+//			if(auto_Density_On && auto_density_from_elements)
+//			{
+//				// automatical density
+//				struct_Data.absolute_Density.value = auto_Density/stoich_Weight;
+//				density_Line_Edit->setText(Locale.toString(struct_Data.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
+//				Global_Variables::resize_Line_Edit(density_Line_Edit);
+//			} else
 			{
 				// previous density
 				struct_Data.absolute_Density.value = Locale.toDouble(density_Line_Edit->text());
