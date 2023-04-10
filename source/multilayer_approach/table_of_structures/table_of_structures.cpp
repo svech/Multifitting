@@ -4462,7 +4462,7 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int t
 				spin_Box->setDecimals(line_edit_interlayer_precision);
 				spin_Box->setValue(value);
 				spin_Box->setAccelerated(true);
-				spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+                                spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
 				spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
 				spin_Box->installEventFilter(this);
 
@@ -4628,7 +4628,7 @@ void Table_Of_Structures::create_MySigma_Line_Edits_Interlayer(My_Table_Widget* 
 				spin_Box->setDecimals(line_edit_sigma_precision);
 				spin_Box->setValue(sigma_Comp.value);
 				spin_Box->setAccelerated(true);
-				spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+                                spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
 				spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
 				spin_Box->installEventFilter(this);
 
@@ -4871,7 +4871,7 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Density)				{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_DENSITY;}
 		if(whats_This == whats_This_Thickness)				{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS;}
 		if(whats_This == whats_This_Sigma_Diffuse)			{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
-		if(whats_This == whats_This_Interlayer_Composition)	{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;	}
+                if(whats_This == whats_This_Interlayer_Composition)	{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
 
 		if(whats_This == whats_This_Sigma_Roughness)				{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
 //		if(whats_This == whats_This_Correlation_Radius)				{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_DENSITY;}
