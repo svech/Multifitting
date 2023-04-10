@@ -1019,8 +1019,8 @@ void Multilayer_Approach::open(QString filename)
 		// load tree
 		Global_Variables::deserialize_Tree(in, multilayer->structure_Tree->tree);
 
-        // if old file has no substrate
-        Global_Variables::add_Substrate(multilayer->structure_Tree->tree);
+                // if old file has no substrate
+                Global_Variables::add_Substrate(multilayer->structure_Tree->tree);
 
 		if(!Global_Variables::check_Loaded_Version(1,11,0))
 		{
@@ -1141,6 +1141,42 @@ void Multilayer_Approach::open(QString filename)
 		{
 			for(int ii=0; ii<multilayer->imperfections_Model.use_Func.size(); ii++)
 			{multilayer->imperfections_Model.use_Func[ii] = true;}
+
+                        // upd drift imperfections model for old files
+                        QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
+                        while (QTreeWidgetItem* item = *it)
+                        {
+                                Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+                                if(data.item_Type == item_Type_Layer)
+                                {
+                                    if( data.thickness_Drift.is_Drift_Line || /*data.thickness_Drift.show_Drift_Line ||*/
+                                        data.thickness_Drift.is_Drift_Rand || /*data.thickness_Drift.show_Drift_Rand ||*/
+                                        data.thickness_Drift.is_Drift_Sine || /*data.thickness_Drift.show_Drift_Sine ||*/
+                                        data.sigma_Diffuse_Drift.is_Drift_Line || /*data.sigma_Diffuse_Drift.show_Drift_Line ||*/
+                                        data.sigma_Diffuse_Drift.is_Drift_Rand || /*data.sigma_Diffuse_Drift.show_Drift_Rand ||*/
+                                        data.sigma_Diffuse_Drift.is_Drift_Sine/* || data.sigma_Diffuse_Drift.show_Drift_Sine*/)
+                                    {
+                                        multilayer->imperfections_Model.show_Drift = true;
+
+                                        // thickness drift
+                                        if(data.thickness_Drift.is_Drift_Line/* || data.thickness_Drift.show_Drift_Line*/)
+                                            multilayer->imperfections_Model.show_Thickness_Drift_Line = true;
+                                        if(data.thickness_Drift.is_Drift_Rand/* || data.thickness_Drift.show_Drift_Rand*/)
+                                            multilayer->imperfections_Model.show_Thickness_Drift_Rand = true;
+                                        if(data.thickness_Drift.is_Drift_Sine/* || data.thickness_Drift.show_Drift_Sine*/)
+                                            multilayer->imperfections_Model.show_Thickness_Drift_Sine = true;
+                                        // sigma diffuse drift
+                                        if(data.sigma_Diffuse_Drift.is_Drift_Line/* || data.sigma_Diffuse_Drift.show_Drift_Line*/)
+                                            multilayer->imperfections_Model.show_Sigma_Drift_Line = true;
+                                        if(data.sigma_Diffuse_Drift.is_Drift_Rand/* || data.sigma_Diffuse_Drift.show_Drift_Rand*/)
+                                            multilayer->imperfections_Model.show_Sigma_Drift_Rand = true;
+                                        if(data.sigma_Diffuse_Drift.is_Drift_Sine/* || data.sigma_Diffuse_Drift.show_Drift_Sine*/)
+                                            multilayer->imperfections_Model.show_Sigma_Drift_Sine = true;
+                                    }
+                                }
+                                ++it;
+                        }
+
 		}
 
 		/// fitting settings
@@ -1199,8 +1235,8 @@ void Multilayer_Approach::open(QString filename)
 				fitted_Structure.fitted_Trees[tree_Index] = new QTreeWidget(this);
 				Global_Variables::deserialize_Tree(in, fitted_Structure.fitted_Trees[tree_Index]);
 
-                // if old file has no substrate
-                Global_Variables::add_Substrate(fitted_Structure.fitted_Trees[tree_Index]);
+                                // if old file has no substrate
+                                Global_Variables::add_Substrate(fitted_Structure.fitted_Trees[tree_Index]);
 
 				// imperfections
 				if(Global_Variables::check_Loaded_Version(1,11,6))
