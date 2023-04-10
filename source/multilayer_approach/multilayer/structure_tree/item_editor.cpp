@@ -49,6 +49,47 @@ Item_Editor::~Item_Editor()
 {
 }
 
+void Item_Editor::update_Imperfections_Model()
+{
+    for(int i=0; i<struct_Data.interlayer_Composition.size(); ++i)
+    {
+        if(struct_Data.interlayer_Composition[i].enabled)
+        {
+            structure_Tree->multilayer->imperfections_Model.use_Interlayer = true;
+            structure_Tree->multilayer->imperfections_Model.use_Func[i] = true;
+        }
+    }
+
+    // drift
+    if(struct_Data.item_Type == item_Type_Layer)
+    {
+        if( struct_Data.thickness_Drift.is_Drift_Line ||
+            struct_Data.thickness_Drift.is_Drift_Rand ||
+            struct_Data.thickness_Drift.is_Drift_Sine ||
+            struct_Data.sigma_Diffuse_Drift.is_Drift_Sine ||
+            struct_Data.sigma_Diffuse_Drift.is_Drift_Sine ||
+            struct_Data.sigma_Diffuse_Drift.is_Drift_Sine)
+        {
+            structure_Tree->multilayer->imperfections_Model.show_Drift = true;
+
+            // thickness drift
+            if(struct_Data.thickness_Drift.is_Drift_Line)
+                                structure_Tree->multilayer->imperfections_Model.show_Thickness_Drift_Line = true;
+            if(struct_Data.thickness_Drift.is_Drift_Rand)
+                                structure_Tree->multilayer->imperfections_Model.show_Thickness_Drift_Rand = true;
+            if(struct_Data.thickness_Drift.is_Drift_Sine)
+                                structure_Tree->multilayer->imperfections_Model.show_Thickness_Drift_Sine = true;
+            // sigma diffuse drift
+            if(struct_Data.sigma_Diffuse_Drift.is_Drift_Line)
+                                structure_Tree->multilayer->imperfections_Model.show_Sigma_Drift_Line = true;
+            if(struct_Data.sigma_Diffuse_Drift.is_Drift_Rand)
+                                structure_Tree->multilayer->imperfections_Model.show_Sigma_Drift_Rand = true;
+            if(struct_Data.sigma_Diffuse_Drift.is_Drift_Sine)
+                                structure_Tree->multilayer->imperfections_Model.show_Sigma_Drift_Sine = true;
+        }
+    }
+}
+
 void Item_Editor::emit_Item_Data_Edited()
 {
 	show_All();
@@ -74,6 +115,7 @@ void Item_Editor::closeEvent(QCloseEvent* event)
 				Global_Variables::resize_Line_Edit(material_Line_Edit);
 			}
 		}
+                update_Imperfections_Model();
 	}
 
 	if(!global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))	structure_Tree->unlock_Tree();

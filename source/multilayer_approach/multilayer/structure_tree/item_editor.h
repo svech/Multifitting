@@ -39,8 +39,9 @@ public:
 	bool sigma_Done = false;
 	bool stack_Done = false;
 
-	void closeEvent(QCloseEvent* event);
-	void create_Main_Layout();
+        void closeEvent(QCloseEvent* event);
+        void update_Imperfections_Model();
+        void create_Main_Layout();
 		void create_Menu();
 		void make_Ambient_Editor();
 			void make_Materials_Group_Box();
@@ -184,8 +185,8 @@ public:
 			QCheckBox* make_Multilayer_CheckBox;
 			QCheckBox* invert_CheckBox;
 
-		QPushButton* done_Button;
-		QPushButton* regular_Aperiodic_Table_Button;
+                QPushButton* done_Button;
+                        QPushButton* regular_Aperiodic_Table_Button;
 };
 
 #endif // ITEM_EDITOR_H
