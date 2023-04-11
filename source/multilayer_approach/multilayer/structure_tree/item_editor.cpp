@@ -2208,13 +2208,12 @@ void Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString t
 
 void Item_Editor::regular_Aperiodic_To_Multilayer()
 {
-	struct_Data.item_Type = item_Type_Multilayer;
+        struct_Data.item_Type = item_Type_Multilayer;
 	if(struct_Data.regular_Components.size() == 0)
 	{
 		qInfo() << "Item_Editor::regular_Aperiodic_To_Multilayer  :  regular_Components.size() == 0" << endl; exit(EXIT_FAILURE);
 	}
 	struct_Data.num_Repetition.parameter.value = struct_Data.regular_Components.first().components.size();
-	struct_Data.regular_Components.clear();
 
 	// change children's parent type to multilayer
 	for(int i=0; i<item->childCount(); ++i)
@@ -2223,11 +2222,18 @@ void Item_Editor::regular_Aperiodic_To_Multilayer()
 		child.parent_Item_Type = item_Type_Multilayer;
 		child.uncouple_All_Parameters();
 
+                double average_thickness = 0;
+                for(int j=0; j<struct_Data.num_Repetition.value(); j++) {
+                        average_thickness += struct_Data.regular_Components[i].components[j].thickness.value;
+                }
+                child.thickness.value = average_thickness/struct_Data.num_Repetition.value();
+
 		// save changes in children
 		QVariant var;
 		var.setValue( child );
 		item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	}
+        }
+        struct_Data.regular_Components.clear();
 
 	// save
 	save_Data();
