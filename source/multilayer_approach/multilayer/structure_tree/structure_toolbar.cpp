@@ -711,37 +711,37 @@ void Structure_Toolbar::export_Structure()
     QString path = Global_Variables::working_Directory() + "/";
     QString name = "structure_"+/*tempLoc.toString(index)+"_"+*/tab_Text+".txt";
     QFile file(path + Global_Variables::slaches_To_Underline(name));
-	if (file.open(QIODevice::WriteOnly))
-	{
-		QTextStream out(&file);
-		out.setFieldAlignment(QTextStream::AlignLeft);
-
-		look_Over_Tree();
-		print_Structure_Header(out);
-		iterate_Over_Tree(out, structure_Tree->tree->invisibleRootItem());
-		qInfo() << "structure saved as text :"<< name << endl;
-
-		file.close();
-	} else
-	{
-		QMessageBox::critical(nullptr, "Structure_Toolbar::export_Structure", "Can't write file " + name);
-		exit(EXIT_FAILURE);
-	}
-
-	// export all regular aperiodics
-	int aperiodics_Counter = 1;
-	int index_Width = 8;
-	int my_material_Width = max(material_Width,10);
-	int my_thickness_Width = max(thickness_Width+thickness_Precision+1,8);
-	int my_sigma_Width = max(sigma_Width+sigma_Precision+1,7);
-
-	QTreeWidgetItemIterator it(structure_Tree->tree);
-	while (*it)
+    if (file.open(QIODevice::WriteOnly))
     {
-		QTreeWidgetItem* structure_Item = *it;
-		const Data struct_Data = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
-		if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
-		{
+                QTextStream out(&file);
+                out.setFieldAlignment(QTextStream::AlignLeft);
+
+                look_Over_Tree();
+                print_Structure_Header(out);
+                iterate_Over_Tree(out, structure_Tree->tree->invisibleRootItem());
+                qInfo() << "structure saved as text :"<< name << endl;
+
+                file.close();
+    } else
+    {
+                QMessageBox::critical(nullptr, "Structure_Toolbar::export_Structure", "Can't write file " + name);
+                exit(EXIT_FAILURE);
+    }
+
+           // export all regular aperiodics
+    int aperiodics_Counter = 1;
+    int index_Width = 8;
+    int my_material_Width = max(material_Width,10);
+    int my_thickness_Width = max(thickness_Width+thickness_Precision+1,8);
+    int my_sigma_Width = max(sigma_Width+sigma_Precision+1,7);
+
+    QTreeWidgetItemIterator it(structure_Tree->tree);
+    while (*it)
+    {
+        QTreeWidgetItem* structure_Item = *it;
+        const Data struct_Data = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
+        if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+        {
             QString name = "structure_"+/*tempLoc.toString(index)+"_"+*/tab_Text+"_Aperiodic_#"+QString::number(aperiodics_Counter)+".txt";
             QFile file(Global_Variables::working_Directory() + "/" + Global_Variables::slaches_To_Underline(name));
 			if (file.open(QIODevice::WriteOnly))
@@ -750,9 +750,9 @@ void Structure_Toolbar::export_Structure()
 				out.setFieldAlignment(QTextStream::AlignLeft);
 
 				// header
-                out << "; " << Global_Variables::date_Time() << qSetFieldWidth(0) << endl;
-                out << "; " << Global_Variables::multifitting_Version() << qSetFieldWidth(0) << endl;
-				out << qSetFieldWidth(index_Width) << ";cell" << qSetFieldWidth(0) << " " << qSetFieldWidth(my_material_Width) << "material" << qSetFieldWidth(0);
+                                out << "; " << Global_Variables::date_Time() << qSetFieldWidth(0) << endl;
+                                out << "; " << Global_Variables::multifitting_Version() << qSetFieldWidth(0) << endl;
+                                out << qSetFieldWidth(index_Width) << ";cell" << qSetFieldWidth(0) << " " << qSetFieldWidth(my_material_Width) << "material" << qSetFieldWidth(0);
 				out.setFieldAlignment(QTextStream::AlignRight);
 				out << qSetFieldWidth(my_thickness_Width-3) << "d ("      << qSetFieldWidth(0) << thickness_units << ")" << "    ";
 				out << qSetFieldWidth(my_sigma_Width+3)     << "sigma ("  << qSetFieldWidth(0) << thickness_units << ")";
@@ -768,8 +768,8 @@ void Structure_Toolbar::export_Structure()
 
 						out << qSetFieldWidth(index_Width) << QString::number(n+1) << qSetFieldWidth(0) << " " << qSetFieldWidth(my_material_Width) << regular_Data.material << qSetFieldWidth(0);
 						out.setFieldAlignment(QTextStream::AlignRight);
-                        out << qSetFieldWidth(my_thickness_Width) << tempLoc.toString(regular_Data.thickness.value,'f',thickness_Precision) << qSetFieldWidth(0) << "    ";
-                        out << qSetFieldWidth(my_sigma_Width)     << tempLoc.toString(regular_Data.sigma_Diffuse.value, 'f',sigma_Precision) << qSetFieldWidth(0);
+                                                out << qSetFieldWidth(my_thickness_Width) << tempLoc.toString(regular_Data.thickness.value,'f',thickness_Precision) << qSetFieldWidth(0) << "    ";
+                                                out << qSetFieldWidth(my_sigma_Width)     << tempLoc.toString(regular_Data.sigma_Diffuse.value, 'f',sigma_Precision) << qSetFieldWidth(0);
 						out.setFieldAlignment(QTextStream::AlignLeft);
 						out	<< qSetFieldWidth(0) << endl;
 					}
