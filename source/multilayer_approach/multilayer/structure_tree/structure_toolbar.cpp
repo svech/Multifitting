@@ -853,12 +853,13 @@ void Structure_Toolbar::print_Structure_Header(QTextStream &out)
     out << "\tN    - number of elementary cells" << qSetFieldWidth(0) << endl;
     out << "\td    - period or thickness" << qSetFieldWidth(0) << endl;
     out << "\ts_d  - root-mean-square interlayer thickness (sigma diffuse)" << qSetFieldWidth(0) << endl;
-    out << "\ts_r  - root-mean-square roughness (sigma roughness)" << qSetFieldWidth(0) << endl;
+//    out << "\ts_r  - root-mean-square roughness (sigma roughness)" << qSetFieldWidth(0) << endl;
     out << "\trho  - material density, absolute or relative" << qSetFieldWidth(0) << endl;
     out << "\tA    - angstroms" << qSetFieldWidth(0) << endl;
     out << "\tr.u. - relative units" << qSetFieldWidth(0) << endl;
 
-	out << "-------------------------------------------------------------------------------" << qSetFieldWidth(0) << endl << endl;
+    out  << endl << "NOTE: roughness and particles are not shown here" << qSetFieldWidth(0) << endl;
+    out << "-------------------------------------------------------------------------------" << qSetFieldWidth(0) << endl << endl;
 }
 
 void Structure_Toolbar::look_Over_Tree()
@@ -948,15 +949,15 @@ void Structure_Toolbar::print_Structure_Item(QTextStream& out, QTreeWidgetItem* 
 		out.setFieldAlignment(QTextStream::AlignRight);
 		out << qSetFieldWidth(my_sigma_Width) << Locale.toString(struct_Data.sigma_Diffuse.value,'f',sigma_Precision)  << qSetFieldWidth(0) << " " << temp_thickness_units;
 
-		out.setFieldAlignment(QTextStream::AlignLeft);
-		if(if_Full) {out << "    s_r=";}
-		else	    {out << "        ";}
-		out.setFieldAlignment(QTextStream::AlignRight);
-		if(!structure_Tree->multilayer->imperfections_Model.use_Common_Roughness_Function)	{
-		out << qSetFieldWidth(my_sigma_Width) << Locale.toString(struct_Data.roughness_Model.sigma.value,'f',sigma_Precision)  << qSetFieldWidth(0) << " " << temp_thickness_units;
-		} else {
-		out << qSetFieldWidth(my_sigma_Width) << Locale.toString(substrate.roughness_Model.sigma.value,'f',sigma_Precision)  << qSetFieldWidth(0) << " " << temp_thickness_units;
-		}
+//		out.setFieldAlignment(QTextStream::AlignLeft);
+//		if(if_Full) {out << "    s_r=";}
+//		else	    {out << "        ";}
+//		out.setFieldAlignment(QTextStream::AlignRight);
+//		if(!structure_Tree->multilayer->imperfections_Model.use_Common_Roughness_Function)	{
+//		out << qSetFieldWidth(my_sigma_Width) << Locale.toString(struct_Data.roughness_Model.sigma.value,'f',sigma_Precision)  << qSetFieldWidth(0) << " " << temp_thickness_units;
+//		} else {
+//		out << qSetFieldWidth(my_sigma_Width) << Locale.toString(substrate.roughness_Model.sigma.value,'f',sigma_Precision)  << qSetFieldWidth(0) << " " << temp_thickness_units;
+//		}
 		out.setFieldAlignment(QTextStream::AlignLeft);
                 if(if_Full) {out << "    rho=";}
                 else	    {out << "        ";}
@@ -971,9 +972,9 @@ void Structure_Toolbar::print_Structure_Item(QTextStream& out, QTreeWidgetItem* 
 	}
 	if(struct_Data.item_Type == item_Type_Substrate && struct_Data.item_Enabled)
 	{
-		out << qSetFieldWidth(0) << current_Index_String << " Substrate " << qSetFieldWidth(my_material_Width) << struct_Data.material << qSetFieldWidth(0)
-			<< "    s_d="   << Locale.toString(struct_Data.sigma_Diffuse.value,'f',sigma_Precision) << " " << thickness_units
-			<< "    s_r="   << Locale.toString(struct_Data.roughness_Model.sigma.value,'f',sigma_Precision) << " " << thickness_units;
+                out << qSetFieldWidth(0) << current_Index_String << " Substrate " << qSetFieldWidth(my_material_Width) << struct_Data.material << qSetFieldWidth(0)
+                    << "    s_d="   << Locale.toString(struct_Data.sigma_Diffuse.value,'f',sigma_Precision) << " " << thickness_units;
+//                    << "    s_r="   << Locale.toString(struct_Data.roughness_Model.sigma.value,'f',sigma_Precision) << " " << thickness_units;
 
 		if(struct_Data.composed_Material) {
                 out	<< "    rho="   << Locale.toString(struct_Data.absolute_Density.value,'f',density_Precision) << " " << absolute_Density_Units;
