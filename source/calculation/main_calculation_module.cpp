@@ -2536,7 +2536,6 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		bool is_Load_Init_State_Trees = false;
 		bool go = fitting_Instance.fit();
 		if(!go) return;
-		print_Calculated_To_File();
 
 		// replace the initial parameters
 		QMessageBox::StandardButton reply = QMessageBox::question(nullptr,"Replace", "Fitting is done.\nDo you want to replace the parameters?",
