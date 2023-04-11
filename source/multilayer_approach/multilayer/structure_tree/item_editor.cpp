@@ -2098,7 +2098,9 @@ void Item_Editor::to_Regular_Aperiodic_Subfunction()
 			new_Regular_Component.components.fill(child);
 			new_Regular_Component.top_Id = child.id;
 			new_Regular_Component.find_Min_Max_Values();
-		for(Data& inserted_Child : new_Regular_Component.components)	{inserted_Child.reset_All_IDs();}
+                for(Data& inserted_Child : new_Regular_Component.components)	{
+                        inserted_Child.reset_All_IDs();
+                }
 		struct_Data.regular_Components.append(new_Regular_Component);
 
 		// save changes in children
@@ -2151,7 +2153,7 @@ void Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString t
 	{
 		N=1;
 		QString word1, word2;
-		if(target_Item_Type == item_Type_Multilayer )		{word1 = "periodic"; word2 = "periodic multilayer";}
+                if(target_Item_Type == item_Type_Multilayer )       {word1 = "periodic"; word2 = "periodic multilayer";}
 		if(target_Item_Type == item_Type_Regular_Aperiodic) {word1 = "regular aperiodic"; word2 = "regular aperiodic";}
 
 		reply = QMessageBox::question(this,"Make "+word1, "General aperiodic can't be reduced to\n"+word2+" with N>1.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
@@ -2159,10 +2161,10 @@ void Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString t
 	if (reply == QMessageBox::Yes)
 	{
 		// remove excess children
-		while(item->childCount()>true_Period)
-		{
-			item->removeChild(item->child(item->childCount()-1));
-		}
+                while(item->childCount()>true_Period)
+                {
+                    item->removeChild(item->child(item->childCount()-1));
+                }
 
 		// change children's parent type to target Item Type
 		for(int i=0; i<item->childCount(); ++i)
