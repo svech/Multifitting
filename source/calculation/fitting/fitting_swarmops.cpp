@@ -8,13 +8,13 @@ Fitting_SwarmOps::Fitting_SwarmOps(Fitting* fitting):
 	fitting(fitting),
 	params(&fitting->params)
 {
-
+    RO_RandSeedClock(9385839);
 }
 
 void Fitting_SwarmOps::callback(Fitting_Params* params, SO_TFitness residual)
 {
 	// print out current location
-	if(params->counter%10 == 0 || params->counter == params->num_Iter-1)
+        if(params->counter%10 == 0 || params->counter == params->num_Iter-1)
 	{
 		printf("iter %zu :", params->counter);
 		for(size_t i=0; i<params->fitables.param_Pointers.size(); ++i)
@@ -79,7 +79,7 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(const SO_TElm* x,  void* context, SO
 
 bool Fitting_SwarmOps::fit()
 {
-    RO_RandSeedClock(9385839);
+    // RO_RandSeedClock(9385839); now we initialize it in init list
     params->counter = 0;
 
     /// reading parameters

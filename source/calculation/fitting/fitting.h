@@ -9,6 +9,8 @@
 #include <SwarmOps/Statistics/Results.h>
 
 class Main_Calculation_Module;
+class Fitting_GSL;
+class Fitting_SwarmOps;
 
 struct Fitting_Params
 {
@@ -56,6 +58,10 @@ public:
 	gsl_vector* x;
 	Fitting_Params params;
 	QVector<int> widths;
+
+        Fitting_GSL* fitting_GSL;
+        Fitting_SwarmOps* fitting_SwarmOps;
+
 
 	static double func(double argument);
 	static size_t num_Residual_Points(QVector<Calculation_Tree*>& calculation_Trees);
