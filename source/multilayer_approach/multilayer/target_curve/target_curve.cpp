@@ -1180,6 +1180,8 @@ QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params )
 	{stream >> fit_Params.weight_Sqrt; }
 	stream >> fit_Params.fit_Function;
 
+        fit_Params.weight_Sqrt = sqrt(fit_Params.weight);
+
 	if(Global_Variables::check_Loaded_Version(1,8,1))
 	{stream >> fit_Params.use_Chi2; }		// since 1.8.1
 
