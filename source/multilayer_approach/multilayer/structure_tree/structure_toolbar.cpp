@@ -858,7 +858,7 @@ void Structure_Toolbar::print_Structure_Header(QTextStream &out)
     out << "\tA    - angstroms" << qSetFieldWidth(0) << endl;
     out << "\tr.u. - relative units" << qSetFieldWidth(0) << endl;
 
-    out  << endl << "NOTE: roughness and particles are not shown here" << qSetFieldWidth(0) << endl;
+    out  << endl << "NOTE: diffuse interlayer composition, roughness and particles are not shown here" << qSetFieldWidth(0) << endl;
     out << "-------------------------------------------------------------------------------" << qSetFieldWidth(0) << endl << endl;
 }
 
