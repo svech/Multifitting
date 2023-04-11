@@ -705,7 +705,7 @@ void Structure_Toolbar::export_Structure()
 		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(i));
 		if(multilayer == structure_Tree->multilayer)
 		{
-            tab_Text = Global_Variables::slaches_To_Underline(global_Multilayer_Approach->multilayer_Tabs->tabText(i));
+                    tab_Text = Global_Variables::slaches_To_Underline(global_Multilayer_Approach->multilayer_Tabs->tabText(i));
 		}
 	}
     QString path = Global_Variables::working_Directory() + "/";
@@ -854,7 +854,7 @@ void Structure_Toolbar::print_Structure_Header(QTextStream &out)
     out << "\td    - period or thickness" << qSetFieldWidth(0) << endl;
     out << "\ts_d  - root-mean-square interlayer thickness (sigma diffuse)" << qSetFieldWidth(0) << endl;
     out << "\ts_r  - root-mean-square roughness (sigma roughness)" << qSetFieldWidth(0) << endl;
-    out << "\tr    - material density (rho), absolute or relative" << qSetFieldWidth(0) << endl;
+    out << "\trho  - material density, absolute or relative" << qSetFieldWidth(0) << endl;
     out << "\tA    - angstroms" << qSetFieldWidth(0) << endl;
     out << "\tr.u. - relative units" << qSetFieldWidth(0) << endl;
 
@@ -958,8 +958,8 @@ void Structure_Toolbar::print_Structure_Item(QTextStream& out, QTreeWidgetItem* 
 		out << qSetFieldWidth(my_sigma_Width) << Locale.toString(substrate.roughness_Model.sigma.value,'f',sigma_Precision)  << qSetFieldWidth(0) << " " << temp_thickness_units;
 		}
 		out.setFieldAlignment(QTextStream::AlignLeft);
-		if(if_Full) {out << "    r=";}
-		else	    {out << "      ";}
+                if(if_Full) {out << "    rho=";}
+                else	    {out << "        ";}
 		out.setFieldAlignment(QTextStream::AlignRight);
 		if(struct_Data.composed_Material) {
 		out	<< qSetFieldWidth(my_density_Width) << Locale.toString(struct_Data.absolute_Density.value,'f',density_Precision) << qSetFieldWidth(0) << " " << absolute_Density_Units;
@@ -976,9 +976,9 @@ void Structure_Toolbar::print_Structure_Item(QTextStream& out, QTreeWidgetItem* 
 			<< "    s_r="   << Locale.toString(struct_Data.roughness_Model.sigma.value,'f',sigma_Precision) << " " << thickness_units;
 
 		if(struct_Data.composed_Material) {
-		out	<< "    r="   << Locale.toString(struct_Data.absolute_Density.value,'f',density_Precision) << " " << absolute_Density_Units;
+                out	<< "    rho="   << Locale.toString(struct_Data.absolute_Density.value,'f',density_Precision) << " " << absolute_Density_Units;
 		} else {
-		out	<< "    r="   << Locale.toString(struct_Data.relative_Density.value,'f',density_Precision) << " " << relative_Density_Units;
+                out	<< "    rho="   << Locale.toString(struct_Data.relative_Density.value,'f',density_Precision) << " " << relative_Density_Units;
 		}
 		out	<< qSetFieldWidth(0) << endl;
 	}
@@ -988,17 +988,17 @@ void Structure_Toolbar::print_Structure_Item(QTextStream& out, QTreeWidgetItem* 
 		for(int i=structure_Item->childCount()-1; i>=0; i--)
 		{
 			const Data child_Data = structure_Item->child(i)->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
-			if(child_Data.item_Type == item_Type_Layer)				out << child_Data.material;
-			if(child_Data.item_Type == item_Type_Multilayer)		out << "<periodic>";
-			if(child_Data.item_Type == item_Type_Regular_Aperiodic)	out << "<aperiodic>";
-			if(child_Data.item_Type == item_Type_General_Aperiodic)	out << "<aperiodic>";
+                        if(child_Data.item_Type == item_Type_Layer)             out << child_Data.material;
+                        if(child_Data.item_Type == item_Type_Multilayer)        out << "<periodic>";
+                        if(child_Data.item_Type == item_Type_Regular_Aperiodic)	out << "<reg. aperiodic>";
+                        if(child_Data.item_Type == item_Type_General_Aperiodic)	out << "<gen. aperiodic>";
 			if(i!=0) out << "/";
 		}
 		out << "   N="<< Locale.toString(struct_Data.num_Repetition.value()) << qSetFieldWidth(0) << endl;
 	}
 	if(struct_Data.item_Type == item_Type_Regular_Aperiodic && struct_Data.item_Enabled)
 	{
-		out << qSetFieldWidth(0) << current_Index_String << qSetFieldWidth(0) << "  Aperiodic   ";
+                out << qSetFieldWidth(0) << current_Index_String << qSetFieldWidth(0) << "  Regular Aperiodic   ";
 		for(int i=structure_Item->childCount()-1; i>=0; i--)
 		{
 			const Data child_Data = structure_Item->child(i)->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
@@ -1009,7 +1009,7 @@ void Structure_Toolbar::print_Structure_Item(QTextStream& out, QTreeWidgetItem* 
 	}
 	if(struct_Data.item_Type == item_Type_General_Aperiodic && struct_Data.item_Enabled)
 	{
-		out << qSetFieldWidth(0) << current_Index_String  << qSetFieldWidth(0) << "  Aperiodic  " << endl;
+                out << qSetFieldWidth(0) << current_Index_String  << qSetFieldWidth(0) << "  General Aperiodic  " << endl;
 	}
 }
 
