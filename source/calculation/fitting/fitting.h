@@ -56,7 +56,7 @@ public:
 	const size_t p;
 	gsl_vector* f;
 	gsl_vector* x;
-	Fitting_Params params;
+        Fitting_Params params;
 	QVector<int> widths;
 
         Fitting_GSL* fitting_GSL;

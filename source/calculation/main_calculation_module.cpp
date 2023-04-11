@@ -2541,13 +2541,9 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		QMessageBox::StandardButton reply = QMessageBox::question(nullptr,"Replace", "Fitting is done.\nDo you want to replace the parameters?",
 																  QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::Yes)
-		{
-			// for single fitting
-			if(!global_Multilayer_Approach->fitting_Settings->randomized_Start)
-			{
-				renew_Item_Trees();
-				add_Fit(after_Fitting_State);
-			}
+                {
+                        renew_Item_Trees();
+                        add_Fit(after_Fitting_State);
 
 			// it also refreshs Independent tree copies
 			global_Multilayer_Approach->refresh_All_Multilayers_View();

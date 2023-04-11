@@ -766,7 +766,10 @@ bool Fitting::fit()
 	} else
 	// randomized fit
 	{
-		double residual_To_Write = -2019;
+                double residual_To_Write = -2019;
+                double best_Residual = std::numeric_limits<double>::max();
+                gsl_vector* best_x = gsl_vector_calloc(params.x->size);
+
 		if(params.maximize)		{
 			residual_To_Write = params.max_Integral-params.init_Residual;
 		} else	{
@@ -788,8 +791,17 @@ bool Fitting::fit()
 					residual_To_Write = params.final_Residual;
 				}
 				add_Fit_To_File(params.x, residual_To_Write, default_Fit_Statictics_File, run);
-			}
+
+                                if(params.final_Residual < best_Residual) {
+                                    best_Residual = params.final_Residual;
+                                    for(size_t i=0; i<best_x->size; ++i)
+                                        gsl_vector_set(best_x, i, gsl_vector_get(params.x, i));
+                                }
+                        }
 		}
+                // take best parameter set for calculation tree
+                Fitting::calc_Residual(best_x, &params, params.f);
+                gsl_vector_free(best_x);
 	}
 	// --------------------------------------------------------------------------------
 
