@@ -846,7 +846,7 @@ struct Different_Norm_Layer
 //		interlayer_My_Sigma_Right.resize(transition_Layer_Functions_Size);
 	}
 
-//	void set_Interlayer(QVector<Interlayer>& interlayer_Composition, QString side)
+//	void set_Interlayer(vector<Interlayer>& interlayer_Composition, QString side)
 //	{
 //		for(int i=0; i<transition_Layer_Functions_Size; i++)
 //		{

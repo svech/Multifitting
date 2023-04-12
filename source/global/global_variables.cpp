@@ -2775,7 +2775,7 @@ double Global_Variables::step_Profile(double z, double sigma)
 	return theta_Function(z);
 }
 
-double Global_Variables::interface_Profile_Function(double z, const QVector<Interlayer>& interlayer_Composition/*, bool for_Integration*/)
+double Global_Variables::interface_Profile_Function(double z, const vector<Interlayer>& interlayer_Composition/*, bool for_Integration*/)
 {
 	double output = 0;
 
@@ -2867,11 +2867,11 @@ double Global_Variables::interface_Profile_Function(double z, const QVector<Inte
 struct f_params
 {
 	double thickness;
-	QVector<Interlayer> left_Interlayer_Composition;
-	QVector<Interlayer> right_Interlayer_Composition;
+        vector<Interlayer> left_Interlayer_Composition;
+        vector<Interlayer> right_Interlayer_Composition;
 };
 
-double Global_Variables::get_Max_Sigma_From_Interlayer_Composition(QVector<Interlayer>& interlayer_Composition)
+double Global_Variables::get_Max_Sigma_From_Interlayer_Composition(vector<Interlayer>& interlayer_Composition)
 {
 	double max_Sigma = 0;
 	for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
@@ -2887,7 +2887,7 @@ double Global_Variables::get_Max_Sigma_From_Interlayer_Composition(QVector<Inter
 	return max_Sigma;
 }
 
-//double Global_Variables::layer_Normalization_GSL(double thickness, QVector<Interlayer>& left_Interlayer_Composition, QVector<Interlayer>& right_Interlayer_Composition, gsl_integration_workspace* w)
+//double Global_Variables::layer_Normalization_GSL(double thickness, vector<Interlayer>& left_Interlayer_Composition, vector<Interlayer>& right_Interlayer_Composition, gsl_integration_workspace* w)
 //{
 //	f_params params;
 //	params.thickness = thickness;
@@ -2938,7 +2938,7 @@ double Global_Variables::get_Max_Sigma_From_Interlayer_Composition(QVector<Inter
 //	return result;
 //}
 
-double Global_Variables::layer_Normalization(double thickness, QVector<Interlayer>& left_Interlayer_Composition, QVector<Interlayer>& right_Interlayer_Composition)
+double Global_Variables::layer_Normalization(double thickness, vector<Interlayer>& left_Interlayer_Composition, vector<Interlayer>& right_Interlayer_Composition)
 {
 	auto f_Calc = [&](double z)
 	{

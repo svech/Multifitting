@@ -4337,7 +4337,7 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item)
 {
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	QVector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
+        vector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
 
 	int current_Column = start_Column;
 
@@ -4440,7 +4440,7 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString val_Type)
 {
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	QVector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
+        vector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
 
 	int current_Column = start_Column;
 	double value = -2017;
@@ -4502,7 +4502,7 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int t
 void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item)
 {
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	QVector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
+        vector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
 
 	int current_Column = start_Column;
 
@@ -4564,7 +4564,7 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item)
 {
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	QVector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
+        vector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
 
 	int current_Column = start_Column;
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
@@ -4611,7 +4611,7 @@ void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* tabl
 void Table_Of_Structures::create_MySigma_Line_Edits_Interlayer(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item)
 {
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	QVector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
+        vector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
 
 	int current_Column = start_Column;
 
@@ -6924,7 +6924,7 @@ void Table_Of_Structures::refresh_MySigma_Interlayer()
 	}
 }
 
-double Table_Of_Structures::recalculate_Sigma_From_Individuals(QVector<Interlayer>& interlayer_Composition)
+double Table_Of_Structures::recalculate_Sigma_From_Individuals(vector<Interlayer>& interlayer_Composition)
 {
 	double temp_Sigma_Square=0;
 	double sum = 0;

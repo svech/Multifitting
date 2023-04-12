@@ -115,7 +115,7 @@ public:
 	//---------------------------------------------
 		bool common_Sigma_Diffuse = true;
 		Parameter sigma_Diffuse;
-		QVector<Interlayer> interlayer_Composition;
+                vector<Interlayer> interlayer_Composition;
 
 		Roughness_Model roughness_Model;
 		Particles_Model particles_Model;

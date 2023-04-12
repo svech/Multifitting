@@ -149,7 +149,7 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 	sigma_Diffuse.resize(num_Boundaries);
 	common_Sigma_Diffuse.resize(num_Boundaries);
 	enabled_Interlayer.resize(num_Boundaries);
-	boundary_Interlayer_Composition.resize(num_Boundaries, QVector<Interlayer>(transition_Layer_Functions_Size));
+        boundary_Interlayer_Composition.resize(num_Boundaries, vector<Interlayer>(transition_Layer_Functions_Size));
 
 	for(int boundary_Index=0; boundary_Index<num_Boundaries; boundary_Index++)
 	{

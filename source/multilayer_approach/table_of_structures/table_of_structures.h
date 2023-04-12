@@ -151,7 +151,7 @@ public:
 	void refresh_Weights_Check_Box_Fit_Interlayer(bool);
 
 	void refresh_MySigma_Interlayer();
-	static double recalculate_Sigma_From_Individuals(QVector<Interlayer>& interlayer_Composition);
+	static double recalculate_Sigma_From_Individuals(vector<Interlayer>& interlayer_Composition);
 
 	// general
 	void cells_On_Off		(My_Table_Widget* table, bool borders = true, bool keep_Disabled = false, bool can_Enable = false);

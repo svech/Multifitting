@@ -2095,8 +2095,8 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 
 			// Ambient, Layer, Substrate
 				<< data.composed_Material << data.material << data.approved_Material << data.absolute_Density << data.relative_Density << data.composition
-			// Layer, Substrate
-				<< data.common_Sigma_Diffuse << data.sigma_Diffuse << data.interlayer_Composition
+                        // Layer, Substrate
+                                << data.common_Sigma_Diffuse << data.sigma_Diffuse << QVector<Interlayer>::fromStdVector(data.interlayer_Composition)
 				<< data.roughness_Model << data.particles_Model
 			// Layer
 				<< data.layer_Index << data.has_Parent << data.thickness << data.thickness_Drift << data.sigma_Diffuse_Drift
@@ -2208,7 +2208,11 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 			bool use_PSD;
 			stream >> use_PSD;
 		}
-		stream >> data.common_Sigma_Diffuse >> data.sigma_Diffuse >> data.interlayer_Composition;
+
+                QVector<Interlayer> temp_interlayers;
+                stream >> data.common_Sigma_Diffuse >> data.sigma_Diffuse >> temp_interlayers;
+                data.interlayer_Composition = temp_interlayers.toStdVector();
+
 		if(Global_Variables::check_Loaded_Version(1,11,0))
 		{stream >> data.roughness_Model >> data.particles_Model;}
 
