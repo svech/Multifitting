@@ -14,26 +14,30 @@ Fitting_GSL::Fitting_GSL(Fitting* fitting):
 
 void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multifit_nlinear_workspace* w)
 {
-	Fitting_Params* params = ((struct Fitting_Params*)bare_Params);
+    Fitting_Params* params = ((struct Fitting_Params*)bare_Params);
 
-	double residual = 0;
-	gsl_blas_ddot(w->f, w->f, &residual);
-	if(params->maximize) residual = params->max_Integral-residual;
+    if(params->counter%print_gsl_state_step == 0 || params->num_Iter == params->counter)
+    {
+        double residual = 0;
+        gsl_blas_ddot(w->f, w->f, &residual);
+        if(params->maximize) residual = params->max_Integral-residual;
 
-	// print out current location
-	printf("iter %zu : ", iter);
-	for(size_t i=0; i<params->fitables.param_Pointers.size(); ++i)
-	{
-		double gradient = 0;
-		gsl_blas_ddot(w->g, w->g, &gradient);
-		if(gradient<DBL_MIN)
-		{
-			qInfo() << endl << "Zero gradient : residual doesn't depend on the variables" << endl << endl;
-			longjmp(buffer_GSL, 2020); // not zero! zero means repeating in infinite loop!
-		}
-		printf("%f\t", params->fitables.param_Pointers[i]->value);
-	}
-	printf("|f|=%g\n\n", residual);
+               // print out current location
+        printf("iter %zu : ", iter);
+        for(size_t i=0; i<params->fitables.param_Pointers.size(); ++i)
+        {
+            double gradient = 0;
+            gsl_blas_ddot(w->g, w->g, &gradient);
+            if(gradient<DBL_MIN)
+            {
+                qInfo() << endl << "Zero gradient : residual doesn't depend on the variables" << endl << endl;
+                longjmp(buffer_GSL, 2020); // not zero! zero means repeating in infinite loop!
+            }
+            printf("%f\t", params->fitables.param_Pointers[i]->value);
+        }
+        printf("|f|=%g\n\n", residual);
+    }
+    params->counter++;
 }
 
 bool Fitting_GSL::fit()
@@ -115,6 +119,11 @@ bool Fitting_GSL::fit()
 		// iterate until convergence
 		gsl_multifit_nlinear_driver(max_iter, xtol, gtol, ftol,	callback, params, &info, work);
 	}
+        // print last state if not printed before
+        if((params->counter-1) % print_gsl_state_step !=0) {
+                params->num_Iter = params->counter;
+                callback(params->counter-1, params, work);
+        }
 
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

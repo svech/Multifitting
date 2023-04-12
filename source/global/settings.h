@@ -557,6 +557,8 @@ extern bool tab_synchronization;
 extern bool calculation_time;
 extern bool show_residuals;
 extern bool make_all_windows_resizeable;
+extern int  print_swarmops_state_step;
+extern int  print_gsl_state_step;
 
 extern int  num_roughness_plot_points;
 extern int  num_particles_plot_points;

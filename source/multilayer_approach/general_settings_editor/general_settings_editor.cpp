@@ -265,6 +265,55 @@ void General_Settings_Editor::create_Interface_Tab()
 		connect(replot_Graphs_During_Fitting_CheckBox, &QCheckBox::toggled,	[=]{replot_graphs_during_fitting_1D = replot_Graphs_During_Fitting_CheckBox->isChecked();});
 	}
 
+        //----------------------------------------------------------------------------
+
+        QGroupBox* console_Groupbox = new QGroupBox("Console");
+        layout->addWidget(console_Groupbox);
+        QGridLayout* console_Layout = new QGridLayout(console_Groupbox);
+        console_Layout->setAlignment(Qt::AlignLeft);
+        {
+                QLabel* run_SO_Factor_Label = new QLabel("Step to print SwarmOps fitting:");
+                console_Layout->addWidget(run_SO_Factor_Label,0,0,Qt::AlignLeft);
+
+                QSpinBox* run_SO_Factor_SpinBox = new QSpinBox;
+                    run_SO_Factor_SpinBox->setRange(1, 1000);
+                    run_SO_Factor_SpinBox->setValue(print_swarmops_state_step);
+                    run_SO_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+                    run_SO_Factor_SpinBox->setAccelerated(true);
+                    run_SO_Factor_SpinBox->setFixedWidth(40);
+                console_Layout->addWidget(run_SO_Factor_SpinBox,0,1,Qt::AlignLeft);
+                connect(run_SO_Factor_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=]
+                { print_swarmops_state_step = run_SO_Factor_SpinBox->value(); });
+
+                //----------------------------------------------------------------------------
+
+                QLabel* run_GSL_Factor_Label = new QLabel("Step to print GSL fitting:");
+                console_Layout->addWidget(run_GSL_Factor_Label,1,0,Qt::AlignLeft);
+
+                QSpinBox* run_GSL_Factor_SpinBox = new QSpinBox;
+                    run_GSL_Factor_SpinBox->setRange(1, 1000);
+                    run_GSL_Factor_SpinBox->setValue(print_gsl_state_step);
+                    run_GSL_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+                    run_GSL_Factor_SpinBox->setAccelerated(true);
+                    run_GSL_Factor_SpinBox->setFixedWidth(40);
+                console_Layout->addWidget(run_GSL_Factor_SpinBox,1,1,Qt::AlignLeft);
+                connect(run_GSL_Factor_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), [=]
+                { print_gsl_state_step = run_GSL_Factor_SpinBox->value(); });
+
+                //----------------------------------------------------------------------------
+
+                QCheckBox* calculation_Time_CheckBox = new QCheckBox("Show single calculation time");
+                calculation_Time_CheckBox->setChecked(calculation_time);
+                console_Layout->addWidget(calculation_Time_CheckBox,2,0,1,2,Qt::AlignLeft);
+                connect(calculation_Time_CheckBox, &QCheckBox::toggled,	[=]{calculation_time = calculation_Time_CheckBox->isChecked();});
+
+                //----------------------------------------------------------------------------
+
+                QCheckBox* individual_Residuals_CheckBox = new QCheckBox("Show individual residuals");
+                individual_Residuals_CheckBox->setChecked(show_residuals);
+                console_Layout->addWidget(individual_Residuals_CheckBox,3,0,1,2,Qt::AlignLeft);
+                connect(individual_Residuals_CheckBox, &QCheckBox::toggled,	[=]{show_residuals = individual_Residuals_CheckBox->isChecked();});
+        }
 	//----------------------------------------------------------------------------
 
 	QGroupBox* other_Groupbox = new QGroupBox("Other");
@@ -293,20 +342,6 @@ void General_Settings_Editor::create_Interface_Tab()
 			synchronize_Tabs_CheckBox->setChecked(tab_synchronization);
 		other_Layout->addWidget(synchronize_Tabs_CheckBox);
 		connect(synchronize_Tabs_CheckBox, &QCheckBox::toggled,	[=]{tab_synchronization = synchronize_Tabs_CheckBox->isChecked();});
-
-		//----------------------------------------------------------------------------
-
-		QCheckBox* calculation_Time_CheckBox = new QCheckBox("Show single calculation time");
-			calculation_Time_CheckBox->setChecked(calculation_time);
-		other_Layout->addWidget(calculation_Time_CheckBox);
-		connect(calculation_Time_CheckBox, &QCheckBox::toggled,	[=]{calculation_time = calculation_Time_CheckBox->isChecked();});
-
-		//----------------------------------------------------------------------------
-
-		QCheckBox* individual_Residuals_CheckBox = new QCheckBox("Show individual residuals");
-			individual_Residuals_CheckBox->setChecked(show_residuals);
-		other_Layout->addWidget(individual_Residuals_CheckBox);
-		connect(individual_Residuals_CheckBox, &QCheckBox::toggled,	[=]{show_residuals = individual_Residuals_CheckBox->isChecked();});
 	}
 }
 

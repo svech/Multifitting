@@ -14,7 +14,7 @@ Fitting_SwarmOps::Fitting_SwarmOps(Fitting* fitting):
 void Fitting_SwarmOps::callback(Fitting_Params* params, SO_TFitness residual)
 {
 	// print out current location
-        if(params->counter%10 == 0 || params->counter == params->num_Iter-1)
+        if(params->counter%print_swarmops_state_step == 0 || params->counter == params->num_Iter-1)
 	{
 		printf("iter %zu :", params->counter);
 		for(size_t i=0; i<params->fitables.param_Pointers.size(); ++i)
