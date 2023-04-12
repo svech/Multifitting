@@ -779,7 +779,10 @@ bool Fitting::fit()
 		add_Fit_To_File(params.x, residual_To_Write, default_Fit_Statictics_File, 0);
 		for(int run=1; run<=global_Multilayer_Approach->fitting_Settings->num_Runs; run++)
 		{
-			if(!global_Multilayer_Approach->fitting_Settings->abort)
+                        qInfo() << "--------------------------" << endl;
+                        qInfo() << "RUN" << run << endl;
+                        qInfo() << "--------------------------" << endl;
+                        if(!global_Multilayer_Approach->fitting_Settings->abort)
 			{
 				randomize_Position(run-1); // first without randomization
 				fit_Return = run_Fitting();
