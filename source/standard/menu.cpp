@@ -412,20 +412,20 @@ void Menu::create_Help_Menu()
 void Menu::open_Documentation_Rus()
 {
 #ifdef _WIN32
-    QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+rusManualName));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(Paths_Manual_Path+rusManualName));
 #endif
 #ifdef __linux__
-    QDesktopServices::openUrl(QUrl(Pre_Path+rusManualName));
+    QDesktopServices::openUrl(QUrl(Paths_Manual_Path+rusManualName));
 #endif
 }
 
 void Menu::open_Documentation_Eng()
 {
 #ifdef _WIN32
-    QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+engManualName));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(Paths_Manual_Path+engManualName));
 #endif
 #ifdef __linux__
-    QDesktopServices::openUrl(QUrl(Pre_Path+engManualName));
+    QDesktopServices::openUrl(QUrl(Paths_Manual_Path+engManualName));
 #endif
 }
 

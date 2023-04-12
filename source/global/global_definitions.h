@@ -54,6 +54,7 @@ QString mainDirPath();
 #define Pre_Path mainDirPath()
 
 #define Paths_Icon_Path Pre_Path + "icons/"
+#define Paths_Manual_Path Pre_Path + "manual/"
 
 // windows geometry
 #define Windows_Geometry_Settings_Path Pre_Path + "settings/windows_geometry.ini"
