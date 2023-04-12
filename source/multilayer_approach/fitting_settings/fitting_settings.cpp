@@ -6,11 +6,11 @@ Fitting_Settings::Fitting_Settings(QWidget* parent) :
 {
 	// common
 	current_Method = SO_Methods[Differential_Evolution];
-	num_Runs = 1;
 	randomized_Start = false;
 
 	/// for GSL TRS
 	// main
+        num_Runs_GSL = 1;
 	max_Iter = 100;
 	x_Tolerance = 1.0e-8;
 	g_Tolerance = 1.0e-8;
@@ -27,8 +27,9 @@ Fitting_Settings::Fitting_Settings(QWidget* parent) :
 		h_fvv = 0.02;
 
 	/// for SwarmOps
-	// main
-	initialize_By_Current_State = true;
+        // main
+        num_Runs_SO = 1;
+        initialize_By_Current_State = true;
 	max_Evaluations=2000;
 	max_Eval_Factor=250;
 	max_Eval_Check=false;
@@ -108,11 +109,11 @@ Fitting_Settings::Fitting_Settings(QWidget* parent) :
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Fitting_Settings* fitting_Settings )
 {
-	return stream << fitting_Settings->current_Method << fitting_Settings->num_Runs << fitting_Settings->randomized_Start
+        return stream << fitting_Settings->current_Method << fitting_Settings->randomized_Start
 
 	/// GSL TRS
 	// main
-	<< fitting_Settings->max_Iter << fitting_Settings->x_Tolerance << fitting_Settings->g_Tolerance << fitting_Settings->f_Tolerance
+        << fitting_Settings->num_Runs_GSL << fitting_Settings->max_Iter << fitting_Settings->x_Tolerance << fitting_Settings->g_Tolerance << fitting_Settings->f_Tolerance
 	// additional
 	<< fitting_Settings->current_Scale << fitting_Settings->current_Solver << fitting_Settings->current_Fdtype
 	<< fitting_Settings->factor_Up << fitting_Settings->factor_Down << fitting_Settings->avmax << fitting_Settings->h_df << fitting_Settings->h_fvv
@@ -120,7 +121,7 @@ QDataStream& operator <<( QDataStream& stream, const Fitting_Settings* fitting_S
 	/// SwarmOps
 	// main
 	<< fitting_Settings->initialize_By_Current_State	// since 1.7.1
-	<< fitting_Settings->max_Evaluations << fitting_Settings->max_Eval_Factor << fitting_Settings->max_Eval_Check
+        << fitting_Settings->num_Runs_SO << fitting_Settings->max_Evaluations << fitting_Settings->max_Eval_Factor << fitting_Settings->max_Eval_Check
 	// additional
 	<< fitting_Settings->r_Factor_HC << fitting_Settings->D_HC
 	<< fitting_Settings->r_Factor_SA << fitting_Settings->alpha_SA << fitting_Settings->beta_SA << fitting_Settings->T_SA
@@ -140,10 +141,20 @@ QDataStream& operator <<( QDataStream& stream, const Fitting_Settings* fitting_S
 }
 QDataStream& operator >>( QDataStream& stream,		  Fitting_Settings* fitting_Settings )
 {
-	stream >> fitting_Settings->current_Method >> fitting_Settings->num_Runs >> fitting_Settings->randomized_Start;
+        stream >> fitting_Settings->current_Method;
+        if(!Global_Variables::check_Loaded_Version(1,11,33))
+        {
+            int num_Runs = -100500;
+            stream >> num_Runs;
+            fitting_Settings->num_Runs_GSL = num_Runs;
+            fitting_Settings->num_Runs_SO = num_Runs;
+        }
+        stream >> fitting_Settings->randomized_Start;
 
 	/// GSL TRS
 	// main
+        if(Global_Variables::check_Loaded_Version(1,11,33))
+        {stream >> fitting_Settings->num_Runs_GSL;}
 	stream >> fitting_Settings->max_Iter >> fitting_Settings->x_Tolerance >> fitting_Settings->g_Tolerance >> fitting_Settings->f_Tolerance
 	// additional
 	>> fitting_Settings->current_Scale >> fitting_Settings->current_Solver >> fitting_Settings->current_Fdtype
@@ -153,6 +164,8 @@ QDataStream& operator >>( QDataStream& stream,		  Fitting_Settings* fitting_Sett
 	// main
 	if(Global_Variables::check_Loaded_Version(1,7,1))
 	{stream >> fitting_Settings->initialize_By_Current_State; }	// since 1.7.1
+        if(Global_Variables::check_Loaded_Version(1,11,33))
+        {stream >> fitting_Settings->num_Runs_SO;}
 	stream >> fitting_Settings->max_Evaluations >> fitting_Settings->max_Eval_Factor >> fitting_Settings->max_Eval_Check;
 	// additional
 	if(Global_Variables::check_Loaded_Version(1,9,4))	// since 1.9.4

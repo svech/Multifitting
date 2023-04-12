@@ -77,6 +77,7 @@ public:
 	void randomize_Position(bool randomize = true);
 	void check_Maximization();
 
+        int num_Runs();
 	bool run_Fitting();
 	bool fit();
 	bool confidence(const vector<double>& fitables_Pointers_Value_Backup, const vector<double>& confidentials_Pointers_Value_Backup, size_t confidence_Index);

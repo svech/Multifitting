@@ -717,8 +717,17 @@ void Fitting::check_Maximization()
 		for(Target_Curve* target_Curve: multilayer->target_Profiles_Vector)
 		{
 			if(target_Curve->fit_Params.maximize_Integral) {params.maximize = true;}
-		}
-	}
+                }
+        }
+}
+
+int Fitting::num_Runs()
+{
+        if( GSL_Methods.contains(global_Multilayer_Approach->fitting_Settings->current_Method) )
+                return global_Multilayer_Approach->fitting_Settings->num_Runs_GSL;
+        if( SO_Methods.contains(global_Multilayer_Approach->fitting_Settings->current_Method) )
+                return global_Multilayer_Approach->fitting_Settings->num_Runs_SO;
+        return -2023;
 }
 
 bool Fitting::run_Fitting()
@@ -777,7 +786,7 @@ bool Fitting::fit()
 		}
 
 		add_Fit_To_File(params.x, residual_To_Write, default_Fit_Statictics_File, 0);
-		for(int run=1; run<=global_Multilayer_Approach->fitting_Settings->num_Runs; run++)
+                for(int run=1; run<=num_Runs(); run++)
 		{
                         qInfo() << "--------------------------" << endl;
                         qInfo() << "RUN" << run << endl;
@@ -864,14 +873,13 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 			// randomized fit
 			{
                 vector<double> rand_Fit_Residuals_Unsorted;
-                int runs = global_Multilayer_Approach->fitting_Settings->num_Runs;
                 vector<double> rand_Fit_Residuals;
-                rand_Fit_Residuals.reserve(runs);
+                rand_Fit_Residuals.reserve(num_Runs());
 
                 vector<vector<double>> fitables_Pointers_Value_set;
-                fitables_Pointers_Value_set.reserve(runs);
+                fitables_Pointers_Value_set.reserve(num_Runs());
 
-                for(size_t rand_Index=0; rand_Index<runs; rand_Index++)
+                for(size_t rand_Index=0; rand_Index<num_Runs(); rand_Index++)
 				{
                     if(!global_Multilayer_Approach->fitting_Settings->abort)
 					{

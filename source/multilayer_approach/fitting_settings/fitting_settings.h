@@ -15,12 +15,12 @@ public:
 
 	// common
 	QString current_Method;
-	int num_Runs;
 	bool randomized_Start;
 
 	/// for GSL TRS
-	// main
-	int max_Iter;
+        // main
+        int num_Runs_GSL;
+        int max_Iter;
 	double x_Tolerance;
 	double g_Tolerance;
 	double f_Tolerance;
@@ -37,8 +37,9 @@ public:
 
 	/// for SwarmOps
 	// main
-	bool initialize_By_Current_State;
-	int max_Evaluations;
+        bool initialize_By_Current_State;
+        int num_Runs_SO;
+        int max_Evaluations;
 	int max_Eval_Factor;
 	bool max_Eval_Check;
 

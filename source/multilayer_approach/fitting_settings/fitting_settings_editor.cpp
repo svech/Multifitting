@@ -305,7 +305,7 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 			GSL_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
 		GSL_num_Runs_SpinBox = new QSpinBox;
 			GSL_num_Runs_SpinBox->setRange(1, MAX_INTEGER);
-			GSL_num_Runs_SpinBox->setValue(fitting_Settings->num_Runs);
+                        GSL_num_Runs_SpinBox->setValue(fitting_Settings->num_Runs_GSL);
 			GSL_num_Runs_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			GSL_num_Runs_SpinBox->setAccelerated(true);
 			GSL_num_Runs_SpinBox->setEnabled(fitting_Settings->randomized_Start);
@@ -335,7 +335,7 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 			GSL_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
 			GSL_num_Runs_SpinBox->setEnabled(fitting_Settings->randomized_Start);
 		});
-		connect(GSL_num_Runs_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{fitting_Settings->num_Runs = GSL_num_Runs_SpinBox->value();});
+                connect(GSL_num_Runs_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{fitting_Settings->num_Runs_GSL = GSL_num_Runs_SpinBox->value();});
 		connect(GSL_max_Iter_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{fitting_Settings->max_Iter = GSL_max_Iter_SpinBox->value();});
 		connect(GSL_common_Tolerance_Line_Edit, &QLineEdit::textChanged, this, [=]
 		{
@@ -486,7 +486,7 @@ void Fitting_Settings_Editor::create_SO_Main_Params_Group_Box()
 			SO_num_Runs_SpinBox->setEnabled(fitting_Settings->randomized_Start);
 			SO_num_Runs_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			SO_num_Runs_SpinBox->setAccelerated(true);
-			SO_num_Runs_SpinBox->setValue(fitting_Settings->num_Runs);
+                        SO_num_Runs_SpinBox->setValue(fitting_Settings->num_Runs_SO);
 
 		SO_max_Evaluations_Label = new QLabel("Max number of evaluations");
 			SO_max_Evaluations_Label->setDisabled(fitting_Settings->max_Eval_Check);
@@ -525,7 +525,7 @@ void Fitting_Settings_Editor::create_SO_Main_Params_Group_Box()
 		{
 			fitting_Settings->initialize_By_Current_State = SO_initialize_By_Current_Check_Box->isChecked();
 		});
-		connect(SO_num_Runs_SpinBox,		static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{fitting_Settings->num_Runs		  = SO_num_Runs_SpinBox->	    value();});
+                connect(SO_num_Runs_SpinBox,		static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{fitting_Settings->num_Runs_SO = SO_num_Runs_SpinBox->value();});
 		connect(SO_max_Evaluations_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{fitting_Settings->max_Evaluations = SO_max_Evaluations_SpinBox->value();});
 		connect(SO_max_Eval_Factor_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{fitting_Settings->max_Eval_Factor = SO_max_Eval_Factor_SpinBox->value();});
 		connect(SO_max_Eval_Check_Box,		&QCheckBox::toggled,	 this, [=]
