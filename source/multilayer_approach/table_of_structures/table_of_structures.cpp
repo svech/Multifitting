@@ -3943,7 +3943,12 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 			whats_This == whats_This_Domain_Size )
 		{
 			spin_Box->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-		}
+                }
+                if( whats_This == whats_This_Roughness_Peak_Frequency)
+                {
+                        // tanh_sinh integration craches for nu > 1 nm^-1
+                        spin_Box->setMaximum(0.1/coeff);
+                }
 
 		// particles
 		if( whats_This == whats_This_Particle_Average_Distance ||
