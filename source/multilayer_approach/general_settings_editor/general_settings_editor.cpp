@@ -272,7 +272,7 @@ void General_Settings_Editor::create_Interface_Tab()
         QGridLayout* console_Layout = new QGridLayout(console_Groupbox);
         console_Layout->setAlignment(Qt::AlignLeft);
         {
-                QLabel* run_SO_Factor_Label = new QLabel("Step to print SwarmOps fitting:");
+                QLabel* run_SO_Factor_Label = new QLabel("Print step for SwarmOps fitting:");
                 console_Layout->addWidget(run_SO_Factor_Label,0,0,Qt::AlignLeft);
 
                 QSpinBox* run_SO_Factor_SpinBox = new QSpinBox;
@@ -287,7 +287,7 @@ void General_Settings_Editor::create_Interface_Tab()
 
                 //----------------------------------------------------------------------------
 
-                QLabel* run_GSL_Factor_Label = new QLabel("Step to print GSL fitting:");
+                QLabel* run_GSL_Factor_Label = new QLabel("Print step for GSL fitting:");
                 console_Layout->addWidget(run_GSL_Factor_Label,1,0,Qt::AlignLeft);
 
                 QSpinBox* run_GSL_Factor_SpinBox = new QSpinBox;
