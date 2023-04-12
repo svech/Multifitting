@@ -15,15 +15,15 @@
 #include "tree.hh"
 #include "qcustomplot.h"
 
-#define VERSION_MAJOR 1
-#define VERSION_MINOR 11
-#define VERSION_BUILD 33
+#define VERSION_MAJOR 2
+#define VERSION_MINOR 0
+#define VERSION_BUILD 0
 
 using namespace std;
 using namespace boost::math::quadrature;
 class Node;
 
-//#define RELEASE
+#define RELEASE
 
 //#define EXPRTK
 
