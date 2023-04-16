@@ -46,8 +46,8 @@ win32 {
 }
 
 unix {
+    INCLUDEPATH +=  ../../boost_1_81_0
     INCLUDEPATH +=  ../../GSL/gsl_2.7.1/build/include
-
 #    LIBS += -lgsl -lgslcblas # dynamic linking
     LIBS += -L$$PWD/../../GSL/gsl_2.7.1/build/lib_static -lgsl -lgslcblas
     LIBS += -L$$PWD/../../SwarmOps/build -lSwarmOps
