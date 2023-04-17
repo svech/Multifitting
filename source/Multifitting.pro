@@ -9,7 +9,7 @@ CONFIG   += console c++17
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
-TARGET = Multifitting
+TARGET = multifitting
 TEMPLATE = app
 
 #message( $$QMAKE_TARGET.arch )
@@ -25,19 +25,19 @@ INCLUDEPATH +=  ../../RandomOps \
 win32 {
     INCLUDEPATH +=  "C:/Program Files (x86)/C++ libraries/boost_1_81_0"
 
-    # requires prebuilt libs
-    LIBS += ../../RandomOps/build/release/RandomOps.lib \
-            ../../SwarmOps/build/release/SwarmOps.lib
-
     QMAKE_CXXFLAGS += -bigobj
     equals(QMAKE_TARGET.arch, x86) {
                 message( "It's 32-bit build" )
+                    LIBS += ../../RandomOps/build_x86/release/RandomOps.lib \
+                            ../../SwarmOps/build_x86/release/SwarmOps.lib
                     INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/include"
                         LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/cblas.lib" \
                                "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/gsl.lib"
     } else {
     equals(QMAKE_TARGET.arch, x86_64) {
                 message( "It's 64-bit build" )
+                    LIBS += ../../RandomOps/build_x64/release/RandomOps.lib \
+                            ../../SwarmOps/build_x64/release/SwarmOps.lib
                     INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/include"
                         LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/cblas.lib" \
                                     "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/gsl.lib"
