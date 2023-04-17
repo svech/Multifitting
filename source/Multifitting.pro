@@ -9,7 +9,7 @@ CONFIG   += console c++17
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
-TARGET = Multifitting
+TARGET = multifitting
 TEMPLATE = app
 
 #message( $$QMAKE_TARGET.arch )
