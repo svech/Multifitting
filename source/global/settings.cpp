@@ -913,7 +913,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 
 		default_roughness_a4								= structure_Default_Values.value( "default_roughness_a4",							   2E4	).toDouble();
 		default_roughness_a4_min							= structure_Default_Values.value( "default_roughness_a4_min",							 0	).toDouble();
-		default_roughness_a4_max							= structure_Default_Values.value( "default_roughness_a4_max",					       9E5	).toDouble();
+        default_roughness_a4_max							= structure_Default_Values.value( "default_roughness_a4_max",					       9E6	).toDouble();
 
 		default_roughness_peak_sigma						= structure_Default_Values.value( "default_roughness_peak_sigma",						 0	).toDouble();
 		default_roughness_peak_sigma_min					= structure_Default_Values.value( "default_roughness_peak_sigma_min",					 0	).toDouble();

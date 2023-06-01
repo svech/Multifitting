@@ -75,7 +75,7 @@ QLineEdit *MyDoubleSpinBox::myLineEdit() const
 
 double MyDoubleSpinBox::myTextToValue(QString text) {
     // return valueFromText(text); // falls down to min value on exceeding max value
-    return text.toDouble();
+    return Locale.toDouble(text);
 }
 
 void MyDoubleSpinBox::create_Text_Change_Connection()
