@@ -738,7 +738,7 @@ struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 								 bool apply_Roughness = false;
 								 bool apply_Diffuseness = true;
 								 bool show_Sharp_Profile = true;
-								 bool show_Discretization = false;
+                                 bool show_Discretization = true;
 								 bool show_Cursor_Position = false;
 
 								 bool rescale_X = false;
