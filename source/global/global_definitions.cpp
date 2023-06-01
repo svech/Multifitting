@@ -325,6 +325,12 @@ QDataStream& operator >>( QDataStream& stream,		 Detector_2D& detector_2D )
 {
 	stream >> detector_2D.detector_Type;
 
+    // legacy from 1.11.30
+    if(detector_2D.detector_Type == "Matrix")
+        detector_2D.detector_Type = "Linear";
+    if(detector_2D.detector_Type == "Spherical")
+        detector_2D.detector_Type = "Angular";
+
 	if(Global_Variables::check_Loaded_Version(1,11,30))
 	{stream >> detector_2D.set_Pixel_Size;}
 
