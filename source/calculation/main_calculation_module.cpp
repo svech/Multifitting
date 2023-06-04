@@ -304,7 +304,7 @@ void Main_Calculation_Module::calculation_With_Sampling_Spectral_Single(Calculat
 		}
 		else
 		{
-            data_Element.the_Class->calc_cos2_k(0, 0, lambda_Shift);
+            data_Element.the_Class->calc_cos2_k(0, theta_Shift, lambda_Shift);
 			calculation_Tree->calculate_1_Curve(data_Element);
 		}
 	};
@@ -359,8 +359,8 @@ void Main_Calculation_Module::calculation_With_Sampling_Spectral_Single(Calculat
 				}
 			}
 		}
-        data_Element.the_Class->calc_cos2_k(0, 0, 0);
-		if(R_and_T)
+        data_Element.the_Class->calc_cos2_k(0, theta_Shift, 0); // or 0,0,0? what do we want to align here?
+        if(R_and_T)
 		{
 			for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
 			{
@@ -429,7 +429,7 @@ void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Single(Calculati
 		double weight = 0;
 		for(int sampling_Point = 0; sampling_Point<sampled_Position_Vec.size(); sampling_Point++)
 		{
-            data_Element.the_Class->calc_cos2_k(sampled_Position_Vec[sampling_Point], 0, lambda_Shift);
+            data_Element.the_Class->calc_cos2_k(sampled_Position_Vec[sampling_Point], theta_Shift, lambda_Shift);
 			///---------------------------------------------------------------
 			calculation_Tree->calculate_1_Curve(data_Element);
 			///---------------------------------------------------------------
@@ -449,7 +449,7 @@ void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Single(Calculati
 				}
 			}
 		}
-        data_Element.the_Class->calc_cos2_k(0, 0, lambda_Shift);
+        data_Element.the_Class->calc_cos2_k(0, theta_Shift, lambda_Shift); // or 0,0,0? what do we want to align here?
 		if(R_and_T)
 		{
 			for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
@@ -470,7 +470,7 @@ void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Single(Calculati
 	} else
 	{
 		///---------------------------------------------------------------
-        data_Element.the_Class->calc_cos2_k(0, 0, lambda_Shift);
+        data_Element.the_Class->calc_cos2_k(0, theta_Shift, lambda_Shift);
 		calculation_Tree->calculate_1_Curve(data_Element);
 		///---------------------------------------------------------------
 	}
@@ -502,7 +502,7 @@ void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Vector(Calculati
 		double weight = 0;
 		for(int sampling_Point = 0; sampling_Point<sampled_Position_Vec.size(); sampling_Point++)
 		{
-            data_Element.the_Class->calc_cos2_k(sampled_Position_Vec[sampling_Point], 0, lambda_Shift);
+            data_Element.the_Class->calc_cos2_k(sampled_Position_Vec[sampling_Point], theta_Shift, lambda_Shift);
 			///---------------------------------------------------------------
 			calculation_Tree->calculate_1_Curve(data_Element);
 			///---------------------------------------------------------------
@@ -512,7 +512,7 @@ void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Vector(Calculati
 				temporary_State[point_Index] += sampled_Weight_Vec[sampling_Point]*(*calculated_Curve)[point_Index];
 			}
 		}
-        data_Element.the_Class->calc_cos2_k(0, 0, lambda_Shift);
+        data_Element.the_Class->calc_cos2_k(0, theta_Shift, lambda_Shift); // or 0,0,0? what do we want to align here?
 		for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
 		{
 			temporary_State[point_Index] /= weight;
@@ -521,7 +521,7 @@ void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Vector(Calculati
 	} else
 	{
 		///---------------------------------------------------------------
-        data_Element.the_Class->calc_cos2_k(0, 0, lambda_Shift);
+        data_Element.the_Class->calc_cos2_k(0, theta_Shift, lambda_Shift);
 		calculation_Tree->calculate_1_Curve(data_Element);
 		///---------------------------------------------------------------
 	}
@@ -586,9 +586,9 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 					target_Data_Element.the_Class->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 					target_Data_Element.the_Class->measurement.measurement_Type == measurement_Types[Detector_Scan] )
 				{
-					set_PSD_to_1 = true;
-                        target_Data_Element.the_Class->calc_cos2_k(0, 0, 0);
-						calculation_Trees[tab_Index]->calculate_1_Curve(target_Data_Element);
+                    set_PSD_to_1 = true;
+                    target_Data_Element.the_Class->calc_cos2_k(0, 0, 0);
+                    calculation_Trees[tab_Index]->calculate_1_Curve(target_Data_Element);
 					set_PSD_to_1 = false;
 
 					const Data& measurement = target_Data_Element.the_Class->measurement;
