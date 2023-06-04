@@ -257,9 +257,11 @@ void Main_Calculation_Module::calculation_With_Sampling(Calculation_Tree* calcul
 	if( measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
 		measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
-        double theta_Shift = 0;
-        calculation_With_Sampling_Spectral_Single(calculation_Tree, data_Element, measurement.beam_Theta_0_Angle_Vec.size(), &calculated_Values.S, vector_Theta_0, theta_Shift);
-	}
+//        double theta_Shift = 0;
+//        calculation_With_Sampling_Spectral_Single(calculation_Tree, data_Element, measurement.beam_Theta_0_Angle_Vec.size(), &calculated_Values.S, vector_Theta_0, theta_Shift);
+        calculation_With_Sampling_Theta_Vector(calculation_Tree, data_Element, measurement.beam_Theta_0_Angle_Vec.size(), &calculated_Values.S, vector_Theta_0);
+
+    }
 	/// Detector_Scan
 	if( measurement.measurement_Type == measurement_Types[Detector_Scan] )
 	{
@@ -479,7 +481,12 @@ template void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Single<
 template void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Single<Target_Curve>	  (Calculation_Tree*, Data_Element<Target_Curve>&,      size_t, vector<double>*, double, double, bool);
 
 template<typename Type>
-void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Vector(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, double lambda_Shift, double theta_Shift)
+void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Vector(Calculation_Tree* calculation_Tree,
+                                                                       Data_Element<Type>& data_Element,
+                                                                       size_t num_Points,
+                                                                       vector<double>* calculated_Curve,
+                                                                       double lambda_Shift,
+                                                                       double theta_Shift)
 {
 	Data& measurement = data_Element.the_Class->measurement;
 	Distribution& distribution = measurement.beam_Theta_0_Distribution;
@@ -530,12 +537,69 @@ template void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Vector<
 template void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Vector<Target_Curve>	  (Calculation_Tree*, Data_Element<Target_Curve>&,      size_t, vector<double>*, double, double);
 
 template<typename Type>
-void Main_Calculation_Module::calculation_With_Sampling_Theta_Vector(Calculation_Tree *calculation_Tree, Data_Element<Type> &data_Element, size_t num_Points, vector<double> *calculated_Curve)
+void Main_Calculation_Module::calculation_With_Sampling_Theta_Vector(Calculation_Tree *calculation_Tree,
+                                                                     Data_Element<Type> &data_Element,
+                                                                     size_t num_Points,
+                                                                     vector<double> *calculated_Curve,
+                                                                     QString single_Vector_Theta_0)
 {
+    Data& measurement = data_Element.the_Class->measurement;
 
+    Distribution slit_Distr;
+    slit_Distr.distribution_Function = distributions[Gate];
+    slit_Distr.FWHM_distribution = qRadiansToDegrees(measurement.detector_1D.slit_Width/measurement.detector_1D.distance_To_Sample);
+
+    Distribution& distribution = (measurement.detector_1D.detector_Type == detectors[Slit])
+                                     ? slit_Distr
+                                     : measurement.detector_1D.detector_Theta_Resolution;
+
+    if(distribution.distribution_Function == distributions[Gate]) distribution.coverage = 1;
+    distribution.use_Sampling = true;
+    distribution.number_of_Samples = 55;
+
+
+    // anyway
+    QVector<double> sampled_Position_Vec(1, 0);
+    QVector<double> sampled_Weight_Vec(1, 1);
+
+    // if sampled
+    if( distribution.use_Sampling &&
+        distribution.FWHM_distribution>DBL_EPSILON &&
+        distribution.number_of_Samples>1)
+    {
+        sampled_Position_Vec.resize(distribution.number_of_Samples);
+        sampled_Weight_Vec  .resize(distribution.number_of_Samples);
+        Global_Variables::distribution_Sampling(distribution, sampled_Position_Vec, sampled_Weight_Vec);
+
+        // initialization of accumulator
+        vector<double> temporary_State(num_Points);
+        double weight = 0;
+        for(int sampling_Point = 0; sampling_Point<sampled_Position_Vec.size(); sampling_Point++)
+        {
+            double theta_Shift = sampled_Position_Vec[sampling_Point];
+            calculation_With_Sampling_Spectral_Single(calculation_Tree, data_Element, num_Points, calculated_Curve, single_Vector_Theta_0, theta_Shift);
+
+            weight += sampled_Weight_Vec[sampling_Point];
+            for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+            {
+                temporary_State[point_Index] += sampled_Weight_Vec[sampling_Point]*(*calculated_Curve)[point_Index];
+            }
+        }
+        data_Element.the_Class->calc_cos2_k(0, 0, 0);
+        for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+        {
+            temporary_State[point_Index] /= weight;
+        }
+        (*calculated_Curve) = temporary_State;
+
+    } else
+    {
+        double theta_Shift = 0;
+        calculation_With_Sampling_Spectral_Single(calculation_Tree, data_Element, num_Points, calculated_Curve, single_Vector_Theta_0, theta_Shift);
+    }
 }
-template void Main_Calculation_Module::calculation_With_Sampling_Theta_Vector<Independent_Curve>(Calculation_Tree*, Data_Element<Independent_Curve>&, size_t, vector<double>*);
-template void Main_Calculation_Module::calculation_With_Sampling_Theta_Vector<Target_Curve>	    (Calculation_Tree*, Data_Element<Target_Curve>&,      size_t, vector<double>*);
+template void Main_Calculation_Module::calculation_With_Sampling_Theta_Vector<Independent_Curve>(Calculation_Tree*, Data_Element<Independent_Curve>&, size_t, vector<double>*, QString);
+template void Main_Calculation_Module::calculation_With_Sampling_Theta_Vector<Target_Curve>	    (Calculation_Tree*, Data_Element<Target_Curve>&,      size_t, vector<double>*, QString);
 
 
 void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)

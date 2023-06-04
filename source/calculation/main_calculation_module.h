@@ -47,7 +47,7 @@ public:
     template <typename Type>
     void calculation_With_Sampling_Theta_0_Vector(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, double lambda_Shift, double theta_Shift);
     template <typename Type>
-    void calculation_With_Sampling_Theta_Vector(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve);
+    void calculation_With_Sampling_Theta_Vector(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, QString single_Vector_Theta_0);
     void single_Calculation(bool print_And_Verbose = true);
 
 	void wrap_Curve(const Data& measurement,
