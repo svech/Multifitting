@@ -106,8 +106,8 @@ public:
 	void refresh_Description_Label();
 
 	void increase_Mesh_Density(vector<double>& dense_Vector);
-	void calc_Measured_cos2_k(double angle_Shift = 0, double lambda_Shift = 0, bool decrease_Mesh = false);
-	void calc_cos2_k(double angle_Shift = 0, double lambda_Shift = 0);
+    void calc_Measured_cos2_k(double th_0_Shift = 0, double lambda_Shift = 0, bool decrease_Mesh = false);
+    void calc_cos2_k(double th_0_Shift = 0, double lambda_Shift = 0);
 
 	Curve curve;
 	Fit_Params fit_Params;
