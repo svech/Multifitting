@@ -166,7 +166,7 @@ void Independent_Curve::refresh_Description_Label()
 	}
 }
 
-void Independent_Curve::calc_Independent_cos2_k(double th_0_Shift, double lambda_Shift)
+void Independent_Curve::calc_Independent_cos2_k(double th_0_Shift, double th_Shift, double lambda_Shift)
 {
 	// if parameter is active, num points >=3
 
@@ -435,7 +435,7 @@ void Independent_Curve::calc_Independent_cos2_k(double th_0_Shift, double lambda
 
 void Independent_Curve::calc_cos2_k(double th_0_Shift, double th_Shift, double lambda_Shift)
 {
-    calc_Independent_cos2_k(th_0_Shift, lambda_Shift);
+    calc_Independent_cos2_k(th_0_Shift, th_Shift, lambda_Shift);
 }
 
 Independent_Curve& Independent_Curve::operator =(const Independent_Curve& referent_Independent_Curve)

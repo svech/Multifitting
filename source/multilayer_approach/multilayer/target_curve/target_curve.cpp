@@ -727,7 +727,7 @@ void Target_Curve::increase_Mesh_Density(vector<double>& dense_Vector)
 	dense_Vector.back() = curve.shifted_Argument.back();
 }
 
-void Target_Curve::calc_Measured_cos2_k(double th_0_Shift, double lambda_Shift, bool decrease_Mesh)
+void Target_Curve::calc_Measured_cos2_k(double th_0_Shift, double th_Shift, double lambda_Shift, bool decrease_Mesh)
 {
 	if(!loaded_And_Ready) return;
 
@@ -1012,7 +1012,7 @@ void Target_Curve::calc_Measured_cos2_k(double th_0_Shift, double lambda_Shift, 
 
 void Target_Curve::calc_cos2_k(double th_0_Shift, double th_Shift, double lambda_Shift)
 {
-    calc_Measured_cos2_k(th_0_Shift, lambda_Shift);
+    calc_Measured_cos2_k(th_0_Shift, th_Shift, lambda_Shift);
 }
 
 Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve)

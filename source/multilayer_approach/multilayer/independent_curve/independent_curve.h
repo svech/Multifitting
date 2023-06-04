@@ -12,7 +12,7 @@ public:
 	void create_Main_Layout();
 	QString enlarge_Tab_Name();
 	void refresh_Description_Label();
-    void calc_Independent_cos2_k(double th_0_Shift = 0, double lambda_Shift = 0);
+    void calc_Independent_cos2_k(double th_0_Shift = 0, double th_Shift = 0, double lambda_Shift = 0);
     void calc_cos2_k(double th_0_Shift, double th_Shift, double lambda_Shift);
 
 	QHBoxLayout* main_Layout;

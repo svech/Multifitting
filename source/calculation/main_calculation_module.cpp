@@ -42,7 +42,7 @@ void Main_Calculation_Module::decrease_Mesh_Density(Target_Curve* target_Curve, 
 	if(!fit_Mode)
 	{
 		// decrease argument
-		target_Curve->calc_Measured_cos2_k(0,0, true);
+        target_Curve->calc_Measured_cos2_k(0,0,0, true);
 
 		// value vectors
 		vector<double> sparse_Val_s(size);
