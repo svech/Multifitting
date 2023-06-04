@@ -236,7 +236,7 @@ void Independent_Curve::calc_Independent_cos2_k(double th_0_Shift, double th_Shi
 				measurement.detector_Theta_Cos2_Vec. resize(measurement.detector_Theta_Angle.independent.num_Points);
 
 				double angle_Step = (measurement.detector_Theta_Angle.independent.max - measurement.detector_Theta_Angle.independent.min) / (measurement.detector_Theta_Angle.independent.num_Points - 1);
-				double angle_Temp =  measurement.detector_Theta_Angle.independent.min;
+                double angle_Temp =  measurement.detector_Theta_Angle.independent.min + th_Shift;
 				for(int i=0; i<measurement.detector_Theta_Angle.independent.num_Points; ++i)
 				{
 					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
@@ -305,8 +305,9 @@ void Independent_Curve::calc_Independent_cos2_k(double th_0_Shift, double th_Shi
 
 				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
 				{
-                    double angle_Temp = 2*measurement.beam_Theta_0_Specular_Position - measurement.beam_Theta_0_Angle_Vec[i] + th_0_Shift; // remains unchanged, independent of angle_Shift
-					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
+                    double angle_Temp = 2*measurement.beam_Theta_0_Specular_Position - measurement.beam_Theta_0_Angle_Vec[i] + th_0_Shift; // remains unchanged, independent of th_0_Shift
+                    angle_Temp += th_Shift;
+                    measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
 					measurement.detector_Theta_Cos_Vec [i] = cos(qDegreesToRadians(angle_Temp));
 					measurement.detector_Theta_Sin_Vec [i] = sin(qDegreesToRadians(angle_Temp));
 					measurement.detector_Theta_Cos2_Vec[i] = pow(measurement.detector_Theta_Cos_Vec[i],2);
@@ -351,7 +352,8 @@ void Independent_Curve::calc_Independent_cos2_k(double th_0_Shift, double th_Shi
 				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
 				{
                     double angle_Temp = measurement.beam_Theta_0_Angle_Vec[i] - th_0_Shift + measurement.detector_Theta_Offset;
-					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
+                    angle_Temp += th_Shift;
+                    measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
 					measurement.detector_Theta_Cos_Vec [i] = cos(qDegreesToRadians(angle_Temp));
 					measurement.detector_Theta_Sin_Vec [i] = sin(qDegreesToRadians(angle_Temp));
 					measurement.detector_Theta_Cos2_Vec[i] = pow(measurement.detector_Theta_Cos_Vec[i],2);
