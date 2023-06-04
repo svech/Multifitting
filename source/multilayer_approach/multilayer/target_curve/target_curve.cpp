@@ -798,7 +798,7 @@ void Target_Curve::calc_Measured_cos2_k(double th_0_Shift, double th_Shift, doub
 
 				for(size_t i=0; i<shifted_Dense_Argument.size(); ++i)
 				{
-					measurement.detector_Theta_Angle_Vec[i] = shifted_Dense_Argument[i]*coeff_Angular;;
+                    measurement.detector_Theta_Angle_Vec[i] = shifted_Dense_Argument[i]*coeff_Angular + th_Shift;
 					measurement.detector_Theta_Cos_Vec [i] = cos(qDegreesToRadians(measurement.detector_Theta_Angle_Vec[i]));
 					measurement.detector_Theta_Sin_Vec [i] = sin(qDegreesToRadians(measurement.detector_Theta_Angle_Vec[i]));
 					measurement.detector_Theta_Cos2_Vec[i] = pow(measurement.detector_Theta_Cos_Vec[i],2);
@@ -880,7 +880,8 @@ void Target_Curve::calc_Measured_cos2_k(double th_0_Shift, double th_Shift, doub
 				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
                     double angle_Temp = 2*measurement.beam_Theta_0_Specular_Position - measurement.beam_Theta_0_Angle_Vec[i] + th_0_Shift;
-					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
+                    angle_Temp += th_Shift;
+                    measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
 					measurement.detector_Theta_Cos_Vec [i] = cos(qDegreesToRadians(angle_Temp));
 					measurement.detector_Theta_Sin_Vec [i] = sin(qDegreesToRadians(angle_Temp));
 					measurement.detector_Theta_Cos2_Vec[i] = pow(measurement.detector_Theta_Cos_Vec[i],2);
@@ -921,7 +922,7 @@ void Target_Curve::calc_Measured_cos2_k(double th_0_Shift, double th_Shift, doub
 
 				for(size_t i=0; i<shifted_Dense_Argument.size(); ++i)
 				{
-                    measurement.detector_Theta_Angle_Vec[i] = measurement.beam_Theta_0_Angle_Vec[i] + measurement.detector_Theta_Offset - th_0_Shift;
+                    measurement.detector_Theta_Angle_Vec[i] = measurement.beam_Theta_0_Angle_Vec[i] + measurement.detector_Theta_Offset - th_0_Shift + th_Shift;
 					measurement.detector_Theta_Cos_Vec [i] = cos(qDegreesToRadians(measurement.detector_Theta_Angle_Vec[i]));
 					measurement.detector_Theta_Sin_Vec [i] = sin(qDegreesToRadians(measurement.detector_Theta_Angle_Vec[i]));
 					measurement.detector_Theta_Cos2_Vec[i] = pow(measurement.detector_Theta_Cos_Vec[i],2);
