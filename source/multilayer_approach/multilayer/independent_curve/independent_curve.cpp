@@ -433,7 +433,7 @@ void Independent_Curve::calc_Independent_cos2_k(double th_0_Shift, double lambda
 	}
 }
 
-void Independent_Curve::calc_cos2_k(double th_0_Shift, double lambda_Shift)
+void Independent_Curve::calc_cos2_k(double th_0_Shift, double th_Shift, double lambda_Shift)
 {
     calc_Independent_cos2_k(th_0_Shift, lambda_Shift);
 }
