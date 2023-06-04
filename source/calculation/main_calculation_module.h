@@ -44,8 +44,10 @@ public:
     void calculation_With_Sampling_Spectral_Single(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, QString single_Vector_Theta_0, double theta_Shift, bool R_and_T = false);
 	template <typename Type>
     void calculation_With_Sampling_Theta_0_Single(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, double lambda_Shift, double theta_Shift, bool R_and_T = false);
-	template <typename Type>
+    template <typename Type>
     void calculation_With_Sampling_Theta_0_Vector(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, double lambda_Shift, double theta_Shift);
+    template <typename Type>
+    void calculation_With_Sampling_Theta_Vector(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve);
     void single_Calculation(bool print_And_Verbose = true);
 
 	void wrap_Curve(const Data& measurement,

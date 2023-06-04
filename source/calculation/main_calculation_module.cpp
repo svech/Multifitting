@@ -529,6 +529,15 @@ void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Vector(Calculati
 template void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Vector<Independent_Curve>(Calculation_Tree*, Data_Element<Independent_Curve>&, size_t, vector<double>*, double, double);
 template void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Vector<Target_Curve>	  (Calculation_Tree*, Data_Element<Target_Curve>&,      size_t, vector<double>*, double, double);
 
+template<typename Type>
+void Main_Calculation_Module::calculation_With_Sampling_Theta_Vector(Calculation_Tree *calculation_Tree, Data_Element<Type> &data_Element, size_t num_Points, vector<double> *calculated_Curve)
+{
+
+}
+template void Main_Calculation_Module::calculation_With_Sampling_Theta_Vector<Independent_Curve>(Calculation_Tree*, Data_Element<Independent_Curve>&, size_t, vector<double>*);
+template void Main_Calculation_Module::calculation_With_Sampling_Theta_Vector<Target_Curve>	    (Calculation_Tree*, Data_Element<Target_Curve>&,      size_t, vector<double>*);
+
+
 void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 {
 	if(calc_Mode!=CALCULATION)
