@@ -3141,10 +3141,14 @@ double Global_Variables::gauss_Gauss_Integral(double FWHM_a, double FWHM_b, doub
 
 void Global_Variables::distribution_Sampling(Distribution distribution, QVector<double>& positions, QVector<double>& heights)
 {
-	double delta_Bars = (distribution.coverage*distribution.FWHM_distribution)/(distribution.number_of_Samples-1);
+    double coverage = 0.8;
+    if(distribution.distribution_Function == distributions[Gate])	  coverage = distribution_Coverage[Gate];
+    if(distribution.distribution_Function == distributions[Gaussian]) coverage = distribution_Coverage[Gaussian];
+
+    double delta_Bars = (coverage * distribution.FWHM_distribution)/(distribution.number_of_Samples-1);
 	for (int i=0; i<distribution.number_of_Samples; ++i)
 	{
-		double x = -distribution.coverage*distribution.FWHM_distribution/2 + delta_Bars*i;
+        double x = -coverage*distribution.FWHM_distribution/2 + delta_Bars*i;
 		positions[i] = x;
 		heights[i] = distribution_Function(distribution.distribution_Function, distribution.FWHM_distribution, x);
 	}
