@@ -268,6 +268,7 @@ QStringList value_Types		  {"Reflectance", "Transmittance", "Absorptance", "Scat
 QStringList value_Types_Short {"R", "T", "A", "S"};											  // change enum!
 
 // distributions
+QVector<double> distribution_Coverage {1, 2.1};
 QStringList distributions	{ "Gate", "Gaussian" }; //  { "Gate", "Cosine", "Gaussian", "Lorentz" };
 
 // detector types

@@ -101,6 +101,7 @@ enum value_Types_Enum    { Reflectance, Transmittance, Absorptance, Scattering, 
 
 // distributions
 extern QStringList distributions;
+extern QVector<double> distribution_Coverage;
 enum distributions_Enum    { Gate, Gaussian }; // { Gate, Cosine, Gaussian, Lorentz }
 
 // detector types

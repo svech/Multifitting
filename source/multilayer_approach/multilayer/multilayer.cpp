@@ -551,9 +551,9 @@ void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* t
                     type_Curve->measurement.detector_1D.slit_Width = default_detector_1D_slit_width_scattering;
 
                     type_Curve->measurement.spectral_Distribution.use_Sampling = true;
-                    type_Curve->measurement.spectral_Distribution.number_of_Samples = 3;
+                    type_Curve->measurement.spectral_Distribution.number_of_Samples = 5;
                     type_Curve->measurement.beam_Theta_0_Distribution.use_Sampling = true;
-                    type_Curve->measurement.beam_Theta_0_Distribution.number_of_Samples = 3;
+                    type_Curve->measurement.beam_Theta_0_Distribution.number_of_Samples = 5;
 
                     choice_Data_Type_Window->close();
                     open_Editor_Window(type_Curve, type_Curve_Editor);});
