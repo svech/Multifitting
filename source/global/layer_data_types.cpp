@@ -85,19 +85,16 @@ Data::Data(QString item_Type_Passed)
 		// resolution
 		spectral_Distribution.FWHM_distribution		= default_spectral_distribution_FWHM;
 		spectral_Distribution.distribution_Function = distributions[Gaussian];
-		spectral_Distribution.coverage				= default_spectral_distribution_coverage;
         spectral_Distribution.use_Sampling			= default_spectral_distribution_use_sampling;
         spectral_Distribution.number_of_Samples		= default_spectral_distribution_number_of_Samples;
 
 		beam_Theta_0_Distribution.FWHM_distribution = default_beam_theta_0_distribution_FWHM;
 		beam_Theta_0_Distribution.distribution_Function = distributions[Gaussian];
-		beam_Theta_0_Distribution.coverage			= default_beam_theta_0_distribution_coverage;
         beam_Theta_0_Distribution.use_Sampling		= default_beam_theta_0_distribution_use_sampling;
         beam_Theta_0_Distribution.number_of_Samples = default_beam_theta_0_distribution_number_of_Samples;
 
 		beam_Phi_0_Distribution.FWHM_distribution	= default_beam_phi_0_distribution_FWHM;
         beam_Phi_0_Distribution.distribution_Function = distributions[Gaussian];
-        beam_Phi_0_Distribution.coverage			= default_beam_phi_0_distribution_coverage;
         beam_Phi_0_Distribution.use_Sampling		= default_beam_phi_0_distribution_use_sampling;
         beam_Phi_0_Distribution.number_of_Samples	= default_beam_phi_0_distribution_number_of_Samples;
 
@@ -111,7 +108,6 @@ Data::Data(QString item_Type_Passed)
 
 		detector_1D.detector_Theta_Resolution.FWHM_distribution = default_detector_1D_theta_resolution_FWHM;
 		detector_1D.detector_Theta_Resolution.distribution_Function = distributions[Gaussian];
-		detector_1D.detector_Theta_Resolution.coverage = 2;			// unused
 		detector_1D.detector_Theta_Resolution.use_Sampling = false;	// unused
 		detector_1D.detector_Theta_Resolution.number_of_Samples = 5;// unused
 
@@ -123,13 +119,11 @@ Data::Data(QString item_Type_Passed)
 
 		detector_2D.detector_Theta_Resolution.FWHM_distribution = default_detector_2D_theta_resolution_FWHM;
 		detector_2D.detector_Theta_Resolution.distribution_Function = distributions[Gaussian];
-		detector_2D.detector_Theta_Resolution.coverage = 2;			// unused
 		detector_2D.detector_Theta_Resolution.use_Sampling = false;	// unused
 		detector_2D.detector_Theta_Resolution.number_of_Samples = 5;// unused
 
 		detector_2D.detector_Phi_Resolution.FWHM_distribution = default_detector_2D_phi_resolution_FWHM;
 		detector_2D.detector_Phi_Resolution.distribution_Function = distributions[Gaussian];
-		detector_2D.detector_Phi_Resolution.coverage = 2;			// unused
 		detector_2D.detector_Phi_Resolution.use_Sampling = false;	// unused
 		detector_2D.detector_Phi_Resolution.number_of_Samples = 5;	// unused
 

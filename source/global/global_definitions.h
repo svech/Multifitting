@@ -584,7 +584,7 @@ struct Parameter				{double value; Independent independent; Coupled coupled; Con
 								 }};
 struct Distribution             { double FWHM_distribution = 0;
 								  QString distribution_Function = "Gaussian"; // see distributions in global_variables
-								  double coverage = 2; // in units of FWHM
+                                  double coverage = 2; // in units of FWHM // obsolete, don't use
 								  bool use_Sampling = false;
 								  int number_of_Samples = 1;
 								};
