@@ -922,7 +922,8 @@ void Target_Curve::calc_Measured_cos2_k(double th_0_Shift, double th_Shift, doub
 
 				for(size_t i=0; i<shifted_Dense_Argument.size(); ++i)
 				{
-                    measurement.detector_Theta_Angle_Vec[i] = measurement.beam_Theta_0_Angle_Vec[i] + measurement.detector_Theta_Offset - th_0_Shift + th_Shift;
+                    measurement.detector_Theta_Angle_Vec[i] = measurement.beam_Theta_0_Angle_Vec[i] +
+                                                              measurement.detector_Theta_Offset - th_0_Shift + th_Shift;
 					measurement.detector_Theta_Cos_Vec [i] = cos(qDegreesToRadians(measurement.detector_Theta_Angle_Vec[i]));
 					measurement.detector_Theta_Sin_Vec [i] = sin(qDegreesToRadians(measurement.detector_Theta_Angle_Vec[i]));
 					measurement.detector_Theta_Cos2_Vec[i] = pow(measurement.detector_Theta_Cos_Vec[i],2);
