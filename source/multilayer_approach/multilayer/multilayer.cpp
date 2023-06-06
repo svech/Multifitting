@@ -535,14 +535,26 @@ void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* t
 				choice_Data_Type_Group_Box_Layout->setSpacing(5);
 				choice_Data_Type_Group_Box_Layout->setContentsMargins(5,5,5,5);
 
-			// buttons
-                        QPushButton* specular_Button = new QPushButton(measurement_Types[Specular_Scan]);
-                                connect(specular_Button,  &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Specular_Scan]; type_Curve->measurement.detector_1D.slit_Width = default_detector_1D_slit_width_specular;  type_Curve->measurement.detector_1D.slit_Width = 0.8; type_Curve->plot_Options_Calculated.z_Scale = lin_Scale; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
-				choice_Data_Type_Group_Box_Layout->addWidget(specular_Button);
+            // buttons
+                QPushButton* specular_Button = new QPushButton(measurement_Types[Specular_Scan]);
+                connect(specular_Button,  &QPushButton::clicked, this, [=]{
+                    type_Curve->measurement.measurement_Type = measurement_Types[Specular_Scan];
+                    type_Curve->measurement.detector_1D.slit_Width = default_detector_1D_slit_width_specular;
+                    type_Curve->measurement.detector_1D.slit_Width = 0.8;
+                    type_Curve->plot_Options_Calculated.z_Scale = lin_Scale;
+                    choice_Data_Type_Window->close();
+                    open_Editor_Window(type_Curve, type_Curve_Editor);});
+                choice_Data_Type_Group_Box_Layout->addWidget(specular_Button);
             QPushButton* detector_Button = new QPushButton(measurement_Types[Detector_Scan]);
                 connect(detector_Button,  &QPushButton::clicked, this, [=]{
                     type_Curve->measurement.measurement_Type = measurement_Types[Detector_Scan];
                     type_Curve->measurement.detector_1D.slit_Width = default_detector_1D_slit_width_scattering;
+
+                    type_Curve->measurement.spectral_Distribution.use_Sampling = true;
+                    type_Curve->measurement.spectral_Distribution.number_of_Samples = 3;
+                    type_Curve->measurement.beam_Theta_0_Distribution.use_Sampling = true;
+                    type_Curve->measurement.beam_Theta_0_Distribution.number_of_Samples = 3;
+
                     choice_Data_Type_Window->close();
                     open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(detector_Button);
@@ -550,7 +562,12 @@ void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* t
                 connect(rocking_Button,   &QPushButton::clicked, this, [=]{
                     type_Curve->measurement.measurement_Type = measurement_Types[Rocking_Curve];
                     type_Curve->measurement.detector_1D.slit_Width = default_detector_1D_slit_width_scattering;
+
                     type_Curve->measurement.spectral_Distribution.use_Sampling = true;
+                    type_Curve->measurement.spectral_Distribution.number_of_Samples = 3;
+                    type_Curve->measurement.beam_Theta_0_Distribution.use_Sampling = true;
+                    type_Curve->measurement.beam_Theta_0_Distribution.number_of_Samples = 3;
+
                     choice_Data_Type_Window->close();
                     open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(rocking_Button);
@@ -558,7 +575,12 @@ void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* t
                 connect(offset_Button,    &QPushButton::clicked, this, [=]{
                     type_Curve->measurement.measurement_Type = measurement_Types[Offset_Scan];
                     type_Curve->measurement.detector_1D.slit_Width = default_detector_1D_slit_width_scattering;
+
                     type_Curve->measurement.spectral_Distribution.use_Sampling = true;
+                    type_Curve->measurement.spectral_Distribution.number_of_Samples = 3;
+                    type_Curve->measurement.beam_Theta_0_Distribution.use_Sampling = true;
+                    type_Curve->measurement.beam_Theta_0_Distribution.number_of_Samples = 3;
+
                     choice_Data_Type_Window->close();
                     open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(offset_Button);
