@@ -545,17 +545,14 @@ void Main_Calculation_Module::calculation_With_Sampling_Theta_Vector(Calculation
 {
     Data& measurement = data_Element.the_Class->measurement;
 
-    Distribution slit_Distr;
-    slit_Distr.distribution_Function = distributions[Gate];
-    slit_Distr.FWHM_distribution = qRadiansToDegrees(measurement.detector_1D.slit_Width/measurement.detector_1D.distance_To_Sample);
+    // this function is called only for [Offset_Scan] or [Rocking_Curve]
 
-    Distribution& distribution = (measurement.detector_1D.detector_Type == detectors[Slit])
-                                     ? slit_Distr
+    Distribution distribution = (measurement.detector_1D.detector_Type == detectors[Slit])
+                                     ? measurement.detector_1D.detector_Slit_Distribution
                                      : measurement.detector_1D.detector_Theta_Resolution;
 
-    distribution.use_Sampling = true;
-    distribution.number_of_Samples = 1;
-
+    if(measurement.detector_1D.detector_Type == detectors[Slit])
+        distribution.FWHM_distribution = qRadiansToDegrees(measurement.detector_1D.slit_Width/measurement.detector_1D.distance_To_Sample);
 
     // anyway
     QVector<double> sampled_Position_Vec(1, 0);
