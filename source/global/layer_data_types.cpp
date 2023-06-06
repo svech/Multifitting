@@ -86,20 +86,20 @@ Data::Data(QString item_Type_Passed)
 		spectral_Distribution.FWHM_distribution		= default_spectral_distribution_FWHM;
 		spectral_Distribution.distribution_Function = distributions[Gaussian];
 		spectral_Distribution.coverage				= default_spectral_distribution_coverage;
-		spectral_Distribution.use_Sampling			= default_spectral_distribution_use_sampling;
-		spectral_Distribution.number_of_Samples		= default_spectral_distribution_number_of_Samples;
+        spectral_Distribution.use_Sampling			= default_spectral_distribution_use_sampling;
+        spectral_Distribution.number_of_Samples		= default_spectral_distribution_number_of_Samples;
 
 		beam_Theta_0_Distribution.FWHM_distribution = default_beam_theta_0_distribution_FWHM;
 		beam_Theta_0_Distribution.distribution_Function = distributions[Gaussian];
 		beam_Theta_0_Distribution.coverage			= default_beam_theta_0_distribution_coverage;
-		beam_Theta_0_Distribution.use_Sampling		= default_beam_theta_0_distribution_use_sampling;
-		beam_Theta_0_Distribution.number_of_Samples = default_beam_theta_0_distribution_number_of_Samples;
+        beam_Theta_0_Distribution.use_Sampling		= default_beam_theta_0_distribution_use_sampling;
+        beam_Theta_0_Distribution.number_of_Samples = default_beam_theta_0_distribution_number_of_Samples;
 
 		beam_Phi_0_Distribution.FWHM_distribution	= default_beam_phi_0_distribution_FWHM;
-		beam_Phi_0_Distribution.distribution_Function = distributions[Gaussian];
-		beam_Phi_0_Distribution.coverage			= default_beam_phi_0_distribution_coverage;
-		beam_Phi_0_Distribution.use_Sampling		= default_beam_phi_0_distribution_use_sampling;
-		beam_Phi_0_Distribution.number_of_Samples	= default_beam_phi_0_distribution_number_of_Samples;
+        beam_Phi_0_Distribution.distribution_Function = distributions[Gaussian];
+        beam_Phi_0_Distribution.coverage			= default_beam_phi_0_distribution_coverage;
+        beam_Phi_0_Distribution.use_Sampling		= default_beam_phi_0_distribution_use_sampling;
+        beam_Phi_0_Distribution.number_of_Samples	= default_beam_phi_0_distribution_number_of_Samples;
 
 		// detector
 		detector_1D.detector_Type = detectors[Slit];

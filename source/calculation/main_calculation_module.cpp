@@ -555,7 +555,7 @@ void Main_Calculation_Module::calculation_With_Sampling_Theta_Vector(Calculation
 
     if(distribution.distribution_Function == distributions[Gate]) distribution.coverage = 1;
     distribution.use_Sampling = true;
-    distribution.number_of_Samples = 55;
+    distribution.number_of_Samples = 1;
 
 
     // anyway
@@ -2243,29 +2243,29 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 				*calculated_Curve = *working_Curve;
 			}
 
-			// spectral distribution
-			if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
-				if(data_Element.calc_Functions.instrumental_Smoothing)	{
-					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
-					*calculated_Curve = *working_Curve;
-				}
-			}
-			// theta_0 distribution
-			if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
-				if(data_Element.calc_Functions.instrumental_Smoothing)	{
-					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec_Rocking_Offset, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
-	//				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec,				   working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
-					*calculated_Curve = *working_Curve;
-				}
-			}
-			// no beam spot theta_0 for rocking and offset scans
+//            // spectral distribution
+//            if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
+//                if(data_Element.calc_Functions.instrumental_Smoothing)	{
+//                    wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+//                    *calculated_Curve = *working_Curve;
+//                }
+//            }
+//            // theta_0 distribution
+//            if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
+//                if(data_Element.calc_Functions.instrumental_Smoothing)	{
+//                    wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec_Rocking_Offset, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+//    //				wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec,				   working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+//                    *calculated_Curve = *working_Curve;
+//                }
+//            }
+//            // no beam spot theta_0 for rocking and offset scans
 
-			// detector theta
-			if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
-				if(data_Element.calc_Functions.instrumental_Smoothing)	{
-					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution, false, true);
-				}
-			}
+//			// detector theta
+//			if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
+//				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+//					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution, false, true);
+//				}
+//			}
 		}
 		// specular peak
 		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
@@ -2291,20 +2291,20 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 				}
 				*calculated_Curve = *working_Curve;
 			}
-			// spectral distribution
-			if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
-				if(data_Element.calc_Functions.instrumental_Smoothing)	{
-					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
-					*calculated_Curve = *working_Curve;
-				}
-			}
-			// theta_0 distribution
-			if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)	{
-				if(data_Element.calc_Functions.instrumental_Smoothing)	{
-					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
-					*calculated_Curve = *working_Curve;
-				}
-			}
+//			// spectral distribution
+//			if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
+//				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+//					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+//					*calculated_Curve = *working_Curve;
+//				}
+//			}
+//			// theta_0 distribution
+//			if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)	{
+//				if(data_Element.calc_Functions.instrumental_Smoothing)	{
+//					wrap_Curve(measurement, measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+//					*calculated_Curve = *working_Curve;
+//				}
+//			}
 			// beam spot theta_0
 			if(measurement.beam_Geometry.size>DBL_EPSILON || (measurement.beam_Geometry.wings_Full_Width>DBL_EPSILON && measurement.beam_Geometry.wings_Intensity>DBL_EPSILON))		{
 				if(data_Element.calc_Functions.instrumental_Smoothing)	{

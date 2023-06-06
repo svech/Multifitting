@@ -62,6 +62,7 @@ void Distribution_Editor::create_Main_Layout()
 	{
 		totally_Forbid_Sampling = true;
 	}
+
 	Distribution_Box* theta_0_Distribution_Box = new Distribution_Box(measurement.measurement_Type, measurement.beam_Theta_0_Distribution, pre_Name, symbolic_Name, related_Theta_0_SpinBox, angular_Units, totally_Forbid_Sampling);
 	hor_Layout->addWidget(theta_0_Distribution_Box);
 
