@@ -2115,8 +2115,23 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 				>> data.detector_Theta_Angle >> data.detector_Theta_Offset
 				>> data.detector_Phi_Angle
 
-				>> data.spectral_Distribution >> data.beam_Theta_0_Distribution >> data.beam_Phi_0_Distribution
-				>> data.detector_1D >> data.detector_2D
+                >> data.spectral_Distribution >> data.beam_Theta_0_Distribution >> data.beam_Phi_0_Distribution;
+
+        if(!Global_Variables::check_Loaded_Version(2,1,0))
+        {
+            if( data.measurement_Type == measurement_Types[Detector_Scan] ||
+                data.measurement_Type == measurement_Types[Rocking_Curve] ||
+                data.measurement_Type == measurement_Types[Offset_Scan] )
+            {
+                data.spectral_Distribution.use_Sampling = true;
+                data.spectral_Distribution.number_of_Samples = max(data.spectral_Distribution.number_of_Samples, 3);
+
+                data.beam_Theta_0_Distribution.use_Sampling = true;
+                data.beam_Theta_0_Distribution.number_of_Samples = max(data.beam_Theta_0_Distribution.number_of_Samples, 3);
+            }
+        }
+
+        stream  >> data.detector_1D >> data.detector_2D
 
 				>> data.beam_Geometry >> data.sample_Geometry
 				>> data.polarization >> data.background;
