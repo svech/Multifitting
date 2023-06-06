@@ -599,19 +599,22 @@ struct Detector_1D				{ QString detector_Type;
 
                                   Distribution detector_Slit_Distribution;
 
-                                  Detector_1D() {
-                                    detector_Slit_Distribution.FWHM_distribution = slit_Width;
-                                    detector_Slit_Distribution.distribution_Function = "Gate";
-                                    detector_Slit_Distribution.number_of_Samples = 1;
-                                    detector_Slit_Distribution.use_Sampling = true;
-                                  }
-
 								  // crystal
 								  Distribution detector_Theta_Resolution;
 
 								  // binning
 								  bool use_Binning = false;
 								  int binning_Factor = 1;
+
+                                  Detector_1D() {
+                                    detector_Slit_Distribution.FWHM_distribution = slit_Width;
+                                    detector_Slit_Distribution.distribution_Function = "Gate";
+                                    detector_Slit_Distribution.number_of_Samples = 1;
+                                    detector_Slit_Distribution.use_Sampling = true;
+
+                                    detector_Theta_Resolution.number_of_Samples = 1;
+                                    detector_Theta_Resolution.use_Sampling = true;
+                                  }
 								};
 
 struct Detector_2D				{ QString detector_Type;
