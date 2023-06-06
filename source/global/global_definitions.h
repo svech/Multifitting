@@ -601,7 +601,6 @@ struct Detector_1D				{ QString detector_Type;
 
                                   Detector_1D() {
                                     detector_Slit_Distribution.FWHM_distribution = slit_Width;
-                                    detector_Slit_Distribution.coverage = 1;
                                     detector_Slit_Distribution.distribution_Function = "Gate";
                                     detector_Slit_Distribution.number_of_Samples = 1;
                                     detector_Slit_Distribution.use_Sampling = true;

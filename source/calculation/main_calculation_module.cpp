@@ -553,7 +553,6 @@ void Main_Calculation_Module::calculation_With_Sampling_Theta_Vector(Calculation
                                      ? slit_Distr
                                      : measurement.detector_1D.detector_Theta_Resolution;
 
-    if(distribution.distribution_Function == distributions[Gate]) distribution.coverage = 1;
     distribution.use_Sampling = true;
     distribution.number_of_Samples = 1;
 
