@@ -2,7 +2,15 @@
 #include "multilayer_approach/multilayer_approach.h"
 class Multilayer_Approach;
 
-Distribution_Box::Distribution_Box(QString measurement_Type, Distribution& distribution, QString pre_Name, QString symbolic_Name, MyDoubleSpinBox* related_SpinBox, QString angular_Units, bool totally_Forbid_Sampling, QString phi, QWidget *parent) :
+Distribution_Box::Distribution_Box(QString measurement_Type,
+                                   Distribution& distribution,
+                                   QString pre_Name,
+                                   QString symbolic_Name,
+                                   MyDoubleSpinBox* related_SpinBox,
+                                   QString angular_Units,
+                                   bool totally_Forbid_Sampling,
+                                   QString phi,
+                                   QWidget *parent) :
 	distribution(distribution),
 	pre_Name(pre_Name),
 	symbolic_Name(symbolic_Name),

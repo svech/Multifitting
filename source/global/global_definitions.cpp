@@ -294,7 +294,8 @@ QDataStream& operator <<( QDataStream& stream, const Detector_1D& detector_1D )
 {
 	return stream << detector_1D.detector_Type
 				  << detector_1D.slit_Width << detector_1D.distance_To_Sample
-				  << detector_1D.finite_Slit << detector_1D.slit_Length
+                  << detector_1D.finite_Slit << detector_1D.slit_Length
+                  << detector_1D.detector_Slit_Distribution
 				  << detector_1D.detector_Theta_Resolution
 				  << detector_1D.use_Binning << detector_1D.binning_Factor;
 }
@@ -305,7 +306,11 @@ QDataStream& operator >>( QDataStream& stream,		 Detector_1D& detector_1D )
 	if(Global_Variables::check_Loaded_Version(1,11,20))
 	{
 		stream >> detector_1D.finite_Slit >> detector_1D.slit_Length;
-	}
+    }
+    if(Global_Variables::check_Loaded_Version(2,1,0))
+    {
+        stream >> detector_1D.detector_Slit_Distribution;
+    }
 	stream >> detector_1D.detector_Theta_Resolution;
 	if(Global_Variables::check_Loaded_Version(1,11,19))
 	{
