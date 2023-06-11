@@ -591,7 +591,7 @@ struct Distribution             { double FWHM_distribution = 0;
 struct Detector_1D				{ QString detector_Type;
 
 								  // slit
-								  double slit_Width = 0.1;
+                                  double slit_Width = 0.1; // obsolete, don't use
 
 								  bool finite_Slit = true;
 								  double slit_Length = 10;
@@ -607,7 +607,7 @@ struct Detector_1D				{ QString detector_Type;
 								  int binning_Factor = 1;
 
                                   Detector_1D() {
-                                    detector_Slit_Distribution.FWHM_distribution = slit_Width;
+                                    detector_Slit_Distribution.FWHM_distribution = 0.1;
                                     detector_Slit_Distribution.distribution_Function = "Gate";
                                     detector_Slit_Distribution.number_of_Samples = 1;
                                     detector_Slit_Distribution.use_Sampling = true;

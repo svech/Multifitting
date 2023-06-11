@@ -549,7 +549,7 @@ void Main_Calculation_Module::calculation_With_Sampling_Theta_Vector(Calculation
                                      : measurement.detector_1D.detector_Theta_Resolution;
 
     if(measurement.detector_1D.detector_Type == detectors[Slit])
-        distribution.FWHM_distribution = qRadiansToDegrees(measurement.detector_1D.slit_Width/measurement.detector_1D.distance_To_Sample);
+        distribution.FWHM_distribution = qRadiansToDegrees(measurement.detector_1D.detector_Slit_Distribution.FWHM_distribution/measurement.detector_1D.distance_To_Sample);
 
     // anyway
     QVector<double> sampled_Position_Vec(1, 0);

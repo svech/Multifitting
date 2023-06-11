@@ -150,7 +150,7 @@ void Common_Part::create_1D_Detector_GroupBox()
 			slit_Width_SpinBox->setAccelerated(true);
 			slit_Width_SpinBox->setRange(0, MAX_DOUBLE);
 			slit_Width_SpinBox->setDecimals(3);
-			slit_Width_SpinBox->setValue(measurement.detector_1D.slit_Width);
+            slit_Width_SpinBox->setValue(measurement.detector_1D.detector_Slit_Distribution.FWHM_distribution);
 //			slit_Width_SpinBox->setSingleStep(0.01);
 			slit_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			slit_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1168,7 +1168,7 @@ void Common_Part::connecting()
 		// 1D slit width
 		connect(slit_Width_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{
-			measurement.detector_1D.slit_Width = slit_Width_SpinBox->value();
+            measurement.detector_1D.detector_Slit_Distribution.FWHM_distribution = slit_Width_SpinBox->value();
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		// 1D crystal resolution

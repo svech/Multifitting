@@ -100,10 +100,10 @@ Data::Data(QString item_Type_Passed)
 
 		// detector
 		detector_1D.detector_Type = detectors[Slit];
-		if( measurement_Type == measurement_Types[Specular_Scan])	detector_1D.slit_Width = default_detector_1D_slit_width_specular;
+        if( measurement_Type == measurement_Types[Specular_Scan])	detector_1D.detector_Slit_Distribution.FWHM_distribution = default_detector_1D_slit_width_specular;
 		if( measurement_Type == measurement_Types[Detector_Scan] ||
 			measurement_Type == measurement_Types[Rocking_Curve] ||
-			measurement_Type == measurement_Types[Offset_Scan])		detector_1D.slit_Width = default_detector_1D_slit_width_scattering;
+            measurement_Type == measurement_Types[Offset_Scan])		detector_1D.detector_Slit_Distribution.FWHM_distribution = default_detector_1D_slit_width_scattering;
 		detector_1D.distance_To_Sample	= default_detector_1D_distance_to_sample;
 
 		detector_1D.detector_Theta_Resolution.FWHM_distribution = default_detector_1D_theta_resolution_FWHM;
@@ -1157,7 +1157,7 @@ void Data::calc_Mixed_Resolution()
 		measurement_Type == measurement_Types[Offset_Scan] )
 	{
 		// pure detector
-		if(detector_1D.detector_Type == detectors[Slit])	{theta_Resolution_FWHM = qRadiansToDegrees(detector_1D.slit_Width/detector_1D.distance_To_Sample); theta_Distribution = distributions[Gate];}
+        if(detector_1D.detector_Type == detectors[Slit])	{theta_Resolution_FWHM = qRadiansToDegrees(detector_1D.detector_Slit_Distribution.FWHM_distribution/detector_1D.distance_To_Sample); theta_Distribution = distributions[Gate];}
 		if(detector_1D.detector_Type == detectors[Crystal]) {theta_Resolution_FWHM = detector_1D.detector_Theta_Resolution.FWHM_distribution;		 theta_Distribution = detector_1D.detector_Theta_Resolution.distribution_Function;}
 
 		theta_Resolution_Vec.resize(detector_Theta_Angle_Vec.size());
@@ -1229,7 +1229,7 @@ double Data::get_Max_Delta_Theta_Detector() const
 	double max_Delta_Theta_Detector = 0;
 	if(detector_1D.detector_Type == detectors[Slit])
 	{
-		double w_2 = (detector_1D.slit_Width/2);
+        double w_2 = (detector_1D.detector_Slit_Distribution.FWHM_distribution/2);
 		double d = (detector_1D.distance_To_Sample);
 		max_Delta_Theta_Detector = qRadiansToDegrees(atan(w_2/d));  // in degrees
 	}
