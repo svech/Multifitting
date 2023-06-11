@@ -165,12 +165,13 @@ void Common_Part::create_1D_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+        setup_Beam_Distribution_Button_slit = new QPushButton("Set up distribution");
         if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
             measurement.measurement_Type == measurement_Types[Offset_Scan])
         {
-            setup_Beam_Distribution_Button_slit = new QPushButton("Set up distribution");
             slit_Layout->addWidget(setup_Beam_Distribution_Button_slit, 0, Qt::AlignLeft);
-        }
+        } else
+            setup_Beam_Distribution_Button_slit->hide();
 	}
 	// crystal
 	{
@@ -225,15 +226,16 @@ void Common_Part::create_1D_Detector_GroupBox()
         resolution_Function_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
         crystal_Layout->addWidget(resolution_Function_ComboBox,0,Qt::AlignLeft);
 
+        setup_Beam_Distribution_Button_crystal = new QPushButton("Set up distribution");
         if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
             measurement.measurement_Type == measurement_Types[Offset_Scan])
         {
             resolution_Function_ComboBox->hide();
 
             // set up distribution
-            setup_Beam_Distribution_Button_crystal = new QPushButton("Set up distribution");
             crystal_Layout->addWidget(setup_Beam_Distribution_Button_crystal, 0, Qt::AlignLeft);
-        }
+        } else
+            setup_Beam_Distribution_Button_crystal->hide();
 	}
 
 	if(measurement.detector_1D.detector_Type == detectors[Slit])	detectors_Stack->setCurrentIndex(0);
