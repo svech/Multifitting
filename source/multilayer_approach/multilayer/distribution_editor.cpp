@@ -86,3 +86,53 @@ void Distribution_Editor::create_Main_Layout()
 
 	connect(close_Button, &QPushButton::clicked, this, [=]{close();});
 }
+
+Slit_Distribution_Editor::Slit_Distribution_Editor(Data &measurement,
+                                                   QString units,
+                                                   MyDoubleSpinBox *related_SpinBox,
+                                                   QWidget *parent):
+    measurement(measurement),
+    units(units),
+    related_SpinBox(related_SpinBox),
+    QWidget(parent)
+{
+    setWindowTitle("Set up distribution");
+    setWindowModality(Qt::ApplicationModal);
+    setAttribute(Qt::WA_DeleteOnClose);
+    setWindowFlags(Qt::Window);
+    create_Main_Layout();
+}
+
+void Slit_Distribution_Editor::create_Main_Layout()
+{
+    main_Layout = new QVBoxLayout(this);
+    hor_Layout = new QHBoxLayout;
+    main_Layout->addLayout(hor_Layout);
+
+    Distribution& distribution = (measurement.detector_1D.detector_Type == detectors[Slit])
+                                    ? measurement.detector_1D.detector_Slit_Distribution
+                                    : measurement.detector_1D.detector_Theta_Resolution;
+
+    QString pre_Name = "Angular aperture, FWHM, ";
+    QString symbolic_Name = Delta_Big_Sym + Theta_Sym;
+
+    if(measurement.detector_1D.detector_Type == detectors[Slit]) {
+            pre_Name = "";
+            symbolic_Name = "Slit width";
+    }
+
+    Distribution_Box* theta_Distribution_Box = new Distribution_Box(measurement.measurement_Type,
+                                                                    distribution,
+                                                                    pre_Name,
+                                                                    symbolic_Name,
+                                                                    related_SpinBox,
+                                                                    units);
+    hor_Layout->addWidget(theta_Distribution_Box);
+
+    close_Button = new QPushButton("Close");
+    close_Button->adjustSize();
+    close_Button->setFixedSize(close_Button->size());
+    main_Layout->addWidget(close_Button,0,Qt::AlignRight);
+
+    connect(close_Button, &QPushButton::clicked, this, [=]{close();});
+}

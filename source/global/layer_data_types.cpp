@@ -108,8 +108,8 @@ Data::Data(QString item_Type_Passed)
 
 		detector_1D.detector_Theta_Resolution.FWHM_distribution = default_detector_1D_theta_resolution_FWHM;
 		detector_1D.detector_Theta_Resolution.distribution_Function = distributions[Gaussian];
-		detector_1D.detector_Theta_Resolution.use_Sampling = false;	// unused
-		detector_1D.detector_Theta_Resolution.number_of_Samples = 5;// unused
+//		detector_1D.detector_Theta_Resolution.use_Sampling = true;  // defined in global_definitions
+//		detector_1D.detector_Theta_Resolution.number_of_Samples = 1;// defined in global_definitions
 
 
 		detector_2D.detector_Type = detectors[Linear];

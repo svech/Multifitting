@@ -1184,20 +1184,19 @@ void Common_Part::connecting()
             measurement.detector_1D.detector_Theta_Resolution.distribution_Function = resolution_Function_ComboBox->currentText();
             global_Multilayer_Approach->global_Recalculate();
         });
-        // beam distribution button
-        auto lambda = [=]() {
-//            qInfo() << "crystal\n";
-//            qInfo() << "slit\n";
-
-//            Distribution_Editor* distribution_Editor = new Distribution_Editor(measurement,
-//                                                                               independent_Curve->spectral_Units,
-//                                                                               independent_Curve->angular_Units,
-//                                                                               spectral_Width_SpinBox,
-//                                                                               angular_Divergence_SpinBox);
-//            distribution_Editor->show();
-        };
-        connect(setup_Beam_Distribution_Button_crystal, &QPushButton::clicked, lambda);
-        connect(setup_Beam_Distribution_Button_slit, &QPushButton::clicked, lambda);
+        // detector distribution button
+        connect(setup_Beam_Distribution_Button_slit, &QPushButton::clicked, [=]() {
+            Slit_Distribution_Editor* slit_Distribution_Editor = new Slit_Distribution_Editor(measurement,
+                                                                                              "mm" ,
+                                                                                              slit_Width_SpinBox);
+            slit_Distribution_Editor->show();
+        });
+        connect(setup_Beam_Distribution_Button_crystal, &QPushButton::clicked, [=](){
+            Slit_Distribution_Editor* slit_Distribution_Editor = new Slit_Distribution_Editor(measurement,
+                                                                                              angular_Units,
+                                                                                              crystal_Resolution_SpinBox);
+            slit_Distribution_Editor->show();
+        });
 	}
 	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{

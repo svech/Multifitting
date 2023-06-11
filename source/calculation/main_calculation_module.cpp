@@ -257,10 +257,7 @@ void Main_Calculation_Module::calculation_With_Sampling(Calculation_Tree* calcul
 	if( measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
 		measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
-//        double theta_Shift = 0;
-//        calculation_With_Sampling_Spectral_Single(calculation_Tree, data_Element, measurement.beam_Theta_0_Angle_Vec.size(), &calculated_Values.S, vector_Theta_0, theta_Shift);
         calculation_With_Sampling_Theta_Vector(calculation_Tree, data_Element, measurement.beam_Theta_0_Angle_Vec.size(), &calculated_Values.S, vector_Theta_0);
-
     }
 	/// Detector_Scan
 	if( measurement.measurement_Type == measurement_Types[Detector_Scan] )

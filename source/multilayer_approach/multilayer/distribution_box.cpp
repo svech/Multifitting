@@ -121,9 +121,12 @@ void Distribution_Box::create_Box()
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	QLabel* units_Label = new QLabel;
-	if(angle_Units_List.contains(angular_Units)) {units_Label->setText(angular_Units);}
-	groupbox_Layout->addWidget(units_Label,0,2,Qt::AlignLeft);
+    QLabel* units_Label = new QLabel;
+    if(angle_Units_List.contains(angular_Units)) {units_Label->setText(angular_Units);}
+    // for strange units
+    if( !angle_Units_List.contains(angular_Units) &&
+        !wavelength_Units_List.contains(angular_Units)) {units_Label->setText(angular_Units);}
+    groupbox_Layout->addWidget(units_Label,0,2,Qt::AlignLeft);
 
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -136,7 +139,8 @@ void Distribution_Box::create_Box()
 		distribution_ComboBox->setCurrentText(distribution.distribution_Function);
 		distribution_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
 //		if(phi == "phi") distribution_ComboBox->setDisabled(true);
-	groupbox_Layout->addWidget(distribution_ComboBox,1,1,Qt::AlignLeft);
+        if(angular_Units == "mm") distribution_ComboBox->setDisabled(true); // hide for detector slit (ad hoc condition, unreliable)
+        groupbox_Layout->addWidget(distribution_ComboBox,1,1,Qt::AlignLeft);
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
