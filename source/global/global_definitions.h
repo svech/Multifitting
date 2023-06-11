@@ -23,7 +23,7 @@ using namespace std;
 using namespace boost::math::quadrature;
 class Node;
 
-//#define RELEASE
+#define RELEASE
 
 //#define EXPRTK
 
