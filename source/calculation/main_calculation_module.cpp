@@ -299,7 +299,7 @@ void Main_Calculation_Module::calculation_With_Sampling_Spectral_Single(Calculat
 		else
 		if(single_Vector_Theta_0 == vector_Theta_0)
 		{
-            calculation_With_Sampling_Theta_0_Vector(calculation_Tree, data_Element, num_Points, calculated_Curve, theta_Shift, lambda_Shift);
+            calculation_With_Sampling_Theta_0_Vector(calculation_Tree, data_Element, num_Points, calculated_Curve, lambda_Shift, theta_Shift);
 		}
 		else
 		{
