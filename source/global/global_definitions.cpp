@@ -314,6 +314,11 @@ QDataStream& operator >>( QDataStream& stream,		 Detector_1D& detector_1D )
         detector_1D.detector_Slit_Distribution.FWHM_distribution = detector_1D.slit_Width;
     }
 	stream >> detector_1D.detector_Theta_Resolution;
+    if(!Global_Variables::check_Loaded_Version(2,1,0))
+    {
+        detector_1D.detector_Theta_Resolution.number_of_Samples = 1;
+        detector_1D.detector_Theta_Resolution.use_Sampling = true;
+    }
 	if(Global_Variables::check_Loaded_Version(1,11,19))
 	{
 		stream >> detector_1D.use_Binning >> detector_1D.binning_Factor;
