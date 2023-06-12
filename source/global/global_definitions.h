@@ -16,14 +16,14 @@
 #include "qcustomplot.h"
 
 #define VERSION_MAJOR 2
-#define VERSION_MINOR 0
-#define VERSION_BUILD 1
+#define VERSION_MINOR 1
+#define VERSION_BUILD 0
 
 using namespace std;
 using namespace boost::math::quadrature;
 class Node;
 
-//#define RELEASE
+#define RELEASE
 
 //#define EXPRTK
 
@@ -584,18 +584,20 @@ struct Parameter				{double value; Independent independent; Coupled coupled; Con
 								 }};
 struct Distribution             { double FWHM_distribution = 0;
 								  QString distribution_Function = "Gaussian"; // see distributions in global_variables
-								  double coverage = 2; // in units of FWHM
+                                  double coverage = 2; // in units of FWHM // obsolete, don't use
 								  bool use_Sampling = false;
 								  int number_of_Samples = 1;
 								};
 struct Detector_1D				{ QString detector_Type;
 
 								  // slit
-								  double slit_Width = 0.1;
+                                  double slit_Width = 0.1; // obsolete, don't use
 
 								  bool finite_Slit = true;
 								  double slit_Length = 10;
-								  double distance_To_Sample = 300;
+                                  double distance_To_Sample = 300;
+
+                                  Distribution detector_Slit_Distribution;
 
 								  // crystal
 								  Distribution detector_Theta_Resolution;
@@ -603,6 +605,16 @@ struct Detector_1D				{ QString detector_Type;
 								  // binning
 								  bool use_Binning = false;
 								  int binning_Factor = 1;
+
+                                  Detector_1D() {
+                                    detector_Slit_Distribution.FWHM_distribution = 0.1;
+                                    detector_Slit_Distribution.distribution_Function = "Gate";
+                                    detector_Slit_Distribution.number_of_Samples = 1;
+                                    detector_Slit_Distribution.use_Sampling = true;
+
+                                    detector_Theta_Resolution.number_of_Samples = 1;
+                                    detector_Theta_Resolution.use_Sampling = true;
+                                  }
 								};
 
 struct Detector_2D				{ QString detector_Type;

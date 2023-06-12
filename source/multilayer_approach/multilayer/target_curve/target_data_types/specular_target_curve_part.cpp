@@ -1180,7 +1180,9 @@ void Specular_Target_Curve_Part::connecting()
 																		   target_Curve->spectral_Units,
 																		   target_Curve->angular_Units,
 																		   spectral_Width_SpinBox,
-																		   angular_Divergence_SpinBox);
+                                                                           angular_Divergence_SpinBox,
+                                                                           nullptr,
+                                                                           this);
 		distribution_Editor->show();
 	});
 }

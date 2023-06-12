@@ -739,7 +739,9 @@ void Specular_Independent_Curve_Part::connecting()
 																		   independent_Curve->spectral_Units,
 																		   independent_Curve->angular_Units,
 																		   spectral_Width_SpinBox,
-																		   angular_Divergence_SpinBox);
+                                                                           angular_Divergence_SpinBox,
+                                                                           nullptr,
+                                                                           this);
 		distribution_Editor->show();
 	});
 }

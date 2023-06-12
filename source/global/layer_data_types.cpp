@@ -85,35 +85,31 @@ Data::Data(QString item_Type_Passed)
 		// resolution
 		spectral_Distribution.FWHM_distribution		= default_spectral_distribution_FWHM;
 		spectral_Distribution.distribution_Function = distributions[Gaussian];
-		spectral_Distribution.coverage				= default_spectral_distribution_coverage;
-		spectral_Distribution.use_Sampling			= default_spectral_distribution_use_sampling;
-		spectral_Distribution.number_of_Samples		= default_spectral_distribution_number_of_Samples;
+        spectral_Distribution.use_Sampling			= default_spectral_distribution_use_sampling;
+        spectral_Distribution.number_of_Samples		= default_spectral_distribution_number_of_Samples;
 
 		beam_Theta_0_Distribution.FWHM_distribution = default_beam_theta_0_distribution_FWHM;
 		beam_Theta_0_Distribution.distribution_Function = distributions[Gaussian];
-		beam_Theta_0_Distribution.coverage			= default_beam_theta_0_distribution_coverage;
-		beam_Theta_0_Distribution.use_Sampling		= default_beam_theta_0_distribution_use_sampling;
-		beam_Theta_0_Distribution.number_of_Samples = default_beam_theta_0_distribution_number_of_Samples;
+        beam_Theta_0_Distribution.use_Sampling		= default_beam_theta_0_distribution_use_sampling;
+        beam_Theta_0_Distribution.number_of_Samples = default_beam_theta_0_distribution_number_of_Samples;
 
 		beam_Phi_0_Distribution.FWHM_distribution	= default_beam_phi_0_distribution_FWHM;
-		beam_Phi_0_Distribution.distribution_Function = distributions[Gaussian];
-		beam_Phi_0_Distribution.coverage			= default_beam_phi_0_distribution_coverage;
-		beam_Phi_0_Distribution.use_Sampling		= default_beam_phi_0_distribution_use_sampling;
-		beam_Phi_0_Distribution.number_of_Samples	= default_beam_phi_0_distribution_number_of_Samples;
+        beam_Phi_0_Distribution.distribution_Function = distributions[Gaussian];
+        beam_Phi_0_Distribution.use_Sampling		= default_beam_phi_0_distribution_use_sampling;
+        beam_Phi_0_Distribution.number_of_Samples	= default_beam_phi_0_distribution_number_of_Samples;
 
 		// detector
 		detector_1D.detector_Type = detectors[Slit];
-		if( measurement_Type == measurement_Types[Specular_Scan])	detector_1D.slit_Width = default_detector_1D_slit_width_specular;
+        if( measurement_Type == measurement_Types[Specular_Scan])	detector_1D.detector_Slit_Distribution.FWHM_distribution = default_detector_1D_slit_width_specular;
 		if( measurement_Type == measurement_Types[Detector_Scan] ||
 			measurement_Type == measurement_Types[Rocking_Curve] ||
-			measurement_Type == measurement_Types[Offset_Scan])		detector_1D.slit_Width = default_detector_1D_slit_width_scattering;
+            measurement_Type == measurement_Types[Offset_Scan])		detector_1D.detector_Slit_Distribution.FWHM_distribution = default_detector_1D_slit_width_scattering;
 		detector_1D.distance_To_Sample	= default_detector_1D_distance_to_sample;
 
 		detector_1D.detector_Theta_Resolution.FWHM_distribution = default_detector_1D_theta_resolution_FWHM;
 		detector_1D.detector_Theta_Resolution.distribution_Function = distributions[Gaussian];
-		detector_1D.detector_Theta_Resolution.coverage = 2;			// unused
-		detector_1D.detector_Theta_Resolution.use_Sampling = false;	// unused
-		detector_1D.detector_Theta_Resolution.number_of_Samples = 5;// unused
+//		detector_1D.detector_Theta_Resolution.use_Sampling = true;  // defined in global_definitions
+//		detector_1D.detector_Theta_Resolution.number_of_Samples = 1;// defined in global_definitions
 
 
 		detector_2D.detector_Type = detectors[Linear];
@@ -123,13 +119,11 @@ Data::Data(QString item_Type_Passed)
 
 		detector_2D.detector_Theta_Resolution.FWHM_distribution = default_detector_2D_theta_resolution_FWHM;
 		detector_2D.detector_Theta_Resolution.distribution_Function = distributions[Gaussian];
-		detector_2D.detector_Theta_Resolution.coverage = 2;			// unused
 		detector_2D.detector_Theta_Resolution.use_Sampling = false;	// unused
 		detector_2D.detector_Theta_Resolution.number_of_Samples = 5;// unused
 
 		detector_2D.detector_Phi_Resolution.FWHM_distribution = default_detector_2D_phi_resolution_FWHM;
 		detector_2D.detector_Phi_Resolution.distribution_Function = distributions[Gaussian];
-		detector_2D.detector_Phi_Resolution.coverage = 2;			// unused
 		detector_2D.detector_Phi_Resolution.use_Sampling = false;	// unused
 		detector_2D.detector_Phi_Resolution.number_of_Samples = 5;	// unused
 
@@ -1163,7 +1157,7 @@ void Data::calc_Mixed_Resolution()
 		measurement_Type == measurement_Types[Offset_Scan] )
 	{
 		// pure detector
-		if(detector_1D.detector_Type == detectors[Slit])	{theta_Resolution_FWHM = qRadiansToDegrees(detector_1D.slit_Width/detector_1D.distance_To_Sample); theta_Distribution = distributions[Gate];}
+        if(detector_1D.detector_Type == detectors[Slit])	{theta_Resolution_FWHM = qRadiansToDegrees(detector_1D.detector_Slit_Distribution.FWHM_distribution/detector_1D.distance_To_Sample); theta_Distribution = distributions[Gate];}
 		if(detector_1D.detector_Type == detectors[Crystal]) {theta_Resolution_FWHM = detector_1D.detector_Theta_Resolution.FWHM_distribution;		 theta_Distribution = detector_1D.detector_Theta_Resolution.distribution_Function;}
 
 		theta_Resolution_Vec.resize(detector_Theta_Angle_Vec.size());
@@ -1235,7 +1229,7 @@ double Data::get_Max_Delta_Theta_Detector() const
 	double max_Delta_Theta_Detector = 0;
 	if(detector_1D.detector_Type == detectors[Slit])
 	{
-		double w_2 = (detector_1D.slit_Width/2);
+        double w_2 = (detector_1D.detector_Slit_Distribution.FWHM_distribution/2);
 		double d = (detector_1D.distance_To_Sample);
 		max_Delta_Theta_Detector = qRadiansToDegrees(atan(w_2/d));  // in degrees
 	}
@@ -2121,8 +2115,23 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 				>> data.detector_Theta_Angle >> data.detector_Theta_Offset
 				>> data.detector_Phi_Angle
 
-				>> data.spectral_Distribution >> data.beam_Theta_0_Distribution >> data.beam_Phi_0_Distribution
-				>> data.detector_1D >> data.detector_2D
+                >> data.spectral_Distribution >> data.beam_Theta_0_Distribution >> data.beam_Phi_0_Distribution;
+
+        if(!Global_Variables::check_Loaded_Version(2,1,0))
+        {
+            if( data.measurement_Type == measurement_Types[Detector_Scan] ||
+                data.measurement_Type == measurement_Types[Rocking_Curve] ||
+                data.measurement_Type == measurement_Types[Offset_Scan] )
+            {
+                data.spectral_Distribution.use_Sampling = true;
+                data.spectral_Distribution.number_of_Samples = max(data.spectral_Distribution.number_of_Samples, 3);
+
+                data.beam_Theta_0_Distribution.use_Sampling = true;
+                data.beam_Theta_0_Distribution.number_of_Samples = max(data.beam_Theta_0_Distribution.number_of_Samples, 3);
+            }
+        }
+
+        stream  >> data.detector_1D >> data.detector_2D
 
 				>> data.beam_Geometry >> data.sample_Geometry
 				>> data.polarization >> data.background;

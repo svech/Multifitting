@@ -12,6 +12,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext& context, const QS
 								 ))
             &&!msg.startsWith("void __cdecl")
             &&!msg.startsWith("void QCPLayer") // suppressing QCP warnings when repaint hidden plots
+            &&!msg.startsWith("failed to create compose table")
             )
     {
 		QByteArray localMsg = msg.toLocal8Bit();

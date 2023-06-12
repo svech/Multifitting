@@ -268,7 +268,14 @@ QStringList value_Types		  {"Reflectance", "Transmittance", "Absorptance", "Scat
 QStringList value_Types_Short {"R", "T", "A", "S"};											  // change enum!
 
 // distributions
+QVector<double> distribution_Coverage {1, 2.1};
 QStringList distributions	{ "Gate", "Gaussian" }; //  { "Gate", "Cosine", "Gaussian", "Lorentz" };
+extern double coverage(QString distr)
+{
+    if(distr == distributions[Gate]) return distribution_Coverage[Gate];
+    if(distr == distributions[Gaussian]) return distribution_Coverage[Gaussian];
+    return 0.8;
+}
 
 // detector types
 QStringList detectors = { "Slit", "Crystal", "Angular", "Linear" };
@@ -3140,10 +3147,11 @@ double Global_Variables::gauss_Gauss_Integral(double FWHM_a, double FWHM_b, doub
 
 void Global_Variables::distribution_Sampling(Distribution distribution, QVector<double>& positions, QVector<double>& heights)
 {
-	double delta_Bars = (distribution.coverage*distribution.FWHM_distribution)/(distribution.number_of_Samples-1);
+    double cover = coverage(distribution.distribution_Function);
+    double delta_Bars = (cover * distribution.FWHM_distribution)/(distribution.number_of_Samples-1);
 	for (int i=0; i<distribution.number_of_Samples; ++i)
 	{
-		double x = -distribution.coverage*distribution.FWHM_distribution/2 + delta_Bars*i;
+        double x = -cover*distribution.FWHM_distribution/2 + delta_Bars*i;
 		positions[i] = x;
 		heights[i] = distribution_Function(distribution.distribution_Function, distribution.FWHM_distribution, x);
 	}

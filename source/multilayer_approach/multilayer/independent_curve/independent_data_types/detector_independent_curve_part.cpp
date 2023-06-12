@@ -548,12 +548,14 @@ void Detector_Independent_Curve_Part::connecting()
 	});
 	// beam distribution button
 	connect(setup_Beam_Distribution_Button, &QPushButton::clicked, this, [=]
-	{
+    {
 		Distribution_Editor* distribution_Editor = new Distribution_Editor(independent_Curve->measurement,
 																		   independent_Curve->spectral_Units,
 																		   independent_Curve->angular_Units,
 																		   spectral_Width_SpinBox,
-																		   angular_Divergence_SpinBox);
+                                                                           angular_Divergence_SpinBox,
+                                                                           nullptr,
+                                                                           this);
 		distribution_Editor->show();
 	});
 }

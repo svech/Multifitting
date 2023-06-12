@@ -2,7 +2,15 @@
 #include "multilayer_approach/multilayer_approach.h"
 class Multilayer_Approach;
 
-Distribution_Box::Distribution_Box(QString measurement_Type, Distribution& distribution, QString pre_Name, QString symbolic_Name, MyDoubleSpinBox* related_SpinBox, QString angular_Units, bool totally_Forbid_Sampling, QString phi, QWidget *parent) :
+Distribution_Box::Distribution_Box(QString measurement_Type,
+                                   Distribution& distribution,
+                                   QString pre_Name,
+                                   QString symbolic_Name,
+                                   MyDoubleSpinBox* related_SpinBox,
+                                   QString angular_Units,
+                                   bool totally_Forbid_Sampling,
+                                   QString phi,
+                                   QWidget *parent) :
 	distribution(distribution),
 	pre_Name(pre_Name),
 	symbolic_Name(symbolic_Name),
@@ -113,9 +121,12 @@ void Distribution_Box::create_Box()
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	QLabel* units_Label = new QLabel;
-	if(angle_Units_List.contains(angular_Units)) {units_Label->setText(angular_Units);}
-	groupbox_Layout->addWidget(units_Label,0,2,Qt::AlignLeft);
+    QLabel* units_Label = new QLabel;
+    if(angle_Units_List.contains(angular_Units)) {units_Label->setText(angular_Units);}
+    // for strange units
+    if( !angle_Units_List.contains(angular_Units) &&
+        !wavelength_Units_List.contains(angular_Units)) {units_Label->setText(angular_Units);}
+    groupbox_Layout->addWidget(units_Label,0,2,Qt::AlignLeft);
 
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -128,7 +139,8 @@ void Distribution_Box::create_Box()
 		distribution_ComboBox->setCurrentText(distribution.distribution_Function);
 		distribution_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
 //		if(phi == "phi") distribution_ComboBox->setDisabled(true);
-	groupbox_Layout->addWidget(distribution_ComboBox,1,1,Qt::AlignLeft);
+        if(angular_Units == "mm") distribution_ComboBox->setDisabled(true); // hide for detector slit (ad hoc condition, unreliable)
+        groupbox_Layout->addWidget(distribution_ComboBox,1,1,Qt::AlignLeft);
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -136,28 +148,17 @@ void Distribution_Box::create_Box()
 		sampling_Checkbox->setChecked(distribution.use_Sampling);
 	groupbox_Layout->addWidget(sampling_Checkbox,2,0,Qt::AlignLeft);	
 	sampling_Checkbox->setDisabled(totally_Forbid_Sampling);
-
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-	coverage_Label = new QLabel("Coverage (in units of FWHM)");
-	groupbox_Layout->addWidget(coverage_Label,3,0,Qt::AlignLeft);
-	coverage_Label->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
-
-	coverage_SpinBox = new MyDoubleSpinBox(this,false);
-		coverage_SpinBox->setAccelerated(true);
-		coverage_SpinBox->setRange(0.1, 50);
-		coverage_SpinBox->setDecimals(3);
-		coverage_SpinBox->setValue(distribution.coverage);
-		coverage_SpinBox->setSingleStep(0.1);
-		coverage_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		coverage_SpinBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
-	groupbox_Layout->addWidget(coverage_SpinBox,3,1,Qt::AlignLeft);
-	coverage_SpinBox->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
+    if( measurement_Type == measurement_Types[Detector_Scan] ||
+        measurement_Type == measurement_Types[Rocking_Curve] ||
+        measurement_Type == measurement_Types[Offset_Scan] )
+    {
+        sampling_Checkbox->setDisabled(true);
+    }
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	samples_Label = new QLabel("Number of samples");
-	groupbox_Layout->addWidget(samples_Label,4,0,Qt::AlignLeft);
+    groupbox_Layout->addWidget(samples_Label,3,0,Qt::AlignLeft);
 	samples_Label->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
 
 	sample_SpinBox = new QSpinBox;
@@ -167,7 +168,7 @@ void Distribution_Box::create_Box()
 		sample_SpinBox->setSingleStep(2);
 		sample_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		sample_SpinBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
-	groupbox_Layout->addWidget(sample_SpinBox,4,1,Qt::AlignLeft);
+    groupbox_Layout->addWidget(sample_SpinBox,3,1,Qt::AlignLeft);
 	sample_SpinBox->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
 }
 
@@ -198,8 +199,8 @@ double Distribution_Box::save_To_Value(double nominal_input)
 void Distribution_Box::replot()
 {
 	int data_Count = 301;
-	double FWHM = distribution.FWHM_distribution;
-	double limit = distribution.coverage*FWHM;
+    double FWHM = distribution.FWHM_distribution;
+    double limit = coverage(distribution.distribution_Function)*FWHM;
 	double delta = (2*limit)/(data_Count-1);
 
 	// shape
@@ -268,7 +269,6 @@ void Distribution_Box::connecting()
 		distribution.use_Sampling = sampling_Checkbox->isChecked();
 
 		coverage_Label  ->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
-		coverage_SpinBox->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
 		samples_Label   ->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
 		sample_SpinBox  ->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
 
@@ -280,14 +280,6 @@ void Distribution_Box::connecting()
 	connect(sample_SpinBox,  static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 	{
 		distribution.number_of_Samples = sample_SpinBox->value();
-
-		replot();
-		global_Multilayer_Approach->global_Recalculate();
-	});
-	// coverage
-	connect(coverage_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-	{
-		distribution.coverage = coverage_SpinBox->value();
 
 		replot();
 		global_Multilayer_Approach->global_Recalculate();

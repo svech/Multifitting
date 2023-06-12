@@ -43,7 +43,9 @@ public:
 	QLabel* detector_Type_Label;
 	QComboBox* detector_Type_ComboBox;
 	MyDoubleSpinBox* detector_Distance_SpinBox;
-	QStackedWidget* detectors_Stack;
+    QPushButton* setup_Beam_Distribution_Button_slit;
+    QPushButton* setup_Beam_Distribution_Button_crystal;
+    QStackedWidget* detectors_Stack;
 	QComboBox* resolution_Function_ComboBox;
 	QCheckBox* use_Binning_Checkbox;
 	QCheckBox* finite_Slit_Length_Checkbox;

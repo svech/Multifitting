@@ -130,7 +130,7 @@ void Common_Part::create_1D_Detector_GroupBox()
 	{
 		detectors_Stack = new QStackedWidget;
 		second_Row_Layout->addWidget(detectors_Stack);
-	}
+    }
 	// slit
 	{
 		QWidget* slit_Page = new QWidget;
@@ -150,7 +150,7 @@ void Common_Part::create_1D_Detector_GroupBox()
 			slit_Width_SpinBox->setAccelerated(true);
 			slit_Width_SpinBox->setRange(0, MAX_DOUBLE);
 			slit_Width_SpinBox->setDecimals(3);
-			slit_Width_SpinBox->setValue(measurement.detector_1D.slit_Width);
+            slit_Width_SpinBox->setValue(measurement.detector_1D.detector_Slit_Distribution.FWHM_distribution);
 //			slit_Width_SpinBox->setSingleStep(0.01);
 			slit_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			slit_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -164,6 +164,14 @@ void Common_Part::create_1D_Detector_GroupBox()
 		slit_Layout->addWidget(mm_Width_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        setup_Beam_Distribution_Button_slit = new QPushButton("Set up distribution");
+        if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+            measurement.measurement_Type == measurement_Types[Offset_Scan])
+        {
+            slit_Layout->addWidget(setup_Beam_Distribution_Button_slit, 0, Qt::AlignLeft);
+        } else
+            setup_Beam_Distribution_Button_slit->hide();
 	}
 	// crystal
 	{
@@ -201,17 +209,33 @@ void Common_Part::create_1D_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* crystal_Resolution_Function_Label = new QLabel(" ");
-		if(!is_Independent) crystal_Resolution_Function_Label->setText("     Function");
-		crystal_Layout->addWidget(crystal_Resolution_Function_Label,0,Qt::AlignLeft);
+        QLabel* crystal_Resolution_Function_Label = new QLabel(" ");
+        if(!is_Independent) crystal_Resolution_Function_Label->setText("     Function");
+        crystal_Layout->addWidget(crystal_Resolution_Function_Label,0,Qt::AlignLeft);
+        if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+            measurement.measurement_Type == measurement_Types[Offset_Scan])
+        {
+            crystal_Resolution_Function_Label->hide();
+        }
 
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		resolution_Function_ComboBox = new QComboBox;
-			resolution_Function_ComboBox->addItems(distributions);
-			resolution_Function_ComboBox->setCurrentText(measurement.detector_1D.detector_Theta_Resolution.distribution_Function);
-			resolution_Function_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
-		crystal_Layout->addWidget(resolution_Function_ComboBox,0,Qt::AlignLeft);
+        resolution_Function_ComboBox = new QComboBox;
+        resolution_Function_ComboBox->addItems(distributions);
+        resolution_Function_ComboBox->setCurrentText(measurement.detector_1D.detector_Theta_Resolution.distribution_Function);
+        resolution_Function_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
+        crystal_Layout->addWidget(resolution_Function_ComboBox,0,Qt::AlignLeft);
+
+        setup_Beam_Distribution_Button_crystal = new QPushButton("Set up distribution");
+        if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+            measurement.measurement_Type == measurement_Types[Offset_Scan])
+        {
+            resolution_Function_ComboBox->hide();
+
+            // set up distribution
+            crystal_Layout->addWidget(setup_Beam_Distribution_Button_crystal, 0, Qt::AlignLeft);
+        } else
+            setup_Beam_Distribution_Button_crystal->hide();
 	}
 
 	if(measurement.detector_1D.detector_Type == detectors[Slit])	detectors_Stack->setCurrentIndex(0);
@@ -1146,7 +1170,7 @@ void Common_Part::connecting()
 		// 1D slit width
 		connect(slit_Width_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{
-			measurement.detector_1D.slit_Width = slit_Width_SpinBox->value();
+            measurement.detector_1D.detector_Slit_Distribution.FWHM_distribution = slit_Width_SpinBox->value();
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		// 1D crystal resolution
@@ -1157,11 +1181,26 @@ void Common_Part::connecting()
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		// resolution function
-		connect(resolution_Function_ComboBox, &QComboBox::currentTextChanged, this, [=]
-		{
-			measurement.detector_1D.detector_Theta_Resolution.distribution_Function = resolution_Function_ComboBox->currentText();
-			global_Multilayer_Approach->global_Recalculate();
-		});
+        connect(resolution_Function_ComboBox, &QComboBox::currentTextChanged, this, [=]
+        {
+            measurement.detector_1D.detector_Theta_Resolution.distribution_Function = resolution_Function_ComboBox->currentText();
+            global_Multilayer_Approach->global_Recalculate();
+        });
+        // detector distribution button
+        connect(setup_Beam_Distribution_Button_slit, &QPushButton::clicked, [=]() {
+            Slit_Distribution_Editor* slit_Distribution_Editor = new Slit_Distribution_Editor(measurement,
+                                                                                              "mm" ,
+                                                                                              slit_Width_SpinBox,
+                                                                                              this);
+            slit_Distribution_Editor->show();
+        });
+        connect(setup_Beam_Distribution_Button_crystal, &QPushButton::clicked, [=](){
+            Slit_Distribution_Editor* slit_Distribution_Editor = new Slit_Distribution_Editor(measurement,
+                                                                                              angular_Units,
+                                                                                              crystal_Resolution_SpinBox,
+                                                                                              this);
+            slit_Distribution_Editor->show();
+        });
 	}
 	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{

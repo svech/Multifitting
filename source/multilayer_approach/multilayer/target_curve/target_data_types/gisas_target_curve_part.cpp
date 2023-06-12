@@ -1232,7 +1232,8 @@ void GISAS_Target_Curve_Part::connecting()
 																		   target_Curve->angular_Units,
 																		   spectral_Width_SpinBox,
 																		   angular_Divergence_Theta_0_SpinBox,
-																		   angular_Divergence_Phi_0_SpinBox);
+                                                                           angular_Divergence_Phi_0_SpinBox,
+                                                                           this);
 		distribution_Editor->show();
 	});
 }
