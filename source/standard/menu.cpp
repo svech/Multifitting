@@ -1,8 +1,8 @@
 #include "menu.h"
 #include "multilayer_approach/table_of_structures/table_of_structures.h"
 
-const QString engManualName = "Multifitting_manual_English_v2.0.pdf";
-const QString rusManualName = "Multifitting_manual_Russian_v2.0.pdf";
+const QString engManualName = "Multifitting_manual_English.pdf";
+const QString rusManualName = "Multifitting_manual_Russian.pdf";
 
 Menu::Menu(QString window_Type, QWidget *parent):
 	window_Type(window_Type),
