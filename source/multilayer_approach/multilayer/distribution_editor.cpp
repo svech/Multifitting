@@ -18,6 +18,7 @@ Distribution_Editor::Distribution_Editor(Data& measurement, QString spectral_Uni
 	setAttribute(Qt::WA_DeleteOnClose);
 	setWindowFlags(Qt::Window);
 	create_Main_Layout();
+    Global_Variables::create_Shortcuts(this);
 }
 
 void Distribution_Editor::create_Main_Layout()
@@ -101,6 +102,7 @@ Slit_Distribution_Editor::Slit_Distribution_Editor(Data &measurement,
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Window);
     create_Main_Layout();
+    Global_Variables::create_Shortcuts(this);
 }
 
 void Slit_Distribution_Editor::create_Main_Layout()

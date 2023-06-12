@@ -10,8 +10,8 @@ public:
 	explicit Distribution_Editor(Data& measurement, QString spectral_Units, QString angular_Units,
 								 MyDoubleSpinBox* related_Spectral_SpinBox,
 								 MyDoubleSpinBox* related_Theta_0_SpinBox,
-								 MyDoubleSpinBox* related_Phi_0_SpinBox = nullptr,
-								 QWidget *parent = nullptr);
+                                 MyDoubleSpinBox* related_Phi_0_SpinBox,
+                                 QWidget *parent);
 
 	void create_Main_Layout();
 

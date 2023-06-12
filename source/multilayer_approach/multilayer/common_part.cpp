@@ -1190,13 +1190,15 @@ void Common_Part::connecting()
         connect(setup_Beam_Distribution_Button_slit, &QPushButton::clicked, [=]() {
             Slit_Distribution_Editor* slit_Distribution_Editor = new Slit_Distribution_Editor(measurement,
                                                                                               "mm" ,
-                                                                                              slit_Width_SpinBox);
+                                                                                              slit_Width_SpinBox,
+                                                                                              this);
             slit_Distribution_Editor->show();
         });
         connect(setup_Beam_Distribution_Button_crystal, &QPushButton::clicked, [=](){
             Slit_Distribution_Editor* slit_Distribution_Editor = new Slit_Distribution_Editor(measurement,
                                                                                               angular_Units,
-                                                                                              crystal_Resolution_SpinBox);
+                                                                                              crystal_Resolution_SpinBox,
+                                                                                              this);
             slit_Distribution_Editor->show();
         });
 	}
