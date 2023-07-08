@@ -634,15 +634,10 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 		{
 			fi_1      = target_Curve->curve.shifted_Values[point_Index  ];
 			fi_1_next = target_Curve->curve.shifted_Values[point_Index+1];
-#ifdef EXPRTK
-			target_Curve->fit_Params.expression_Argument = model_Curve[point_Index  ];
-			fi_2      = target_Curve->fit_Params.expression_Vec[0].value();
-			target_Curve->fit_Params.expression_Argument = model_Curve[point_Index+1];
-			fi_2_next = target_Curve->fit_Params.expression_Vec[0].value();
-#else
+
+            // expression is already accounted, model_Curve is not just R
 			fi_2      = model_Curve[point_Index  ];
 			fi_2_next = model_Curve[point_Index+1];
-#endif
 			delta_Lambda = abs(target_Curve->curve.shifted_Argument[point_Index]-target_Curve->curve.shifted_Argument[point_Index+1]);
 
 			// use only data from subinterval
@@ -655,7 +650,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 			} else
 			{
 				integral += (fi_1+fi_1_next)/2*(fi_2+fi_2_next)/2*delta_Lambda;
-                                params->max_Integral+=10000*(fi_1+fi_1_next)*delta_Lambda; // 10000 is a big number, but if f(R) is bigger, then incorrect
+                                params->max_Integral+=100000*(fi_1+fi_1_next)*delta_Lambda; // 100000 is a big number, but if f(R) is bigger, then incorrect
 			}
 		}
 
@@ -715,10 +710,13 @@ void Fitting::check_Maximization()
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
 		for(Target_Curve* target_Curve: multilayer->target_Profiles_Vector)
-		{
-			if(target_Curve->fit_Params.maximize_Integral) {params.maximize = true;}
-                }
+        {
+            if(target_Curve->fit_Params.maximize_Integral/* && target_Curve->fit_Params.fit*/)
+            {
+                params.maximize = true;
+            }
         }
+    }
 }
 
 int Fitting::num_Runs()
