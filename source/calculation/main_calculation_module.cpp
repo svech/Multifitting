@@ -2225,6 +2225,7 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
             Target_Curve* target_Curve = dynamic_cast<Target_Curve*>(data_Element.the_Class);
 
             bool maximize_Integral = target_Curve && target_Curve->fit_Params.maximize_Integral;
+            if(!maximize_Integral) target_Curve = nullptr;
 
             // spectral distribution && transformation with expr if maximize_Integral
             if(maximize_Integral || measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON)	{
