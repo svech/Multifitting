@@ -75,7 +75,7 @@ public:
 	static void fill_Residual(Fitting_Params* params, int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f);
 	void initialize_Position();
 	void randomize_Position(bool randomize = true);
-	void check_Maximization();
+    static void check_Maximization(Fitting_Params &params);
 
         int num_Runs();
 	bool run_Fitting();

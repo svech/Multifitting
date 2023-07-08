@@ -702,7 +702,7 @@ void Fitting::randomize_Position(bool randomize)
 	gsl_rng_free(r);
 }
 
-void Fitting::check_Maximization()
+void Fitting::check_Maximization(Fitting_Params& params)
 {
 	params.maximize = false;
 	// checking for maximization
@@ -711,7 +711,7 @@ void Fitting::check_Maximization()
 		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
 		for(Target_Curve* target_Curve: multilayer->target_Profiles_Vector)
         {
-            if(target_Curve->fit_Params.maximize_Integral/* && target_Curve->fit_Params.fit*/)
+            if(target_Curve->fit_Params.maximize_Integral)
             {
                 params.maximize = true;
             }

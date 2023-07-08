@@ -635,6 +635,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 									0
 								   };
 
+    bool has_Maximize = false;
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		for(Data_Element<Independent_Curve>& independent_Data_Element : calculation_Trees[tab_Index]->independent)
@@ -791,6 +792,9 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 											 };
 					int temp = 0;
 					Fitting::fill_Residual(&params, temp, target_Data_Element, params.f);
+                    Fitting::check_Maximization(params);
+                    if(params.maximize)
+                        has_Maximize = true;
 //					/// addition to residual from restrictions of regular aperiodics
 //					size_t counter = 0;
 //					for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
@@ -798,6 +802,10 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 //						Fitting::regular_Restriction_Tree_Iteration(params.calculation_Trees[tab_Index]->real_Calc_Tree.begin(), &params, params.f, counter);
 //					}
 					gsl_blas_ddot(params.f, params.f, &individual_Residual);
+
+                    if(target_Data_Element.the_Class->fit_Params.maximize_Integral)
+                        individual_Residual = params.max_Integral-individual_Residual;
+
 					gsl_vector_free(params.f);
 				}
 				// common residual
@@ -832,10 +840,13 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 			for(size_t target_Index = 0; target_Index<calculation_Trees[tab_Index]->target.size(); target_Index++)
 			{
 				show = true;
-				qInfo() << "  struct" << tab_Index << "    curve" << target_Index << "    residual   " << individual_Residuals_Vec_Vec[tab_Index][target_Index] << endl;
+                if(calculation_Trees[tab_Index]->target[target_Index].the_Class->fit_Params.maximize_Integral)
+                    qInfo() << "  struct" << tab_Index << "    curve" << target_Index << "    integral   " << individual_Residuals_Vec_Vec[tab_Index][target_Index] << endl;
+                else
+                    qInfo() << "  struct" << tab_Index << "    curve" << target_Index << "    residual   " << individual_Residuals_Vec_Vec[tab_Index][target_Index] << endl;
 			}
 		}
-		if(show) qInfo() << "  common residual ...................." << common_Residual << "\n-------------------------------------------------------\n\n\n";
+        if(show && !has_Maximize) qInfo() << "  common residual ...................." << common_Residual << "\n-------------------------------------------------------\n\n\n";
 	}
 	// replot graphs
 	Global_Variables::plot_All_Data_in_Graphs();
@@ -2637,7 +2648,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	if( fitables.param_Pointers.size()>0 )
 	{
 		Fitting fitting_Instance(this);
-		fitting_Instance.check_Maximization();
+        fitting_Instance.check_Maximization(fitting_Instance.params);
 		bool is_Load_Init_State_Trees = false;
 		bool go = fitting_Instance.fit();
 		if(!go) return;
@@ -2722,7 +2733,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 			}
 
 			Fitting fitting_Instance(this);
-			fitting_Instance.check_Maximization();
+            fitting_Instance.check_Maximization(fitting_Instance.params);
 			bool go = fitting_Instance.confidence(fitables_Pointers_Value_Backup, confidentials_Pointers_Value_Backup, confidence_Index);
 			confidentials.param_Pointers[confidence_Index]->confidence.is_Active = false;
 			if(!go) return;
