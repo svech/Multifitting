@@ -856,7 +856,8 @@ void Main_Calculation_Module::wrap_Curve(const Data& measurement,
 										 vector<double>* output_Sparse_Curve,
 										 QString distribution_Function,
 										 bool theta_0_Beam_Profile,
-										 bool detector_Wrap)
+                                         bool detector_Wrap,
+                                         Target_Curve* target_curve)
 {
 	int first_Point = measurement.first_Point_of_Intensity_Integration;
 	int second_Point = measurement.last_Point_of_Intensity_Integration;
@@ -2207,14 +2208,32 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 		}
 		if( measurement.argument_Type  == argument_Types[Wavelength_Energy] )
 		{
-			// spectral distribution
+            Target_Curve* target_curve = dynamic_cast<Target_Curve*>(data_Element.the_Class);
+
+            // spectral distribution
 			if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON)	{
-				wrap_Curve(measurement, measurement.lambda_Vec, calculated_Curve, measurement.spectral_Resolution_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+                wrap_Curve(measurement,
+                           measurement.lambda_Vec,
+                           calculated_Curve,
+                           measurement.spectral_Resolution_Vec,
+                           working_Curve,
+                           measurement.spectral_Distribution.distribution_Function,
+                           false,
+                           false,
+                           target_curve);
 				*calculated_Curve = *working_Curve;
 			}
 			// theta_0 distribution
 			if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
-				wrap_Curve(measurement, measurement.lambda_Vec, calculated_Curve, measurement.spectral_Resolution_From_Theta_0_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+                wrap_Curve(measurement,
+                           measurement.lambda_Vec,
+                           calculated_Curve,
+                           measurement.spectral_Resolution_From_Theta_0_Vec,
+                           working_Curve,
+                           measurement.beam_Theta_0_Distribution.distribution_Function,
+                           false,
+                           false,
+                           target_curve);
 			}
 		}
 	}

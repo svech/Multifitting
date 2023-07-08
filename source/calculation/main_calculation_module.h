@@ -50,13 +50,13 @@ public:
     void calculation_With_Sampling_Theta_Vector(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, QString single_Vector_Theta_0);
     void single_Calculation(bool print_And_Verbose = true);
 
-	void wrap_Curve(const Data& measurement,
-					const vector<double>& sparse_Argument,
-					const vector<double>* sparse_Input_Curve,
-					const vector<double>& resolution_FWHM,
-					vector<double>* output_Sparse_Curve,
-					QString distribution_Function,
-					bool theta_0_Beam_Profile = false, bool detector_Wrap = false);
+    void wrap_Curve(const Data& measurement,
+                    const vector<double>& sparse_Argument,
+                    const vector<double>* sparse_Input_Curve,
+                    const vector<double>& resolution_FWHM,
+                    vector<double>* output_Sparse_Curve,
+                    QString distribution_Function,
+                    bool theta_0_Beam_Profile = false, bool detector_Wrap = false, Target_Curve* target_curve = nullptr);
 	void wrap_With_Specular		  (Calculated_Values& calculated_Values, const Data& measurement);
 //	void wrap_With_Specular_Single(Calculated_Values& calculated_Values, const Data& measurement);
 //	void wrap_With_Specular_Vector(Calculated_Values& calculated_Values, const Data& measurement);
