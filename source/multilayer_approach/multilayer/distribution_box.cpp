@@ -266,14 +266,13 @@ void Distribution_Box::connecting()
 	// use sampling
 	connect(sampling_Checkbox, &QCheckBox::toggled, this, [=]
 	{
-		distribution.use_Sampling = sampling_Checkbox->isChecked();
+        distribution.use_Sampling = sampling_Checkbox->isChecked();
 
-		coverage_Label  ->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
-		samples_Label   ->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
-		sample_SpinBox  ->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
+        samples_Label   ->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
+        sample_SpinBox  ->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
 
-		replot();
-		global_Multilayer_Approach->global_Recalculate();
+        replot();
+        global_Multilayer_Approach->global_Recalculate();
 	});
 
 	// sampling
