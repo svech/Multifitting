@@ -2208,6 +2208,7 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 		}
 		if( measurement.argument_Type  == argument_Types[Wavelength_Energy] )
 		{
+            // to get residual expression in wrap_Curve
             Target_Curve* target_curve = dynamic_cast<Target_Curve*>(data_Element.the_Class);
 
             // spectral distribution
