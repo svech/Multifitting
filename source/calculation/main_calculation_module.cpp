@@ -635,6 +635,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 									0
 								   };
 
+    bool has_Maximize = false;
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		for(Data_Element<Independent_Curve>& independent_Data_Element : calculation_Trees[tab_Index]->independent)
@@ -791,6 +792,9 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 											 };
 					int temp = 0;
 					Fitting::fill_Residual(&params, temp, target_Data_Element, params.f);
+                    Fitting::check_Maximization(params);
+                    if(params.maximize)
+                        has_Maximize = true;
 //					/// addition to residual from restrictions of regular aperiodics
 //					size_t counter = 0;
 //					for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
@@ -798,6 +802,10 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 //						Fitting::regular_Restriction_Tree_Iteration(params.calculation_Trees[tab_Index]->real_Calc_Tree.begin(), &params, params.f, counter);
 //					}
 					gsl_blas_ddot(params.f, params.f, &individual_Residual);
+
+                    if(target_Data_Element.the_Class->fit_Params.maximize_Integral)
+                        individual_Residual = params.max_Integral-individual_Residual;
+
 					gsl_vector_free(params.f);
 				}
 				// common residual
@@ -832,10 +840,13 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 			for(size_t target_Index = 0; target_Index<calculation_Trees[tab_Index]->target.size(); target_Index++)
 			{
 				show = true;
-				qInfo() << "  struct" << tab_Index << "    curve" << target_Index << "    residual   " << individual_Residuals_Vec_Vec[tab_Index][target_Index] << endl;
+                if(calculation_Trees[tab_Index]->target[target_Index].the_Class->fit_Params.maximize_Integral)
+                    qInfo() << "  struct" << tab_Index << "    curve" << target_Index << "    integral   " << individual_Residuals_Vec_Vec[tab_Index][target_Index] << endl;
+                else
+                    qInfo() << "  struct" << tab_Index << "    curve" << target_Index << "    residual   " << individual_Residuals_Vec_Vec[tab_Index][target_Index] << endl;
 			}
 		}
-		if(show) qInfo() << "  common residual ...................." << common_Residual << "\n-------------------------------------------------------\n\n\n";
+        if(show && !has_Maximize) qInfo() << "  common residual ...................." << common_Residual << "\n-------------------------------------------------------\n\n\n";
 	}
 	// replot graphs
 	Global_Variables::plot_All_Data_in_Graphs();
@@ -856,7 +867,8 @@ void Main_Calculation_Module::wrap_Curve(const Data& measurement,
 										 vector<double>* output_Sparse_Curve,
 										 QString distribution_Function,
 										 bool theta_0_Beam_Profile,
-										 bool detector_Wrap)
+                                         bool detector_Wrap,
+                                         Target_Curve* target_Curve)
 {
 	int first_Point = measurement.first_Point_of_Intensity_Integration;
 	int second_Point = measurement.last_Point_of_Intensity_Integration;
@@ -903,11 +915,24 @@ void Main_Calculation_Module::wrap_Curve(const Data& measurement,
 	auto f_Beam_Profile_With_Wings = [&](double x_Distance)
 	{
 		return gsl_spline_eval(spline_Beam_Profile_With_Wings, x_Distance, acc_Beam_Profile_With_Wings);
-	};
+    };
+    auto f_From_Expression = [target_Curve](double input)
+    {
+#ifdef EXPRTK
+        if(!target_Curve)
+            return input;
+        else if(target_Curve->fit_Params.maximize_Integral) {
+            target_Curve->fit_Params.expression_Argument = input;
+            return target_Curve->fit_Params.expression_Vec[0].value();
+        }
+#else
+        return input;
+#endif
+    };
 
 	auto f_Beam_Spot_Profile = [&](double point_Index)
-	{
-		(*output_Sparse_Curve)[point_Index] = (*sparse_Input_Curve)[point_Index];
+    {
+        (*output_Sparse_Curve)[point_Index] = f_From_Expression((*sparse_Input_Curve)[point_Index]);
 		double weight_Accumulator = 1;
 		double weight = DBL_MIN;
 
@@ -921,7 +946,7 @@ void Main_Calculation_Module::wrap_Curve(const Data& measurement,
 			x_Distance = qDegreesToRadians(distance)*measurement.detector_1D.distance_To_Sample;
 			weight = f_Beam_Profile_With_Wings(x_Distance);
 
-			(*output_Sparse_Curve)[point_Index] += weight*(*sparse_Input_Curve)[i];
+            (*output_Sparse_Curve)[point_Index] += weight*f_From_Expression((*sparse_Input_Curve)[i]);
 			weight_Accumulator += weight;
 		}
 		/*  negative direction  */
@@ -933,7 +958,7 @@ void Main_Calculation_Module::wrap_Curve(const Data& measurement,
 			x_Distance = qDegreesToRadians(distance)*measurement.detector_1D.distance_To_Sample;
 			weight = f_Beam_Profile_With_Wings(x_Distance);
 
-			(*output_Sparse_Curve)[point_Index] += weight*(*sparse_Input_Curve)[i];
+            (*output_Sparse_Curve)[point_Index] += weight*f_From_Expression((*sparse_Input_Curve)[i]);
 			weight_Accumulator += weight;
 		}
 		(*output_Sparse_Curve)[point_Index] /= weight_Accumulator;
@@ -942,7 +967,7 @@ void Main_Calculation_Module::wrap_Curve(const Data& measurement,
 	{
 		if(detector_Wrap && first_Point<=point_Index && point_Index<=second_Point) return;
 
-		(*output_Sparse_Curve)[point_Index] = (*sparse_Input_Curve)[point_Index];
+        (*output_Sparse_Curve)[point_Index] = f_From_Expression((*sparse_Input_Curve)[point_Index]);
 		double weight_Accumulator = 1;
 		double weight = DBL_MIN;
 
@@ -955,7 +980,7 @@ void Main_Calculation_Module::wrap_Curve(const Data& measurement,
 //			distance = abs(sparse_Argument[i] - sparse_Argument[point_Index]);
 //			weight = distribution(resolution_FWHM[point_Index], distance);
 
-//			(*output_Sparse_Curve)[point_Index] += weight*(*sparse_Input_Curve)[i];
+//			(*output_Sparse_Curve)[point_Index] += weight*f_From_Expression((*sparse_Input_Curve)[i]);
 //			weight_Accumulator += weight;
 
 //			/* negative */
@@ -963,7 +988,7 @@ void Main_Calculation_Module::wrap_Curve(const Data& measurement,
 //			distance = abs(sparse_Argument[i] - sparse_Argument[point_Index]);
 //			weight = distribution(resolution_FWHM[point_Index], distance);
 
-//			(*output_Sparse_Curve)[point_Index] += weight*(*sparse_Input_Curve)[i];
+//			(*output_Sparse_Curve)[point_Index] += weight*f_From_Expression((*sparse_Input_Curve)[i]);
 //			weight_Accumulator += weight;
 //		}
 
@@ -975,7 +1000,7 @@ void Main_Calculation_Module::wrap_Curve(const Data& measurement,
 			distance = abs(sparse_Argument[i] - sparse_Argument[point_Index]);
 			weight = distribution(resolution_FWHM[point_Index], distance);
 
-			(*output_Sparse_Curve)[point_Index] += weight*(*sparse_Input_Curve)[i];
+            (*output_Sparse_Curve)[point_Index] += weight*f_From_Expression((*sparse_Input_Curve)[i]);
 			weight_Accumulator += weight;
 		}
 		/*  negative direction  */
@@ -985,14 +1010,29 @@ void Main_Calculation_Module::wrap_Curve(const Data& measurement,
 			distance = abs(sparse_Argument[i] - sparse_Argument[point_Index]);
 			weight = distribution(resolution_FWHM[point_Index], distance);
 
-			(*output_Sparse_Curve)[point_Index] += weight*(*sparse_Input_Curve)[i];
+            (*output_Sparse_Curve)[point_Index] += weight*f_From_Expression((*sparse_Input_Curve)[i]);
 			weight_Accumulator += weight;
 		}
 		(*output_Sparse_Curve)[point_Index] /= weight_Accumulator;
 	};
 
-	if(sparse_Argument.size()*resolution_FWHM[0]>50) // tunable
-	{
+    if( (target_Curve && target_Curve->fit_Params.maximize_Integral)
+        || sparse_Argument.size()*resolution_FWHM[0]<50 ) // tunable
+    {
+        if(theta_0_Beam_Profile)
+        {
+            for(size_t point_Index=0; point_Index<sparse_Argument.size(); ++point_Index)
+            {
+                f_Beam_Spot_Profile(point_Index);
+            }
+        } else
+        {
+            for(size_t point_Index=0; point_Index<sparse_Argument.size(); ++point_Index)
+            {
+                f(point_Index);
+            }
+        }
+    } else	{
 		Global_Variables::parallel_For(sparse_Argument.size(), reflectivity_calc_threads, [&](int n_Min, int n_Max, int thread_Index)
 		{
 			Q_UNUSED(thread_Index)
@@ -1010,22 +1050,7 @@ void Main_Calculation_Module::wrap_Curve(const Data& measurement,
 				}
 			}
 		});
-	} else
-	{
-		if(theta_0_Beam_Profile)
-		{
-			for(size_t point_Index=0; point_Index<sparse_Argument.size(); ++point_Index)
-			{
-				f_Beam_Spot_Profile(point_Index);
-			}
-		} else
-		{
-			for(size_t point_Index=0; point_Index<sparse_Argument.size(); ++point_Index)
-			{
-				f(point_Index);
-			}
-		}
-	}
+    }
 	if(theta_0_Beam_Profile)
 	{
 		gsl_spline_free(spline_Beam_Profile_With_Wings);
@@ -2207,14 +2232,36 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element, M
 		}
 		if( measurement.argument_Type  == argument_Types[Wavelength_Energy] )
 		{
-			// spectral distribution
-			if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON)	{
-				wrap_Curve(measurement, measurement.lambda_Vec, calculated_Curve, measurement.spectral_Resolution_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+            // to get residual expression in wrap_Curve
+            Target_Curve* target_Curve = dynamic_cast<Target_Curve*>(data_Element.the_Class);
+
+            bool maximize_Integral = target_Curve && target_Curve->fit_Params.maximize_Integral;
+            if(!maximize_Integral) target_Curve = nullptr;
+
+            // spectral distribution && transformation with expr if maximize_Integral
+            if(maximize_Integral || measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON)	{
+                wrap_Curve(measurement,
+                           measurement.lambda_Vec,
+                           calculated_Curve,
+                           measurement.spectral_Resolution_Vec,
+                           working_Curve,
+                           measurement.spectral_Distribution.distribution_Function,
+                           false,
+                           false,
+                           target_Curve);
 				*calculated_Curve = *working_Curve;
 			}
 			// theta_0 distribution
-			if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
-				wrap_Curve(measurement, measurement.lambda_Vec, calculated_Curve, measurement.spectral_Resolution_From_Theta_0_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+            if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
+                wrap_Curve(measurement,
+                           measurement.lambda_Vec,
+                           calculated_Curve,
+                           measurement.spectral_Resolution_From_Theta_0_Vec,
+                           working_Curve,
+                           measurement.beam_Theta_0_Distribution.distribution_Function,
+                           false,
+                           false,
+                           nullptr /* do not pass target_Curve */);
 			}
 		}
 	}
@@ -2601,7 +2648,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	if( fitables.param_Pointers.size()>0 )
 	{
 		Fitting fitting_Instance(this);
-		fitting_Instance.check_Maximization();
+        fitting_Instance.check_Maximization(fitting_Instance.params);
 		bool is_Load_Init_State_Trees = false;
 		bool go = fitting_Instance.fit();
 		if(!go) return;
@@ -2686,7 +2733,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 			}
 
 			Fitting fitting_Instance(this);
-			fitting_Instance.check_Maximization();
+            fitting_Instance.check_Maximization(fitting_Instance.params);
 			bool go = fitting_Instance.confidence(fitables_Pointers_Value_Backup, confidentials_Pointers_Value_Backup, confidence_Index);
 			confidentials.param_Pointers[confidence_Index]->confidence.is_Active = false;
 			if(!go) return;
