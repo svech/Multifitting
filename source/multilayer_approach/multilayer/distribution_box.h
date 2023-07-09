@@ -46,7 +46,6 @@ public:
 	QLabel* distribution_Label;		QComboBox* distribution_ComboBox;
 	QCheckBox* sampling_Checkbox;
 	QLabel* samples_Label;			QSpinBox* sample_SpinBox;
-    QLabel* coverage_Label;
 
 };
 
