@@ -23,24 +23,32 @@ INCLUDEPATH +=  ../../RandomOps \
                 ../../SwarmOps
 
 win32 {
-    INCLUDEPATH +=  "C:/Program Files (x86)/C++ libraries/boost_1_81_0"
+    INCLUDEPATH +=  "C:\Users\Mikhail\lib\boost_1_82_0"
 
     QMAKE_CXXFLAGS += -bigobj
     equals(QMAKE_TARGET.arch, x86) {
                 message( "It's 32-bit build" )
                     LIBS += ../../RandomOps/build_x86/release/RandomOps.lib \
                             ../../SwarmOps/build_x86/release/SwarmOps.lib
-                    INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/include"
-                        LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/cblas.lib" \
-                               "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/gsl.lib"
+                    INCLUDEPATH += "C:\Users\Mikhail\vcpkg\installed\x86-windows\include" #gsl
+                    LIBS += "C:\Users\Mikhail\vcpkg\installed\x86-windows\lib\gslcblas.lib" \
+                            "C:\Users\Mikhail\vcpkg\installed\x86-windows\lib\gsl.lib"
+
+#                    INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/include"
+#                        LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/cblas.lib" \
+#                               "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/gsl.lib"
     } else {
     equals(QMAKE_TARGET.arch, x86_64) {
                 message( "It's 64-bit build" )
                     LIBS += ../../RandomOps/build_x64/release/RandomOps.lib \
                             ../../SwarmOps/build_x64/release/SwarmOps.lib
-                    INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/include"
-                        LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/cblas.lib" \
-                                    "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/gsl.lib"
+                    INCLUDEPATH +=  "C:\Users\Mikhail\vcpkg\installed\x64-windows\include" # gsl
+                    LIBS += "C:\Users\Mikhail\vcpkg\installed\x64-windows\lib\gslcblas.lib" \
+                            "C:\Users\Mikhail\vcpkg\installed\x64-windows\lib\gsl.lib"
+
+#                    INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/include"
+#                        LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/cblas.lib" \
+#                                    "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/gsl.lib"
         }
     }
 }
