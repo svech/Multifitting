@@ -98,8 +98,13 @@ public:
 	void lock_Mainwindow_Interface();
 	void unlock_Mainwindow_Interface();
 
+    QVector<QWidget *> opened_Windows();
+    void minimize_All();
+    void restore_All();
+
 	void closeEvent(QCloseEvent *event);
-	void dragEnterEvent(QDragEnterEvent* event);
+    void changeEvent(QEvent *event);
+    void dragEnterEvent(QDragEnterEvent* event);
 	void dropEvent(QDropEvent* event);
 	void create_Main_Layout();
 		void create_Menu();
@@ -141,6 +146,8 @@ public:
 		Fitting_Settings_Editor*	 fitting_Settings_Editor;	  QMap<QString, Fitting_Settings_Editor*>	  runned_Fitting_Settings_Editor;
 		Fits_Selector*				 fits_Selector;				  QMap<QString, Fits_Selector*>				  runned_Fits_Selectors;
 
+        QVector<QWidget*> windows_Stack;
+
 		// 1D
 		QVector<QByteArray>  target_Independent_Splitter_Position_1D_Vec;
 		QVector        <QByteArray>  target_Vertical_Splitter_Position_1D_Vec;
@@ -171,7 +178,7 @@ public:
 
 	bool independent_Target_Added_2D = false;
 	bool independent_Added_2D = false;
-	bool target_Added_2D = false;
+    bool target_Added_2D = false;
 };
 
 #endif // MULTILAYER_APPROACH_H

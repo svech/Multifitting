@@ -1336,7 +1336,15 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	if(whats_This == whats_This_Period)									{*line_edit_precision = line_edit_thickness_precision;		*thumbnail_precision = thumbnail_thickness_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.period; }
 	if(whats_This == whats_This_Gamma)									{*line_edit_precision = line_edit_gamma_precision;			*thumbnail_precision = thumbnail_gamma_precision;		*units = "";					*coeff = 1;	return &struct_Data.gamma; }
 
-	return nullptr;
+    return nullptr;
+}
+
+void Global_Variables::make_non_minimizable_window(QWidget* w)
+{
+    w->setWindowFlags(Qt::Window);
+    Qt::WindowFlags flags = w->windowFlags();
+    flags &= ~Qt::WindowMinimizeButtonHint;
+    w->setWindowFlags(flags);
 }
 
 QString Global_Variables::material_From_Composition(const QList<Stoichiometry>& composition)

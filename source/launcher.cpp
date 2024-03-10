@@ -87,8 +87,6 @@ void Launcher::open_Multilayer_Approach()
 	{
 		global_Multilayer_Approach = new Multilayer_Approach(this);	// Launcher is not a parent!
 		global_Multilayer_Approach->create_Menu();
-			global_Multilayer_Approach->setWindowFlags(Qt::Window);
-			global_Multilayer_Approach->show();
 		runned_Multilayer_Approaches.insert(multilayer_Approach_Key, global_Multilayer_Approach);
 
 	} else

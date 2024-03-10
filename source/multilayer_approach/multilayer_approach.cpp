@@ -31,6 +31,9 @@ Multilayer_Approach::Multilayer_Approach(Launcher* launcher, QWidget *parent) :
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
+
+    setWindowFlags(Qt::Window);
+    show();
 }
 
 Multilayer_Approach::~Multilayer_Approach()
@@ -52,6 +55,59 @@ void Multilayer_Approach::closeEvent(QCloseEvent* event)
 	qApp->quit();
 	event->accept();
 	emit closed();
+}
+
+QVector<QWidget*> Multilayer_Approach::opened_Windows()
+{
+    QVector<QWidget*> result;
+    if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key))
+        result.append(table_Of_Structures);
+    if(runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+        result.append(optical_Graphs_1D);
+    if(runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+        result.append(optical_Graphs_2D);
+    if(runned_Profile_Plots_Window.contains(profile_Plots_Key))
+        result.append(profile_Plots_Window);
+    if(runned_Roughness_Plots_Window.contains(roughness_Plots_Key))
+        result.append(roughness_Plots_Window);
+    if(runned_Particles_Plots_Window.contains(particles_Plots_Key))
+        result.append(particles_Plots_Window);
+    if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+        result.append(calculation_Settings_Editor);
+    if(runned_General_Settings_Editor.contains(general_Settings_Key))
+        result.append(general_Settings_Editor);
+    if(runned_Fits_Selectors.contains(fits_Selector_Key))
+        result.append(fits_Selector);
+    if(runned_Fitting_Settings_Editor.contains(fit_Settings_Key))
+        result.append(fitting_Settings_Editor);
+    return result;
+}
+
+void Multilayer_Approach::minimize_All()
+{
+    for(QWidget* window : opened_Windows())
+        window->showMinimized();
+}
+
+void Multilayer_Approach::restore_All()
+{
+    for(QWidget* window : opened_Windows())
+        if(window->isMinimized())
+            window->activateWindow();
+}
+
+void Multilayer_Approach::changeEvent(QEvent *event)
+{
+    if( event->type() == QEvent::WindowStateChange )
+    {
+        if(isMinimized())
+            minimize_All();
+    }
+    if( event->type() == QEvent::ActivationChange && isActiveWindow() )
+    {
+        restore_All();
+//        raise();
+    }
 }
 
 void Multilayer_Approach::create_Main_Layout()
@@ -324,8 +380,8 @@ void Multilayer_Approach::open_Table_Of_Structures()
 	{
 		runned_Tables_Of_Structures.insert(table_Of_Structures_Key, table_Of_Structures);
 		table_Of_Structures = new Table_Of_Structures;
-			table_Of_Structures->setWindowFlags(Qt::Window);
-			table_Of_Structures->show();
+        Global_Variables::make_non_minimizable_window(table_Of_Structures);
+        table_Of_Structures->show();
 
 		runned_Tables_Of_Structures.clear();
 		runned_Tables_Of_Structures.insert(table_Of_Structures_Key, table_Of_Structures);
@@ -349,7 +405,7 @@ void Multilayer_Approach::open_Profile_Plots(bool profile_Export)
 	{
 		runned_Profile_Plots_Window.insert(profile_Plots_Key, profile_Plots_Window);
         profile_Plots_Window = new Profile_Plots_Window(profile_Export);
-        profile_Plots_Window->setWindowFlags(Qt::Window);
+        Global_Variables::make_non_minimizable_window(profile_Plots_Window);
         if(!profile_Export)
             profile_Plots_Window->show();
 
@@ -367,7 +423,7 @@ void Multilayer_Approach::open_Optical_Graphs_1D(QString keep_Splitter)
 	{
 		runned_Optical_Graphs_1D.insert(optical_Graphs_1D_Key, optical_Graphs_1D);
 		optical_Graphs_1D = new Optical_Graphs(dim_1D, keep_Splitter);
-			optical_Graphs_1D->setWindowFlags(Qt::Window);
+            Global_Variables::make_non_minimizable_window(optical_Graphs_1D);
 			optical_Graphs_1D->show();
 
 		runned_Optical_Graphs_1D.clear();
@@ -384,8 +440,8 @@ void Multilayer_Approach::open_Optical_Graphs_2D(QString keep_Splitter)
 	{
 		runned_Optical_Graphs_2D.insert(optical_Graphs_2D_Key, optical_Graphs_2D);
 		optical_Graphs_2D = new Optical_Graphs(dim_2D, keep_Splitter);
-			optical_Graphs_2D->setWindowFlags(Qt::Window);
-			optical_Graphs_2D->show();
+            Global_Variables::make_non_minimizable_window(optical_Graphs_2D);
+            optical_Graphs_2D->show();
 
 		runned_Optical_Graphs_2D.clear();
 		runned_Optical_Graphs_2D.insert(optical_Graphs_2D_Key, optical_Graphs_2D);
@@ -402,7 +458,7 @@ void Multilayer_Approach::open_Roughness_Plots()
 		runned_Roughness_Plots_Window.insert(roughness_Plots_Key, roughness_Plots_Window);
 
 		roughness_Plots_Window = new Roughness_Plots_Window();//(this);
-			roughness_Plots_Window->setWindowFlags(Qt::Window);
+            Global_Variables::make_non_minimizable_window(roughness_Plots_Window);
 			roughness_Plots_Window->show();
 
 		runned_Roughness_Plots_Window.clear();
@@ -420,7 +476,7 @@ void Multilayer_Approach::open_Particles_Plots()
 		runned_Particles_Plots_Window.insert(particles_Plots_Key, particles_Plots_Window);
 
 		particles_Plots_Window = new Particles_Plots_Window();//(this);
-			particles_Plots_Window->setWindowFlags(Qt::Window);
+            Global_Variables::make_non_minimizable_window(particles_Plots_Window);
 			particles_Plots_Window->show();
 
 		runned_Particles_Plots_Window.clear();
@@ -437,7 +493,7 @@ void Multilayer_Approach::open_Calculation_Settings()
 	{
 		runned_Calculation_Settings_Editor.insert(calc_Settings_Key, calculation_Settings_Editor);
 		calculation_Settings_Editor = new Calculation_Settings_Editor;//(this);
-			calculation_Settings_Editor->setWindowFlags(Qt::Window);
+            Global_Variables::make_non_minimizable_window(calculation_Settings_Editor);
 			calculation_Settings_Editor->show();
 
 		runned_Calculation_Settings_Editor.clear();
@@ -454,7 +510,7 @@ void Multilayer_Approach::open_General_Settings()
 	{
 		runned_General_Settings_Editor.insert(general_Settings_Key, general_Settings_Editor);
 		general_Settings_Editor = new General_Settings_Editor;
-			general_Settings_Editor->setWindowFlags(Qt::Window);
+            Global_Variables::make_non_minimizable_window(general_Settings_Editor);
 			general_Settings_Editor->show();
 
 		runned_General_Settings_Editor.clear();
@@ -471,7 +527,7 @@ void Multilayer_Approach::open_Fits_Selector()
 	{
 		runned_Fits_Selectors.insert(fits_Selector_Key, fits_Selector);
 		fits_Selector = new Fits_Selector;//(this);
-			fits_Selector->setWindowFlags(Qt::Window);
+            Global_Variables::make_non_minimizable_window(fits_Selector);
 			fits_Selector->show();
 
 		runned_Fits_Selectors.clear();
@@ -488,7 +544,7 @@ void Multilayer_Approach::open_Fitting_Settings()
 	{
 		runned_Fitting_Settings_Editor.insert(fit_Settings_Key, fitting_Settings_Editor);
 		fitting_Settings_Editor = new Fitting_Settings_Editor;//(this);
-			fitting_Settings_Editor->setWindowFlags(Qt::Window);
+            Global_Variables::make_non_minimizable_window(fitting_Settings_Editor);
 			fitting_Settings_Editor->show();
 
 		runned_Fitting_Settings_Editor.clear();
@@ -771,7 +827,7 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 //				multilayer->remove_Buttons_To_Lock[i]->setDisabled(false);
 //			}
 //		}
-	}
+    }
 }
 
 void Multilayer_Approach::refresh_All_Multilayers_View()
