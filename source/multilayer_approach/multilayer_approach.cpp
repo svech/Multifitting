@@ -68,12 +68,20 @@ void Multilayer_Approach::minimize_All()
 
 void Multilayer_Approach::restore_All()
 {
-    for(QWidget* window : windows_Stack)
-        window->raise();
+    for(QWidget* window : windows_Stack) {
+        window->setProperty(external_Activation_Property, true);
+        window->activateWindow();
+        window->setProperty(external_Activation_Property, false);
+    }
 }
 
 void Multilayer_Approach::changeEvent(QEvent *event)
 {
+    if(property(external_Activation_Property).toBool()) {
+        event->ignore();
+        return;
+    }
+
     if( event->type() == QEvent::WindowStateChange )
     {
         if(isMinimized())
@@ -84,7 +92,7 @@ void Multilayer_Approach::changeEvent(QEvent *event)
         windows_Stack.removeOne(this);
         restore_All();
         windows_Stack.append(this);
-        activateWindow();
+        raise();
     }
 }
 
