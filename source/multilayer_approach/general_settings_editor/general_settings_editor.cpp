@@ -6,6 +6,7 @@ General_Settings_Editor::General_Settings_Editor(QWidget *parent) : QWidget(pare
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+    global_Multilayer_Approach->windows_Stack.append(this);
 }
 
 void General_Settings_Editor::closeEvent(QCloseEvent *event)
@@ -13,7 +14,8 @@ void General_Settings_Editor::closeEvent(QCloseEvent *event)
 	write_Window_Geometry();
 	general_Settings_Tab_Index = main_Tabs->currentIndex();
 	global_Multilayer_Approach->runned_General_Settings_Editor.remove(general_Settings_Key);
-	event->accept();
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
+    event->accept();
 }
 
 void General_Settings_Editor::create_Main_Layout()

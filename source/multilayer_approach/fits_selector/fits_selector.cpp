@@ -9,13 +9,15 @@ Fits_Selector::Fits_Selector(QWidget* parent) :
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+    global_Multilayer_Approach->windows_Stack.append(this);
 }
 
 void Fits_Selector::closeEvent(QCloseEvent* event)
 {
 	write_Window_Geometry();
 	runned_Fits_Selectors.remove(fits_Selector_Key);
-	event->accept();
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
+    event->accept();
 }
 
 void Fits_Selector::create_Main_Layout()

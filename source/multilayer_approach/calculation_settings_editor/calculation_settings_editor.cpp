@@ -10,13 +10,15 @@ Calculation_Settings_Editor::Calculation_Settings_Editor(QWidget* parent) :
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
 }
 
 void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 {
 	write_Window_Geometry();
 	global_Multilayer_Approach->runned_Calculation_Settings_Editor.remove(calc_Settings_Key);
-	global_Multilayer_Approach->unlock_Mainwindow_Interface();
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
+    global_Multilayer_Approach->unlock_Mainwindow_Interface();
 	event->accept();
 }
 

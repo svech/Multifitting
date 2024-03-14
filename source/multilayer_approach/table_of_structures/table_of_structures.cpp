@@ -13,6 +13,8 @@ Table_Of_Structures::Table_Of_Structures(bool temporary, QWidget *parent) :
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+
+    global_Multilayer_Approach->windows_Stack.append(this);
 }
 
 bool Table_Of_Structures::eventFilter(QObject *obj, QEvent *event)
@@ -29,6 +31,7 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
 	if(!temporary) write_Window_Geometry();
 	runned_Tables_Of_Structures.remove(table_Of_Structures_Key);
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
 //	bool state = recalculate_spinbox_structure_table;
 //	recalculate_spinbox_structure_table = false;
 	for(QLineEdit* material_Line_Edit : material_Line_Edits)

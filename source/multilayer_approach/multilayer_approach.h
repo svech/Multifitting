@@ -98,7 +98,6 @@ public:
 	void lock_Mainwindow_Interface();
 	void unlock_Mainwindow_Interface();
 
-    QVector<QWidget *> opened_Windows();
     void minimize_All();
     void restore_All();
 

@@ -34,6 +34,8 @@ Multilayer_Approach::Multilayer_Approach(Launcher* launcher, QWidget *parent) :
 
     setWindowFlags(Qt::Window);
     show();
+
+    windows_Stack.append(this);
 }
 
 Multilayer_Approach::~Multilayer_Approach()
@@ -49,6 +51,7 @@ void Multilayer_Approach::closeEvent(QCloseEvent* event)
 {
 	fast_Hide_Windows();
 	launcher->runned_Multilayer_Approaches.remove(multilayer_Approach_Key);	
+    windows_Stack.removeOne(this);
 	write_Window_Geometry();
 	Settings::save_All_Settings();
 
@@ -57,43 +60,16 @@ void Multilayer_Approach::closeEvent(QCloseEvent* event)
 	emit closed();
 }
 
-QVector<QWidget*> Multilayer_Approach::opened_Windows()
-{
-    QVector<QWidget*> result;
-    if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key))
-        result.append(table_Of_Structures);
-    if(runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
-        result.append(optical_Graphs_1D);
-    if(runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
-        result.append(optical_Graphs_2D);
-    if(runned_Profile_Plots_Window.contains(profile_Plots_Key))
-        result.append(profile_Plots_Window);
-    if(runned_Roughness_Plots_Window.contains(roughness_Plots_Key))
-        result.append(roughness_Plots_Window);
-    if(runned_Particles_Plots_Window.contains(particles_Plots_Key))
-        result.append(particles_Plots_Window);
-    if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
-        result.append(calculation_Settings_Editor);
-    if(runned_General_Settings_Editor.contains(general_Settings_Key))
-        result.append(general_Settings_Editor);
-    if(runned_Fits_Selectors.contains(fits_Selector_Key))
-        result.append(fits_Selector);
-    if(runned_Fitting_Settings_Editor.contains(fit_Settings_Key))
-        result.append(fitting_Settings_Editor);
-    return result;
-}
-
 void Multilayer_Approach::minimize_All()
 {
-    for(QWidget* window : opened_Windows())
+    for(QWidget* window : windows_Stack)
         window->showMinimized();
 }
 
 void Multilayer_Approach::restore_All()
 {
-    for(QWidget* window : opened_Windows())
-        if(window->isMinimized())
-            window->activateWindow();
+    for(QWidget* window : windows_Stack)
+        window->raise();
 }
 
 void Multilayer_Approach::changeEvent(QEvent *event)
@@ -105,8 +81,10 @@ void Multilayer_Approach::changeEvent(QEvent *event)
     }
     if( event->type() == QEvent::ActivationChange && isActiveWindow() )
     {
+        windows_Stack.removeOne(this);
         restore_All();
-//        raise();
+        windows_Stack.append(this);
+        activateWindow();
     }
 }
 

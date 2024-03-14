@@ -17,6 +17,8 @@ Optical_Graphs::Optical_Graphs(QString dimension, QString keep_Splitter, QWidget
 		create_Main_Layout();
 		set_Window_Geometry();
 		setAttribute(Qt::WA_DeleteOnClose);
+
+        global_Multilayer_Approach->windows_Stack.append(this);
 }
 
 void Optical_Graphs::contextMenuEvent(QContextMenuEvent* event)
@@ -256,7 +258,8 @@ void Optical_Graphs::closeEvent(QCloseEvent* event)
 {
 	if(dimension == dim_1D)	global_Multilayer_Approach->runned_Optical_Graphs_1D.remove(optical_Graphs_1D_Key);
 	if(dimension == dim_2D)	global_Multilayer_Approach->runned_Optical_Graphs_2D.remove(optical_Graphs_2D_Key);
-	global_Multilayer_Approach->unlock_Mainwindow_Interface();
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
+    global_Multilayer_Approach->unlock_Mainwindow_Interface();
 
 	save_Geometry();
 	event->accept();

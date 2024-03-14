@@ -8,12 +8,14 @@ Profile_Plots_Window::Profile_Plots_Window(bool profile_Export, QWidget *parent)
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+    global_Multilayer_Approach->windows_Stack.append(this);
 }
 
 void Profile_Plots_Window::closeEvent(QCloseEvent *event)
 {
 	global_Multilayer_Approach->runned_Profile_Plots_Window.remove(profile_Plots_Key);
-	global_Multilayer_Approach->unlock_Mainwindow_Interface();
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
+    global_Multilayer_Approach->unlock_Mainwindow_Interface();
 	write_Window_Geometry();
 	event->accept();
 }
