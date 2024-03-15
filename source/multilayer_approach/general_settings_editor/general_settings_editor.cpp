@@ -9,6 +9,24 @@ General_Settings_Editor::General_Settings_Editor(QWidget *parent) : QWidget(pare
     global_Multilayer_Approach->windows_Stack.append(this);
 }
 
+void General_Settings_Editor::changeEvent(QEvent *event)
+{
+//    if(property(external_Activation_Property).toBool()) {
+//        event->ignore();
+//        return;
+//    }
+
+//    if( event->type() == QEvent::ActivationChange && isActiveWindow() )
+//    {
+//        qInfo() << "General_Settings_Editor::changeEvent" << endl;
+//        global_Multilayer_Approach->windows_Stack.removeOne(this);
+//        global_Multilayer_Approach->raise_All_But_Me(this);
+//        global_Multilayer_Approach->windows_Stack.append(this);
+//        setProperty(external_Activation_Property, false);
+//        raise();
+//    }
+}
+
 void General_Settings_Editor::closeEvent(QCloseEvent *event)
 {
 	write_Window_Geometry();

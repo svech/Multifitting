@@ -71,17 +71,18 @@ void Multilayer_Approach::restore_All()
     for(QWidget* window : windows_Stack) {
         window->setProperty(external_Activation_Property, true);
         window->activateWindow();
-        window->setProperty(external_Activation_Property, false);
     }
+}
+
+void Multilayer_Approach::raise_All_But_Me(QWidget *me)
+{
+    for(QWidget* window : windows_Stack)
+        if(window != me)
+            window->raise();
 }
 
 void Multilayer_Approach::changeEvent(QEvent *event)
 {
-    if(property(external_Activation_Property).toBool()) {
-        event->ignore();
-        return;
-    }
-
     if( event->type() == QEvent::WindowStateChange )
     {
         if(isMinimized())
@@ -495,7 +496,7 @@ void Multilayer_Approach::open_General_Settings()
 	if(!runned_General_Settings_Editor.contains(general_Settings_Key))
 	{
 		runned_General_Settings_Editor.insert(general_Settings_Key, general_Settings_Editor);
-		general_Settings_Editor = new General_Settings_Editor;
+        general_Settings_Editor = new General_Settings_Editor;
             Global_Variables::make_non_minimizable_window(general_Settings_Editor);
 			general_Settings_Editor->show();
 

@@ -10,7 +10,7 @@ Calculation_Settings_Editor::Calculation_Settings_Editor(QWidget* parent) :
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
-    global_Multilayer_Approach->windows_Stack.removeOne(this);
+    global_Multilayer_Approach->windows_Stack.append(this);
 }
 
 void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
