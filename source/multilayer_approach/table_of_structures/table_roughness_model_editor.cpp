@@ -9,7 +9,18 @@ Table_Roughness_Model_Editor::Table_Roughness_Model_Editor(Multilayer* multilaye
 	setAttribute(Qt::WA_DeleteOnClose);
 	setWindowFlags(Qt::Window | Qt::WindowMaximizeButtonHint);
 
-	create_Main_Layout();
+    create_Main_Layout();
+    global_Multilayer_Approach->windows_Stack.append(this);
+}
+
+void Table_Roughness_Model_Editor::closeEvent(QCloseEvent *event)
+{
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
+}
+
+void Table_Roughness_Model_Editor::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
 }
 
 void Table_Roughness_Model_Editor::create_Main_Layout()

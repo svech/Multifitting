@@ -5158,7 +5158,7 @@ void Table_Of_Structures::change_Model(My_Table_Widget *table, int tab_Index, in
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 		Table_Roughness_Model_Editor* table_Roughness_Model_Editor = new Table_Roughness_Model_Editor(multilayer);
-			table_Roughness_Model_Editor->show();
+            table_Roughness_Model_Editor->show();
 	});
 }
 

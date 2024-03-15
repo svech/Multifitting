@@ -10,7 +10,9 @@ class Table_Roughness_Model_Editor : public QWidget
 public:
 	explicit Table_Roughness_Model_Editor(Multilayer* multilayer, QWidget *parent = nullptr);
 
-	void create_Main_Layout();
+    void closeEvent(QCloseEvent* event);
+    void changeEvent(QEvent *event);
+    void create_Main_Layout();
 	void create_Interlayer_Groupbox();
 	void create_Drift_Groupbox();
 	void create_Roughness_Groupbox();
