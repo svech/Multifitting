@@ -2335,7 +2335,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(!empty_Model)
 			{
 				if(last_Layer_Data.particles_Model.particle_Interference_Function == radial_Paracrystal) {
-					model_Text = "radial paracrystal";
+                    model_Text = "2D radial paracrystal";
 				}
 				if(last_Layer_Data.particles_Model.particle_Interference_Function == disorder) {
 					model_Text = "disorder";
@@ -3487,7 +3487,7 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 			disorder_Radiobutton->setChecked(layer_Data.particles_Model.particle_Interference_Function == disorder);
 		choice_Group_Box_Layout->addWidget(disorder_Radiobutton);
 
-		QRadioButton* radial_Paracrystal_Radiobutton = new QRadioButton("Radial paracrystal");
+        QRadioButton* radial_Paracrystal_Radiobutton = new QRadioButton("2D radial paracrystal");
 			radial_Paracrystal_Radiobutton->setChecked(layer_Data.particles_Model.particle_Interference_Function == radial_Paracrystal);
 		choice_Group_Box_Layout->addWidget(radial_Paracrystal_Radiobutton);
 

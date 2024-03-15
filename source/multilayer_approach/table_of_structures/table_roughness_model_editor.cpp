@@ -833,7 +833,7 @@ void Table_Roughness_Model_Editor::create_Particles_Groupbox()
 			disorder_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Interference_Function == disorder);
 		interference_Function_Layout->addWidget(disorder_Radiobutton);
 
-		QRadioButton* radial_Paracrystal_Radiobutton = new QRadioButton("Radial paracrystal");
+        QRadioButton* radial_Paracrystal_Radiobutton = new QRadioButton("2D radial paracrystal");
 			radial_Paracrystal_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Interference_Function == radial_Paracrystal);
 		interference_Function_Layout->addWidget(radial_Paracrystal_Radiobutton);
 
