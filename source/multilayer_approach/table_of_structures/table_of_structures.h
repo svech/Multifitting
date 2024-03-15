@@ -20,7 +20,8 @@ class Table_Of_Structures : public QWidget
 	Q_OBJECT
 	Q_INVOKABLE void adjustSize() {  }
 	bool eventFilter(QObject *obj, QEvent *event);
-	void closeEvent(QCloseEvent* event);
+    void changeEvent(QEvent *event);
+    void closeEvent(QCloseEvent* event);
 public:
 	explicit Table_Of_Structures(bool temporary = false, QWidget* parent = 0);
 

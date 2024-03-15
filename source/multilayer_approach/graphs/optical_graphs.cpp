@@ -251,7 +251,12 @@ void Optical_Graphs::settings_2D()
 
 		global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);
 		settings_Window->close();
-	});
+    });
+}
+
+void Optical_Graphs::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
 }
 
 void Optical_Graphs::closeEvent(QCloseEvent* event)

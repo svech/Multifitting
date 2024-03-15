@@ -24,7 +24,12 @@ bool Table_Of_Structures::eventFilter(QObject *obj, QEvent *event)
 	{
 		return !mouse_wheel_spinbox_structure_table;
 	}
-	return false;
+    return false;
+}
+
+void Table_Of_Structures::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
 }
 
 void Table_Of_Structures::closeEvent(QCloseEvent* event)

@@ -100,7 +100,7 @@ public:
 
     void minimize_All();
     void restore_All();
-    void raise_All_But_Me(QWidget* me);
+    void raise_All();
 
 	void closeEvent(QCloseEvent *event);
     void changeEvent(QEvent *event);

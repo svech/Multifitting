@@ -12,6 +12,11 @@ Fits_Selector::Fits_Selector(QWidget* parent) :
     global_Multilayer_Approach->windows_Stack.append(this);
 }
 
+void Fits_Selector::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
+}
+
 void Fits_Selector::closeEvent(QCloseEvent* event)
 {
 	write_Window_Geometry();

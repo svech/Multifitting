@@ -11,6 +11,11 @@ Profile_Plots_Window::Profile_Plots_Window(bool profile_Export, QWidget *parent)
     global_Multilayer_Approach->windows_Stack.append(this);
 }
 
+void Profile_Plots_Window::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
+}
+
 void Profile_Plots_Window::closeEvent(QCloseEvent *event)
 {
 	global_Multilayer_Approach->runned_Profile_Plots_Window.remove(profile_Plots_Key);

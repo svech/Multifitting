@@ -50,7 +50,7 @@ void Multilayer_Approach::open_Launcher()
 void Multilayer_Approach::closeEvent(QCloseEvent* event)
 {
 	fast_Hide_Windows();
-	launcher->runned_Multilayer_Approaches.remove(multilayer_Approach_Key);	
+    launcher->runned_Multilayer_Approaches.remove(multilayer_Approach_Key);
     windows_Stack.removeOne(this);
 	write_Window_Geometry();
 	Settings::save_All_Settings();
@@ -68,21 +68,31 @@ void Multilayer_Approach::minimize_All()
 
 void Multilayer_Approach::restore_All()
 {
-    for(QWidget* window : windows_Stack) {
-        window->setProperty(external_Activation_Property, true);
-        window->activateWindow();
+    for(QWidget* w : windows_Stack) {
+        w->setProperty(external_Activation_Property, true);
+        if(w->isMinimized())
+            w->activateWindow();
+        else
+            w->raise();
+        w->setProperty(external_Activation_Property, false);
     }
 }
 
-void Multilayer_Approach::raise_All_But_Me(QWidget *me)
+void Multilayer_Approach::raise_All()
 {
-    for(QWidget* window : windows_Stack)
-        if(window != me)
-            window->raise();
+    for(QWidget* w : windows_Stack) {
+        w->setProperty(external_Activation_Property, true);
+        w->raise();
+        w->setProperty(external_Activation_Property, false);
+    }
 }
 
 void Multilayer_Approach::changeEvent(QEvent *event)
 {
+    if(property(external_Activation_Property).toBool()) {
+        event->ignore();
+        return;
+    }
     if( event->type() == QEvent::WindowStateChange )
     {
         if(isMinimized())

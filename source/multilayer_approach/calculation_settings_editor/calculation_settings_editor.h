@@ -13,7 +13,8 @@ public:
 	void contextMenuEvent(QContextMenuEvent* event);
 	void settings();
 
-	void closeEvent(QCloseEvent* event);
+    void changeEvent(QEvent *event);
+    void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
 	void set_Window_Geometry();
 	void write_Window_Geometry();

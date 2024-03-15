@@ -9,6 +9,11 @@ Particles_Plots_Window::Particles_Plots_Window(QWidget *parent) : QWidget(parent
     global_Multilayer_Approach->windows_Stack.append(this);
 }
 
+void Particles_Plots_Window::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
+}
+
 void Particles_Plots_Window::closeEvent(QCloseEvent* event)
 {
 	global_Multilayer_Approach->runned_Particles_Plots_Window.remove(particles_Plots_Key);

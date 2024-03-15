@@ -19,7 +19,8 @@ public:
 	void settings_1D();
 	void settings_2D();
 
-	void closeEvent(QCloseEvent* event);
+    void changeEvent(QEvent *event);
+    void closeEvent(QCloseEvent* event);
 	void save_Geometry();
 	void create_Main_Layout();
 	void create_Tabs();

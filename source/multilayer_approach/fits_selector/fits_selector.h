@@ -10,7 +10,8 @@ class Fits_Selector : public QWidget
 public:
 	explicit Fits_Selector(QWidget* parent = nullptr);
 
-	void closeEvent(QCloseEvent* event);
+    void changeEvent(QEvent *event);
+    void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
 	void set_Window_Geometry();
 	void write_Window_Geometry();

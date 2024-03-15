@@ -9,6 +9,11 @@ Roughness_Plots_Window::Roughness_Plots_Window(QWidget *parent) : QWidget(parent
     global_Multilayer_Approach->windows_Stack.append(this);
 }
 
+void Roughness_Plots_Window::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
+}
+
 void Roughness_Plots_Window::closeEvent(QCloseEvent* event)
 {
 	global_Multilayer_Approach->runned_Roughness_Plots_Window.remove(roughness_Plots_Key);

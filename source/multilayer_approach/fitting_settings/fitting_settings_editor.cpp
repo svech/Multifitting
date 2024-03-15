@@ -14,6 +14,11 @@ Fitting_Settings_Editor::Fitting_Settings_Editor(QWidget* parent) :
     global_Multilayer_Approach->windows_Stack.append(this);
 }
 
+void Fitting_Settings_Editor::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
+}
+
 void Fitting_Settings_Editor::closeEvent(QCloseEvent *event)
 {
 	write_Window_Geometry();

@@ -1617,5 +1617,10 @@ void Calculation_Settings_Editor::settings()
 
 		global_Multilayer_Approach->reopen_Calculation_Settings(true);
 		settings_Window->close();
-	});
+    });
+}
+
+void Calculation_Settings_Editor::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
 }

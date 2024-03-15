@@ -3,6 +3,7 @@
 #include "global_variables.h"
 #include "multilayer_approach/multilayer_approach.h"
 #include "standard/mydoublespinbox.h"
+#include <QEvent>
 
 // version from save file
 int loaded_Version_Major = VERSION_MAJOR;
@@ -1345,6 +1346,35 @@ void Global_Variables::make_non_minimizable_window(QWidget* w)
     Qt::WindowFlags flags = w->windowFlags();
     flags &= ~Qt::WindowMinimizeButtonHint;
     w->setWindowFlags(flags);
+}
+
+void Global_Variables::common_Change_Event(QEvent *event, QWidget *w)
+{
+    if(w->property(external_Activation_Property).toBool()) {
+        event->ignore();
+        return;
+    }
+    auto& stack = global_Multilayer_Approach->windows_Stack;
+
+    if( event->type() == QEvent::WindowStateChange )
+    {
+        if(w->isMinimized() && !global_Multilayer_Approach->isMinimized()) {
+            w->setProperty(external_Activation_Property, true);
+            w->activateWindow();
+            w->setProperty(external_Activation_Property, false);
+        }
+        if(!w->isMinimized() && global_Multilayer_Approach->isMinimized())
+        {
+            global_Multilayer_Approach->activateWindow();
+        }
+    }
+    if( event->type() == QEvent::ActivationChange && w->isActiveWindow() )
+    {
+        if(!w->isMinimized()) {
+            stack.move(stack.indexOf(w),stack.size()-1);
+            global_Multilayer_Approach->raise_All();
+        }
+    }
 }
 
 QString Global_Variables::material_From_Composition(const QList<Stoichiometry>& composition)
