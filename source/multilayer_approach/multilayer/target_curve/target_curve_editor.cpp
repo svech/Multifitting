@@ -9,7 +9,13 @@ Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, Multilayer*
 	create_Main_Layout();
 	setWindowTitle(target_Curve->measurement.measurement_Type);
 	setAttribute(Qt::WA_DeleteOnClose);
-	setAcceptDrops(true);
+    setAcceptDrops(true);
+    global_Multilayer_Approach->windows_Stack.append(this);
+}
+
+void Target_Curve_Editor::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
 }
 
 void Target_Curve_Editor::write_Window_Geometry()
@@ -23,7 +29,8 @@ void Target_Curve_Editor::write_Window_Geometry()
 
 void Target_Curve_Editor::closeEvent(QCloseEvent *event)
 {
-	multilayer_Parent->runned_Target_Curve_Editors.remove(multilayer_Parent->runned_Target_Curve_Editors.key(this));
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
+    multilayer_Parent->runned_Target_Curve_Editors.remove(multilayer_Parent->runned_Target_Curve_Editors.key(this));
 	write_Window_Geometry();
 	event->accept();
 }

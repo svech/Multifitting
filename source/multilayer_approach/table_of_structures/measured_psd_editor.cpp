@@ -21,15 +21,22 @@ Measured_PSD_Editor::Measured_PSD_Editor(Multilayer* multilayer,
 	setAcceptDrops(true);
 
 	PSD_Sigma_Lineedit->valueChanged(PSD_Sigma_Lineedit->value());
+    global_Multilayer_Approach->windows_Stack.append(this);
 }
 
 Measured_PSD_Editor::~Measured_PSD_Editor()
 {
 }
 
+void Measured_PSD_Editor::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
+}
+
 void Measured_PSD_Editor::closeEvent(QCloseEvent *event)
 {
-	PSD_Button->setProperty(is_Opened_Property,false);
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
+    PSD_Button->setProperty(is_Opened_Property,false);
 	event->accept();
 }
 

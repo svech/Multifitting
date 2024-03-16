@@ -11,7 +11,8 @@ public:
 	explicit Measured_PSD_Editor(Multilayer* multilayer, QString PSD_Type, QPushButton* PSD_Button, MyDoubleSpinBox* PSD_Sigma_Lineedit, QWidget* parent = 0);
 	~Measured_PSD_Editor();
 
-	void closeEvent(QCloseEvent* event);
+    void changeEvent(QEvent *event);
+    void closeEvent(QCloseEvent* event);
 	void dragEnterEvent(QDragEnterEvent* event);
 	void dropEvent(QDropEvent* event);
 	void create_Main_Layout();
