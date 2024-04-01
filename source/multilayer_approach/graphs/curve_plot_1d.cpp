@@ -827,6 +827,23 @@ void Curve_Plot_1D::plot_Data(const vector<double>& argument, const vector<doubl
 
 	custom_Plot->graph(graph_Index)->setScatterStyle(scatter_Style);
 
+
+    // add error bars:
+    QCPErrorBars* errorBars = new QCPErrorBars(custom_Plot->xAxis, custom_Plot->yAxis);
+    errorBars->removeFromLegend();
+    errorBars->setAntialiased(false);
+    errorBars->setDataPlottable(custom_Plot->graph(0));
+//    errorBars->setPen(QPen(QColor(180,180,180)));
+    errorBars->setPen(QPen(plot_Options.color));
+
+    QVector<double> err(argument.size());
+    for (size_t i=0; i<argument.size(); ++i)
+    {
+        err[i] = data_To_Plot[i].value/10;
+    }
+    errorBars->setData(err);
+
+
 	// on selection
 	custom_Plot->graph(graph_Index)->selectionDecorator()->setPen(QPen(
 					custom_Plot->graph(graph_Index)->pen().color(),
