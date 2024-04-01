@@ -146,7 +146,14 @@ void General_Settings_Editor::create_Calculation_Tab()
 			}
 		});
 
-//		//----------------------------------------------------------------------------
+        //----------------------------------------------------------------------------
+
+        QCheckBox* recalculate_on_opening_Checkbox = new QCheckBox("Recalculate on opening project");
+            recalculate_on_opening_Checkbox->setChecked(recalculate_open_project);
+        groupbox_Layout->addWidget(recalculate_on_opening_Checkbox);
+        connect(recalculate_on_opening_Checkbox, &QCheckBox::toggled,	[=]{recalculate_open_project = recalculate_on_opening_Checkbox->isChecked();});
+
+        //----------------------------------------------------------------------------
 
 //		QCheckBox* ignore_1D_Particles_Checkbox = new QCheckBox("Ignore 1D scattering on particles");
 //			ignore_1D_Particles_Checkbox->setChecked(ignore_1D_particles_scattering);

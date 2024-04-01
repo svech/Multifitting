@@ -1318,7 +1318,8 @@ void Multilayer_Approach::open(QString filename)
 
 	file.close();
 
-	global_Multilayer_Approach->calculate(true); // to obtain calculated curves that are not loaded
+    if(recalculate_open_project)
+        global_Multilayer_Approach->calculate(true); // to obtain calculated curves that are not loaded
 
 	// resizing
 	if(max_Num_Targets>=2 && height()<=multilayer_height)

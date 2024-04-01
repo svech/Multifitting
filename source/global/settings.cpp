@@ -510,6 +510,7 @@ int reflectivity_calc_threads;
 int optical_constants_read_threads;
 
 bool recalculate_spinbox_global;
+bool recalculate_open_project;
 bool ignore_1D_particles_scattering;
 
 bool recalculate_spinbox_structure_table;
@@ -1657,8 +1658,9 @@ void Settings::read_General_Settings(bool reset_to_default)
 		reflectivity_calc_threads			= general_Settings.value( "reflectivity_calc_threads",		max(QThread::idealThreadCount(),1) ).toInt();
 		optical_constants_read_threads		= general_Settings.value( "optical_constants_read_threads",	max(QThread::idealThreadCount(),1) ).toInt();
 
-		ignore_1D_particles_scattering		= general_Settings.value( "ignore_1D_particles_scattering",			false	).toBool();
-		recalculate_spinbox_global			= general_Settings.value( "recalculate_spinbox_global",				true	).toBool();
+        ignore_1D_particles_scattering		= general_Settings.value( "ignore_1D_particles_scattering",			false	).toBool();
+        recalculate_open_project            = general_Settings.value( "recalculate_open_project",               true	).toBool();
+        recalculate_spinbox_global			= general_Settings.value( "recalculate_spinbox_global",				true	).toBool();
 
 		recalculate_spinbox_structure_table	= general_Settings.value( "recalculate_spinbox_structure_table",	true	).toBool();
 		mouse_wheel_spinbox_structure_table	= general_Settings.value( "mouse_wheel_spinbox_structure_table",	true	).toBool();
@@ -1722,7 +1724,8 @@ void Settings::save_General_Settings()
 		general_Settings.setValue("optical_constants_read_threads",		optical_constants_read_threads		);
 
 		general_Settings.setValue("ignore_1D_particles_scattering",		ignore_1D_particles_scattering		);
-		general_Settings.setValue("recalculate_spinbox_global",			recalculate_spinbox_global			);
+        general_Settings.setValue("recalculate_spinbox_global",			recalculate_spinbox_global			);
+        general_Settings.setValue("recalculate_open_project",			recalculate_open_project			);
 
 		general_Settings.setValue("recalculate_spinbox_structure_table",recalculate_spinbox_structure_table	);
 		general_Settings.setValue("mouse_wheel_spinbox_structure_table",mouse_wheel_spinbox_structure_table	);
