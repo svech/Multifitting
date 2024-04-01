@@ -505,7 +505,8 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 	int target_Index = 0;
 	for(Target_Curve* target_Curve: targets)
 	{
-		QGroupBox* box = new QGroupBox(target_Curve->label_Text);
+        QString text = target_Curve->name.isEmpty() ? target_Curve->label_Text : target_Curve->name;
+        QGroupBox* box = new QGroupBox(text);
 			box->setCheckable(true);
 			box->setObjectName("box");
 			box->setStyleSheet("QGroupBox#box { border-radius: 2px; border: 1px solid gray; margin-top: 2ex;}"
@@ -587,6 +588,13 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 
 		// content
 		{			
+            if(!target_Curve->name.isEmpty()) {
+                QHBoxLayout* row_0_Layout = new QHBoxLayout;
+                box_Layout->addLayout(row_0_Layout);
+                QLabel* description_Label = new QLabel(target_Curve->label_Text);
+                row_0_Layout->addWidget(description_Label);
+            }
+
 			QHBoxLayout* row_1_Layout = new QHBoxLayout;
 			box_Layout->addLayout(row_1_Layout);
 
