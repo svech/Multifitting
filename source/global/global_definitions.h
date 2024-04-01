@@ -19,6 +19,10 @@
 #define VERSION_MINOR 2
 #define VERSION_BUILD 0
 
+#define BACKWARD_VERSION_MAJOR 2;
+#define BACKWARD_VERSION_MINOR 2;
+#define BACKWARD_VERSION_BUILD 0;
+
 using namespace std;
 using namespace boost::math::quadrature;
 class Node;

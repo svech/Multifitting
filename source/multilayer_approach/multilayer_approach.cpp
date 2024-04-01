@@ -918,11 +918,17 @@ void Multilayer_Approach::open(QString filename)
 	}
 
 	// read version
-	in >> loaded_Version_Major;
-	in >> loaded_Version_Minor;
-	in >> loaded_Version_Build;
+    in >> loaded_Version_Major;
+    in >> loaded_Version_Minor;
+    in >> loaded_Version_Build;
 
-	if( (loaded_Version_Major <VERSION_MAJOR) ||
+    // read version of old program, where this newere file still can be opened
+    int backward_Version_Major, backward_Version_Minor, backward_Version_Bild;
+    in >> backward_Version_Major;
+    in >> backward_Version_Minor;
+    in >> backward_Version_Bild;
+
+    if( (loaded_Version_Major <VERSION_MAJOR) ||
 	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor <VERSION_MINOR)) ||
 	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor==VERSION_MINOR) && (loaded_Version_Build<VERSION_BUILD)) )
 	{
@@ -935,19 +941,19 @@ void Multilayer_Approach::open(QString filename)
 							 + Locale.toString(VERSION_BUILD) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::No) return;
 	}
-	if( (loaded_Version_Major >VERSION_MAJOR) ||
-	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor >VERSION_MINOR)) ||
-	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor==VERSION_MINOR) && (loaded_Version_Build>VERSION_BUILD)) )
-	{
-		QMessageBox::warning(this,"Opening old file","File, created by newer version "
-							 + Locale.toString(loaded_Version_Major) + "."
-							 + Locale.toString(loaded_Version_Minor) + "."
-							 + Locale.toString(loaded_Version_Build) + "\ncan't be opened in "
-							 + Locale.toString(VERSION_MAJOR) + "."
-							 + Locale.toString(VERSION_MINOR) + "."
-							 + Locale.toString(VERSION_BUILD));
-		return;
-	}
+    if( (backward_Version_Major >VERSION_MAJOR) ||
+       ((backward_Version_Major==VERSION_MAJOR) && (backward_Version_Minor >VERSION_MINOR)) ||
+       ((backward_Version_Major==VERSION_MAJOR) && (backward_Version_Minor==VERSION_MINOR) && (backward_Version_Bild>VERSION_BUILD)) )
+    {
+        QMessageBox::warning(this,"Opening too new file","File, created by newer version "
+                             + Locale.toString(loaded_Version_Major) + "."
+                             + Locale.toString(loaded_Version_Minor) + "."
+                             + Locale.toString(loaded_Version_Build) + "\ncannot be opened in "
+                             + Locale.toString(VERSION_MAJOR) + "."
+                             + Locale.toString(VERSION_MINOR) + "."
+                             + Locale.toString(VERSION_BUILD));
+        return;
+    }
 	// only here approve last file
 //	last_file = preliminary_last_file;
 //	last_directory = preliminary_last_directory;
@@ -1469,6 +1475,11 @@ void Multilayer_Approach::save(QString filename)
 	out << VERSION_MAJOR;
 	out << VERSION_MINOR;
 	out << VERSION_BUILD;
+
+    // save version of old program, where this file still can be opened
+    out << BACKWARD_VERSION_MAJOR;
+    out << BACKWARD_VERSION_MINOR;
+    out << BACKWARD_VERSION_BUILD;
 
 	// save previous id
 	++previous_ID;
