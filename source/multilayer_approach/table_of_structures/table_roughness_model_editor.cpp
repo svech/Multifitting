@@ -875,11 +875,13 @@ void Table_Roughness_Model_Editor::create_Particles_Groupbox()
 
 		QRadioButton* hexagonal_Radiobutton = new QRadioButton("Hexagonal");
 			hexagonal_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Geometric_Model == hexagonal_Model);
+            hexagonal_Radiobutton->setDisabled(disorder_Radiobutton->isChecked());
 		model_Layout->addWidget(hexagonal_Radiobutton);
 
 		QRadioButton* square_Radiobutton = new QRadioButton("Square");
 			square_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Geometric_Model == square_Model);
-		model_Layout->addWidget(square_Radiobutton);
+            square_Radiobutton->setDisabled(disorder_Radiobutton->isChecked());
+        model_Layout->addWidget(square_Radiobutton);
 
 		QRadioButton* pure_Radial_Radiobutton = new QRadioButton("Radial");
 			pure_Radial_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Geometric_Model == pure_Radial_Model);
@@ -943,10 +945,13 @@ void Table_Roughness_Model_Editor::create_Particles_Groupbox()
 	// interference
 	connect(disorder_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(disorder_Radiobutton->isChecked())	{
+        bool checked = disorder_Radiobutton->isChecked();
+        if(checked)	{
 			multilayer->imperfections_Model.initial_Interference_Function = disorder;
-		}
-	});
+        }
+        hexagonal_Radiobutton->setDisabled(checked);
+        square_Radiobutton->setDisabled(checked);
+    });
 	connect(radial_Paracrystal_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
 		if(radial_Paracrystal_Radiobutton->isChecked())	{
