@@ -836,7 +836,24 @@ void Multilayer_Approach::refresh_All_Multilayers_View()
 		{
 			multilayer->refresh_Structure_And_Independent(sender());
 		}
-	}
+    }
+}
+
+void Multilayer_Approach::new_Project()
+{
+    QMessageBox::StandardButton reply = QMessageBox::question(this,"Open new project",
+                                                              "Current project will be closed.\nContinue?",
+                                                              QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+    if (reply == QMessageBox::Yes)
+    {
+        file_Was_Opened_or_Saved = false;
+        setWindowTitle(multilayer_Approach_Default_Title);
+
+        while (multilayer_Tabs->count()>0)
+            delete multilayer_Tabs->widget(0);
+
+        add_Multilayer();
+    }
 }
 
 void Multilayer_Approach::dragEnterEvent(QDragEnterEvent* event)

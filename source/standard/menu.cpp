@@ -89,12 +89,17 @@ void Menu::create_File_Menu()
 	{
 		if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table_Of_Structures)
 		{
-			QAction* act_Open = new QAction("Open last", this);
-				act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
-            connect(act_Open, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::open_Action);
-			file_Menu->addAction(act_Open);
+            QAction* act_New = new QAction("New project", this);
+                act_New->setShortcut(Qt::Key_N | Qt::CTRL);
+            connect(act_New, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::new_Project);
+            file_Menu->addAction(act_New);
 
-			QAction* act_Open_As = new QAction("Open", this);
+            QAction* act_Open = new QAction("Open last", this);
+                act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
+            connect(act_Open, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::open_Action);
+            file_Menu->addAction(act_Open);
+
+            QAction* act_Open_As = new QAction("Open", this);
 				act_Open_As->setShortcut(Qt::Key_O | Qt::CTRL | Qt::SHIFT);
             connect(act_Open_As, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::open_As);
 			file_Menu->addAction(act_Open_As);

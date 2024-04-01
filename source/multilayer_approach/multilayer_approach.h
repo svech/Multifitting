@@ -53,6 +53,7 @@ signals:
 public:
 	void open_Launcher();
 	void refresh_All_Multilayers_View();
+    void new_Project();
 	void open(QString filename);
 	void open_As();
     void open_Action();
