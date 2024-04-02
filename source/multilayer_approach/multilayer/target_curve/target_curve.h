@@ -124,7 +124,7 @@ public:
 	QString filepath;	// should be empty
 
     bool load_Error_Bars = false;
-    bool use_two_boundaries = false;
+    bool use_Two_Boundaries = false;
 
 	bool loaded_And_Ready = false;
 	Calc_Functions calc_Functions;

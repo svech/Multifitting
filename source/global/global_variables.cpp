@@ -1360,7 +1360,8 @@ void Global_Variables::common_Change_Event(QEvent *event, QWidget *w)
     {
         if(w->isMinimized() && !global_Multilayer_Approach->isMinimized()) {
             w->setProperty(external_Activation_Property, true);
-            w->activateWindow();
+            //  w->activateWindow(); buggy alternative
+            global_Multilayer_Approach->minimize_All();
             w->setProperty(external_Activation_Property, false);
         }
         if(!w->isMinimized() && global_Multilayer_Approach->isMinimized())
