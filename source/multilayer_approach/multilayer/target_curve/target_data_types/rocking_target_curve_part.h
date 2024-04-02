@@ -63,6 +63,10 @@ public:
 	QCheckBox* beam_Intensity_Final_CheckBox;
 	MyDoubleSpinBox* beam_Intensity_Final_SpinBox;
 
+    QCheckBox* load_Error_Bars_CheckBox;
+    QRadioButton* use_Error_Bars_Radiobutton;
+    QRadioButton* use_Two_Boundaries_Radiobutton;
+
 	QLabel* beam_Time_Label;
 	MyDoubleSpinBox* beam_Time_SpinBox;
 	QLabel* beam_Time_Units_Label;

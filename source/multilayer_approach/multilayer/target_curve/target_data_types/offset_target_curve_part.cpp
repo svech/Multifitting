@@ -325,6 +325,31 @@ void Offset_Target_Curve_Part::create_Value_GroupBox()
 			beam_Time_Units_Label->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
         value_GroupBox_Layout_1->addWidget(beam_Time_Units_Label,0,Qt::AlignLeft);
 	}
+
+    QHBoxLayout* value_GroupBox_Layout_2 = new QHBoxLayout();
+    value_GroupBox_Layout->addLayout(value_GroupBox_Layout_2);
+    value_GroupBox_Layout_2->setAlignment(Qt::AlignLeft);
+
+    // error bars
+    {
+        load_Error_Bars_CheckBox = new QCheckBox("Read error bars:");
+            load_Error_Bars_CheckBox->setChecked(target_Curve->load_Error_Bars);
+        value_GroupBox_Layout_2->addWidget(load_Error_Bars_CheckBox);
+
+        use_Error_Bars_Radiobutton = new QRadioButton("symmetric");
+            use_Error_Bars_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
+            use_Error_Bars_Radiobutton->setChecked(!target_Curve->use_Two_Boundaries);
+        value_GroupBox_Layout_2->addWidget(use_Error_Bars_Radiobutton);
+
+        use_Two_Boundaries_Radiobutton = new QRadioButton("upper and lower");
+            use_Two_Boundaries_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
+            use_Two_Boundaries_Radiobutton->setChecked(target_Curve->use_Two_Boundaries);
+        value_GroupBox_Layout_2->addWidget(use_Two_Boundaries_Radiobutton);
+
+        QButtonGroup* bars_ButtonGroup = new QButtonGroup;
+            bars_ButtonGroup->addButton(use_Error_Bars_Radiobutton);
+            bars_ButtonGroup->addButton(use_Two_Boundaries_Radiobutton);
+    }
 }
 
 void Offset_Target_Curve_Part::create_Beam_GroupBox()
@@ -960,6 +985,18 @@ void Offset_Target_Curve_Part::connecting()
 			}
 		}
 	});
+    // error bars
+    connect(load_Error_Bars_CheckBox, &QCheckBox::toggled, this, [=]
+    {
+        target_Curve->load_Error_Bars = load_Error_Bars_CheckBox->isChecked();
+
+        use_Error_Bars_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
+        use_Two_Boundaries_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
+    });
+    connect(use_Error_Bars_Radiobutton, &QRadioButton::toggled, this, [=]
+    {
+        target_Curve->use_Two_Boundaries = !use_Error_Bars_Radiobutton->isChecked();
+    });
 
 	/// beam box
 	// at fixed
