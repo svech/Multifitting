@@ -118,6 +118,9 @@ public:
 	QString filename;	// should be empty
 	QString filepath;	// should be empty
 
+    bool load_Error_Bars = false;
+    bool use_two_boundaries = false;
+
 	bool loaded_And_Ready = false;
 	Calc_Functions calc_Functions;
 	Plot_Options plot_Options_Experimental;

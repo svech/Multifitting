@@ -1026,7 +1026,12 @@ Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve
 	measurement = referent_Target_Curve.measurement;	measurement.reset_All_IDs();
 	filename = referent_Target_Curve.filename;	// should be empty
 	filepath = referent_Target_Curve.filepath;	// should be empty
+
+    load_Error_Bars = referent_Target_Curve.load_Error_Bars;
+    use_two_boundaries = referent_Target_Curve.use_two_boundaries;
+
 	loaded_And_Ready = referent_Target_Curve.loaded_And_Ready;
+
 	calc_Functions = referent_Target_Curve.calc_Functions;
 	plot_Options_Experimental = referent_Target_Curve.plot_Options_Experimental;
 	plot_Options_Calculated = referent_Target_Curve.plot_Options_Calculated;
@@ -1204,6 +1209,7 @@ QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve 
 {
 	return stream	<< target_Curve->curve << target_Curve->fit_Params << target_Curve->measurement
 					<< target_Curve->filename << target_Curve->filepath
+                    << target_Curve->load_Error_Bars << target_Curve->use_two_boundaries
 					<< target_Curve->calc_Functions
 					<< target_Curve->plot_Options_Experimental
 					<< target_Curve->plot_Options_Calculated
@@ -1216,8 +1222,12 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 	if(Global_Variables::check_Loaded_Version(1,11,0))
 	{
 		stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement
-				>> target_Curve->filename >> target_Curve->filepath
-				>> target_Curve->calc_Functions
+                >> target_Curve->filename >> target_Curve->filepath;
+
+        if(Global_Variables::check_Loaded_Version(2,2,0))
+        {stream >> target_Curve->load_Error_Bars >> target_Curve->use_two_boundaries;}
+
+        stream  >> target_Curve->calc_Functions
 				>> target_Curve->plot_Options_Experimental
 				>> target_Curve->plot_Options_Calculated
 				>> target_Curve->header >> target_Curve->label_Text;
