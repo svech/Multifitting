@@ -1069,7 +1069,9 @@ QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 					<< curve.horizontal_Arg_Shift << curve.horizontal_Arg_Factor
 					<< curve.val_Shift << curve.val_Factor
 					<< curve.divide_On_Beam_Intensity << curve.beam_Intensity_Initial << curve.use_Final_Intensity << curve.beam_Intensity_Final << curve.beam_Time
-					<< curve.value_Type << curve.argument << curve.values << curve.value_2D;
+                    << curve.value_Type << curve.argument << curve.values
+                    << curve.error_Bars << curve.lower_Bar << curve.upper_Bar
+                    << curve.value_2D;
 }
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 {
@@ -1084,7 +1086,12 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 				if(Global_Variables::check_Loaded_Version(1,11,14))
 				{ stream >> curve.beam_Time;}
 
-		stream	>> curve.value_Type >> curve.argument >> curve.values >> curve.value_2D;
+        stream	>> curve.value_Type >> curve.argument >> curve.values;
+
+                if(Global_Variables::check_Loaded_Version(2,2,0))
+                {stream >> curve.error_Bars >> curve.lower_Bar >> curve.upper_Bar;}
+
+        stream	>> curve.value_2D;
 	} else // before 1.11.0
 	{
 		if(Global_Variables::check_Loaded_Version(1,10,1))		// since 1.10.1

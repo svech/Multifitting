@@ -45,6 +45,11 @@ struct Curve
 	// 1D
 	QVector<double> argument;
 	QVector<double> values;
+
+    QVector<double> error_Bars;
+    QVector<double> lower_Bar;
+    QVector<double> upper_Bar;
+
 	vector<double>  shifted_Argument;					  // without saving
 	vector<double>  shifted_Values;						  // without saving
 	vector<double>  shifted_Values_No_Scaling_And_Offset; // without saving, for fitting scale purposes
