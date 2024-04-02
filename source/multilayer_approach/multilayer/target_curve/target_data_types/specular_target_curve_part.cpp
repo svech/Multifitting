@@ -166,8 +166,12 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 	QGroupBox* value_GroupBox = new QGroupBox("Value");
 	main_Layout->addWidget(value_GroupBox);
 
-	QHBoxLayout* value_GroupBox_Layout = new QHBoxLayout(value_GroupBox);
-		value_GroupBox_Layout->setAlignment(Qt::AlignLeft);
+    QVBoxLayout* value_GroupBox_Layout = new QVBoxLayout(value_GroupBox);
+    value_GroupBox_Layout->setAlignment(Qt::AlignLeft);
+
+    QHBoxLayout* value_GroupBox_Layout_1 = new QHBoxLayout();
+    value_GroupBox_Layout->addLayout(value_GroupBox_Layout_1);
+    value_GroupBox_Layout_1->setAlignment(Qt::AlignLeft);
 
 	// value type
 	{
@@ -177,12 +181,12 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 			value_Type_ComboBox->addItem(value_Types[Reflectance]);
 			value_Type_ComboBox->addItem(value_Types[Transmittance]);
 			value_Type_ComboBox->setCurrentText(target_Curve->curve.value_Type);
-		value_GroupBox_Layout->addWidget(value_Type_ComboBox);
+        value_GroupBox_Layout_1->addWidget(value_Type_ComboBox);
 	}
 	// value shift
 	{
 		QLabel* value_Shift_Label = new QLabel("    Shift");
-		value_GroupBox_Layout->addWidget(value_Shift_Label,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(value_Shift_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -194,13 +198,13 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 			val_Shift_SpinBox->setSingleStep(0.0001);
 			val_Shift_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			val_Shift_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		value_GroupBox_Layout->addWidget(val_Shift_SpinBox,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(val_Shift_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(val_Shift_SpinBox);
 	}
 	// value factor
 	{
 		QLabel* value_Factor_Label = new QLabel("   Factor");
-		value_GroupBox_Layout->addWidget(value_Factor_Label,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(value_Factor_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -212,13 +216,13 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 			val_Factor_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			val_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			val_Factor_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		value_GroupBox_Layout->addWidget(val_Factor_SpinBox,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(val_Factor_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(val_Factor_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		QLabel* val_Factor_Min_Label = new QLabel(", min");
-		value_GroupBox_Layout->addWidget(val_Factor_Min_Label,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(val_Factor_Min_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -230,13 +234,13 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 			val_Factor_Min_SpinBox->setAccelerated(true);
 			val_Factor_Min_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			val_Factor_Min_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		value_GroupBox_Layout->addWidget(val_Factor_Min_SpinBox);
+        value_GroupBox_Layout_1->addWidget(val_Factor_Min_SpinBox);
 		Global_Variables::resize_Line_Edit(val_Factor_Min_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		QLabel* val_Factor_Max_Label = new QLabel("max");
-		value_GroupBox_Layout->addWidget(val_Factor_Max_Label,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(val_Factor_Max_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -248,20 +252,20 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 			val_Factor_Max_SpinBox->setAccelerated(true);
 			val_Factor_Max_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			val_Factor_Max_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		value_GroupBox_Layout->addWidget(val_Factor_Max_SpinBox,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(val_Factor_Max_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(val_Factor_Max_SpinBox);
 	}
 	// norm on beam intensity
 	{
 		norm_On_Beam_Intensity = new QCheckBox("Divide on beam intensity:");
 			norm_On_Beam_Intensity->setChecked(target_Curve->curve.divide_On_Beam_Intensity);
-		value_GroupBox_Layout->addWidget(norm_On_Beam_Intensity);
+        value_GroupBox_Layout_1->addWidget(norm_On_Beam_Intensity);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		beam_Intensity_Start_Label = new QLabel("initial");
 			beam_Intensity_Start_Label->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
-		value_GroupBox_Layout->addWidget(beam_Intensity_Start_Label,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(beam_Intensity_Start_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -274,7 +278,7 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 			beam_Intensity_Initial_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			beam_Intensity_Initial_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
 			beam_Intensity_Initial_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
-		value_GroupBox_Layout->addWidget(beam_Intensity_Initial_SpinBox,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(beam_Intensity_Initial_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(beam_Intensity_Initial_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -282,7 +286,7 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 		beam_Intensity_Final_CheckBox = new QCheckBox("final");
 			beam_Intensity_Final_CheckBox->setChecked(target_Curve->curve.use_Final_Intensity);
 			beam_Intensity_Final_CheckBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
-		value_GroupBox_Layout->addWidget(beam_Intensity_Final_CheckBox,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(beam_Intensity_Final_CheckBox,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -295,14 +299,14 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 			beam_Intensity_Final_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			beam_Intensity_Final_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
 			beam_Intensity_Final_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity && target_Curve->curve.use_Final_Intensity);
-		value_GroupBox_Layout->addWidget(beam_Intensity_Final_SpinBox,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(beam_Intensity_Final_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(beam_Intensity_Final_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		beam_Time_Label = new QLabel("t =");
 			beam_Time_Label->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
-		value_GroupBox_Layout->addWidget(beam_Time_Label,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(beam_Time_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -315,14 +319,14 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 			beam_Time_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			beam_Time_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
 			beam_Time_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
-		value_GroupBox_Layout->addWidget(beam_Time_SpinBox,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(beam_Time_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(beam_Time_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		beam_Time_Units_Label = new QLabel("s");
 			beam_Time_Units_Label->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
-		value_GroupBox_Layout->addWidget(beam_Time_Units_Label,0,Qt::AlignLeft);
+        value_GroupBox_Layout_1->addWidget(beam_Time_Units_Label,0,Qt::AlignLeft);
 	}
 }
 
