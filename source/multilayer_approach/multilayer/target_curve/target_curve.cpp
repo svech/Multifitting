@@ -142,7 +142,11 @@ void Target_Curve::parse_1D_Data()
 {
 	curve.argument.clear();
 	curve.values.clear();
+    curve.error_Bars.clear();
+    curve.lower_Bar.clear();
+    curve.upper_Bar.clear();
 	header.clear();
+
 
 	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
 	{
