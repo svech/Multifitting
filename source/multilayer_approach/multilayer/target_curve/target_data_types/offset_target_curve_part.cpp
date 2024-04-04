@@ -336,19 +336,38 @@ void Offset_Target_Curve_Part::create_Value_GroupBox()
             load_Error_Bars_CheckBox->setChecked(target_Curve->load_Error_Bars);
         value_GroupBox_Layout_2->addWidget(load_Error_Bars_CheckBox);
 
-        use_Error_Bars_Radiobutton = new QRadioButton("symmetric");
-            use_Error_Bars_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
-            use_Error_Bars_Radiobutton->setChecked(!target_Curve->use_Two_Boundaries);
-        value_GroupBox_Layout_2->addWidget(use_Error_Bars_Radiobutton);
+        use_Symm_Error_Bars_Radiobutton = new QRadioButton("symmetric");
+            use_Symm_Error_Bars_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
+            use_Symm_Error_Bars_Radiobutton->setChecked(!target_Curve->use_Two_Boundaries);
+        value_GroupBox_Layout_2->addWidget(use_Symm_Error_Bars_Radiobutton);
 
-        use_Two_Boundaries_Radiobutton = new QRadioButton("upper and lower");
-            use_Two_Boundaries_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
-            use_Two_Boundaries_Radiobutton->setChecked(target_Curve->use_Two_Boundaries);
-        value_GroupBox_Layout_2->addWidget(use_Two_Boundaries_Radiobutton);
+        use_Two_Boundaries_Errorbar_Radiobutton = new QRadioButton("upper and lower");
+            use_Two_Boundaries_Errorbar_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
+            use_Two_Boundaries_Errorbar_Radiobutton->setChecked(target_Curve->use_Two_Boundaries);
+        value_GroupBox_Layout_2->addWidget(use_Two_Boundaries_Errorbar_Radiobutton);
 
-        QButtonGroup* bars_ButtonGroup = new QButtonGroup;
-            bars_ButtonGroup->addButton(use_Error_Bars_Radiobutton);
-            bars_ButtonGroup->addButton(use_Two_Boundaries_Radiobutton);
+        QButtonGroup* use_Bars_ButtonGroup = new QButtonGroup;
+            use_Bars_ButtonGroup->addButton(use_Symm_Error_Bars_Radiobutton);
+            use_Bars_ButtonGroup->addButton(use_Two_Boundaries_Errorbar_Radiobutton);
+
+
+        QLabel* separator = new QLabel("  |  ");
+        value_GroupBox_Layout_2->addWidget(separator);
+
+
+        show_Error_Bars_Radiobutton = new QRadioButton("whiskers");
+            show_Error_Bars_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
+            show_Error_Bars_Radiobutton->setChecked(!target_Curve->show_Confidence_Region);
+        value_GroupBox_Layout_2->addWidget(show_Error_Bars_Radiobutton);
+
+        show_Confidence_Region_Radiobutton = new QRadioButton("region");
+            show_Confidence_Region_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
+            show_Confidence_Region_Radiobutton->setChecked(target_Curve->show_Confidence_Region);
+        value_GroupBox_Layout_2->addWidget(show_Confidence_Region_Radiobutton);
+
+        QButtonGroup* show_Bars_ButtonGroup = new QButtonGroup;
+            show_Bars_ButtonGroup->addButton(show_Error_Bars_Radiobutton);
+            show_Bars_ButtonGroup->addButton(show_Confidence_Region_Radiobutton);
     }
 }
 
@@ -990,12 +1009,19 @@ void Offset_Target_Curve_Part::connecting()
     {
         target_Curve->load_Error_Bars = load_Error_Bars_CheckBox->isChecked();
 
-        use_Error_Bars_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
-        use_Two_Boundaries_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
+        use_Symm_Error_Bars_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
+        use_Two_Boundaries_Errorbar_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
+
+        show_Error_Bars_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
+        show_Confidence_Region_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
     });
-    connect(use_Error_Bars_Radiobutton, &QRadioButton::toggled, this, [=]
+    connect(use_Symm_Error_Bars_Radiobutton, &QRadioButton::toggled, this, [=]
     {
-        target_Curve->use_Two_Boundaries = !use_Error_Bars_Radiobutton->isChecked();
+        target_Curve->use_Two_Boundaries = !use_Symm_Error_Bars_Radiobutton->isChecked();
+    });
+    connect(show_Error_Bars_Radiobutton, &QRadioButton::toggled, this, [=]
+    {
+        target_Curve->show_Confidence_Region = !show_Error_Bars_Radiobutton->isChecked();
     });
 
 	/// beam box

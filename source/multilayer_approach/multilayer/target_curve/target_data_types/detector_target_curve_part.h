@@ -63,8 +63,10 @@ public:
 	MyDoubleSpinBox* beam_Intensity_Final_SpinBox;
 
     QCheckBox* load_Error_Bars_CheckBox;
-    QRadioButton* use_Error_Bars_Radiobutton;
-    QRadioButton* use_Two_Boundaries_Radiobutton;
+    QRadioButton* use_Symm_Error_Bars_Radiobutton;
+    QRadioButton* use_Two_Boundaries_Errorbar_Radiobutton;
+    QRadioButton* show_Error_Bars_Radiobutton;
+    QRadioButton* show_Confidence_Region_Radiobutton;
 
 	QLabel* beam_Time_Label;
 	MyDoubleSpinBox* beam_Time_SpinBox;

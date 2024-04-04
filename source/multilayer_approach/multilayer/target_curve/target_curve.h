@@ -46,9 +46,8 @@ struct Curve
 	QVector<double> argument;
 	QVector<double> values;
 
-    QVector<double> error_Bars;
-    QVector<double> lower_Bar;
-    QVector<double> upper_Bar;
+    QVector<double> first_Bar;
+    QVector<double> second_Bar;
 
 	vector<double>  shifted_Argument;					  // without saving
 	vector<double>  shifted_Values;						  // without saving
@@ -125,6 +124,7 @@ public:
 
     bool load_Error_Bars = false;
     bool use_Two_Boundaries = false;
+    bool show_Confidence_Region = false;
 
 	bool loaded_And_Ready = false;
 	Calc_Functions calc_Functions;

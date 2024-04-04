@@ -75,19 +75,41 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale_1D()
 	custom_Plot->yAxis->grid()->setPen(pen);
 	custom_Plot->xAxis->grid()->setPen(pen);
 
-	// create graph and set pen
-	if(custom_Plot->graphCount()!=1)
-	{
-		custom_Plot->clearGraphs();
-		custom_Plot->addGraph();
-	}
-	custom_Plot->graph()->setPen(QPen(target_Curve->plot_Options_Experimental.color,target_Curve->plot_Options_Experimental.thickness));
+    // create graph and set pen
+    custom_Plot->clearGraphs();
+    main_graph = custom_Plot->addGraph();
+
+    // add confidence band graphs:
+    lower_graph = custom_Plot->addGraph();
+    upper_graph = custom_Plot->addGraph();
+    QPen pen_confidence;
+    pen_confidence.setStyle(Qt::DotLine);
+    pen_confidence.setWidth(1);
+    pen_confidence.setColor(QColor(180,180,180));
+    lower_graph->setPen(pen_confidence);
+    upper_graph->setPen(pen_confidence);
+    lower_graph->setBrush(QBrush(QColor(255,50,30,20)));
+    lower_graph->setChannelFillGraph(upper_graph);
+
+    // add symmetric errorbars
+    error_Bars = new QCPErrorBars(custom_Plot->xAxis, custom_Plot->yAxis);
+    error_Bars->setAntialiased(false);
+    error_Bars->setDataPlottable(main_graph);
+    QColor color_bars = target_Curve->plot_Options_Experimental.color;
+    color_bars.setAlpha(150);
+    double thickness_bars = 1;
+    error_Bars->setPen(QPen(color_bars,thickness_bars));
+    error_Bars->setWhiskerWidth(7);
+    error_Bars->setSymbolGap(5);
+    error_Bars->setSelectable(QCP::stNone);
+
+    main_graph->setPen(QPen(target_Curve->plot_Options_Experimental.color,target_Curve->plot_Options_Experimental.thickness));
 
 	// set scatter slyle
 	QCPScatterStyle scatter_Style;
 		scatter_Style.setShape(QCPScatterStyle::ScatterShape(target_Curve->plot_Options_Experimental.scatter_Shape));
 		scatter_Style.setSize(target_Curve->plot_Options_Experimental.scatter_Size);
-	custom_Plot->graph()->setScatterStyle(scatter_Style);
+    main_graph->setScatterStyle(scatter_Style);
 
 	// scale
 	if(target_Curve->plot_Options_Experimental.y_Scale == log_Scale)  apply_Log_Scale_1D();
@@ -132,7 +154,7 @@ void Target_Curve_Plot::plot_Data_1D()
 	if(target_Curve->loaded_And_Ready)
 	{
 		int data_Count = target_Curve->curve.shifted_Argument.size();
-		QVector<QCPGraphData> data_To_Plot(data_Count);
+        QVector<QCPGraphData> data_To_Plot(data_Count);
 		double min = DBL_MAX;
 		double max = -DBL_MAX;
 		for (int i=0; i<data_Count; ++i)
@@ -142,12 +164,82 @@ void Target_Curve_Plot::plot_Data_1D()
 
 			if(max<data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {max=data_To_Plot[i].value;}
 			if(min>data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {min=data_To_Plot[i].value;}
-		}
-		custom_Plot->graph()->data()->set(data_To_Plot);
-		custom_Plot->xAxis->setRange(target_Curve->curve.shifted_Argument.front(), target_Curve->curve.shifted_Argument.back());
-		custom_Plot->yAxis->setRange(min,max);
-		custom_Plot->replot();
-	}
+        }
+        main_graph->data()->set(data_To_Plot);
+
+        QVector<double> args = QVector<double>::fromStdVector(target_Curve->curve.shifted_Argument);
+
+        // add error bars:
+        if(target_Curve->load_Error_Bars)
+        {
+            if(target_Curve->use_Two_Boundaries)
+            {
+                if(target_Curve->show_Confidence_Region)
+                {
+                    QVector<double> upper_Bar(data_Count);
+                    QVector<double> lower_Bar(data_Count);
+                    for (int i=0; i<data_Count; ++i)
+                    {
+                        upper_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.first_Bar[i];
+                        lower_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.second_Bar[i];
+                    }
+                    lower_graph->setData(args, upper_Bar);
+                    upper_graph->setData(args, lower_Bar);
+
+                    lower_graph->setVisible(true);
+                    upper_graph->setVisible(true);
+
+                    error_Bars->setVisible(false);
+                }
+                else // whiskers
+                {
+                    error_Bars->setData(target_Curve->curve.first_Bar, target_Curve->curve.second_Bar);
+
+                    error_Bars->setVisible(true);
+
+                    lower_graph->setVisible(false);
+                    upper_graph->setVisible(false);
+                }
+            }
+            else // symmetric bars
+            {
+                if(target_Curve->show_Confidence_Region)
+                {
+                    QVector<double> first_Bar(data_Count);
+                    QVector<double> upper_Bar(data_Count);
+                    for (int i=0; i<data_Count; ++i)
+                    {
+                        first_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.first_Bar[i];
+                        upper_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.first_Bar[i]; // both first
+                    }
+                    lower_graph->setData(args, first_Bar);
+                    upper_graph->setData(args, upper_Bar);
+
+                    lower_graph->setVisible(true);
+                    upper_graph->setVisible(true);
+
+                    error_Bars->setVisible(false);
+                }
+                else // whiskers
+                {
+                    error_Bars->setData(target_Curve->curve.first_Bar);
+
+                    error_Bars->setVisible(true);
+
+                    lower_graph->setVisible(false);
+                    upper_graph->setVisible(false);
+                }
+            }
+        } else
+        {
+            lower_graph->setVisible(false);
+            upper_graph->setVisible(false);
+            error_Bars->setVisible(false);
+        }
+        custom_Plot->xAxis->setRange(target_Curve->curve.shifted_Argument.front(), target_Curve->curve.shifted_Argument.back());
+        custom_Plot->yAxis->setRange(min,max);
+        custom_Plot->replot();
+    }
 }
 
 void Target_Curve_Plot::refresh_Labels_1D()

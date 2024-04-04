@@ -143,9 +143,8 @@ void Target_Curve::parse_1D_Data()
     auto clear_All = [&]{
         curve.argument.clear();
         curve.values.clear();
-        curve.error_Bars.clear();
-        curve.lower_Bar.clear();
-        curve.upper_Bar.clear();
+        curve.first_Bar.clear();
+        curve.second_Bar.clear();
         header.clear();
     };
     clear_All();
@@ -189,30 +188,26 @@ void Target_Curve::parse_1D_Data()
 				curve.argument.push_back(temp_Argument);
 				curve.values.push_back(temp_Value);
 
-                if(load_Error_Bars && !use_Two_Boundaries)
+                if(load_Error_Bars)
                 {
                     if(potentional_Numbers.size()<=2)
                         throw std::runtime_error("Line " + std::to_string(line_Index) + " does not have 3 columns");
 
-                    double temp_Errorbar = QString(potentional_Numbers[2]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+                    double temp_First_Bar = QString(potentional_Numbers[2]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
                     if(!ok_To_Double)
                         throw std::runtime_error("Line " + std::to_string(line_Index) + ": column 3 is not a number");
-                    curve.error_Bars.push_back(temp_Errorbar);
-                }
-                if(load_Error_Bars && use_Two_Boundaries)
-                {
-                    if(potentional_Numbers.size()<=3)
-                        throw std::runtime_error("Line " + std::to_string(line_Index) + " does not have 4 columns");
+                    curve.first_Bar.push_back(temp_First_Bar);
 
-                    double temp_Lower = QString(potentional_Numbers[2]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
-                    if(!ok_To_Double)
-                        throw std::runtime_error("Line " + std::to_string(line_Index) + ": column 3 is not a number");
-                    curve.lower_Bar.push_back(temp_Lower);
+                    if(use_Two_Boundaries)
+                    {
+                        if(potentional_Numbers.size()<=3)
+                            throw std::runtime_error("Line " + std::to_string(line_Index) + " does not have 4 columns");
 
-                    double temp_Upper = QString(potentional_Numbers[3]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
-                    if(!ok_To_Double)
-                        throw std::runtime_error("Line " + std::to_string(line_Index) + ": column 4 is not a number");
-                    curve.upper_Bar.push_back(temp_Upper);
+                        double temp_Second_Bar = QString(potentional_Numbers[3]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+                        if(!ok_To_Double)
+                            throw std::runtime_error("Line " + std::to_string(line_Index) + ": column 4 is not a number");
+                        curve.second_Bar.push_back(temp_Second_Bar);
+                    }
                 }
 
 				loaded_And_Ready = true;
@@ -233,12 +228,12 @@ void Target_Curve::parse_1D_Data()
 		}
 	}    
 
-    if(curve.argument.size() != curve.argument.size() ||
-            load_Error_Bars && !use_Two_Boundaries && (curve.error_Bars.size() != curve.argument.size()) ||
-            load_Error_Bars && use_Two_Boundaries && (curve.lower_Bar.size() != curve.argument.size()) ||
-            load_Error_Bars && use_Two_Boundaries && (curve.upper_Bar.size() != curve.argument.size()))
+    if((curve.argument.size() != curve.argument.size()) ||
+            (load_Error_Bars && (curve.first_Bar.size() != curve.argument.size())) ||
+            ((load_Error_Bars && use_Two_Boundaries) && (curve.second_Bar.size() != curve.argument.size())))
     {
-        qInfo() << "Target_Curve::import_Data  :  reading error" << endl;
+        clear_All();
+        QMessageBox::information(nullptr, "Import 1D data", "Data was not loaded properly");
     }
 }
 
@@ -1070,6 +1065,7 @@ Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve
 
     load_Error_Bars = referent_Target_Curve.load_Error_Bars;
     use_Two_Boundaries = referent_Target_Curve.use_Two_Boundaries;
+    show_Confidence_Region = referent_Target_Curve.show_Confidence_Region;
 
 	loaded_And_Ready = referent_Target_Curve.loaded_And_Ready;
 
@@ -1111,7 +1107,7 @@ QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 					<< curve.val_Shift << curve.val_Factor
 					<< curve.divide_On_Beam_Intensity << curve.beam_Intensity_Initial << curve.use_Final_Intensity << curve.beam_Intensity_Final << curve.beam_Time
                     << curve.value_Type << curve.argument << curve.values
-                    << curve.error_Bars << curve.lower_Bar << curve.upper_Bar
+                    << curve.first_Bar << curve.second_Bar
                     << curve.value_2D;
 }
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
@@ -1130,7 +1126,7 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
         stream	>> curve.value_Type >> curve.argument >> curve.values;
 
                 if(Global_Variables::check_Loaded_Version(2,2,0))
-                {stream >> curve.error_Bars >> curve.lower_Bar >> curve.upper_Bar;}
+                {stream >> curve.first_Bar >> curve.second_Bar;}
 
         stream	>> curve.value_2D;
 	} else // before 1.11.0
@@ -1257,7 +1253,7 @@ QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve 
 {
 	return stream	<< target_Curve->curve << target_Curve->fit_Params << target_Curve->measurement
 					<< target_Curve->filename << target_Curve->filepath
-                    << target_Curve->load_Error_Bars << target_Curve->use_Two_Boundaries
+                    << target_Curve->load_Error_Bars << target_Curve->use_Two_Boundaries << target_Curve->show_Confidence_Region
 					<< target_Curve->calc_Functions
 					<< target_Curve->plot_Options_Experimental
 					<< target_Curve->plot_Options_Calculated
@@ -1273,7 +1269,7 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
                 >> target_Curve->filename >> target_Curve->filepath;
 
         if(Global_Variables::check_Loaded_Version(2,2,0))
-        {stream >> target_Curve->load_Error_Bars >> target_Curve->use_Two_Boundaries;}
+        {stream >> target_Curve->load_Error_Bars >> target_Curve->use_Two_Boundaries >> target_Curve->show_Confidence_Region;}
 
         stream  >> target_Curve->calc_Functions
 				>> target_Curve->plot_Options_Experimental
