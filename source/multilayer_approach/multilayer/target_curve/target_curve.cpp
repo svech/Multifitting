@@ -140,13 +140,15 @@ void Target_Curve::parse_Data_From_List()
 
 void Target_Curve::parse_1D_Data()
 {
-	curve.argument.clear();
-	curve.values.clear();
-    curve.error_Bars.clear();
-    curve.lower_Bar.clear();
-    curve.upper_Bar.clear();
-	header.clear();
-
+    auto clear_All = [&]{
+        curve.argument.clear();
+        curve.values.clear();
+        curve.error_Bars.clear();
+        curve.lower_Bar.clear();
+        curve.upper_Bar.clear();
+        header.clear();
+    };
+    clear_All();
 
 	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
 	{
@@ -187,22 +189,57 @@ void Target_Curve::parse_1D_Data()
 				curve.argument.push_back(temp_Argument);
 				curve.values.push_back(temp_Value);
 
+                if(load_Error_Bars && !use_Two_Boundaries)
+                {
+                    if(potentional_Numbers.size()<=2)
+                        throw std::runtime_error("Line " + std::to_string(line_Index) + " does not have 3 columns");
+
+                    double temp_Errorbar = QString(potentional_Numbers[2]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+                    if(!ok_To_Double)
+                        throw std::runtime_error("Line " + std::to_string(line_Index) + ": column 3 is not a number");
+                    curve.error_Bars.push_back(temp_Errorbar);
+                }
+                if(load_Error_Bars && use_Two_Boundaries)
+                {
+                    if(potentional_Numbers.size()<=3)
+                        throw std::runtime_error("Line " + std::to_string(line_Index) + " does not have 4 columns");
+
+                    double temp_Lower = QString(potentional_Numbers[2]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+                    if(!ok_To_Double)
+                        throw std::runtime_error("Line " + std::to_string(line_Index) + ": column 3 is not a number");
+                    curve.lower_Bar.push_back(temp_Lower);
+
+                    double temp_Upper = QString(potentional_Numbers[3]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+                    if(!ok_To_Double)
+                        throw std::runtime_error("Line " + std::to_string(line_Index) + ": column 4 is not a number");
+                    curve.upper_Bar.push_back(temp_Upper);
+                }
+
 				loaded_And_Ready = true;
 
 				// this line may be skipped
 				skip_line_label: ok_To_Double = false;
 			}
-			catch(QString& exception)
+            catch(std::exception& exception)
 			{
 				loaded_And_Ready = false;
-				QMessageBox::information(nullptr, "Target_Curve::import_Data", exception);
+                clear_All();
+                QMessageBox::information(nullptr, "Import 1D data", QString::fromStdString(exception.what()));
 				return;
 			}
 		} else
 		{
 			header.append(temp_Line);
 		}
-	}
+	}    
+
+    if(curve.argument.size() != curve.argument.size() ||
+            load_Error_Bars && !use_Two_Boundaries && (curve.error_Bars.size() != curve.argument.size()) ||
+            load_Error_Bars && use_Two_Boundaries && (curve.lower_Bar.size() != curve.argument.size()) ||
+            load_Error_Bars && use_Two_Boundaries && (curve.upper_Bar.size() != curve.argument.size()))
+    {
+        qInfo() << "Target_Curve::import_Data  :  reading error" << endl;
+    }
 }
 
 void Target_Curve::parse_2D_Data()
