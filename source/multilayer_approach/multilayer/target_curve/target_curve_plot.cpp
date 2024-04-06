@@ -240,6 +240,13 @@ void Target_Curve_Plot::plot_Data_1D()
         custom_Plot->xAxis->setRange(target_Curve->curve.shifted_Argument.front(), target_Curve->curve.shifted_Argument.back());
         custom_Plot->yAxis->setRange(min,max);
         custom_Plot->replot();
+    } else
+    {
+        // do something here, but check for crashes
+//        custom_Plot->clearPlottables(); // crash on reloading data because frame and graphs are just updated, not recreated
+//        for(int i = 0; i<custom_Plot->graphCount(); i++)
+//            custom_Plot->graph(i)->setVisible(false);
+//        custom_Plot->replot();
     }
 }
 

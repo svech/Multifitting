@@ -232,6 +232,7 @@ void Target_Curve::parse_1D_Data()
             (load_Error_Bars && (curve.first_Bar.size() != curve.argument.size())) ||
             ((load_Error_Bars && use_Two_Boundaries) && (curve.second_Bar.size() != curve.argument.size())))
     {
+        loaded_And_Ready = false;
         clear_All();
         QMessageBox::information(nullptr, "Import 1D data", "Data was not loaded properly");
     }
