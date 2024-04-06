@@ -176,15 +176,15 @@ void Target_Curve_Plot::plot_Data_1D()
             {
                 if(target_Curve->show_Confidence_Region)
                 {
-                    QVector<double> upper_Bar(data_Count);
                     QVector<double> lower_Bar(data_Count);
+                    QVector<double> upper_Bar(data_Count);
                     for (int i=0; i<data_Count; ++i)
                     {
-                        upper_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.first_Bar[i];
-                        lower_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.second_Bar[i];
+                        lower_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.first_Bar[i]*target_Curve->curve.val_Factor.value;
+                        upper_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.second_Bar[i]*target_Curve->curve.val_Factor.value;
                     }
-                    lower_graph->setData(args, upper_Bar);
-                    upper_graph->setData(args, lower_Bar);
+                    lower_graph->setData(args, lower_Bar);
+                    upper_graph->setData(args, upper_Bar);
 
                     lower_graph->setVisible(true);
                     upper_graph->setVisible(true);
@@ -193,7 +193,14 @@ void Target_Curve_Plot::plot_Data_1D()
                 }
                 else // whiskers
                 {
-                    error_Bars->setData(target_Curve->curve.first_Bar, target_Curve->curve.second_Bar);
+                    QVector<double> lower_Bar(data_Count);
+                    QVector<double> upper_Bar(data_Count);
+                    for (int i=0; i<data_Count; ++i)
+                    {
+                        lower_Bar[i] = target_Curve->curve.first_Bar[i]*target_Curve->curve.val_Factor.value;
+                        upper_Bar[i] = target_Curve->curve.second_Bar[i]*target_Curve->curve.val_Factor.value;
+                    }
+                    error_Bars->setData(lower_Bar, upper_Bar);
 
                     error_Bars->setVisible(true);
 
@@ -205,14 +212,14 @@ void Target_Curve_Plot::plot_Data_1D()
             {
                 if(target_Curve->show_Confidence_Region)
                 {
-                    QVector<double> first_Bar(data_Count);
+                    QVector<double> lower_Bar(data_Count);
                     QVector<double> upper_Bar(data_Count);
                     for (int i=0; i<data_Count; ++i)
                     {
-                        first_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.first_Bar[i];
-                        upper_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.first_Bar[i]; // both first
+                        lower_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.first_Bar[i]*target_Curve->curve.val_Factor.value;
+                        upper_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.first_Bar[i]*target_Curve->curve.val_Factor.value; // both first
                     }
-                    lower_graph->setData(args, first_Bar);
+                    lower_graph->setData(args, lower_Bar);
                     upper_graph->setData(args, upper_Bar);
 
                     lower_graph->setVisible(true);
@@ -222,7 +229,12 @@ void Target_Curve_Plot::plot_Data_1D()
                 }
                 else // whiskers
                 {
-                    error_Bars->setData(target_Curve->curve.first_Bar);
+                    QVector<double> first_Bar(data_Count);
+                    for (int i=0; i<data_Count; ++i)
+                    {
+                        first_Bar[i] = target_Curve->curve.first_Bar[i]*target_Curve->curve.val_Factor.value;
+                    }
+                    error_Bars->setData(first_Bar);
 
                     error_Bars->setVisible(true);
 
