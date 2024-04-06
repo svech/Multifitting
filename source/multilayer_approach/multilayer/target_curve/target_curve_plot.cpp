@@ -88,7 +88,8 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale_1D()
     pen_confidence.setColor(QColor(180,180,180));
     lower_graph->setPen(pen_confidence);
     upper_graph->setPen(pen_confidence);
-    lower_graph->setBrush(QBrush(QColor(255,50,30,20)));
+    // lower_graph->setBrush(QBrush(QColor(255,50,30,20)));
+    lower_graph->setBrush(QBrush(QColor(255,255,0,50)));
     lower_graph->setChannelFillGraph(upper_graph);
 
     // add symmetric errorbars
