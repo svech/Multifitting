@@ -37,7 +37,7 @@ public:
 
     QCPGraph* main_graph;
     QCPErrorBars* error_Bars;
-    QCPGraph* ower_graph;
+    QCPGraph* lower_graph;
     QCPGraph* upper_graph;
 
 	QCustomPlot* custom_Plot;
