@@ -451,6 +451,13 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 		curve.shifted_Values.resize(curve_Size);
 		curve.shifted_Values_No_Scaling_And_Offset.resize(curve_Size);
 
+        if(load_Error_Bars)
+        {
+            curve.scaled_First_Bar.resize(curve_Size);
+            if(use_Two_Boundaries)
+                curve.scaled_Second_Bar.resize(curve_Size);
+        }
+
 		/// intensity factor
 		vector<double> intensity_Factor(curve_Size, 1);
 		double delta = (curve.beam_Intensity_Final - curve.beam_Intensity_Initial)/max(curve_Size-1,1);
@@ -500,6 +507,16 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 				curve.shifted_Values_No_Scaling_And_Offset[i] = curve.values[i]/intensity_Factor[i];
 			}
 		}
+
+        if(load_Error_Bars)
+        {
+            for(int i=0; i<curve_Size; ++i)
+            {
+                curve.scaled_First_Bar[i] = curve.first_Bar[i]/intensity_Factor[i] * curve.val_Factor.value;
+                if(use_Two_Boundaries)
+                    curve.scaled_Second_Bar[i] = curve.second_Bar[i]/intensity_Factor[i] * curve.val_Factor.value;
+            }
+        }
 	}
 }
 
