@@ -829,19 +829,22 @@ void Curve_Plot_1D::plot_Data(const vector<double>& argument, const vector<doubl
 
 
     // add error bars:
-    QCPErrorBars* errorBars = new QCPErrorBars(custom_Plot->xAxis, custom_Plot->yAxis);
-    errorBars->removeFromLegend();
-    errorBars->setAntialiased(false);
-    errorBars->setDataPlottable(custom_Plot->graph(0));
-//    errorBars->setPen(QPen(QColor(180,180,180)));
-    errorBars->setPen(QPen(plot_Options.color));
-
-    QVector<double> err(argument.size());
-    for (size_t i=0; i<argument.size(); ++i)
+    if(curve_Class == TARGET)
     {
-        err[i] = data_To_Plot[i].value/10;
+//        QCPErrorBars* errorBars = new QCPErrorBars(custom_Plot->xAxis, custom_Plot->yAxis);
+//        errorBars->removeFromLegend();
+//        errorBars->setAntialiased(false);
+//        errorBars->setDataPlottable(custom_Plot->graph(0));
+//        //    errorBars->setPen(QPen(QColor(180,180,180)));
+//        errorBars->setPen(QPen(plot_Options.color));
+
+//        QVector<double> err(argument.size());
+//        for (size_t i=0; i<argument.size(); ++i)
+//        {
+//            err[i] = data_To_Plot[i].value/10;
+//        }
+//        errorBars->setData(err);
     }
-    errorBars->setData(err);
 
 
 	// on selection

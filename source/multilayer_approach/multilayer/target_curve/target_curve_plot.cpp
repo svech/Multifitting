@@ -152,18 +152,23 @@ void Target_Curve_Plot::apply_Lin_Scale_1D()
 
 void Target_Curve_Plot::plot_Data_1D()
 {
-	if(target_Curve->loaded_And_Ready)
+    for(int i = 0; i<custom_Plot->graphCount(); i++)
+        custom_Plot->graph(i)->setVisible(target_Curve->loaded_And_Ready);
+    error_Bars->setVisible(false);
+    custom_Plot->replot();
+
+    if(target_Curve->loaded_And_Ready)
 	{
 		int data_Count = target_Curve->curve.shifted_Argument.size();
         QVector<QCPGraphData> data_To_Plot(data_Count);
-		double min = DBL_MAX;
-		double max = -DBL_MAX;
-		for (int i=0; i<data_Count; ++i)
-		{
-			data_To_Plot[i].key   = target_Curve->curve.shifted_Argument[i];
-			data_To_Plot[i].value = target_Curve->curve.shifted_Values  [i];
+        double min = DBL_MAX;
+        double max = -DBL_MAX;
+        for (int i=0; i<data_Count; ++i)
+        {
+            data_To_Plot[i].key   = target_Curve->curve.shifted_Argument[i];
+            data_To_Plot[i].value = target_Curve->curve.shifted_Values  [i];
 
-			if(max<data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {max=data_To_Plot[i].value;}
+            if(max<data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {max=data_To_Plot[i].value;}
 			if(min>data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {min=data_To_Plot[i].value;}
         }
         main_graph->data()->set(data_To_Plot);
@@ -173,17 +178,19 @@ void Target_Curve_Plot::plot_Data_1D()
         // add error bars:
         if(target_Curve->load_Error_Bars)
         {
+            QVector<double> lower_Bar(data_Count);
+            QVector<double> upper_Bar(data_Count);
+
             if(target_Curve->use_Two_Boundaries)
             {
+                for (int i=0; i<data_Count; ++i)
+                {
+                    lower_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.scaled_First_Bar[i];
+                    upper_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.scaled_Second_Bar[i];
+                }
+
                 if(target_Curve->show_Confidence_Region)
                 {
-                    QVector<double> lower_Bar(data_Count);
-                    QVector<double> upper_Bar(data_Count);
-                    for (int i=0; i<data_Count; ++i)
-                    {
-                        lower_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.scaled_First_Bar[i];
-                        upper_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.scaled_Second_Bar[i];
-                    }
                     lower_graph->setData(args, lower_Bar);
                     upper_graph->setData(args, upper_Bar);
 
@@ -204,15 +211,14 @@ void Target_Curve_Plot::plot_Data_1D()
             }
             else // symmetric bars
             {
+                for (int i=0; i<data_Count; ++i)
+                {
+                    lower_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.scaled_First_Bar[i];
+                    upper_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.scaled_First_Bar[i]; // both first
+                }
+
                 if(target_Curve->show_Confidence_Region)
                 {
-                    QVector<double> lower_Bar(data_Count);
-                    QVector<double> upper_Bar(data_Count);
-                    for (int i=0; i<data_Count; ++i)
-                    {
-                        lower_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.scaled_First_Bar[i];
-                        upper_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.scaled_First_Bar[i]; // both first
-                    }
                     lower_graph->setData(args, lower_Bar);
                     upper_graph->setData(args, upper_Bar);
 
@@ -231,6 +237,12 @@ void Target_Curve_Plot::plot_Data_1D()
                     upper_graph->setVisible(false);
                 }
             }
+
+            for (int i=0; i<data_Count; ++i)
+            {
+                if(max<upper_Bar[i] && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || upper_Bar[i] > DBL_MIN)) {max=upper_Bar[i];}
+                if(min>lower_Bar[i] && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || lower_Bar[i] > DBL_MIN)) {min=lower_Bar[i];}
+            }
         } else
         {
             lower_graph->setVisible(false);
@@ -240,13 +252,6 @@ void Target_Curve_Plot::plot_Data_1D()
         custom_Plot->xAxis->setRange(target_Curve->curve.shifted_Argument.front(), target_Curve->curve.shifted_Argument.back());
         custom_Plot->yAxis->setRange(min,max);
         custom_Plot->replot();
-    } else
-    {
-        // do something here, but check for crashes
-//        custom_Plot->clearPlottables(); // crash on reloading data because frame and graphs are just updated, not recreated
-//        for(int i = 0; i<custom_Plot->graphCount(); i++)
-//            custom_Plot->graph(i)->setVisible(false);
-//        custom_Plot->replot();
     }
 }
 
