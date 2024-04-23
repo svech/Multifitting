@@ -79,30 +79,8 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale_1D()
     custom_Plot->clearGraphs();
     main_graph = custom_Plot->addGraph();
 
-    // add confidence band graphs:
-    lower_graph = custom_Plot->addGraph();
-    upper_graph = custom_Plot->addGraph();
-    QPen pen_confidence;
-    pen_confidence.setStyle(Qt::DotLine);
-    pen_confidence.setWidth(1);
-    pen_confidence.setColor(QColor(180,180,180));
-    lower_graph->setPen(pen_confidence);
-    upper_graph->setPen(pen_confidence);
-    // lower_graph->setBrush(QBrush(QColor(255,50,30,20)));
-    lower_graph->setBrush(QBrush(QColor(255,255,0,50)));
-    lower_graph->setChannelFillGraph(upper_graph);
-
-    // add symmetric errorbars
-    error_Bars = new QCPErrorBars(custom_Plot->xAxis, custom_Plot->yAxis);
-    error_Bars->setAntialiased(false);
-    error_Bars->setDataPlottable(main_graph);
-    QColor color_bars = target_Curve->plot_Options_Experimental.color;
-    color_bars.setAlpha(150);
-    double thickness_bars = 1;
-    error_Bars->setPen(QPen(color_bars,thickness_bars));
-    error_Bars->setWhiskerWidth(7);
-    error_Bars->setSymbolGap(5);
-    error_Bars->setSelectable(QCP::stNone);
+    // create error bars
+    define_Bars(target_Curve, custom_Plot, main_graph, error_Bars, lower_graph, upper_graph);
 
     main_graph->setPen(QPen(target_Curve->plot_Options_Experimental.color,target_Curve->plot_Options_Experimental.thickness));
 
@@ -173,82 +151,9 @@ void Target_Curve_Plot::plot_Data_1D()
         }
         main_graph->data()->set(data_To_Plot);
 
-        QVector<double> args = QVector<double>::fromStdVector(target_Curve->curve.shifted_Argument);
-
         // add error bars:
-        if(target_Curve->load_Error_Bars)
-        {
-            QVector<double> lower_Bar(data_Count);
-            QVector<double> upper_Bar(data_Count);
+        plot_Bars(target_Curve, error_Bars, lower_graph, upper_graph, min, max, target_Curve->plot_Options_Experimental.y_Scale);
 
-            if(target_Curve->use_Two_Boundaries)
-            {
-                for (int i=0; i<data_Count; ++i)
-                {
-                    lower_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.scaled_First_Bar[i];
-                    upper_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.scaled_Second_Bar[i];
-                }
-
-                if(target_Curve->show_Confidence_Region)
-                {
-                    lower_graph->setData(args, lower_Bar);
-                    upper_graph->setData(args, upper_Bar);
-
-                    lower_graph->setVisible(true);
-                    upper_graph->setVisible(true);
-
-                    error_Bars->setVisible(false);
-                }
-                else // whiskers
-                {
-                    error_Bars->setData(target_Curve->curve.scaled_First_Bar, target_Curve->curve.scaled_Second_Bar);
-
-                    error_Bars->setVisible(true);
-
-                    lower_graph->setVisible(false);
-                    upper_graph->setVisible(false);
-                }
-            }
-            else // symmetric bars
-            {
-                for (int i=0; i<data_Count; ++i)
-                {
-                    lower_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.scaled_First_Bar[i];
-                    upper_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.scaled_First_Bar[i]; // both first
-                }
-
-                if(target_Curve->show_Confidence_Region)
-                {
-                    lower_graph->setData(args, lower_Bar);
-                    upper_graph->setData(args, upper_Bar);
-
-                    lower_graph->setVisible(true);
-                    upper_graph->setVisible(true);
-
-                    error_Bars->setVisible(false);
-                }
-                else // whiskers
-                {
-                    error_Bars->setData(target_Curve->curve.scaled_First_Bar);
-
-                    error_Bars->setVisible(true);
-
-                    lower_graph->setVisible(false);
-                    upper_graph->setVisible(false);
-                }
-            }
-
-            for (int i=0; i<data_Count; ++i)
-            {
-                if(max<upper_Bar[i] && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || upper_Bar[i] > DBL_MIN)) {max=upper_Bar[i];}
-                if(min>lower_Bar[i] && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || lower_Bar[i] > DBL_MIN)) {min=lower_Bar[i];}
-            }
-        } else
-        {
-            lower_graph->setVisible(false);
-            upper_graph->setVisible(false);
-            error_Bars->setVisible(false);
-        }
         custom_Plot->xAxis->setRange(target_Curve->curve.shifted_Argument.front(), target_Curve->curve.shifted_Argument.back());
         custom_Plot->yAxis->setRange(min,max);
         custom_Plot->replot();
@@ -706,5 +611,116 @@ void Target_Curve_Plot::plot_Data()
 	if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		plot_Data_2D();
-	}
+    }
+}
+
+void Target_Curve_Plot::define_Bars(Target_Curve *target_Curve, QCustomPlot* custom_Plot, QCPGraph *main_graph, QCPErrorBars*& error_Bars, QCPGraph*& lower_graph, QCPGraph*& upper_graph)
+{
+    // add confidence band graphs:
+    lower_graph = custom_Plot->addGraph();
+    upper_graph = custom_Plot->addGraph();
+    QPen pen_confidence;
+    pen_confidence.setStyle(Qt::DotLine);
+    pen_confidence.setWidth(1);
+    pen_confidence.setColor(QColor(180,180,180));
+    lower_graph->setPen(pen_confidence);
+    upper_graph->setPen(pen_confidence);
+    // lower_graph->setBrush(QBrush(QColor(255,50,30,20)));
+    lower_graph->setBrush(QBrush(QColor(255,255,0,50)));
+    lower_graph->setChannelFillGraph(upper_graph);
+
+    lower_graph->setSelectable(QCP::stNone);
+    upper_graph->setSelectable(QCP::stNone);
+
+    // add symmetric errorbars
+    error_Bars = new QCPErrorBars(custom_Plot->xAxis, custom_Plot->yAxis);
+    error_Bars->setAntialiased(false);
+    error_Bars->setDataPlottable(main_graph);
+    QColor color_bars = target_Curve->plot_Options_Experimental.color;
+    color_bars.setAlpha(150);
+    double thickness_bars = 1;
+    error_Bars->setPen(QPen(color_bars,thickness_bars));
+    error_Bars->setWhiskerWidth(7);
+    error_Bars->setSymbolGap(5);
+    error_Bars->setSelectable(QCP::stNone);
+}
+
+void Target_Curve_Plot::plot_Bars(Target_Curve *target_Curve, QCPErrorBars *error_Bars, QCPGraph *lower_graph, QCPGraph *upper_graph, double& min, double& max, QString y_Scale)
+{
+    QVector<double> args = QVector<double>::fromStdVector(target_Curve->curve.shifted_Argument);
+    int data_Count = target_Curve->curve.shifted_Argument.size();
+
+    lower_graph->setVisible(false);
+    upper_graph->setVisible(false);
+    error_Bars->setVisible(false);
+
+    // add error bars:
+    if(target_Curve->load_Error_Bars)
+    {
+        QVector<double> lower_Bar(data_Count);
+        QVector<double> upper_Bar(data_Count);
+
+        if(target_Curve->use_Two_Boundaries)
+        {
+            for (int i=0; i<data_Count; ++i)
+            {
+                lower_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.scaled_First_Bar[i];
+                upper_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.scaled_Second_Bar[i];
+            }
+
+            if(target_Curve->show_Confidence_Region)
+            {
+                lower_graph->setData(args, lower_Bar);
+                upper_graph->setData(args, upper_Bar);
+
+                lower_graph->setVisible(true);
+                upper_graph->setVisible(true);
+
+                error_Bars->setVisible(false);
+            }
+            else // whiskers
+            {
+                error_Bars->setData(target_Curve->curve.scaled_First_Bar, target_Curve->curve.scaled_Second_Bar);
+
+                error_Bars->setVisible(true);
+
+                lower_graph->setVisible(false);
+                upper_graph->setVisible(false);
+            }
+        }
+        else // symmetric bars
+        {
+            for (int i=0; i<data_Count; ++i)
+            {
+                lower_Bar[i] = target_Curve->curve.shifted_Values[i] - target_Curve->curve.scaled_First_Bar[i];
+                upper_Bar[i] = target_Curve->curve.shifted_Values[i] + target_Curve->curve.scaled_First_Bar[i]; // both first
+            }
+
+            if(target_Curve->show_Confidence_Region)
+            {
+                lower_graph->setData(args, lower_Bar);
+                upper_graph->setData(args, upper_Bar);
+
+                lower_graph->setVisible(true);
+                upper_graph->setVisible(true);
+
+                error_Bars->setVisible(false);
+            }
+            else // whiskers
+            {
+                error_Bars->setData(target_Curve->curve.scaled_First_Bar);
+
+                error_Bars->setVisible(true);
+
+                lower_graph->setVisible(false);
+                upper_graph->setVisible(false);
+            }
+        }
+
+        for (int i=0; i<data_Count; ++i)
+        {
+            if(max<upper_Bar[i] && (y_Scale == lin_Scale || upper_Bar[i] > DBL_MIN)) {max=upper_Bar[i];}
+            if(min>lower_Bar[i] && (y_Scale == lin_Scale || lower_Bar[i] > DBL_MIN)) {min=lower_Bar[i];}
+        }
+    }
 }

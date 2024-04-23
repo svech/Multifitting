@@ -1164,7 +1164,6 @@ void Specular_Target_Curve_Part::connecting()
         show_Error_Bars_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
         show_Confidence_Region_Radiobutton->setEnabled(target_Curve->load_Error_Bars);
 
-        // use something common to update everything here and in other curve types
         target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
         target_Curve_Plot->plot_Data_1D();
     });
