@@ -233,8 +233,74 @@ void Multilayer_Approach::fast_Hide_Windows()
 	}
 	for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables) {
 		regular_Aperiodic_Table->write_Window_Geometry();
-		regular_Aperiodic_Table->hide();
-	}
+        regular_Aperiodic_Table->hide();
+    }
+}
+
+void Multilayer_Approach::close_Windows()
+{
+    // close table of structures
+    if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key))
+        runned_Tables_Of_Structures.value(table_Of_Structures_Key)->close();
+
+    // close calculation settings
+    if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+        runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
+
+    // close graphs 1D
+    if(runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+        runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->close();
+
+    // close graphs 2D
+    if(runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+        runned_Optical_Graphs_2D.value(optical_Graphs_2D_Key)->close();
+
+    // close profile
+    if(runned_Profile_Plots_Window.contains(profile_Plots_Key))
+        runned_Profile_Plots_Window.value(profile_Plots_Key)->close();
+
+    // close roughness
+    if(runned_Roughness_Plots_Window.contains(roughness_Plots_Key))
+        runned_Roughness_Plots_Window.value(roughness_Plots_Key)->close();
+
+    // close particles
+    if(runned_Particles_Plots_Window.contains(particles_Plots_Key))
+        runned_Particles_Plots_Window.value(particles_Plots_Key)->close();
+
+    // close fitting settings
+    if(runned_Fitting_Settings_Editor.contains(fit_Settings_Key))
+        runned_Fitting_Settings_Editor.value(fit_Settings_Key)->close();
+
+    // close fits selector
+    if(runned_Fits_Selectors.contains(fits_Selector_Key))
+        runned_Fits_Selectors.value(fits_Selector_Key)->close();
+
+    // close independent editors
+    for(int i=0; i<multilayer_Tabs->count(); ++i)
+    {
+        Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+        for(Independent_Curve_Editor* independent_Curve_Editor : multilayer->runned_Independent_Curve_Editors.values())
+        {
+            independent_Curve_Editor->close();
+        }
+    }
+
+    // close target editors
+    for(int i=0; i<multilayer_Tabs->count(); ++i)
+    {
+        Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+        for(Target_Curve_Editor* target_Curve_Editor : multilayer->runned_Target_Curve_Editors.values())
+        {
+            target_Curve_Editor->close();
+        }
+    }
+
+    // close item editors
+    close_Item_Editors();
+
+    // close aperiodic tables
+    for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables_List)
+        regular_Aperiodic_Table->close();
 }
 
 void Multilayer_Approach::tab_Context_Menu(const QPoint& pos)
@@ -848,6 +914,8 @@ void Multilayer_Approach::new_Project()
     {
         file_Was_Opened_or_Saved = false;
         setWindowTitle(multilayer_Approach_Default_Title);
+
+        close_Windows();
 
         while (multilayer_Tabs->count()>0)
             delete multilayer_Tabs->widget(0);

@@ -114,6 +114,7 @@ public:
 	void set_Window_Geometry();	
 	void write_Window_Geometry();
 	void fast_Hide_Windows();
+    void close_Windows();
 
 	void tab_Context_Menu(const QPoint& pos);
 	void duplicate_Structure(const QPoint& pos);
