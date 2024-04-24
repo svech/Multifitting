@@ -1372,9 +1372,8 @@ void Global_Variables::common_Change_Event(QEvent *event, QWidget *w)
     if( event->type() == QEvent::ActivationChange && w->isActiveWindow() )
     {
         if(!w->isMinimized()) {
-#ifdef __linux__
-            stack.move(stack.indexOf(w),stack.size()-1);
-#endif
+            if(stack.indexOf(w) >=0)
+                stack.move(stack.indexOf(w),stack.size()-1);
             global_Multilayer_Approach->raise_All();
         }
     }
