@@ -922,11 +922,16 @@ void Multilayer_Approach::open(QString filename)
     in >> loaded_Version_Minor;
     in >> loaded_Version_Build;
 
-    // read version of old program, where this newere file still can be opened
-    int backward_Version_Major, backward_Version_Minor, backward_Version_Bild;
-    in >> backward_Version_Major;
-    in >> backward_Version_Minor;
-    in >> backward_Version_Bild;
+    // read version of old program, where this newer file still can be opened
+    int backward_Version_Major = loaded_Version_Major;
+    int backward_Version_Minor = loaded_Version_Minor;
+    int backward_Version_Bild = loaded_Version_Build;
+    if(Global_Variables::check_Loaded_Version(2,2,0))
+    {
+        in >> backward_Version_Major;
+        in >> backward_Version_Minor;
+        in >> backward_Version_Bild;
+    }
 
     if( (loaded_Version_Major <VERSION_MAJOR) ||
 	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor <VERSION_MINOR)) ||
