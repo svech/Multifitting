@@ -11,13 +11,20 @@ Fitting_Settings_Editor::Fitting_Settings_Editor(QWidget* parent) :
 	setAttribute(Qt::WA_DeleteOnClose);
 
 	setProperty(height_Property,height());
+    global_Multilayer_Approach->windows_Stack.append(this);
+}
+
+void Fitting_Settings_Editor::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
 }
 
 void Fitting_Settings_Editor::closeEvent(QCloseEvent *event)
 {
 	write_Window_Geometry();
 	global_Multilayer_Approach->runned_Fitting_Settings_Editor.remove(fit_Settings_Key);
-	event->accept();
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
+    event->accept();
 }
 
 void Fitting_Settings_Editor::create_Main_Layout()

@@ -594,7 +594,7 @@ void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* t
 		} else
 		{
 			type_Curve_Editor = new Type_Curve_Editor(type_Curve, this, this);
-				type_Curve_Editor->setWindowFlags(Qt::Window);
+                Global_Variables::make_non_minimizable_window(type_Curve_Editor);
 				type_Curve_Editor->show();
 
 			// add to map

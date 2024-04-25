@@ -519,6 +519,7 @@ extern int reflectivity_calc_threads;
 extern int optical_constants_read_threads;
 
 extern bool recalculate_spinbox_global;
+extern bool recalculate_open_project;
 extern bool ignore_1D_particles_scattering;
 
 extern bool recalculate_spinbox_structure_table;

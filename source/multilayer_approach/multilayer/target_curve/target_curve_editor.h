@@ -28,7 +28,8 @@ public:
 	Target_Curve* target_Curve;
 	Multilayer* multilayer_Parent;
 
-	void closeEvent(QCloseEvent *event);
+    void changeEvent(QEvent *event);
+    void closeEvent(QCloseEvent *event);
 	void dragEnterEvent(QDragEnterEvent* event);
 	void dropEvent(QDropEvent* event);
 	void create_Main_Layout();

@@ -1,4 +1,5 @@
 #include "curve_plot_1d.h"
+#include "multilayer_approach/multilayer/target_curve/target_curve_plot.h"
 
 Curve_Plot_1D::Curve_Plot_1D(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Curve* independent_Curve, QString curve_Class, QWidget* parent) :
 	multilayer(multilayer),
@@ -231,21 +232,32 @@ void Curve_Plot_1D::create_Plot_Frame_And_Scale()
 	if(plot_Options_Second.y_Scale == lin_Scale) apply_Lin_Scale("y");
 	if(plot_Options_Second.y_Scale == log_Scale) apply_Log_Scale("y");
 
+    // confidence range curves
+    int cf_number = (curve_Class == TARGET) ? 2 : 0;
+
 	// create 2 graphs + additional
-	if(custom_Plot->graphCount()!=2+additional_Curves.size())
+    if(custom_Plot->graphCount()!=2+cf_number+additional_Curves.size())
 	{
 		custom_Plot->clearGraphs();
-		custom_Plot->addGraph();
+        main_first_graph = custom_Plot->addGraph();
 		custom_Plot->addGraph();
 
 		graph_Options_Map.clear();
 		graph_Options_Map.insert(custom_Plot->graph(0), &plot_Options_First);
 		graph_Options_Map.insert(custom_Plot->graph(1), &plot_Options_Second);
 
+        if(curve_Class == TARGET)
+        {
+            Target_Curve_Plot::define_Bars(target_Curve, custom_Plot, main_first_graph, error_Bars, lower_graph, upper_graph);
+
+            graph_Options_Map.insert(lower_graph, &plot_Options_First);
+            graph_Options_Map.insert(upper_graph, &plot_Options_First);
+        }
+
 		// additional curves
 		for(size_t additional_Index=0; additional_Index<additional_Curves.size(); additional_Index++)
 		{
-			size_t absolute_Graph_Index = 2+additional_Index;
+            size_t absolute_Graph_Index = 2+cf_number+additional_Index;
 			custom_Plot->addGraph();
 
 			// styling
@@ -652,7 +664,8 @@ void Curve_Plot_1D::plot_All_Data()
 			}
 			plot_Data(argument, values, plot_Options_First, 0);
 			get_Min_Max_For_Graph(plot_Options_Second.y_Scale, values, min_Value_Left, max_Value_Left);
-		}
+            Target_Curve_Plot::plot_Bars(target_Curve, error_Bars, lower_graph, upper_graph, min_Value_Left, max_Value_Left, plot_Options_Second.y_Scale);
+        }
 		/// calculated data
 		{
 			if(	target_Curve->curve.value_Type == value_Types[Reflectance])		{ values = calculated_Values.R_Instrumental; }
@@ -830,7 +843,7 @@ void Curve_Plot_1D::plot_Data(const vector<double>& argument, const vector<doubl
 	// on selection
 	custom_Plot->graph(graph_Index)->selectionDecorator()->setPen(QPen(
 					custom_Plot->graph(graph_Index)->pen().color(),
-				max(custom_Plot->graph(graph_Index)->pen().widthF()*2,3.)));
+                                                                      max(custom_Plot->graph(graph_Index)->pen().widthF()*2,3.)));
 }
 
 void Curve_Plot_1D::refresh_Labels()
@@ -897,6 +910,8 @@ void Curve_Plot_1D::choose_Graph_Color()
 void Curve_Plot_1D::set_Graph_Color(QCPGraph* graph, QColor color)
 {
 	graph->setPen(QPen(color, graph->pen().widthF()));
+    if(graph == main_first_graph && error_Bars)
+        error_Bars->setPen(QPen(color, graph->pen().widthF()));
 	graph->selectionDecorator()->setPen(QPen(color,graph->selectionDecorator()->pen().widthF()));
 
 	// renew data in plot_Options

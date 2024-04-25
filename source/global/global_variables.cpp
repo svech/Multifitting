@@ -3,6 +3,7 @@
 #include "global_variables.h"
 #include "multilayer_approach/multilayer_approach.h"
 #include "standard/mydoublespinbox.h"
+#include <QEvent>
 
 // version from save file
 int loaded_Version_Major = VERSION_MAJOR;
@@ -1336,7 +1337,46 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	if(whats_This == whats_This_Period)									{*line_edit_precision = line_edit_thickness_precision;		*thumbnail_precision = thumbnail_thickness_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.period; }
 	if(whats_This == whats_This_Gamma)									{*line_edit_precision = line_edit_gamma_precision;			*thumbnail_precision = thumbnail_gamma_precision;		*units = "";					*coeff = 1;	return &struct_Data.gamma; }
 
-	return nullptr;
+    return nullptr;
+}
+
+void Global_Variables::make_non_minimizable_window(QWidget* w)
+{
+    w->setWindowFlags(Qt::Window);
+    Qt::WindowFlags flags = w->windowFlags();
+    flags &= ~Qt::WindowMinimizeButtonHint;
+    w->setWindowFlags(flags);
+}
+
+void Global_Variables::common_Change_Event(QEvent *event, QWidget *w)
+{
+    if(w->property(external_Activation_Property).toBool()) {
+        event->ignore();
+        return;
+    }
+    auto& stack = global_Multilayer_Approach->windows_Stack;
+
+    if( event->type() == QEvent::WindowStateChange )
+    {
+        if(w->isMinimized() && !global_Multilayer_Approach->isMinimized()) {
+            w->setProperty(external_Activation_Property, true);
+            //  w->activateWindow(); buggy alternative
+            global_Multilayer_Approach->minimize_All();
+            w->setProperty(external_Activation_Property, false);
+        }
+        if(!w->isMinimized() && global_Multilayer_Approach->isMinimized())
+        {
+            global_Multilayer_Approach->activateWindow();
+        }
+    }
+    if( event->type() == QEvent::ActivationChange && w->isActiveWindow() )
+    {
+        if(!w->isMinimized()) {
+            if(stack.indexOf(w) >=0)
+                stack.move(stack.indexOf(w),stack.size()-1);
+            global_Multilayer_Approach->raise_All();
+        }
+    }
 }
 
 QString Global_Variables::material_From_Composition(const QList<Stoichiometry>& composition)
@@ -3346,16 +3386,17 @@ void Global_Variables::color_Scheme_Change(QCPColorMap* color_Map, QCustomPlot* 
 			});
 			col++;
 		}
-		// Thermal
+        // Inferno
 		{
-			preset = QCPColorGradient::gpThermal;
-			QCustomPlot* plot = new QCustomPlot;
+//            preset = QCPColorGradient::gpThermal;
+            preset = QCPColorGradient::gpInferno;
+            QCustomPlot* plot = new QCustomPlot;
 			color_Scheme_Example(plot, preset);
 			choice_Data_Type_Group_Box_Layout->addWidget(plot,0,col);
 
 			// ------------------------------------------------
 
-			QRadioButton* radio_Button = new QRadioButton("Thermal");
+            QRadioButton* radio_Button = new QRadioButton("Inferno");
 				radio_Button->setChecked(*color_Scheme == preset);
 			button_Group->addButton(radio_Button);
 			choice_Data_Type_Group_Box_Layout->addWidget(radio_Button,1,col,Qt::AlignHCenter);

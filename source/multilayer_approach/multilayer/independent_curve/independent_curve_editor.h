@@ -23,7 +23,8 @@ class Independent_Curve_Editor : public QWidget
 public:
 	explicit Independent_Curve_Editor(Independent_Curve* independent_Curve, Multilayer* multilayer_Parent, QWidget *parent = 0);
 
-	void closeEvent(QCloseEvent *event);
+    void changeEvent(QEvent *event);
+    void closeEvent(QCloseEvent *event);
 	void create_Main_Layout();
 	void create_Main_Part();
 	void write_Window_Geometry();

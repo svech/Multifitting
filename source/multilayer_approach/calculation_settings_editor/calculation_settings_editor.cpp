@@ -10,13 +10,15 @@ Calculation_Settings_Editor::Calculation_Settings_Editor(QWidget* parent) :
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+    global_Multilayer_Approach->windows_Stack.append(this);
 }
 
 void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 {
 	write_Window_Geometry();
 	global_Multilayer_Approach->runned_Calculation_Settings_Editor.remove(calc_Settings_Key);
-	global_Multilayer_Approach->unlock_Mainwindow_Interface();
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
+    global_Multilayer_Approach->unlock_Mainwindow_Interface();
 	event->accept();
 }
 
@@ -503,7 +505,8 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 	int target_Index = 0;
 	for(Target_Curve* target_Curve: targets)
 	{
-		QGroupBox* box = new QGroupBox(target_Curve->label_Text);
+        QString text = target_Curve->name.isEmpty() ? target_Curve->label_Text : target_Curve->name;
+        QGroupBox* box = new QGroupBox(text);
 			box->setCheckable(true);
 			box->setObjectName("box");
 			box->setStyleSheet("QGroupBox#box { border-radius: 2px; border: 1px solid gray; margin-top: 2ex;}"
@@ -585,6 +588,13 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 
 		// content
 		{			
+            if(!target_Curve->name.isEmpty()) {
+                QHBoxLayout* row_0_Layout = new QHBoxLayout;
+                box_Layout->addLayout(row_0_Layout);
+                QLabel* description_Label = new QLabel(target_Curve->label_Text);
+                row_0_Layout->addWidget(description_Label);
+            }
+
 			QHBoxLayout* row_1_Layout = new QHBoxLayout;
 			box_Layout->addLayout(row_1_Layout);
 
@@ -1615,5 +1625,10 @@ void Calculation_Settings_Editor::settings()
 
 		global_Multilayer_Approach->reopen_Calculation_Settings(true);
 		settings_Window->close();
-	});
+    });
+}
+
+void Calculation_Settings_Editor::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
 }

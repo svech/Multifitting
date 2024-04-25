@@ -13,6 +13,8 @@ Table_Of_Structures::Table_Of_Structures(bool temporary, QWidget *parent) :
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+
+    global_Multilayer_Approach->windows_Stack.append(this);
 }
 
 bool Table_Of_Structures::eventFilter(QObject *obj, QEvent *event)
@@ -22,13 +24,19 @@ bool Table_Of_Structures::eventFilter(QObject *obj, QEvent *event)
 	{
 		return !mouse_wheel_spinbox_structure_table;
 	}
-	return false;
+    return false;
+}
+
+void Table_Of_Structures::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
 }
 
 void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
 	if(!temporary) write_Window_Geometry();
 	runned_Tables_Of_Structures.remove(table_Of_Structures_Key);
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
 //	bool state = recalculate_spinbox_structure_table;
 //	recalculate_spinbox_structure_table = false;
 	for(QLineEdit* material_Line_Edit : material_Line_Edits)
@@ -2327,7 +2335,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(!empty_Model)
 			{
 				if(last_Layer_Data.particles_Model.particle_Interference_Function == radial_Paracrystal) {
-					model_Text = "radial paracrystal";
+                    model_Text = "2D radial paracrystal";
 				}
 				if(last_Layer_Data.particles_Model.particle_Interference_Function == disorder) {
 					model_Text = "disorder";
@@ -3479,7 +3487,7 @@ void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* struc
 			disorder_Radiobutton->setChecked(layer_Data.particles_Model.particle_Interference_Function == disorder);
 		choice_Group_Box_Layout->addWidget(disorder_Radiobutton);
 
-		QRadioButton* radial_Paracrystal_Radiobutton = new QRadioButton("Radial paracrystal");
+        QRadioButton* radial_Paracrystal_Radiobutton = new QRadioButton("2D radial paracrystal");
 			radial_Paracrystal_Radiobutton->setChecked(layer_Data.particles_Model.particle_Interference_Function == radial_Paracrystal);
 		choice_Group_Box_Layout->addWidget(radial_Paracrystal_Radiobutton);
 
@@ -5150,7 +5158,7 @@ void Table_Of_Structures::change_Model(My_Table_Widget *table, int tab_Index, in
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 		Table_Roughness_Model_Editor* table_Roughness_Model_Editor = new Table_Roughness_Model_Editor(multilayer);
-			table_Roughness_Model_Editor->show();
+            table_Roughness_Model_Editor->show();
 	});
 }
 

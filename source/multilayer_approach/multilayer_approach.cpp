@@ -31,6 +31,11 @@ Multilayer_Approach::Multilayer_Approach(Launcher* launcher, QWidget *parent) :
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
+
+    setWindowFlags(Qt::Window);
+    show();
+
+    windows_Stack.append(this);
 }
 
 Multilayer_Approach::~Multilayer_Approach()
@@ -45,13 +50,61 @@ void Multilayer_Approach::open_Launcher()
 void Multilayer_Approach::closeEvent(QCloseEvent* event)
 {
 	fast_Hide_Windows();
-	launcher->runned_Multilayer_Approaches.remove(multilayer_Approach_Key);	
+    launcher->runned_Multilayer_Approaches.remove(multilayer_Approach_Key);
+    windows_Stack.removeOne(this);
 	write_Window_Geometry();
 	Settings::save_All_Settings();
 
 	qApp->quit();
 	event->accept();
 	emit closed();
+}
+
+void Multilayer_Approach::minimize_All()
+{
+    for(QWidget* window : windows_Stack)
+        window->showMinimized();
+}
+
+void Multilayer_Approach::restore_All()
+{
+    for(QWidget* w : windows_Stack) {
+        w->setProperty(external_Activation_Property, true);
+        if(w->isMinimized())
+            w->activateWindow();
+        else
+            w->raise();
+        w->setProperty(external_Activation_Property, false);
+    }
+}
+
+void Multilayer_Approach::raise_All()
+{
+    for(QWidget* w : windows_Stack) {
+        w->setProperty(external_Activation_Property, true);
+        w->raise();
+        w->setProperty(external_Activation_Property, false);
+    }
+}
+
+void Multilayer_Approach::changeEvent(QEvent *event)
+{
+    if(property(external_Activation_Property).toBool()) {
+        event->ignore();
+        return;
+    }
+    if( event->type() == QEvent::WindowStateChange )
+    {
+        if(isMinimized())
+            minimize_All();
+    }
+    if( event->type() == QEvent::ActivationChange && isActiveWindow() )
+    {
+        windows_Stack.removeOne(this);
+        restore_All();
+        windows_Stack.append(this);
+        raise();
+    }
 }
 
 void Multilayer_Approach::create_Main_Layout()
@@ -180,8 +233,74 @@ void Multilayer_Approach::fast_Hide_Windows()
 	}
 	for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables) {
 		regular_Aperiodic_Table->write_Window_Geometry();
-		regular_Aperiodic_Table->hide();
-	}
+        regular_Aperiodic_Table->hide();
+    }
+}
+
+void Multilayer_Approach::close_Windows()
+{
+    // close table of structures
+    if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key))
+        runned_Tables_Of_Structures.value(table_Of_Structures_Key)->close();
+
+    // close calculation settings
+    if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+        runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
+
+    // close graphs 1D
+    if(runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+        runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->close();
+
+    // close graphs 2D
+    if(runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+        runned_Optical_Graphs_2D.value(optical_Graphs_2D_Key)->close();
+
+    // close profile
+    if(runned_Profile_Plots_Window.contains(profile_Plots_Key))
+        runned_Profile_Plots_Window.value(profile_Plots_Key)->close();
+
+    // close roughness
+    if(runned_Roughness_Plots_Window.contains(roughness_Plots_Key))
+        runned_Roughness_Plots_Window.value(roughness_Plots_Key)->close();
+
+    // close particles
+    if(runned_Particles_Plots_Window.contains(particles_Plots_Key))
+        runned_Particles_Plots_Window.value(particles_Plots_Key)->close();
+
+    // close fitting settings
+    if(runned_Fitting_Settings_Editor.contains(fit_Settings_Key))
+        runned_Fitting_Settings_Editor.value(fit_Settings_Key)->close();
+
+    // close fits selector
+    if(runned_Fits_Selectors.contains(fits_Selector_Key))
+        runned_Fits_Selectors.value(fits_Selector_Key)->close();
+
+    // close independent editors
+    for(int i=0; i<multilayer_Tabs->count(); ++i)
+    {
+        Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+        for(Independent_Curve_Editor* independent_Curve_Editor : multilayer->runned_Independent_Curve_Editors.values())
+        {
+            independent_Curve_Editor->close();
+        }
+    }
+
+    // close target editors
+    for(int i=0; i<multilayer_Tabs->count(); ++i)
+    {
+        Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+        for(Target_Curve_Editor* target_Curve_Editor : multilayer->runned_Target_Curve_Editors.values())
+        {
+            target_Curve_Editor->close();
+        }
+    }
+
+    // close item editors
+    close_Item_Editors();
+
+    // close aperiodic tables
+    for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables_List)
+        regular_Aperiodic_Table->close();
 }
 
 void Multilayer_Approach::tab_Context_Menu(const QPoint& pos)
@@ -324,8 +443,8 @@ void Multilayer_Approach::open_Table_Of_Structures()
 	{
 		runned_Tables_Of_Structures.insert(table_Of_Structures_Key, table_Of_Structures);
 		table_Of_Structures = new Table_Of_Structures;
-			table_Of_Structures->setWindowFlags(Qt::Window);
-			table_Of_Structures->show();
+        Global_Variables::make_non_minimizable_window(table_Of_Structures);
+        table_Of_Structures->show();
 
 		runned_Tables_Of_Structures.clear();
 		runned_Tables_Of_Structures.insert(table_Of_Structures_Key, table_Of_Structures);
@@ -349,7 +468,7 @@ void Multilayer_Approach::open_Profile_Plots(bool profile_Export)
 	{
 		runned_Profile_Plots_Window.insert(profile_Plots_Key, profile_Plots_Window);
         profile_Plots_Window = new Profile_Plots_Window(profile_Export);
-        profile_Plots_Window->setWindowFlags(Qt::Window);
+        Global_Variables::make_non_minimizable_window(profile_Plots_Window);
         if(!profile_Export)
             profile_Plots_Window->show();
 
@@ -367,7 +486,7 @@ void Multilayer_Approach::open_Optical_Graphs_1D(QString keep_Splitter)
 	{
 		runned_Optical_Graphs_1D.insert(optical_Graphs_1D_Key, optical_Graphs_1D);
 		optical_Graphs_1D = new Optical_Graphs(dim_1D, keep_Splitter);
-			optical_Graphs_1D->setWindowFlags(Qt::Window);
+            Global_Variables::make_non_minimizable_window(optical_Graphs_1D);
 			optical_Graphs_1D->show();
 
 		runned_Optical_Graphs_1D.clear();
@@ -384,8 +503,8 @@ void Multilayer_Approach::open_Optical_Graphs_2D(QString keep_Splitter)
 	{
 		runned_Optical_Graphs_2D.insert(optical_Graphs_2D_Key, optical_Graphs_2D);
 		optical_Graphs_2D = new Optical_Graphs(dim_2D, keep_Splitter);
-			optical_Graphs_2D->setWindowFlags(Qt::Window);
-			optical_Graphs_2D->show();
+            Global_Variables::make_non_minimizable_window(optical_Graphs_2D);
+            optical_Graphs_2D->show();
 
 		runned_Optical_Graphs_2D.clear();
 		runned_Optical_Graphs_2D.insert(optical_Graphs_2D_Key, optical_Graphs_2D);
@@ -402,7 +521,7 @@ void Multilayer_Approach::open_Roughness_Plots()
 		runned_Roughness_Plots_Window.insert(roughness_Plots_Key, roughness_Plots_Window);
 
 		roughness_Plots_Window = new Roughness_Plots_Window();//(this);
-			roughness_Plots_Window->setWindowFlags(Qt::Window);
+            Global_Variables::make_non_minimizable_window(roughness_Plots_Window);
 			roughness_Plots_Window->show();
 
 		runned_Roughness_Plots_Window.clear();
@@ -420,7 +539,7 @@ void Multilayer_Approach::open_Particles_Plots()
 		runned_Particles_Plots_Window.insert(particles_Plots_Key, particles_Plots_Window);
 
 		particles_Plots_Window = new Particles_Plots_Window();//(this);
-			particles_Plots_Window->setWindowFlags(Qt::Window);
+            Global_Variables::make_non_minimizable_window(particles_Plots_Window);
 			particles_Plots_Window->show();
 
 		runned_Particles_Plots_Window.clear();
@@ -437,7 +556,7 @@ void Multilayer_Approach::open_Calculation_Settings()
 	{
 		runned_Calculation_Settings_Editor.insert(calc_Settings_Key, calculation_Settings_Editor);
 		calculation_Settings_Editor = new Calculation_Settings_Editor;//(this);
-			calculation_Settings_Editor->setWindowFlags(Qt::Window);
+            Global_Variables::make_non_minimizable_window(calculation_Settings_Editor);
 			calculation_Settings_Editor->show();
 
 		runned_Calculation_Settings_Editor.clear();
@@ -453,8 +572,8 @@ void Multilayer_Approach::open_General_Settings()
 	if(!runned_General_Settings_Editor.contains(general_Settings_Key))
 	{
 		runned_General_Settings_Editor.insert(general_Settings_Key, general_Settings_Editor);
-		general_Settings_Editor = new General_Settings_Editor;
-			general_Settings_Editor->setWindowFlags(Qt::Window);
+        general_Settings_Editor = new General_Settings_Editor;
+            Global_Variables::make_non_minimizable_window(general_Settings_Editor);
 			general_Settings_Editor->show();
 
 		runned_General_Settings_Editor.clear();
@@ -471,7 +590,7 @@ void Multilayer_Approach::open_Fits_Selector()
 	{
 		runned_Fits_Selectors.insert(fits_Selector_Key, fits_Selector);
 		fits_Selector = new Fits_Selector;//(this);
-			fits_Selector->setWindowFlags(Qt::Window);
+            Global_Variables::make_non_minimizable_window(fits_Selector);
 			fits_Selector->show();
 
 		runned_Fits_Selectors.clear();
@@ -488,7 +607,7 @@ void Multilayer_Approach::open_Fitting_Settings()
 	{
 		runned_Fitting_Settings_Editor.insert(fit_Settings_Key, fitting_Settings_Editor);
 		fitting_Settings_Editor = new Fitting_Settings_Editor;//(this);
-			fitting_Settings_Editor->setWindowFlags(Qt::Window);
+            Global_Variables::make_non_minimizable_window(fitting_Settings_Editor);
 			fitting_Settings_Editor->show();
 
 		runned_Fitting_Settings_Editor.clear();
@@ -771,7 +890,7 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 //				multilayer->remove_Buttons_To_Lock[i]->setDisabled(false);
 //			}
 //		}
-	}
+    }
 }
 
 void Multilayer_Approach::refresh_All_Multilayers_View()
@@ -783,7 +902,26 @@ void Multilayer_Approach::refresh_All_Multilayers_View()
 		{
 			multilayer->refresh_Structure_And_Independent(sender());
 		}
-	}
+    }
+}
+
+void Multilayer_Approach::new_Project()
+{
+    QMessageBox::StandardButton reply = QMessageBox::question(this,"Open new project",
+                                                              "Current project will be closed.\nContinue?",
+                                                              QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+    if (reply == QMessageBox::Yes)
+    {
+        file_Was_Opened_or_Saved = false;
+        setWindowTitle(multilayer_Approach_Default_Title);
+
+        close_Windows();
+
+        while (multilayer_Tabs->count()>0)
+            delete multilayer_Tabs->widget(0);
+
+        add_Multilayer();
+    }
 }
 
 void Multilayer_Approach::dragEnterEvent(QDragEnterEvent* event)
@@ -848,11 +986,22 @@ void Multilayer_Approach::open(QString filename)
 	}
 
 	// read version
-	in >> loaded_Version_Major;
-	in >> loaded_Version_Minor;
-	in >> loaded_Version_Build;
+    in >> loaded_Version_Major;
+    in >> loaded_Version_Minor;
+    in >> loaded_Version_Build;
 
-	if( (loaded_Version_Major <VERSION_MAJOR) ||
+    // read version of old program, where this newer file still can be opened
+    int backward_Version_Major = loaded_Version_Major;
+    int backward_Version_Minor = loaded_Version_Minor;
+    int backward_Version_Bild = loaded_Version_Build;
+    if(Global_Variables::check_Loaded_Version(2,2,0))
+    {
+        in >> backward_Version_Major;
+        in >> backward_Version_Minor;
+        in >> backward_Version_Bild;
+    }
+
+    if( (loaded_Version_Major <VERSION_MAJOR) ||
 	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor <VERSION_MINOR)) ||
 	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor==VERSION_MINOR) && (loaded_Version_Build<VERSION_BUILD)) )
 	{
@@ -865,19 +1014,19 @@ void Multilayer_Approach::open(QString filename)
 							 + Locale.toString(VERSION_BUILD) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::No) return;
 	}
-	if( (loaded_Version_Major >VERSION_MAJOR) ||
-	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor >VERSION_MINOR)) ||
-	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor==VERSION_MINOR) && (loaded_Version_Build>VERSION_BUILD)) )
-	{
-		QMessageBox::warning(this,"Opening old file","File, created by newer version "
-							 + Locale.toString(loaded_Version_Major) + "."
-							 + Locale.toString(loaded_Version_Minor) + "."
-							 + Locale.toString(loaded_Version_Build) + "\ncan't be opened in "
-							 + Locale.toString(VERSION_MAJOR) + "."
-							 + Locale.toString(VERSION_MINOR) + "."
-							 + Locale.toString(VERSION_BUILD));
-		return;
-	}
+    if( (backward_Version_Major >VERSION_MAJOR) ||
+       ((backward_Version_Major==VERSION_MAJOR) && (backward_Version_Minor >VERSION_MINOR)) ||
+       ((backward_Version_Major==VERSION_MAJOR) && (backward_Version_Minor==VERSION_MINOR) && (backward_Version_Bild>VERSION_BUILD)) )
+    {
+        QMessageBox::warning(this,"Opening too new file","File, created by newer version "
+                             + Locale.toString(loaded_Version_Major) + "."
+                             + Locale.toString(loaded_Version_Minor) + "."
+                             + Locale.toString(loaded_Version_Build) + "\ncannot be opened in "
+                             + Locale.toString(VERSION_MAJOR) + "."
+                             + Locale.toString(VERSION_MINOR) + "."
+                             + Locale.toString(VERSION_BUILD));
+        return;
+    }
 	// only here approve last file
 //	last_file = preliminary_last_file;
 //	last_directory = preliminary_last_directory;
@@ -1265,7 +1414,8 @@ void Multilayer_Approach::open(QString filename)
 
 	file.close();
 
-	global_Multilayer_Approach->calculate(true); // to obtain calculated curves that are not loaded
+    if(recalculate_open_project)
+        global_Multilayer_Approach->calculate(true); // to obtain calculated curves that are not loaded
 
 	// resizing
 	if(max_Num_Targets>=2 && height()<=multilayer_height)
@@ -1398,6 +1548,11 @@ void Multilayer_Approach::save(QString filename)
 	out << VERSION_MAJOR;
 	out << VERSION_MINOR;
 	out << VERSION_BUILD;
+
+    // save version of old program, where this file still can be opened
+    out << BACKWARD_VERSION_MAJOR;
+    out << BACKWARD_VERSION_MINOR;
+    out << BACKWARD_VERSION_BUILD;
 
 	// save previous id
 	++previous_ID;

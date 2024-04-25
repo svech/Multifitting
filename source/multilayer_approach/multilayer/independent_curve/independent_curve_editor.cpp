@@ -27,7 +27,13 @@ Independent_Curve_Editor::Independent_Curve_Editor(Independent_Curve* independen
 		{
 			global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);
 		}
-	}
+    }
+    global_Multilayer_Approach->windows_Stack.append(this);
+}
+
+void Independent_Curve_Editor::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
 }
 
 void Independent_Curve_Editor::write_Window_Geometry()
@@ -45,7 +51,8 @@ void Independent_Curve_Editor::write_Window_Geometry()
 
 void Independent_Curve_Editor::closeEvent(QCloseEvent *event)
 {
-	multilayer_Parent->runned_Independent_Curve_Editors.remove(multilayer_Parent->runned_Independent_Curve_Editors.key(this));
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
+    multilayer_Parent->runned_Independent_Curve_Editors.remove(multilayer_Parent->runned_Independent_Curve_Editors.key(this));
 	write_Window_Geometry();
 	event->accept();
 }

@@ -6,12 +6,19 @@ Particles_Plots_Window::Particles_Plots_Window(QWidget *parent) : QWidget(parent
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+    global_Multilayer_Approach->windows_Stack.append(this);
+}
+
+void Particles_Plots_Window::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
 }
 
 void Particles_Plots_Window::closeEvent(QCloseEvent* event)
 {
 	global_Multilayer_Approach->runned_Particles_Plots_Window.remove(particles_Plots_Key);
-	global_Multilayer_Approach->unlock_Mainwindow_Interface();
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
+    global_Multilayer_Approach->unlock_Mainwindow_Interface();
 	write_Window_Geometry();
 	event->accept();
 }

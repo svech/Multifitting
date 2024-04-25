@@ -53,6 +53,7 @@ signals:
 public:
 	void open_Launcher();
 	void refresh_All_Multilayers_View();
+    void new_Project();
 	void open(QString filename);
 	void open_As();
     void open_Action();
@@ -98,8 +99,13 @@ public:
 	void lock_Mainwindow_Interface();
 	void unlock_Mainwindow_Interface();
 
+    void minimize_All();
+    void restore_All();
+    void raise_All();
+
 	void closeEvent(QCloseEvent *event);
-	void dragEnterEvent(QDragEnterEvent* event);
+    void changeEvent(QEvent *event);
+    void dragEnterEvent(QDragEnterEvent* event);
 	void dropEvent(QDropEvent* event);
 	void create_Main_Layout();
 		void create_Menu();
@@ -108,6 +114,7 @@ public:
 	void set_Window_Geometry();	
 	void write_Window_Geometry();
 	void fast_Hide_Windows();
+    void close_Windows();
 
 	void tab_Context_Menu(const QPoint& pos);
 	void duplicate_Structure(const QPoint& pos);
@@ -141,6 +148,8 @@ public:
 		Fitting_Settings_Editor*	 fitting_Settings_Editor;	  QMap<QString, Fitting_Settings_Editor*>	  runned_Fitting_Settings_Editor;
 		Fits_Selector*				 fits_Selector;				  QMap<QString, Fits_Selector*>				  runned_Fits_Selectors;
 
+        QVector<QWidget*> windows_Stack;
+
 		// 1D
 		QVector<QByteArray>  target_Independent_Splitter_Position_1D_Vec;
 		QVector        <QByteArray>  target_Vertical_Splitter_Position_1D_Vec;
@@ -171,7 +180,7 @@ public:
 
 	bool independent_Target_Added_2D = false;
 	bool independent_Added_2D = false;
-	bool target_Added_2D = false;
+    bool target_Added_2D = false;
 };
 
 #endif // MULTILAYER_APPROACH_H

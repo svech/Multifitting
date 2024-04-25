@@ -45,6 +45,13 @@ struct Curve
 	// 1D
 	QVector<double> argument;
 	QVector<double> values;
+
+    QVector<double> first_Bar;
+    QVector<double> second_Bar;
+
+    QVector<double> scaled_First_Bar;
+    QVector<double> scaled_Second_Bar;
+
 	vector<double>  shifted_Argument;					  // without saving
 	vector<double>  shifted_Values;						  // without saving
 	vector<double>  shifted_Values_No_Scaling_And_Offset; // without saving, for fitting scale purposes
@@ -117,6 +124,10 @@ public:
 
 	QString filename;	// should be empty
 	QString filepath;	// should be empty
+
+    bool load_Error_Bars = false;
+    bool use_Two_Boundaries = false;
+    bool show_Confidence_Region = false;
 
 	bool loaded_And_Ready = false;
 	Calc_Functions calc_Functions;

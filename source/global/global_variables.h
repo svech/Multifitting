@@ -13,6 +13,7 @@
 class Optical_Constants;
 class Data;
 class Multilayer_Approach;
+class QEvent;
 // -----------------------------------------------------------------------------------------
 extern int loaded_Version_Major;
 extern int loaded_Version_Minor;
@@ -316,6 +317,9 @@ public:
 	static bool expression_Is_Valid(QString expression_String, QStringList expression_Variables);
 	static Parameter* get_Parameter_From_Struct_Item_by_Id		  (Data& struct_Data, id_Type id);
 	static Parameter* get_Parameter_From_Struct_Item_by_Whats_This(Data& struct_Data, QString whats_This, int* line_edit_precision = nullptr, int* thumbnail_precision = nullptr, QString* units = nullptr, double* coeff = nullptr);
+
+    static void make_non_minimizable_window(QWidget* w);
+    static void common_Change_Event(QEvent *event, QWidget* w);
 
 	static QString material_From_Composition(const QList<Stoichiometry>& composition);
 

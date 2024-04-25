@@ -89,12 +89,17 @@ void Menu::create_File_Menu()
 	{
 		if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table_Of_Structures)
 		{
-			QAction* act_Open = new QAction("Open last", this);
-				act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
-            connect(act_Open, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::open_Action);
-			file_Menu->addAction(act_Open);
+            QAction* act_New = new QAction("New project", this);
+                act_New->setShortcut(Qt::Key_N | Qt::CTRL);
+            connect(act_New, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::new_Project);
+            file_Menu->addAction(act_New);
 
-			QAction* act_Open_As = new QAction("Open", this);
+            QAction* act_Open = new QAction("Open last", this);
+                act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
+            connect(act_Open, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::open_Action);
+            file_Menu->addAction(act_Open);
+
+            QAction* act_Open_As = new QAction("Open", this);
 				act_Open_As->setShortcut(Qt::Key_O | Qt::CTRL | Qt::SHIFT);
             connect(act_Open_As, &QAction::triggered, global_Multilayer_Approach, &Multilayer_Approach::open_As);
 			file_Menu->addAction(act_Open_As);
@@ -438,7 +443,7 @@ void Menu::open_About()
 	about_Box.setText(  "Multifitting v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+"<br><br>"+
 						"Mikhail Svechnikov<br>"
 						"svechnikovmv@gmail.com<br>"
-                        "2018-2023<br><br>"
+                        "2018-2024<br><br>"
 						"Multifitting is based on Qt5 framework<br>"//(GNU LGPL/GPL)
 						"and also uses the following libraries:<br><br>"
 						"<a href='https://www.gnu.org/software/gsl/'>GSL</a> - GNU Scientific Library<br>"//(GNU GPL)

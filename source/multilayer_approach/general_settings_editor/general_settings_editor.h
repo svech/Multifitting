@@ -10,7 +10,8 @@ class General_Settings_Editor : public QWidget
 public:
 	explicit General_Settings_Editor(QWidget *parent = nullptr);
 
-	void closeEvent(QCloseEvent* event);
+    void changeEvent(QEvent *event);
+    void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
 	void create_Output_Tab();
 	void create_Calculation_Tab();

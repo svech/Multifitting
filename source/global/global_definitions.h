@@ -16,8 +16,12 @@
 #include "qcustomplot.h"
 
 #define VERSION_MAJOR 2
-#define VERSION_MINOR 1
-#define VERSION_BUILD 1
+#define VERSION_MINOR 2
+#define VERSION_BUILD 0
+
+#define BACKWARD_VERSION_MAJOR 2;
+#define BACKWARD_VERSION_MINOR 2;
+#define BACKWARD_VERSION_BUILD 0;
 
 using namespace std;
 using namespace boost::math::quadrature;
@@ -422,6 +426,7 @@ QString mainDirPath();
 #define abort_Property			"abort"
 #define height_Property			"height_Property"
 #define is_Opened_Property		"is_Opened_Property"
+#define external_Activation_Property		"external_Activation_Property"
 
 #define num_Chemic_Element_Property		"num_Chemic_Element"
 #define interlayer_Index_Property		"interlayer_Index"

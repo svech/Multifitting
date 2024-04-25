@@ -13,8 +13,10 @@ public:
 	void plot_Data();
 
 	// 1D
-	void create_Plot_Frame_And_Scale_1D();
-	void apply_Log_Scale_1D();
+    static void define_Bars(Target_Curve* target_Curve, QCustomPlot *custom_Plot, QCPGraph* main_graph, QCPErrorBars *&error_Bars, QCPGraph *&lower_graph, QCPGraph *&upper_graph);
+    static void plot_Bars(Target_Curve* target_Curve, QCPErrorBars* error_Bars, QCPGraph* lower_graph, QCPGraph* upper_graph, double& min, double& max, QString y_Scale);
+    void create_Plot_Frame_And_Scale_1D();
+    void apply_Log_Scale_1D();
 	void apply_Lin_Scale_1D();
 	void plot_Data_1D();
 	void refresh_Labels_1D();
@@ -34,6 +36,11 @@ public:
 	void subinterval_Changed_Replot_2D();
 
 	Target_Curve* target_Curve;
+
+    QCPGraph* main_graph;
+    QCPErrorBars* error_Bars;
+    QCPGraph* lower_graph;
+    QCPGraph* upper_graph;
 
 	QCustomPlot* custom_Plot;
 	QCPColorMap* color_Map;

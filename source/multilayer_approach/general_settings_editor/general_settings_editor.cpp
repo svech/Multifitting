@@ -6,6 +6,12 @@ General_Settings_Editor::General_Settings_Editor(QWidget *parent) : QWidget(pare
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+    global_Multilayer_Approach->windows_Stack.append(this);
+}
+
+void General_Settings_Editor::changeEvent(QEvent *event)
+{
+    Global_Variables::common_Change_Event(event, this);
 }
 
 void General_Settings_Editor::closeEvent(QCloseEvent *event)
@@ -13,7 +19,8 @@ void General_Settings_Editor::closeEvent(QCloseEvent *event)
 	write_Window_Geometry();
 	general_Settings_Tab_Index = main_Tabs->currentIndex();
 	global_Multilayer_Approach->runned_General_Settings_Editor.remove(general_Settings_Key);
-	event->accept();
+    global_Multilayer_Approach->windows_Stack.removeOne(this);
+    event->accept();
 }
 
 void General_Settings_Editor::create_Main_Layout()
@@ -139,7 +146,14 @@ void General_Settings_Editor::create_Calculation_Tab()
 			}
 		});
 
-//		//----------------------------------------------------------------------------
+        //----------------------------------------------------------------------------
+
+        QCheckBox* recalculate_on_opening_Checkbox = new QCheckBox("Recalculate on opening project");
+            recalculate_on_opening_Checkbox->setChecked(recalculate_open_project);
+        groupbox_Layout->addWidget(recalculate_on_opening_Checkbox);
+        connect(recalculate_on_opening_Checkbox, &QCheckBox::toggled,	[=]{recalculate_open_project = recalculate_on_opening_Checkbox->isChecked();});
+
+        //----------------------------------------------------------------------------
 
 //		QCheckBox* ignore_1D_Particles_Checkbox = new QCheckBox("Ignore 1D scattering on particles");
 //			ignore_1D_Particles_Checkbox->setChecked(ignore_1D_particles_scattering);

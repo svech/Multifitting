@@ -140,9 +140,14 @@ void Target_Curve::parse_Data_From_List()
 
 void Target_Curve::parse_1D_Data()
 {
-	curve.argument.clear();
-	curve.values.clear();
-	header.clear();
+    auto clear_All = [&]{
+        curve.argument.clear();
+        curve.values.clear();
+        curve.first_Bar.clear();
+        curve.second_Bar.clear();
+        header.clear();
+    };
+    clear_All();
 
 	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
 	{
@@ -183,22 +188,54 @@ void Target_Curve::parse_1D_Data()
 				curve.argument.push_back(temp_Argument);
 				curve.values.push_back(temp_Value);
 
+                if(load_Error_Bars)
+                {
+                    if(potentional_Numbers.size()<=2)
+                        throw std::runtime_error("Line " + std::to_string(line_Index) + " does not have 3 columns");
+
+                    double temp_First_Bar = QString(potentional_Numbers[2]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+                    if(!ok_To_Double)
+                        throw std::runtime_error("Line " + std::to_string(line_Index) + ": column 3 is not a number");
+                    curve.first_Bar.push_back(temp_First_Bar);
+
+                    if(use_Two_Boundaries)
+                    {
+                        if(potentional_Numbers.size()<=3)
+                            throw std::runtime_error("Line " + std::to_string(line_Index) + " does not have 4 columns");
+
+                        double temp_Second_Bar = QString(potentional_Numbers[3]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+                        if(!ok_To_Double)
+                            throw std::runtime_error("Line " + std::to_string(line_Index) + ": column 4 is not a number");
+                        curve.second_Bar.push_back(temp_Second_Bar);
+                    }
+                }
+
 				loaded_And_Ready = true;
 
 				// this line may be skipped
 				skip_line_label: ok_To_Double = false;
 			}
-			catch(QString& exception)
+            catch(std::exception& exception)
 			{
 				loaded_And_Ready = false;
-				QMessageBox::information(nullptr, "Target_Curve::import_Data", exception);
+                clear_All();
+                QMessageBox::information(nullptr, "Import 1D data", QString::fromStdString(exception.what()));
 				return;
 			}
 		} else
 		{
 			header.append(temp_Line);
 		}
-	}
+	}    
+
+    if((curve.argument.size() != curve.argument.size()) ||
+            (load_Error_Bars && (curve.first_Bar.size() != curve.argument.size())) ||
+            ((load_Error_Bars && use_Two_Boundaries) && (curve.second_Bar.size() != curve.argument.size())))
+    {
+        loaded_And_Ready = false;
+        clear_All();
+        QMessageBox::information(nullptr, "Import 1D data", "Data was not loaded properly");
+    }
 }
 
 void Target_Curve::parse_2D_Data()
@@ -415,6 +452,13 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 		curve.shifted_Values.resize(curve_Size);
 		curve.shifted_Values_No_Scaling_And_Offset.resize(curve_Size);
 
+        if(load_Error_Bars)
+        {
+            curve.scaled_First_Bar.resize(curve_Size);
+            if(use_Two_Boundaries)
+                curve.scaled_Second_Bar.resize(curve_Size);
+        }
+
 		/// intensity factor
 		vector<double> intensity_Factor(curve_Size, 1);
 		double delta = (curve.beam_Intensity_Final - curve.beam_Intensity_Initial)/max(curve_Size-1,1);
@@ -464,6 +508,16 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 				curve.shifted_Values_No_Scaling_And_Offset[i] = curve.values[i]/intensity_Factor[i];
 			}
 		}
+
+        if(load_Error_Bars)
+        {
+            for(int i=0; i<curve_Size; ++i)
+            {
+                curve.scaled_First_Bar[i] = curve.first_Bar[i]/intensity_Factor[i] * curve.val_Factor.value;
+                if(use_Two_Boundaries)
+                    curve.scaled_Second_Bar[i] = curve.second_Bar[i]/intensity_Factor[i] * curve.val_Factor.value;
+            }
+        }
 	}
 }
 
@@ -1026,7 +1080,13 @@ Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve
 	measurement = referent_Target_Curve.measurement;	measurement.reset_All_IDs();
 	filename = referent_Target_Curve.filename;	// should be empty
 	filepath = referent_Target_Curve.filepath;	// should be empty
+
+    load_Error_Bars = referent_Target_Curve.load_Error_Bars;
+    use_Two_Boundaries = referent_Target_Curve.use_Two_Boundaries;
+    show_Confidence_Region = referent_Target_Curve.show_Confidence_Region;
+
 	loaded_And_Ready = referent_Target_Curve.loaded_And_Ready;
+
 	calc_Functions = referent_Target_Curve.calc_Functions;
 	plot_Options_Experimental = referent_Target_Curve.plot_Options_Experimental;
 	plot_Options_Calculated = referent_Target_Curve.plot_Options_Calculated;
@@ -1064,7 +1124,9 @@ QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 					<< curve.horizontal_Arg_Shift << curve.horizontal_Arg_Factor
 					<< curve.val_Shift << curve.val_Factor
 					<< curve.divide_On_Beam_Intensity << curve.beam_Intensity_Initial << curve.use_Final_Intensity << curve.beam_Intensity_Final << curve.beam_Time
-					<< curve.value_Type << curve.argument << curve.values << curve.value_2D;
+                    << curve.value_Type << curve.argument << curve.values
+                    << curve.first_Bar << curve.second_Bar
+                    << curve.value_2D;
 }
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 {
@@ -1079,7 +1141,12 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 				if(Global_Variables::check_Loaded_Version(1,11,14))
 				{ stream >> curve.beam_Time;}
 
-		stream	>> curve.value_Type >> curve.argument >> curve.values >> curve.value_2D;
+        stream	>> curve.value_Type >> curve.argument >> curve.values;
+
+                if(Global_Variables::check_Loaded_Version(2,2,0))
+                {stream >> curve.first_Bar >> curve.second_Bar;}
+
+        stream	>> curve.value_2D;
 	} else // before 1.11.0
 	{
 		if(Global_Variables::check_Loaded_Version(1,10,1))		// since 1.10.1
@@ -1204,6 +1271,7 @@ QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve 
 {
 	return stream	<< target_Curve->curve << target_Curve->fit_Params << target_Curve->measurement
 					<< target_Curve->filename << target_Curve->filepath
+                    << target_Curve->load_Error_Bars << target_Curve->use_Two_Boundaries << target_Curve->show_Confidence_Region
 					<< target_Curve->calc_Functions
 					<< target_Curve->plot_Options_Experimental
 					<< target_Curve->plot_Options_Calculated
@@ -1216,8 +1284,12 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 	if(Global_Variables::check_Loaded_Version(1,11,0))
 	{
 		stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement
-				>> target_Curve->filename >> target_Curve->filepath
-				>> target_Curve->calc_Functions
+                >> target_Curve->filename >> target_Curve->filepath;
+
+        if(Global_Variables::check_Loaded_Version(2,2,0))
+        {stream >> target_Curve->load_Error_Bars >> target_Curve->use_Two_Boundaries >> target_Curve->show_Confidence_Region;}
+
+        stream  >> target_Curve->calc_Functions
 				>> target_Curve->plot_Options_Experimental
 				>> target_Curve->plot_Options_Calculated
 				>> target_Curve->header >> target_Curve->label_Text;

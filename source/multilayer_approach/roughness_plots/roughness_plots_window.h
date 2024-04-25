@@ -13,7 +13,8 @@ class Roughness_Plots_Window : public QWidget
 public:
 	explicit Roughness_Plots_Window(QWidget *parent = nullptr);
 
-	void closeEvent(QCloseEvent* event);
+    void changeEvent(QEvent *event);
+    void closeEvent(QCloseEvent* event);
 
 	void create_Main_Layout();
 	void set_Window_Geometry();

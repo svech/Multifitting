@@ -25,8 +25,8 @@ public:
 
 	void set_Title_Text();
 	void plot_All_Data();
-	void plot_Data(const vector<double>& argument, const vector<double>& values, Plot_Options plot_Options, int graph_Index);
-	void refresh_Labels();
+    void plot_Data(const vector<double>& argument, const vector<double>& values, Plot_Options plot_Options, int graph_Index);
+    void refresh_Labels();
 	QCPGraph* get_Selected_Graph();
 	void choose_Graph_Color();
 	void set_Graph_Color(QCPGraph *graph, QColor color);
@@ -62,6 +62,11 @@ public:
 	QColorDialog* colorDialog;
 	QCPGraph* selected_Graph;
 	QMap<QCPGraph*, Plot_Options*> graph_Options_Map;
+
+    QCPGraph* main_first_graph;
+    QCPErrorBars* error_Bars;
+    QCPGraph* lower_graph;
+    QCPGraph* upper_graph;
 
 	QVBoxLayout* main_Layout;
 	QCustomPlot* custom_Plot;
