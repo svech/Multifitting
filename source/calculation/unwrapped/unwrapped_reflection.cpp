@@ -377,7 +377,7 @@ double function_Scattering_Linear_Growth_n_1_4_2D_s (double phi, void* p)
 							 u->unwrapped_Structure->a3_Threaded[thread_Index][i]*nu_3 +
 							 u->unwrapped_Structure->a4_Threaded[thread_Index][i]*nu_4;
 
-		u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-b_Function);
+        u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-b_Function * u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
 
 		u->PSD_Factor_Boundary[thread_Index][i] = u->cross_Exp_Factor_2D[thread_Index][i+1][i]*u->PSD_Factor_Boundary[thread_Index][i+1]
 											   + Global_Variables::PSD_Linear_Growth_2D(u->cross_Exp_Factor_2D[thread_Index][i+1][i],
@@ -433,7 +433,7 @@ double function_Scattering_Linear_Growth_n_1_4_2D_p (double phi, void* p)
 							 u->unwrapped_Structure->a3_Threaded[thread_Index][i]*nu_3 +
 							 u->unwrapped_Structure->a4_Threaded[thread_Index][i]*nu_4;
 
-		u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-b_Function);
+        u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-b_Function * u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
 
 		u->PSD_Factor_Boundary[thread_Index][i] = u->cross_Exp_Factor_2D[thread_Index][i+1][i]*u->PSD_Factor_Boundary[thread_Index][i+1]
 													   + Global_Variables::PSD_Linear_Growth_2D(u->cross_Exp_Factor_2D[thread_Index][i+1][i],
@@ -490,7 +490,7 @@ double function_Scattering_Linear_Growth_n_1_4_2D_sp(double phi, void* p)
 							 u->unwrapped_Structure->a3_Threaded[thread_Index][i]*nu_3 +
 							 u->unwrapped_Structure->a4_Threaded[thread_Index][i]*nu_4;
 
-		u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-b_Function);
+        u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-b_Function * u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
 
 		u->PSD_Factor_Boundary[thread_Index][i] = u->cross_Exp_Factor_2D[thread_Index][i+1][i]*u->PSD_Factor_Boundary[thread_Index][i+1]
 												   + Global_Variables::PSD_Linear_Growth_2D(u->cross_Exp_Factor_2D[thread_Index][i+1][i],
