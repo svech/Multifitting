@@ -21,13 +21,10 @@ Multifitting is designed for cases where several measurements have to be interpr
 <p align="center">
   <img src="assets/readme/Fig9.png"
        alt="Multifitting comparison of measured and calculated 1D scans"
-       width="90%">
-</p>
-
-<p align="center">
+       width="45%">
   <img src="assets/readme/Fig10.png"
        alt="Multifitting comparison of measured and calculated 2D GISAS data"
-       width="72%">
+       width="36%">
 </p>
 
 ## Typical workflow
