@@ -19,10 +19,15 @@ Multifitting is designed for cases where several measurements have to be interpr
 - **Data handling:** import 1D and 2D experimental data, optionally with error bars; export calculated curves, matrices, roughness spectra and fitting statistics.
 
 <p align="center">
-  <img src="assets/readme/specular-scan.svg" alt="Specular scans" width="23%">
-  <img src="assets/readme/scattering-scans.svg" alt="Off-specular scans" width="23%">
-  <img src="assets/readme/gisas-map.svg" alt="GISAS/GISAXS maps" width="23%">
-  <img src="assets/readme/fitting-workflow.svg" alt="Multiparameter fitting" width="23%">
+  <img src="assets/readme/Fig9.png"
+       alt="Multifitting comparison of measured and calculated 1D scans"
+       width="90%">
+</p>
+
+<p align="center">
+  <img src="assets/readme/Fig10.png"
+       alt="Multifitting comparison of measured and calculated 2D GISAS data"
+       width="72%">
 </p>
 
 ## Typical workflow
